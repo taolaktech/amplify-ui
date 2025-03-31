@@ -22,7 +22,7 @@ export default function DefaultButton({
     <button
       onClick={handleOnClick}
       className={`cursor-pointer w-full ${
-        !secondary ? "gradient" : "bg-[#FBFAFC]"
+        !secondary ? "gradient" : "secondary"
       } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl font-medium flex items-center justify-center gap-2`}

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Amplify: Login",
-  description: "Login to Amplify account",
+  title: "Amplify: Sign up",
+  description: "Sign up for Amplify to access powerful tools and features.",
 };
 
-export default function LoginLayout({
+export default function SignupLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

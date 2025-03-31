@@ -11,8 +11,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const handleLoad = () => {
-      setTimeout(() => setLoading(false), 800);
-      setTimeout(() => setActive(false), 1300);
+      setTimeout(() => setLoading(false), 500);
+      setTimeout(() => setActive(false), 1000);
     };
 
     if (document.readyState === "complete") {

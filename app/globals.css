@@ -18,7 +18,7 @@
   --color-background: var(--light);
   --color-background-2: var(--grey);
   --color-heading: var(--violet-normal);
-  --spacing-navbar-height: 52px;
+  --spacing-navbar-height: 56px;
   --spacing-base-padding: 1rem;
   --container-base-container: 1512px;
   --color-leading: #595959;
@@ -35,12 +35,32 @@ body {
   letter-spacing: -0.28px;
 }
 
-.gradient {
+button.gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
     rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
     rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  transition: all 0.3s ease-in-out;
+}
+
+button.gradient:hover {
+  background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
+}
+button.gradient:active {
+  background: #6800d7;
+  background: linear-gradient(135deg, #6800d7 19.35%, #6800d7 97.65%);
+}
+
+button.secondary {
+  background-color: #fbfafc;
+  transition: all 0.3s ease-in-out;
+}
+button.secondary:hover {
+  background-color: #f3eff6;
+}
+button.secondary:active {
+  background-color: #fbfafc;
 }
 
 @keyframes gradientAnimation {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Input from "@/app/ui/form/Input";
 import CheckIcon from "@/public/check.svg";
 import Link from "next/link";
-import Button from "../ui/buttons/Button";
+import Button from "../ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
 import GoogleIcon from "@/public/google.svg";
 
@@ -20,8 +20,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-[526px] flex justify-center items-center bg-white h-[683px] rounded-2xl">
+    <div className="flex items-center justify-center min-h-[900px] h-screen">
+      <div className="w-full max-w-[526px] flex justify-center items-center bg-white min-h-[683px] rounded-2xl">
         <div className="max-w-[382px] w-full">
           <h1 className="font-bold text-3xl text-heading leading-8 tr">
             Welcome Back
@@ -76,10 +76,6 @@ export default function Login() {
             </div>
             <Button text="Google" icon={<GoogleIcon />} secondary />
 
-            {/* <button className="flex cursor-pointer items-center justify-center gap-2 bg-[#FBFAFC] rounded-xl h-[40px] w-full">
-              <GoogleIcon />
-              <span className="text-sm font-medium">Google</span>
-            </button> */}
             <div className="mt-3">
               <Link
                 href={"/signup"}
