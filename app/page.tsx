@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Logo from "./ui/loaders/SessionLoader";
+import Logo from "./ui/loaders/SplashScreen";
 
 export default function Home() {
   return (

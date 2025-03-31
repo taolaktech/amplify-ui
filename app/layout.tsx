@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import SessionLoader from "./ui/loaders/SessionLoader";
+import AuthBlock from "./lib/components/AuthBlock";
+import Navbar from "./ui/Navbar";
+import SplashScreen from "./ui/loaders/SplashScreen";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,9 +16,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
-        <div>{children}</div>
-        <SessionLoader />
+      <head>
+        <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
+        <link rel="icon" href="/tab-icon.svg" type="image/svg" />
+      </head>
+      <body className={`antialiased min-h-screen`}>
+        <Navbar />
+        <AuthBlock>
+          <div>{children}</div>
+        </AuthBlock>
+        <SplashScreen />
       </body>
     </html>
   );
