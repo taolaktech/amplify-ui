@@ -1,4 +1,3 @@
-import { uiDefaults } from "../lib/uiDefaults";
 import Logo from "./Logo";
 import LogoIcon from "@/public/nav-logo.svg";
 
