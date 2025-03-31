@@ -13,7 +13,7 @@ export default function DefaultButton({
   height?: number;
   action?: () => void;
 }) {
-  const handleOnClick = (e: any) => {
+  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     action();
   };
