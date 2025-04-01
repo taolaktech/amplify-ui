@@ -12,7 +12,6 @@ export default function Create() {
   });
 
   const handleProfileChange = (value: string, name: string) => {
-    console.log(value);
     setProfile((profile) => ({
       ...profile,
       [name]: value,

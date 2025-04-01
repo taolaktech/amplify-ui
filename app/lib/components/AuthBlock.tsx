@@ -12,13 +12,10 @@ export default function AuthBlock({
   const router = useRouter();
 
   const route = path.trim().split("/");
-  console.log(route);
-
   const paths = ["", "login", "signup"];
 
   useEffect(() => {
     if (!isAuth) {
-      console.log("path", path);
       if (path.trim() === "/") router.push("/login");
 
       if (!paths.some((p) => route[1] === p)) router.push("/login");
