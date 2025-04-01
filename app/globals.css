@@ -1,26 +1,88 @@
+@import url("https://fonts.cdnfonts.com/css/satoshi");
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --grey: #f3eff6;
+  --light: #ffffff;
+  --violet-normal: #1d0b30;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.sticky-m {
+  position: -webkit-sticky; /* for Safari */
+  position: sticky;
+  top: 0;
+  align-self: flex-start; /* <-- this is the fix */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-background: var(--light);
+  --color-background-2: var(--grey);
+  --color-heading: var(--violet-normal);
+  --spacing-navbar-height: 56px;
+  --spacing-base-padding: 1rem;
+  --container-base-container: 1512px;
+  --color-leading: #595959;
+  --color-input-border: #c2bfc5;
+  --leading-base-leading: 120%;
+  --color-gray-dark: #737373;
+  --color-purple-dark: #1d0b30;
+  --color-purple-normal: #6800d7;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Satoshi", sans-serif;
+  letter-spacing: -0.28px;
+}
+
+button.gradient {
+  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  transition: all 0.3s ease-in-out;
+}
+
+button.gradient:hover {
+  background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
+}
+button.gradient:active {
+  background: #6800d7;
+  background: linear-gradient(135deg, #6800d7 19.35%, #6800d7 97.65%);
+}
+
+button.secondary {
+  background-color: #fbfafc;
+  transition: all 0.3s ease-in-out;
+}
+button.secondary:hover {
+  background-color: #f3eff6;
+}
+button.secondary:active {
+  background-color: #fbfafc;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background: linear-gradient(45deg, #a755ff, #6800d7);
+  }
+  25% {
+    background: linear-gradient(90deg, #a755ff, #6800d7);
+  }
+  50% {
+    background: linear-gradient(135deg, #a755ff, #6800d7);
+  }
+  75% {
+    background: linear-gradient(180deg, #a755ff, #6800d7);
+  }
+  100% {
+    background: linear-gradient(45deg, #a755ff, #6800d7);
+  }
+}
+
+.gradient-anime {
+  background: linear-gradient(45deg, #a755ff, #6800d7);
+  background-size: 400% 400%;
+  animation: gradientAnimation 6s ease infinite;
 }

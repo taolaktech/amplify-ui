@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import AuthBlock from "./lib/components/AuthBlock";
+import Navbar from "./ui/Navbar";
+import SplashScreen from "./ui/loaders/SplashScreen";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,10 +16,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <head>
+        <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
+        <link rel="icon" href="/tab-icon.svg" type="image/svg" />
+      </head>
+      <body className={`antialiased min-h-screen`}>
+        <Navbar />
+        <AuthBlock>
+          <div>{children}</div>
+        </AuthBlock>
+        <SplashScreen />
       </body>
     </html>
   );
