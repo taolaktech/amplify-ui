@@ -6,6 +6,7 @@ import GoogleIcon from "@/public/google.svg";
 import Input from "../ui/form/Input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signupImgBlur } from "../lib/blurHash";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -20,18 +21,19 @@ export default function Signup() {
   return (
     <div className="flex items-center justify-center min-h-[900px] h-screen">
       <div className="w-full max-w-[1170px] flex bg-white min-h-[667px] rounded-2xl relative">
-        <div className="w-[59.83%] relative">
-          {/* <Image
+        <div className="w-[59.83%] relative ">
+          <Image
             src={"/signup.png"}
             alt="creator"
             layout="fill"
             objectFit="cover"
+            loading="eager"
+            priority
             className="rounded-bl-2xl rounded-tl-2xl"
-          /> */}
-          <img
-            src="/signup.png"
-            className="object-cover h-[100%] rounded-bl-2xl rounded-tl-2xl"
+            blurDataURL={signupImgBlur}
+            placeholder="blur"
           />
+
           <div className="absolute left-0 right-0 w-full bottom-[72px]">
             <div className="max-w-[70%] mx-auto">
               <p className="text-white font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px]">
