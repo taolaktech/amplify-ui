@@ -1,9 +1,11 @@
 "use client";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Create() {
+  const router = useRouter();
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -16,6 +18,10 @@ export default function Create() {
       ...profile,
       [name]: value,
     }));
+  };
+
+  const handleSignup = () => {
+    router.push("/signup/create/verify-account");
   };
 
   return (
@@ -66,7 +72,7 @@ export default function Create() {
               />
             </div>
             <div className="w-[160px] mx-auto mt-16">
-              <Button text="Sign Up" />
+              <Button text="Sign Up" action={handleSignup} />
             </div>
           </form>
         </div>

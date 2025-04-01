@@ -30,7 +30,7 @@ export default function DefaultButton({
     >
       {icon}
       <span
-        className={`text-sm font-medium text-center ${
+        className={`text-sm font-semibold text-center ${
           secondary ? "text-purple-dark" : "text-white"
         }`}
       >
