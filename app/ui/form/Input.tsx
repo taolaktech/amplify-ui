@@ -1,4 +1,4 @@
-import { ChangeEventHandler, HTMLInputTypeAttribute } from "react";
+import { HTMLInputTypeAttribute } from "react";
 
 export default function Input({
   type,

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Input from "@/app/ui/form/Input";
-import CheckIcon from "@/public/check.svg";
 import Link from "next/link";
 import Button from "../ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
@@ -15,6 +14,7 @@ export default function Login() {
   const changeEmail = (value: string) => setEmail(value);
   const changePassword = (value: string) => setPassword(value);
   const toggleRemberMe = (e: any) => {
+  //@typescript-eslint/no-explicit-any
     e.preventDefault();
     setRememberMe((rememberMe) => !rememberMe);
   };
@@ -81,7 +81,7 @@ export default function Login() {
                 href={"/signup"}
                 className="text-sm font-medium flex items-center justify-center gap-1"
               >
-                <span className="text-gray-dark">Don't have an account?</span>
+                <span className="text-gray-dark">Don`&apos;`'t have an account?</span>
                 <span className="text-purple-normal">Sign up</span>
               </Link>
             </div>
