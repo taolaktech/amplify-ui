@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 // import LogoIcon from "@/public/logo.svg";
-import LogoIcon from "@/public/logo-white.svg";
+//import LogoIcon from "@/public/logo-white.svg";
 import Splash from "@/public/splash.svg";
 
 export default function SplashScreen() {
