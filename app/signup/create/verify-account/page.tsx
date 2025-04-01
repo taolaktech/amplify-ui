@@ -1,6 +1,6 @@
 "use client";
 import Button from "@/app/ui/Button";
-import { Ref, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
 
 function enrollCode({
@@ -19,11 +19,6 @@ function enrollCode({
     index: number
   ) => void;
 }) {
-  const handleRefs = (el: HTMLInputElement) => {
-    if (!codeRefs) return;
-    codeRefs.current[index] = el;
-  };
-
   return (
     <input
       className="block w-[89px] h-[89px] rounded-3xl text-center text-primary_700 border-[1.5px] focus:border-purple-normal
@@ -80,7 +75,6 @@ export default function VerifyAccount() {
   function handlePaste(event: any) {
     const pasteData = event.clipboardData.getData("text").split("");
     pasteData.forEach((char: string, index: number) => {
-      console.log(char);
       if (index > 5) return;
       setCode((code) => {
         code[index] = char;
