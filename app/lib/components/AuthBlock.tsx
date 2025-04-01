@@ -12,7 +12,6 @@ export default function AuthBlock({
   const router = useRouter();
 
   const route = path.trim().split("/");
-  console.log(route);
 
   const paths = ["", "login", "signup"];
 
