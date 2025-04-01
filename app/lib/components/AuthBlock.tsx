@@ -12,6 +12,7 @@ export default function AuthBlock({
   const router = useRouter();
 
   const route = path.trim().split("/");
+
   const paths = ["", "login", "signup"];
 
   useEffect(() => {

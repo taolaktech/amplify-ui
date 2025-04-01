@@ -29,6 +29,10 @@
   --color-purple-normal: #6800d7;
 }
 
+* {
+  font-family: "Satoshi", sans-serif;
+}
+
 body {
   background: var(--background);
   font-family: "Satoshi", sans-serif;
