@@ -23,7 +23,7 @@ export default function Signup() {
       <div className="w-full max-w-[1170px] flex bg-white min-h-[667px] rounded-2xl relative">
         <div className="w-[59.83%] relative ">
           <Image
-            src={"/signup.png"}
+            src={"/signup.webp"}
             alt="creator"
             layout="fill"
             objectFit="cover"
