@@ -17,7 +17,6 @@ export default function AuthBlock({
 
   useEffect(() => {
     if (!isAuth) {
-      console.log("path", path);
       if (path.trim() === "/") router.push("/login");
 
       if (!paths.some((p) => route[1] === p)) router.push("/login");
