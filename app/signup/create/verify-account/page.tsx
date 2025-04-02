@@ -2,6 +2,7 @@
 import Button from "@/app/ui/Button";
 import { useEffect, useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
+import { useRouter } from "next/navigation";
 
 function enrollCode({
   codeRefs,
@@ -38,6 +39,7 @@ function enrollCode({
 export default function VerifyAccount() {
   const [code, setCode] = useState(new Array(6).fill(""));
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
+  const router = useRouter();
   // useEffect(() => {
   //   codeRefs.current[0]?.focus();
   // }, []);
@@ -70,6 +72,10 @@ export default function VerifyAccount() {
       }
     }
     setCode(codes);
+  };
+
+  const handleVerify = () => {
+    router.push("/signup/create/verified");
   };
 
   function handlePaste(event: any) {
@@ -117,6 +123,7 @@ export default function VerifyAccount() {
                   height={40}
                   icon={<ArrowRightIcon width={17} height={17} />}
                   iconPosition="right"
+                  action={handleVerify}
                 />
               </div>
             </div>
