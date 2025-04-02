@@ -70,7 +70,11 @@ export default function Signup() {
               <div className="text-center text-[#BFBFBF] my-3 text-sm">
                 - or continue with -
               </div>
-              <Button text="Google" icon={<GoogleIcon />} secondary />
+              <Button
+                text="Google"
+                icon={<GoogleIcon width={17} height={16} />}
+                secondary
+              />
 
               <div className="mt-6">
                 <Link

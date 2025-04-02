@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
           loader: "@svgr/webpack",
           options: {
             icon: true,
+            svgo: {
+              plugins: [
+                { removeViewBox: false },
+                { removeDimensions: false }, // Ensures width/height are not removed
+              ],
+            },
           },
         },
       ],

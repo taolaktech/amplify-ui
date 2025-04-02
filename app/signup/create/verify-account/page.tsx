@@ -114,7 +114,7 @@ export default function VerifyAccount() {
               <div className="w-[136px]">
                 <Button
                   text="Verify"
-                  icon={<ArrowRightIcon />}
+                  icon={<ArrowRightIcon width={17} height={17} />}
                   iconPosition="right"
                 />
               </div>

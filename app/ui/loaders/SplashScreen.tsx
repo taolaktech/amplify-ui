@@ -32,7 +32,7 @@ export default function SplashScreen() {
             loading ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
-          <Splash />
+          <Splash width={128} height={200} />
         </div>
       )}
     </>

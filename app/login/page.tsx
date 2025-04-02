@@ -14,7 +14,7 @@ export default function Login() {
   const changeEmail = (value: string) => setEmail(value);
   const changePassword = (value: string) => setPassword(value);
   const toggleRemberMe = (e: any) => {
-  //@typescript-eslint/no-explicit-any
+    //@typescript-eslint/no-explicit-any
     e.preventDefault();
     setRememberMe((rememberMe) => !rememberMe);
   };
@@ -56,7 +56,7 @@ export default function Login() {
                   <span
                     style={{ display: rememberMe ? "inline-block" : "none" }}
                   >
-                    <RememberMeCheckIcon />
+                    <RememberMeCheckIcon width={8} height={6} />
                   </span>
                 </span>
                 <span className="font-medium text-sm">Remember Me?</span>
@@ -74,14 +74,20 @@ export default function Login() {
             <div className="text-center text-[#BFBFBF] mt-3 text-sm">
               - or continue with -
             </div>
-            <Button text="Google" icon={<GoogleIcon />} secondary />
+            <Button
+              text="Google"
+              icon={<GoogleIcon width={17} height={16} />}
+              secondary
+            />
 
             <div className="mt-3">
               <Link
                 href={"/signup"}
                 className="text-sm font-medium flex items-center justify-center gap-1"
               >
-                <span className="text-gray-dark">Don`&apos;`'t have an account?</span>
+                <span className="text-gray-dark">
+                  Don`&apos;`'t have an account?
+                </span>
                 <span className="text-purple-normal">Sign up</span>
               </Link>
             </div>
