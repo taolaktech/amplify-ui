@@ -19,9 +19,9 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[900px] h-screen">
-      <div className="w-full max-w-[1170px] flex bg-white min-h-[667px] rounded-2xl relative">
-        <div className="w-[59.83%] relative ">
+    <div className="block items-center justify-center md:min-h-[900px] md:h-screen md:flex py-[calc(3rem+54px)] md:py-0">
+      <div className="w-full md:max-w-[1170px] md:flex bg-white md:min-h-[667px] rounded-2xl relative">
+        <div className="hidden md:block w-[59.83%] relative">
           <Image
             src={"/signup.webp"}
             alt="creator"
@@ -29,6 +29,7 @@ export default function Signup() {
             objectFit="cover"
             loading="eager"
             priority
+            sizes="(max-width: 767px) 0px, 100vw"
             className="rounded-bl-2xl rounded-tl-2xl"
             blurDataURL={signupImgBlur}
             placeholder="blur"
@@ -47,12 +48,12 @@ export default function Signup() {
             </div>
           </div>
         </div>
-        <div className="w-[42%] z-10 bg-white absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center">
-          <div className="max-w-[342px] mx-auto w-full">
-            <h1 className="font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
+        <div className="w-full md:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center">
+          <div className="md:max-w-[342px] mx-auto w-full">
+            <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
               Get Started
             </h1>
-            <p className="text-leading tracking-[-0.32px] mt-1">
+            <p className="text-leading tracking-[-0.32px] text-sm md:text-base md:mt-1">
               Sign up by creating your account
             </p>
             <form className="mt-9">
@@ -64,10 +65,10 @@ export default function Signup() {
                 placeholder="Enter your e-mail address"
                 setValue={changeEmail}
               />
-              <div className="mt-3">
+              <div className="mt-4 md:mt-3">
                 <Button text="Proceed" action={handleProceed} />
               </div>
-              <div className="text-center text-[#BFBFBF] my-3 text-sm">
+              <div className="text-center text-[#BFBFBF] my-4 md:my-3 text-sm">
                 - or continue with -
               </div>
               <Button
