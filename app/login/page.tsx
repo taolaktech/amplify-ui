@@ -86,7 +86,7 @@ export default function Login() {
                 className="text-sm font-medium flex items-center justify-center gap-1"
               >
                 <span className="text-gray-dark">
-                  Don`&apos;`'t have an account?
+                  Don&apos;t have an account?
                 </span>
                 <span className="text-purple-normal">Sign up</span>
               </Link>

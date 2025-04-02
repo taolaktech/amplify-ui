@@ -26,7 +26,7 @@ export default function Create() {
 
   return (
     <div className="flex items-center justify-center min-h-[900px] h-screen">
-      <div className="w-full max-w-[1063px] flex bg-white min-h-[667px] justify-center items-center rounded-2xl relative px-4">
+      <div className="w-full max-w-[1063px] flex bg-white min-h-[600px] justify-center items-center rounded-2xl relative px-4">
         <div className="max-w-[863px] w-full mx-auto">
           <h1 className="font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
             Create your Account

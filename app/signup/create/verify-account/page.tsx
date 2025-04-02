@@ -21,7 +21,7 @@ function enrollCode({
 }) {
   return (
     <input
-      className="block w-[89px] h-[89px] rounded-3xl text-center text-primary_700 border-[1.5px] focus:border-purple-normal
+      className="block w-[89.4px] h-[89.4px] rounded-3xl text-center text-primary_700 border-[1.5px] focus:border-purple-normal
       p-2 border-[rgba(0,0,0,0.10)] bg-primary_100 text-black outline-0 text-[1.775rem]"
       key={index}
       value={code[index]}
@@ -86,8 +86,8 @@ export default function VerifyAccount() {
 
   return (
     <div className="flex items-center justify-center min-h-[900px] h-screen">
-      <div className="w-full max-w-[1063px] flex bg-white min-h-[550px] justify-center items-center rounded-2xl relative px-4">
-        <div className="max-w-[863px] w-full mx-auto">
+      <div className="w-full max-w-[840px] flex bg-white min-h-[550px] justify-center items-center rounded-2xl relative px-4">
+        <div className="max-w-[630px] w-full mx-auto">
           <h1 className="font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
             Verify your Account
           </h1>
@@ -95,7 +95,7 @@ export default function VerifyAccount() {
             We’ve sent an OTP to your email address
           </p>
           <form className="mt-16">
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-[18px] items-center">
               {code.map((_, index) =>
                 enrollCode({
                   codeRefs,
