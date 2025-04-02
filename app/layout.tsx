@@ -18,7 +18,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
-        <link rel="icon" href="/tab-icon.svg" type="image/svg" />
+        {/* <link rel="icon" href="/fav0" type="image/ico" /> */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        />
       </head>
       <body className={`antialiased min-h-screen`}>
         <Navbar />

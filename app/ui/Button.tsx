@@ -26,6 +26,7 @@ export default function DefaultButton({
       } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl font-medium flex items-center justify-center gap-2 h-[44px] md:h-[40px]`}
+      style={{ height: height ?? height }}
     >
       {icon}
       <span

@@ -27,6 +27,7 @@
   --color-gray-dark: #737373;
   --color-purple-dark: #1d0b30;
   --color-purple-normal: #6800d7;
+  --breakpoint-xs: 412px;
 }
 
 * {
