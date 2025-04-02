@@ -20,17 +20,17 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[900px] h-screen">
-      <div className="w-full max-w-[526px] flex justify-center items-center bg-white min-h-[683px] rounded-2xl">
-        <div className="max-w-[382px] w-full">
-          <h1 className="font-bold text-3xl text-heading leading-8 tr">
+    <div className="flex items-center justify-center md:min-h-[900px] md:h-screen py-[calc(3rem+54px)]">
+      <div className="w-full md:max-w-[526px] flex justify-center items-center bg-white md:min-h-[683px] rounded-2xl">
+        <div className="md:max-w-[382px] w-full">
+          <h1 className="font-bold text-2xl md:text-3xl text-heading md:leading-8 tr">
             Welcome Back
           </h1>
-          <p className="text-leading tracking-[-0.32px] mt-1">
+          <p className="text-leading text-sm md:text-base tracking-[-0.32px] md:mt-1">
             Login to your account
           </p>
 
-          <form className="mt-9 flex flex-col gap-3">
+          <form className="mt-9 flex flex-col gap-5 md:gap-3">
             <Input
               type="email"
               value={email}
