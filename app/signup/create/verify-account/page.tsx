@@ -91,7 +91,7 @@ export default function VerifyAccount() {
   }
 
   return (
-    <div className="md:flex items-center justify-center md:min-h-[900px] md:h-screen py-[calc(3rem+54px)] md:py-0">
+    <div className="md:flex items-center justify-center md:min-h-[900px] md:h-screen py-[calc(3rem+54px)] md:py-0 px-5 md:px-0">
       <div className="w-full md:max-w-[840px] md:flex bg-white md:min-h-[550px] justify-center items-center rounded-2xl relative md:px-4">
         <div className="max-w-[382px] md:max-w-[630px] w-full md:mx-auto">
           <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
