@@ -56,7 +56,6 @@ export default function VerifyAccount() {
       }
     } else if (/^\d$/.test(e.key)) {
       if (codes[index] !== "" && Number(codes[index]) >= 0 && index < 5) {
-        console.log("yeah");
         codeRefs.current[index + 1]?.focus();
         setCode((code) => {
           code[index + 1] = e.key;
