@@ -3,7 +3,7 @@ export default function DefaultButton({
   icon,
   iconPosition,
   secondary,
-  height = 40,
+  height,
   action = () => {},
 }: {
   text: string;
@@ -25,12 +25,12 @@ export default function DefaultButton({
         !secondary ? "gradient" : "secondary"
       } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
-      } rounded-xl font-medium flex items-center justify-center gap-2`}
-      style={{ height: `${height}px` }}
+      } rounded-xl font-medium flex items-center justify-center gap-2 h-[44px] md:h-[40px]`}
+      style={{ height: height ?? height }}
     >
       {icon}
       <span
-        className={`text-sm font-semibold text-center ${
+        className={`text-sm text-center ${
           secondary ? "text-purple-dark" : "text-white"
         }`}
       >

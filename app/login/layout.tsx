@@ -11,7 +11,7 @@ export default function LoginLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className={`bg-background-2 px-4`}>
+    <main className={`bg-white md:bg-background-2 px-5`}>
       <>{children}</>
     </main>
   );

@@ -27,7 +27,7 @@ export default function Input({
         name={name}
         value={value}
         placeholder={placeholder}
-        className="px-4 mt-2 block w-full py-3 placeholder:text-gray-dark text-purple-dark font-medium border-input-border rounded-lg text-sm focus:outline-0 border-[1.2px] focus:border-[#A755FF]"
+        className="px-4 mt-2 block w-full py-3 h-[44px] md:h-[40px] placeholder:text-gray-dark text-purple-dark font-medium border-input-border rounded-lg text-sm focus:outline-0 border-[1.2px] focus:border-[#A755FF]"
       />
     </div>
   );
