@@ -48,7 +48,7 @@ export default function Signup() {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-[50%] lg:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center px-5 lg:px-5">
+        <div className="w-full md:w-[50%] lg:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center px-0 lg:px-5">
           <div className="md:max-w-[342px] mx-auto w-full">
             <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
               Get Started
