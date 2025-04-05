@@ -1,6 +1,5 @@
 "use client";
 
-import VerifiedBg from "@/public/verified-bg.svg";
 import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/Button";
 

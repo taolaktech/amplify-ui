@@ -1,6 +1,6 @@
 "use client";
 import Button from "@/app/ui/Button";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
 import { useRouter } from "next/navigation";
 
