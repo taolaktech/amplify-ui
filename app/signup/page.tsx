@@ -19,9 +19,9 @@ export default function Signup() {
   };
 
   return (
-    <div className="block items-center justify-center md:min-h-[900px] md:h-screen md:flex py-[calc(3rem+54px)] md:py-0 px-5 md:px-0">
+    <div className="block items-center justify-center md:min-h-[900px] h-screen md:flex py-[calc(3rem+54px)] md:py-0 px-5">
       <div className="w-full md:max-w-[1170px] md:flex bg-white md:min-h-[667px] rounded-2xl relative">
-        <div className="hidden md:block w-[59.83%] relative">
+        <div className="hidden md:block w-[50%] lg:w-[59.83%] relative">
           <Image
             src={"/signup.webp"}
             alt="creator"
@@ -36,7 +36,7 @@ export default function Signup() {
           />
 
           <div className="absolute left-0 right-0 w-full bottom-[72px]">
-            <div className="max-w-[70%] mx-auto">
+            <div className="max-w-[80%] lg:max-w-[70%] mx-auto">
               <p className="text-white font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px]">
                 Automate Your Marketing & Boost <br />
                 Sales Effortlessly
@@ -48,7 +48,7 @@ export default function Signup() {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center">
+        <div className="w-full md:w-[50%] lg:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center px-5 lg:px-5">
           <div className="md:max-w-[342px] mx-auto w-full">
             <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
               Get Started
