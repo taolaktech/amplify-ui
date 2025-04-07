@@ -21,7 +21,7 @@ export default function Create() {
   };
 
   const handleSignup = () => {
-    router.push("/signup/create/verify-account");
+    router.push("/auth/signup/create/verify-account");
   };
 
   return (

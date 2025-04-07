@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
-import Button from "../ui/Button";
+import Button from "@/app/ui/Button";
 import Link from "next/link";
 import GoogleIcon from "@/public/google.svg";
-import Input from "../ui/form/Input";
+import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signupImgBlur } from "../lib/blurHash";
+import { signupImgBlur } from "@/app/lib/blurHash";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ export default function Signup() {
   const changeEmail = (value: string) => setEmail(value);
 
   const handleProceed = () => {
-    router.push("/signup/create");
+    router.push("/auth/signup/create");
   };
 
   return (
@@ -79,7 +79,7 @@ export default function Signup() {
 
               <div className="mt-6">
                 <Link
-                  href={"/login"}
+                  href={"/auth/login"}
                   className="text-sm font-medium flex items-center justify-center gap-1"
                 >
                   <span className="text-gray-dark">

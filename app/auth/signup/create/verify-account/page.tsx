@@ -75,7 +75,7 @@ export default function VerifyAccount() {
   };
 
   const handleVerify = () => {
-    router.push("/signup/create/verified");
+    router.push("/auth/signup/create/verified");
   };
 
   function handlePaste(event: any) {

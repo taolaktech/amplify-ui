@@ -49,6 +49,16 @@ button.gradient {
   transition: all 0.3s ease-in-out;
 }
 
+.text-gradient {
+  background: var(
+    --Gradient,
+    linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%)
+  );
+  background-clip: text;
+  -webkit-background-clip: text; /* Required for Safari */
+  -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
+}
+
 button.gradient:hover {
   background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
 }

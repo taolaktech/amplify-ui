@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Input from "@/app/ui/form/Input";
 import Link from "next/link";
-import Button from "../ui/Button";
+import Button from "@/app/ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
 import GoogleIcon from "@/public/google.svg";
 
@@ -62,7 +62,7 @@ export default function Login() {
                 <span className="font-medium text-sm">Remember Me?</span>
               </button>
               <Link
-                href="/forgotPassword"
+                href="/auth/forgot-password"
                 className="text-[#6922D1] font-medium text-sm"
               >
                 Forgot Password?
@@ -82,7 +82,7 @@ export default function Login() {
 
             <div className="mt-3">
               <Link
-                href={"/signup"}
+                href={"/auth/signup"}
                 className="text-sm font-medium flex items-center justify-center gap-1"
               >
                 <span className="text-gray-dark">
