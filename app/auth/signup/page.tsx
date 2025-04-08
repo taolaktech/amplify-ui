@@ -7,10 +7,25 @@ import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
+import { useMutation } from "@tanstack/react-query";
+import { handleGoogleLogin } from "@/app/lib/api/auth";
+import axios from "@/app/lib/api/axios";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
+  const login = useAuthStore().login;
   const router = useRouter();
+  const googleLoginMutation = useMutation({
+    mutationFn: handleGoogleLogin,
+    onSuccess: (data: any) => {
+      if (data.status === 200 || data.status === 201) {
+        console.log("Google Login Data:", data);
+        login(data.data?.token, data.data?.user);
+        router.push("/");
+      }
+    },
+  });
 
   const changeEmail = (value: string) => setEmail(value);
 
@@ -74,6 +89,7 @@ export default function Signup() {
               <Button
                 text="Google"
                 icon={<GoogleIcon width={17} height={16} />}
+                action={googleLoginMutation.mutate}
                 secondary
               />
 
