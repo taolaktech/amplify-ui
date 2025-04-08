@@ -12,7 +12,7 @@ export default function ResetPasswordLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className={`bg-white md:bg-background-2 px-5`}>
+    <main className={`bg-white md:bg-background-2`}>
       <>{children}</>
     </main>
   );

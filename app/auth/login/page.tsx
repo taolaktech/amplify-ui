@@ -13,8 +13,7 @@ export default function Login() {
 
   const changeEmail = (value: string) => setEmail(value);
   const changePassword = (value: string) => setPassword(value);
-  const toggleRemberMe = (e: any) => {
-    //@typescript-eslint/no-explicit-any
+  const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setRememberMe((rememberMe) => !rememberMe);
   };

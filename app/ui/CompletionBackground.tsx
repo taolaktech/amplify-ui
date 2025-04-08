@@ -2,7 +2,11 @@
 import { useEffect } from "react";
 import { animate } from "motion";
 
-export default function CompletionBackground() {
+export default function CompletionBackground({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   useEffect(() => {
     const shapes = document.querySelectorAll("#verified-bg .big svg g");
 
@@ -30,9 +34,9 @@ export default function CompletionBackground() {
   }, []);
   return (
     <div id="verified-bg">
-      <div className="h-[316px] w-full lg:hidden small">
+      <div className="h-[316px] w-full max-w-screen lg:hidden small">
         <svg
-          width="430"
+          className="w-full"
           height="316"
           viewBox="0 0 430 316"
           fill="none"
@@ -204,8 +208,8 @@ export default function CompletionBackground() {
       </div>
       <div className="h-[364.63px] w-full hidden lg:block big">
         <svg
-          width="884"
-          height="366"
+          className="w-full h-full"
+          // height="366"
           viewBox="0 0 884 366"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -492,6 +496,7 @@ export default function CompletionBackground() {
           </g>
         </svg>
       </div>
+      <div>{children}</div>
     </div>
   );
 }
