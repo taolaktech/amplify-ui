@@ -3,6 +3,13 @@ import Button from "@/app/ui/Button";
 import { useEffect, useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
 import { useRouter } from "next/navigation";
+import { useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import {
+  handleResendVerificationEmail,
+  handleVerifyEmail,
+} from "@/app/lib/api/auth";
 
 function enrollCode({
   codeRefs,
@@ -44,12 +51,17 @@ function enrollCode({
 
 export default function VerifyAccount() {
   const [code, setCode] = useState(new Array(6).fill(""));
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
+  const email = useCreateUserStore().email;
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
+
+  useEffect(() => {
+    codeRefs.current[0]?.focus();
+  }, []);
 
   useEffect(() => {
     if (!startTimer) return;
@@ -70,9 +82,36 @@ export default function VerifyAccount() {
   const seconds = timeLeft % 60;
   const secondsEdit =
     seconds === 0 ? "00" : seconds < 10 ? `0${seconds}` : seconds;
+
+  const verifyEmailMutation = useMutation({
+    mutationFn: handleVerifyEmail,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("verifyEmail:", response);
+        router.push("/auth/signup/create/verified");
+      }
+    },
+    onError: (error: any) => {
+      console.error("Error verifying email:", error);
+      setError(true);
+    },
+  });
+
+  const resendVerificationEmailMutation = useMutation({
+    mutationFn: handleResendVerificationEmail,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("resendVerificationEmail:", response);
+        router.push("/auth/signup/create/verified");
+      }
+    },
+  });
+
   const resendOTP = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (startTimer) return;
     setStartTimer(true);
+    handleVerify(true);
   };
 
   const handleCodeChange = (
@@ -106,8 +145,16 @@ export default function VerifyAccount() {
     setCode(codes);
   };
 
-  const handleVerify = () => {
-    router.push("/auth/signup/create/verified");
+  const handleVerify = (resendVerification: boolean = false) => {
+    const otp = code.join("");
+    console.log("here:");
+    const data = { otp, email };
+    if (otp.length < 6 && !resendVerification) {
+      setError(true);
+      return;
+    }
+    if (resendVerification) resendVerificationEmailMutation.mutate(data);
+    else verifyEmailMutation.mutate(data);
   };
 
   function handlePaste(event: any) {

@@ -1,7 +1,11 @@
 "use client";
+import { handleEmailSignUp } from "@/app/lib/api/auth";
+import axios from "@/app/lib/api/axios";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,7 +19,7 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
-  const storeProfile = useCreateUserStore().storeProfile;
+  const { email, storeProfile } = useCreateUserStore();
 
   const {
     register,
@@ -30,8 +34,23 @@ export default function Create() {
 
   const handleSignup = (data: typeof defaultFormValues) => {
     storeProfile(data);
-    router.push("/auth/signup/create/verify-account");
+    const profile = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      password: data.password,
+    };
+    signupMutation.mutate({ email, profile });
   };
+
+  const signupMutation = useMutation({
+    mutationFn: handleEmailSignUp,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("sign up data:", response);
+        router.push("/auth/signup/create/verify-account");
+      }
+    },
+  });
 
   return (
     <div className="md:flex items-center justify-center md:min-h-[900px] h-screen py-[calc(3rem+54px)] md:py-0 px-5">

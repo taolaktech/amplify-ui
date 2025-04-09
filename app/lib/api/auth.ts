@@ -1,31 +1,45 @@
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import axios from "./axios";
+import { CreateUserState } from "../stores/authStore";
 
 export const handleGoogleLogin = async () => {
   const provider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    console.log("Google Login Success:", user);
-    const idToken = await user.getIdToken();
-    const data = await axios.post("/auth/log-in", { idToken });
-    console.log("Login Data:", data);
-    console.log("ID Token:", idToken);
-    return data;
-    // router.push("/auth/signup/create");
-  } catch (error) {
-    console.error("Google Login Error:", error);
-  }
-  //   signInWithPopup(auth, provider)
-  //     .then((result) => {
-  //       const user = result.user;
-  //       console.log("Google Login Success:", user);
-  //       const idToken = user.getIdToken();
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+  console.log("Google Login Success:", user);
+  const idToken = await user.getIdToken();
+  const response = await axios.post("/auth/log-in", { idToken });
+  console.log("Login Response:", response);
+  console.log("ID Token:", idToken);
+  return response;
+};
 
-  //       // Handle user information and redirection here
-  //     })
-  //     .catch((error) => {
-  //       console.error("Google Login Error:", error);
-  //     });
+export const handleEmailSignUp = async (user: CreateUserState) => {
+  const userData = {
+    email: user.email,
+    ...user.profile,
+  };
+  console.log("User Data:", userData);
+  const response = await axios.post("/auth/sign-up", userData);
+  console.log("Sign Up Response:", response);
+  return response;
+};
+
+export const handleVerifyEmail = async (data: {
+  otp: string;
+  email: string;
+}) => {
+  const response = await axios.post("/auth/verify-email", data);
+  console.log("Verify Email Response:", response);
+  return response;
+};
+
+export const handleResendVerificationEmail = async (data: {
+  otp: string;
+  email: string;
+}) => {
+  const response = await axios.post("/auth/resend-verification-email", data);
+  console.log("Resend Verification Email Response:", response);
+  return response;
 };

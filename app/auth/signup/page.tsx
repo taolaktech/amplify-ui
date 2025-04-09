@@ -4,7 +4,6 @@ import Button from "@/app/ui/Button";
 import Link from "next/link";
 import GoogleIcon from "@/public/google.svg";
 import Input from "@/app/ui/form/Input";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
 import { useMutation } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { handleGoogleLogin } from "@/app/lib/api/auth";
 import axios from "@/app/lib/api/axios";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
+import { AxiosResponse } from "axios";
 
 const defaultFormValues = {
   email: "",
@@ -32,10 +32,10 @@ export default function Signup() {
   const router = useRouter();
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
-    onSuccess: (data: any) => {
-      if (data.status === 200 || data.status === 201) {
-        console.log("Google Login Data:", data);
-        login(data.data?.token, data.data?.user);
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("Google Login Data:", response);
+        login(response.data?.token, response.data?.user);
         router.push("/");
       }
     },

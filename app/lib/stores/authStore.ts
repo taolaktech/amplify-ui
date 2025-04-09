@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-interface CreateUserState {
+export interface CreateUserState {
   email: string;
   profile: CreateProfileState | null;
 }
