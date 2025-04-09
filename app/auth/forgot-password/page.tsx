@@ -4,10 +4,28 @@ import CompletionBackground from "@/app/ui/CompletionBackground";
 import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import InboxIcon from "@/public/direct-inbox.svg";
+import { useForm } from "react-hook-form";
+
+const defaultFormValues = {
+  email: "",
+};
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultFormValues,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
+  });
+
+  const handleSend = () => {
+    setSent(true);
+  };
+
   return (
     <div>
       {!sent && (
@@ -23,18 +41,22 @@ export default function ForgotPassword() {
 
               <form className="mt-9">
                 <Input
-                  type="email"
-                  name="email"
                   label="Email Address"
-                  placeholder="Enter your e-mail address"
-                  value={email}
-                  setValue={setEmail}
+                  placeholder="Enter your email"
+                  type="email"
+                  showErrorMessage
+                  {...register("email", {
+                    required: "Enter your email",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email format",
+                    },
+                  })}
+                  error={errors.email?.message}
                 />
                 <div className="mt-3">
                   <Button
-                    action={() => {
-                      setSent(true);
-                    }}
+                    action={handleSubmit(handleSend)}
                     text="Send Reset Link"
                   />
                 </div>

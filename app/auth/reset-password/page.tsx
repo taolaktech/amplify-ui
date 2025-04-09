@@ -4,12 +4,31 @@ import CompletionBackground from "@/app/ui/CompletionBackground";
 import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import TickCircle from "@/public/tick-circle.svg";
+import { useForm } from "react-hook-form";
+
+const defaultFormValues = {
+  password: "",
+  confirmPassword: "",
+};
 
 export default function ResetPassword() {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordChangeSuccessful, setPasswordChangeSuccessful] =
     useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultFormValues,
+  });
+
+  const password = watch("password");
+
+  const handlePasswordChangeRequest = () => {
+    setPasswordChangeSuccessful(true);
+  };
 
   return (
     <>
@@ -28,28 +47,40 @@ export default function ResetPassword() {
                 <div>
                   <Input
                     type="password"
-                    name="new-password"
-                    label="New Password"
+                    label="Create Password"
                     placeholder="******************"
-                    value={newPassword}
-                    setValue={setNewPassword}
+                    {...register("password", {
+                      required: "Enter your password",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                      pattern: {
+                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                        message: `Password must contain at least one uppercase letter, one lowercase letter, and one number`,
+                      },
+                    })}
+                    showPasswordErrorMessage
+                    visibility
+                    error={errors.password?.message}
                   />
                 </div>
                 <div className="mt-3">
                   <Input
                     type="password"
-                    name="confirm-password"
                     label="Confirm Password"
                     placeholder="******************"
-                    value={confirmPassword}
-                    setValue={setConfirmPassword}
+                    {...register("confirmPassword", {
+                      required: "Enter your password",
+                      validate: (value) =>
+                        value === password || "Passwords do not match",
+                    })}
+                    error={errors.confirmPassword?.message}
                   />
                 </div>
                 <div className="mt-3">
                   <Button
-                    action={() => {
-                      setPasswordChangeSuccessful(true);
-                    }}
+                    action={handleSubmit(handlePasswordChangeRequest)}
                     text="Reset Password"
                   />
                 </div>

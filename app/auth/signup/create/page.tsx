@@ -1,26 +1,35 @@
 "use client";
+import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+const defaultFormValues = {
+  firstName: "",
+  lastName: "",
+  password: "",
+  confirmPassword: "",
+};
 
 export default function Create() {
   const router = useRouter();
-  const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    password: "",
-    confirmPassword: "",
+  const storeProfile = useCreateUserStore().storeProfile;
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultFormValues,
   });
 
-  const handleProfileChange = (value: string, name: string) => {
-    setProfile((profile) => ({
-      ...profile,
-      [name]: value,
-    }));
-  };
+  const password = watch("password");
 
-  const handleSignup = () => {
+  const handleSignup = (data: typeof defaultFormValues) => {
+    storeProfile(data);
     router.push("/auth/signup/create/verify-account");
   };
 
@@ -35,44 +44,60 @@ export default function Create() {
             Sign up by creating your account
           </p>
           <form className="mt-6 md:mt-16">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex flex-col md:flex-row gap-4 ">
               <Input
                 type="text"
-                value={profile.firstName}
-                name="firstName"
                 label="First Name"
                 placeholder="Enter your first name"
-                setValue={handleProfileChange}
+                {...register("firstName", {
+                  required: "Enter your first name",
+                })}
+                error={errors.firstName?.message}
               />
               <Input
                 type="text"
-                value={profile.lastName}
-                name="lastName"
                 label="Last Name"
                 placeholder="Enter your last name"
-                setValue={handleProfileChange}
+                {...register("lastName", {
+                  required: "Enter your last name",
+                })}
+                error={errors.lastName?.message}
               />
             </div>
-            <div className="flex flex-col md:flex-row gap-4 items-center mt-5">
+            <div className="flex flex-col md:flex-row gap-4 mt-5 md:min-h-[110px]">
               <Input
                 type="password"
-                value={profile.password}
-                name="password"
                 label="Create Password"
                 placeholder="******************"
-                setValue={handleProfileChange}
+                {...register("password", {
+                  required: "Enter your password",
+                  minLength: {
+                    value: 8,
+                    message: "Password must be at least 8 characters",
+                  },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                    message: `Password must contain at least one uppercase letter, one lowercase letter, and one number`,
+                  },
+                })}
+                showErrorMessage
+                visibility
+                error={errors.password?.message}
               />
               <Input
                 type="password"
-                value={profile.confirmPassword}
-                name="confirmPassword"
                 label="Confirm Password"
                 placeholder="******************"
-                setValue={handleProfileChange}
+                {...register("confirmPassword", {
+                  required: "Enter your password",
+                  validate: (value) =>
+                    value === password || "Passwords do not match",
+                })}
+                error={errors.confirmPassword?.message}
               />
             </div>
-            <div className="md:w-[160px] mx-auto mt-6 md:mt-16">
-              <Button text="Sign Up" action={handleSignup} />
+            <div className="md:w-[160px] mx-auto mt-6 md:mt-10">
+              <Button text="Sign Up" action={handleSubmit(handleSignup)} />
             </div>
           </form>
         </div>

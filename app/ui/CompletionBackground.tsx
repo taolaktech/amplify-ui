@@ -27,7 +27,7 @@ export default function CompletionBackground({
 
       animate(
         shape,
-        { x: 13 * randomValue, y: 13 },
+        { x: 13 * randomValue, y: -13 },
         { duration: 3.5, ease: "easeInOut" }
       );
     });

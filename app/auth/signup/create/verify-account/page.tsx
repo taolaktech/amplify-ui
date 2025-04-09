@@ -1,6 +1,6 @@
 "use client";
 import Button from "@/app/ui/Button";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
 import { useRouter } from "next/navigation";
 
@@ -10,10 +10,12 @@ function enrollCode({
   code,
   handlePaste,
   handleCodeChange,
+  error,
 }: {
   codeRefs: React.RefObject<(HTMLInputElement | undefined)[]>;
   index: number;
   code: string[];
+  error?: boolean;
   handlePaste: (event: any) => void;
   handleCodeChange: (
     e: React.KeyboardEvent<HTMLInputElement>,
@@ -22,8 +24,12 @@ function enrollCode({
 }) {
   return (
     <input
-      className="inline-block w-[49px] h-[49px] xs:w-[55.4px] xs:h-[55.4px] md:w-[89.4px] md:h-[89.4px] rounded-xl md:rounded-3xl text-center text-primary_700 border-[1.5px] focus:border-purple-normal
-      p-2 border-[rgba(0,0,0,0.10)] bg-primary_100 text-black outline-0 text-sm md:text-[1.775rem] font-medium md:font-normal"
+      className={`inline-block w-[49px] h-[49px] xs:w-[55.4px] xs:h-[55.4px] md:w-[89.4px] md:h-[89.4px] rounded-xl md:rounded-3xl text-center text-primary_700 border-[1.3px] 
+      p-2 ${
+        !error
+          ? "border-[rgba(0,0,0,0.10)] focus:border-purple-normal"
+          : "border-[#FF4949]"
+      } bg-primary_100 text-black outline-0 text-sm md:text-[1.775rem] font-medium md:font-normal`}
       key={index}
       value={code[index]}
       ref={(el) => {
@@ -38,16 +44,42 @@ function enrollCode({
 
 export default function VerifyAccount() {
   const [code, setCode] = useState(new Array(6).fill(""));
+  const [error, setError] = useState(true);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
-  // useEffect(() => {
-  //   codeRefs.current[0]?.focus();
-  // }, []);
+
+  const [startTimer, setStartTimer] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(120);
+
+  useEffect(() => {
+    if (!startTimer) return;
+    if (timeLeft <= 0) {
+      setStartTimer(false);
+      setTimeLeft(120);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, startTimer]);
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const secondsEdit =
+    seconds === 0 ? "00" : seconds < 10 ? `0${seconds}` : seconds;
+  const resendOTP = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setStartTimer(true);
+  };
 
   const handleCodeChange = (
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
   ) => {
+    setError(false);
     const codes = [...code];
     if (e.key === "Backspace") {
       codes[index] = "";
@@ -101,7 +133,7 @@ export default function VerifyAccount() {
             We’ve sent an OTP to your email address
           </p>
           <form className="mt-8 md:mt-16">
-            <div className="flex gap-2 md:gap-[18px] h-[57px] items-center">
+            <div className="flex gap-2 md:gap-[18px] items-center">
               {code.map((_, index) =>
                 enrollCode({
                   codeRefs,
@@ -109,13 +141,25 @@ export default function VerifyAccount() {
                   code,
                   handlePaste,
                   handleCodeChange,
+                  error,
                 })
               )}
             </div>
+            <p
+              className="text-[#FF4949] mt-3"
+              style={{ visibility: error ? "visible" : "hidden" }}
+            >
+              Wrong OTP, Enter the right OTP sent to your email address
+            </p>
             <div className="mt-8 md:mt-16 flex items-center justify-between gap-4">
-              <button className="text-sm font-medium flex items-center gap-1 flex-1 w-full whitespace-nowrap">
+              <button
+                className="text-sm font-medium flex items-center gap-1 flex-1 w-full whitespace-nowrap"
+                onClick={resendOTP}
+              >
                 <span className="text-gray-dark">Didn’t receive OTP?</span>
-                <span className="text-purple-normal">Resend it</span>
+                <span className="text-purple-normal">
+                  {startTimer ? `${minutes}:${secondsEdit}` : "Resend it"}
+                </span>
               </button>
               <div className="max-w-[176px] w-full md:max-w-[136px]">
                 <Button

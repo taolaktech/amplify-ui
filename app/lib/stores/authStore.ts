@@ -48,21 +48,29 @@ export const useAuthStore = create<AuthStore>()(
 
 interface CreateUserState {
   email: string;
-  name: string;
-  phone: string;
+  profile: CreateProfileState | null;
+}
+
+interface CreateProfileState {
+  firstName: string;
+  lastName: string;
   password: string;
 }
 
 interface CreateUserActions {
-  setEmail: (email: string) => void;
-  setName: (name: string) => void;
-  setPhone: (phone: string) => void;
-  setPassword: (password: string) => void;
+  storeEmail: (email: string) => void;
+  storeProfile: (profile: CreateProfileState) => void;
 }
 
-export const useCreateUserStore = create<CreateUserState>()((set, get) => ({
+export interface CreateUserStore extends CreateUserState, CreateUserActions {}
+
+export const useCreateUserStore = create<CreateUserStore>()((set, get) => ({
   email: "",
-  name: "",
-  phone: "",
-  password: "",
+  profile: null,
+  storeEmail: (email: string) => {
+    set({ email });
+  },
+  storeProfile: (profile: CreateProfileState) => {
+    set({ profile });
+  },
 }));

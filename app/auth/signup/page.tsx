@@ -10,10 +10,24 @@ import { signupImgBlur } from "@/app/lib/blurHash";
 import { useMutation } from "@tanstack/react-query";
 import { handleGoogleLogin } from "@/app/lib/api/auth";
 import axios from "@/app/lib/api/axios";
-import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useForm } from "react-hook-form";
+
+const defaultFormValues = {
+  email: "",
+};
 
 export default function Signup() {
-  const [email, setEmail] = useState("");
+  const storeEmail = useCreateUserStore().storeEmail;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultFormValues,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
+  });
   const login = useAuthStore().login;
   const router = useRouter();
   const googleLoginMutation = useMutation({
@@ -27,9 +41,9 @@ export default function Signup() {
     },
   });
 
-  const changeEmail = (value: string) => setEmail(value);
-
-  const handleProceed = () => {
+  const handleProceed = (data: typeof defaultFormValues) => {
+    console.log("Email:", data);
+    storeEmail(data.email);
     router.push("/auth/signup/create");
   };
 
@@ -73,15 +87,21 @@ export default function Signup() {
             </p>
             <form className="mt-9">
               <Input
-                type="email"
-                value={email}
-                name="email"
                 label="Email Address"
-                placeholder="Enter your e-mail address"
-                setValue={changeEmail}
+                placeholder="Enter your email"
+                type="email"
+                showErrorMessage
+                {...register("email", {
+                  required: "Enter your email",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email format",
+                  },
+                })}
+                error={errors.email?.message}
               />
               <div className="mt-4 md:mt-3">
-                <Button text="Proceed" action={handleProceed} />
+                <Button text="Proceed" action={handleSubmit(handleProceed)} />
               </div>
               <div className="text-center text-[#BFBFBF] my-4 md:my-3 text-sm">
                 - or continue with -
