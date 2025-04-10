@@ -8,6 +8,7 @@ export default function DefaultButton({
   height,
   action = () => {},
   loading,
+  hasIconOrLoader,
 }: {
   text: string;
   icon?: React.ReactNode;
@@ -16,12 +17,13 @@ export default function DefaultButton({
   height?: number;
   action?: () => void;
   loading?: boolean;
+  hasIconOrLoader?: boolean;
 }) {
   const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     action();
   };
-
+  const right = iconPosition === "right";
   return (
     <button
       disabled={loading}
@@ -33,10 +35,12 @@ export default function DefaultButton({
       } rounded-xl font-medium flex items-center justify-center gap-[6px] h-[44px] md:h-[40px]`}
       style={{ height: height ?? height }}
     >
-      <span className="w-[18px]">
-        {!loading && <>{icon}</>}
-        {loading && <ButtonLoader secondary={secondary} />}
-      </span>
+      {hasIconOrLoader && (
+        <span className="w-[18px]">
+          {!loading && <>{icon}</>}
+          {loading && <ButtonLoader secondary={secondary} />}
+        </span>
+      )}
       <span
         className={`text-sm text-center ${
           secondary ? "text-purple-dark" : "text-white"
@@ -44,7 +48,11 @@ export default function DefaultButton({
       >
         {text}
       </span>
-      <span className="w-[18px]"></span>
+      {hasIconOrLoader && !right && (
+        <span className="w-[18px]">
+          {loading && right && <ButtonLoader secondary={secondary} />}
+        </span>
+      )}
     </button>
   );
 }

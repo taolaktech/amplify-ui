@@ -1,5 +1,10 @@
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../firebaseConfig";
+
 import axios from "./axios";
 import { CreateProfileState } from "../stores/authStore";
 
@@ -16,6 +21,25 @@ export const handleGoogleLogin = async () => {
   const result = await signInWithPopup(auth, provider);
   const user = result.user;
   console.log("Google Login Success:", user);
+  const idToken = await user.getIdToken();
+  const response = await axios.post("/auth/log-in", { idToken });
+  console.log("Login Response:", response);
+  console.log("ID Token:", idToken);
+  return response;
+};
+
+export const handleEmailLogin = async (data: {
+  email: string;
+  password: string;
+}) => {
+  const result = await signInWithEmailAndPassword(
+    auth,
+    data.email,
+    data.password
+  );
+
+  const user = result.user;
+  console.log("Email Login Success:", user);
   const idToken = await user.getIdToken();
   const response = await axios.post("/auth/log-in", { idToken });
   console.log("Login Response:", response);
@@ -50,7 +74,13 @@ export const handleResendVerificationEmail = async (data: {
   otp: string;
   email: string;
 }) => {
-  const response = await axios.post("/auth/resend-verification-email", data);
+  const response = await axios.post("/auth/resend-verfication-email", data);
   console.log("Resend Verification Email Response:", response);
+  return response;
+};
+
+export const handleForgotPassword = async (email: string) => {
+  const response = await axios.post("/auth/forgot-password", { email });
+  console.log("Forgot Password Response:", response);
   return response;
 };

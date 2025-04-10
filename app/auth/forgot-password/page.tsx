@@ -5,6 +5,8 @@ import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import InboxIcon from "@/public/direct-inbox.svg";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { handleForgotPassword } from "@/app/lib/api/auth";
 
 const defaultFormValues = {
   email: "",
@@ -22,8 +24,19 @@ export default function ForgotPassword() {
     reValidateMode: "onBlur",
   });
 
-  const handleSend = () => {
-    setSent(true);
+  const forgotPasswordMutation = useMutation({
+    mutationFn: handleForgotPassword,
+    onSuccess: () => {
+      setSent(true);
+    },
+    onError: (error: any) => {
+      console.log("Error sending reset link:", error);
+    },
+  });
+
+  const handleForgotPasswordSubmit = (data: typeof defaultFormValues) => {
+    console.log("Email:", data);
+    forgotPasswordMutation.mutate(data.email);
   };
 
   return (
@@ -56,8 +69,10 @@ export default function ForgotPassword() {
                 />
                 <div className="mt-3">
                   <Button
-                    action={handleSubmit(handleSend)}
+                    action={handleSubmit(handleForgotPasswordSubmit)}
                     text="Send Reset Link"
+                    loading={forgotPasswordMutation.isPending}
+                    hasIconOrLoader
                   />
                 </div>
               </form>

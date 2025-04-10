@@ -52,7 +52,7 @@ export default function Create() {
       }
     },
     onError: (error: any) => {
-      console.error("Error signing up:", error.response);
+      console.log("Error signing up:", error.response);
       if (error.response.data.message === AuthErrorCode.E_USER_ALREADY_EXISTS) {
         storeRetryError(true);
         router.push("/auth/signup/create/verify-account");
@@ -128,6 +128,7 @@ export default function Create() {
                 text="Sign Up"
                 action={handleSubmit(handleSignup)}
                 loading={signupMutation.isPending}
+                hasIconOrLoader
               />
             </div>
           </form>

@@ -5,14 +5,63 @@ import Link from "next/link";
 import Button from "@/app/ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
 import GoogleIcon from "@/public/google.svg";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { handleEmailLogin, handleGoogleLogin } from "@/app/lib/api/auth";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+
+const defaultFormValues = {
+  email: "",
+  password: "",
+};
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const login = useAuthStore().login;
+  const [error, setError] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultFormValues,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
+  });
 
-  const changeEmail = (value: string) => setEmail(value);
-  const changePassword = (value: string) => setPassword(value);
+  const router = useRouter();
+
+  const emailLoginMutation = useMutation({
+    mutationFn: handleEmailLogin,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("EmailLogin Data:", response);
+        login(response.data?.token, response.data?.user);
+        router.push("/");
+      }
+    },
+    onError: (error: any) => {
+      console.log("Error logging in:", error);
+      setError(true);
+    },
+  });
+
+  const handleEmailLoginSubmit = (data: typeof defaultFormValues) => {
+    emailLoginMutation.mutate(data);
+  };
+  const googleLoginMutation = useMutation({
+    mutationFn: handleGoogleLogin,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      if (response.status === 200 || response.status === 201) {
+        console.log("Google Login Data:", response);
+        login(response.data?.token, response.data?.user);
+        router.push("/");
+      }
+    },
+  });
+
   const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setRememberMe((rememberMe) => !rememberMe);
@@ -31,20 +80,31 @@ export default function Login() {
 
           <form className="mt-9 flex flex-col gap-5 md:gap-3">
             <Input
-              type="email"
-              value={email}
-              name="email"
               label="Email Address"
-              placeholder="Enter your e-mail address"
-              setValue={changeEmail}
+              placeholder="Enter your email"
+              type="email"
+              showErrorMessage
+              {...register("email", {
+                required: "Enter your email",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email format",
+                },
+              })}
+              error={
+                errors.email?.message || error
+                  ? "Invalid email or password"
+                  : undefined
+              }
             />
             <Input
               type="password"
-              value={password}
-              name="password"
               label="Password"
               placeholder="******************"
-              setValue={changePassword}
+              {...register("password", {
+                required: "Enter your password",
+              })}
+              error={errors.password?.message}
             />
             <div className="flex items-center justify-between">
               <button
@@ -68,7 +128,12 @@ export default function Login() {
               </Link>
             </div>
             <div>
-              <Button text="Proceed" />
+              <Button
+                text="Proceed"
+                action={handleSubmit(handleEmailLoginSubmit)}
+                loading={emailLoginMutation.isPending}
+                hasIconOrLoader
+              />
             </div>
             <div className="text-center text-[#BFBFBF] mt-3 text-sm">
               - or continue with -
@@ -77,6 +142,9 @@ export default function Login() {
               text="Google"
               icon={<GoogleIcon width={17} height={16} />}
               secondary
+              action={googleLoginMutation.mutate}
+              loading={googleLoginMutation.isPending}
+              hasIconOrLoader
             />
 
             <div className="mt-3">

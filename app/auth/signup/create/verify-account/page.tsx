@@ -96,7 +96,7 @@ export default function VerifyAccount() {
       }
     },
     onError: (error: any) => {
-      console.error("Error verifying email:", error);
+      console.log("Error verifying email:", error);
       setError(true);
     },
   });
@@ -106,8 +106,10 @@ export default function VerifyAccount() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("resendVerificationEmail:", response);
-        router.push("/auth/signup/create/verified");
       }
+    },
+    onError: (error: any) => {
+      console.log("Error resending verification email:", error);
     },
   });
 
@@ -161,7 +163,7 @@ export default function VerifyAccount() {
   };
 
   const resendVerificationEmail = () => {
-    const otp = code.join("");
+    const otp = "000000";
     const data = { otp, email };
     resendVerificationEmailMutation.mutate(data);
   };
@@ -202,7 +204,7 @@ export default function VerifyAccount() {
               )}
             </div>
             <p
-              className="text-[#FF4949] mt-3"
+              className="text-[#FF4949] mt-3 text-xs md:text-sm"
               style={{ visibility: error ? "visible" : "hidden" }}
             >
               Wrong OTP, Enter the right OTP sent to your email address
@@ -224,6 +226,8 @@ export default function VerifyAccount() {
                   icon={<ArrowRightIcon width={17} height={17} />}
                   iconPosition="right"
                   action={verifyOTP}
+                  hasIconOrLoader
+                  loading={verifyEmailMutation.isPending}
                 />
               </div>
             </div>
