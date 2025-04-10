@@ -141,7 +141,7 @@ export default function VerifyAccount() {
         });
         return;
       }
-      if (!Number(codes[index])) {
+      if (codes[index] === '') {
         codes[index] = e.key;
       }
       if (index < 5) {
