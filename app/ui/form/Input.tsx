@@ -20,9 +20,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     {
       type,
       name,
+      // eslint-disable-next-line
       value,
       label,
       placeholder,
+      // eslint-disable-next-line
       setValue,
       visibility,
       error,
