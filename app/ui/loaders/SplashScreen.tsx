@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import LogoIcon from "@/public/logo.svg";
-//import LogoIcon from "@/public/logo-white.svg";
 import SplashIcon from "@/public/splash.svg";
 import SplashSMIcon from "@/public/splash-sm.svg";
 
 export default function SplashScreen() {
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    // Ensure this only runs on the client
+    setIsHydrated(true);
+
     const handleLoad = () => {
       setTimeout(() => setLoading(false), 500);
       setTimeout(() => setActive(false), 1000);
@@ -24,6 +26,9 @@ export default function SplashScreen() {
 
     return () => window.removeEventListener("load", handleLoad);
   }, []);
+
+  // Don't render anything until hydration
+  if (!isHydrated) return null;
 
   return (
     <>
