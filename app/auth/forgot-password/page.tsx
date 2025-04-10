@@ -4,6 +4,7 @@ import CompletionBackground from "@/app/ui/CompletionBackground";
 import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import InboxIcon from "@/public/direct-inbox.svg";
+import InboxSMIcon from "@/public/direct-inbox-sm.svg";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { handleForgotPassword } from "@/app/lib/api/auth";
@@ -89,7 +90,7 @@ export default function ForgotPassword() {
                   <InboxIcon width={100} height={100} />
                 </span>
                 <span className="md:hidden">
-                  {/* <InboxSMIcon width={104} height={104} /> */}
+                  <InboxSMIcon width={64} height={64} />
                 </span>
                 <div className="flex flex-col items-center mt-8 leading-[130%] tracking-[-0.84px] max-w-[382px] md:max-w-[467px] px-5 md:px-4">
                   <h1 className="text-xl md:text-[1.75rem] font-medium md:font-bold">
