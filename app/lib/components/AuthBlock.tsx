@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "../stores/authStore";
-import { useLayoutEffect } from "react";
+import { useEffect, useState } from "react";
 
 const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/register"];
 
@@ -13,15 +13,21 @@ export default function AuthBlock({
   const pathname = usePathname();
   const router = useRouter();
 
-  useLayoutEffect(() => {
-    if (!isAuth && pathname.trim() === "/") {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+
+    if (!isAuth && (pathname === "/" || !isPublic)) {
       router.replace("/auth/login");
     }
   }, [isAuth, pathname, router]);
 
-  if (!isAuth && !PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return <>{children}</>;
 }

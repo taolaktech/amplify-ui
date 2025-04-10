@@ -1,7 +1,15 @@
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import axios from "./axios";
-import { CreateUserState } from "../stores/authStore";
+import { CreateProfileState } from "../stores/authStore";
+
+export enum AuthErrorCode {
+  E_USER_ALREADY_EXISTS = "E_USER_ALREADY_EXISTS",
+  E_UNVERIFIED_EMAIL = "E_UNVERIFIED_EMAIL",
+  E_USER_NOT_FOUND = "E_USER_NOT_FOUND",
+  E_INVALID_OTP = "E_INVALID_OTP",
+  E_EMAIL_ALREADY_VERIFIED = "E_EMAIL_ALREADY_VERIFIED",
+}
 
 export const handleGoogleLogin = async () => {
   const provider = new GoogleAuthProvider();
@@ -15,7 +23,10 @@ export const handleGoogleLogin = async () => {
   return response;
 };
 
-export const handleEmailSignUp = async (user: CreateUserState) => {
+export const handleEmailSignUp = async (user: {
+  email: string;
+  profile: CreateProfileState;
+}) => {
   const userData = {
     email: user.email,
     ...user.profile,

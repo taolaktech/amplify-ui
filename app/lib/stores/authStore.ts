@@ -1,3 +1,4 @@
+import { bool } from "sharp";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
@@ -49,9 +50,10 @@ export const useAuthStore = create<AuthStore>()(
 export interface CreateUserState {
   email: string;
   profile: CreateProfileState | null;
+  retryError: boolean;
 }
 
-interface CreateProfileState {
+export interface CreateProfileState {
   firstName: string;
   lastName: string;
   password: string;
@@ -60,6 +62,7 @@ interface CreateProfileState {
 interface CreateUserActions {
   storeEmail: (email: string) => void;
   storeProfile: (profile: CreateProfileState) => void;
+  storeRetryError: (hasError: boolean) => void;
 }
 
 export interface CreateUserStore extends CreateUserState, CreateUserActions {}
@@ -67,8 +70,12 @@ export interface CreateUserStore extends CreateUserState, CreateUserActions {}
 export const useCreateUserStore = create<CreateUserStore>()((set, get) => ({
   email: "",
   profile: null,
+  retryError: false,
   storeEmail: (email: string) => {
     set({ email });
+  },
+  storeRetryError: (hasError: boolean) => {
+    set({ retryError: hasError });
   },
   storeProfile: (profile: CreateProfileState) => {
     set({ profile });

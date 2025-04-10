@@ -1,5 +1,5 @@
 "use client";
-import { handleEmailSignUp } from "@/app/lib/api/auth";
+import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
 import axios from "@/app/lib/api/axios";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import Button from "@/app/ui/Button";
@@ -19,7 +19,7 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
-  const { email, storeProfile } = useCreateUserStore();
+  const { email, storeProfile, storeRetryError } = useCreateUserStore();
 
   const {
     register,
@@ -47,6 +47,14 @@ export default function Create() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("sign up data:", response);
+
+        router.push("/auth/signup/create/verify-account");
+      }
+    },
+    onError: (error: any) => {
+      console.error("Error signing up:", error.response);
+      if (error.response.data.message === AuthErrorCode.E_USER_ALREADY_EXISTS) {
+        storeRetryError(true);
         router.push("/auth/signup/create/verify-account");
       }
     },
@@ -116,7 +124,11 @@ export default function Create() {
               />
             </div>
             <div className="md:w-[160px] mx-auto mt-6 md:mt-10">
-              <Button text="Sign Up" action={handleSubmit(handleSignup)} />
+              <Button
+                text="Sign Up"
+                action={handleSubmit(handleSignup)}
+                loading={signupMutation.isPending}
+              />
             </div>
           </form>
         </div>

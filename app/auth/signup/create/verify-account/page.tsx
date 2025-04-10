@@ -54,13 +54,17 @@ export default function VerifyAccount() {
   const [error, setError] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
-  const email = useCreateUserStore().email;
+  const { email, retryError, storeRetryError } = useCreateUserStore();
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
 
   useEffect(() => {
     codeRefs.current[0]?.focus();
+    setStartTimer(true);
+    if (retryError) {
+      resendVerificationEmail();
+    }
   }, []);
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export default function VerifyAccount() {
     e.preventDefault();
     if (startTimer) return;
     setStartTimer(true);
-    handleVerify(true);
+    resendVerificationEmail();
   };
 
   const handleCodeChange = (
@@ -145,16 +149,21 @@ export default function VerifyAccount() {
     setCode(codes);
   };
 
-  const handleVerify = (resendVerification: boolean = false) => {
+  const verifyOTP = () => {
     const otp = code.join("");
     console.log("here:");
     const data = { otp, email };
-    if (otp.length < 6 && !resendVerification) {
+    if (otp.length < 6) {
       setError(true);
       return;
     }
-    if (resendVerification) resendVerificationEmailMutation.mutate(data);
-    else verifyEmailMutation.mutate(data);
+    verifyEmailMutation.mutate(data);
+  };
+
+  const resendVerificationEmail = () => {
+    const otp = code.join("");
+    const data = { otp, email };
+    resendVerificationEmailMutation.mutate(data);
   };
 
   function handlePaste(event: any) {
@@ -214,7 +223,7 @@ export default function VerifyAccount() {
                   height={40}
                   icon={<ArrowRightIcon width={17} height={17} />}
                   iconPosition="right"
-                  action={handleVerify}
+                  action={verifyOTP}
                 />
               </div>
             </div>

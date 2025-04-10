@@ -111,6 +111,7 @@ export default function Signup() {
                 icon={<GoogleIcon width={17} height={16} />}
                 action={googleLoginMutation.mutate}
                 secondary
+                loading={googleLoginMutation.isPending}
               />
 
               <div className="mt-6">
