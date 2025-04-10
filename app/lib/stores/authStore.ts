@@ -1,7 +1,5 @@
-import { bool } from "sharp";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-// import type {} from "@redux-devtools/extension"; // required for devtools typing
 
 interface AuthState {
   token: string | null;
@@ -67,7 +65,7 @@ interface CreateUserActions {
 
 export interface CreateUserStore extends CreateUserState, CreateUserActions {}
 
-export const useCreateUserStore = create<CreateUserStore>()((set, get) => ({
+export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   email: "",
   profile: null,
   retryError: false,

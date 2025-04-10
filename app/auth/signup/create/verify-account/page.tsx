@@ -54,7 +54,7 @@ export default function VerifyAccount() {
   const [error, setError] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
-  const { email, retryError, storeRetryError } = useCreateUserStore();
+  const { email, retryError } = useCreateUserStore();
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
