@@ -2,26 +2,32 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "../stores/authStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/register"];
 
 export default function AuthBlock({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { isAuth } = useAuthStore();
-  const path = usePathname();
+  const pathname = usePathname();
   const router = useRouter();
 
-  const route = path.trim().split("/");
-
-  const paths = ["", "login", "signup"];
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (!isAuth) {
-      if (path.trim() === "/") router.push("/login");
+    setIsMounted(true);
+  }, []);
 
-      if (!paths.some((p) => route[1] === p)) router.push("/login");
+  useEffect(() => {
+    const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+
+    if (!isAuth && (pathname === "/" || !isPublic)) {
+      router.replace("/auth/login");
     }
-  }, [isAuth, path]);
+  }, [isAuth, pathname, router]);
+
+  if (!isMounted) return null;
 
   return <>{children}</>;
 }
