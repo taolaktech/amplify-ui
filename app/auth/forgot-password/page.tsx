@@ -20,6 +20,7 @@ export default function ForgotPassword() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -105,7 +106,7 @@ export default function ForgotPassword() {
                   </h1>
                   <p className="text-xs md:text-base text-[#595959] text-center mt-2 leading-[150%] px-7 md:px-0">
                     We've sent a password reset link to{" "}
-                    <span className="text-gradient">you@example.com.</span>
+                    <span className="text-gradient">{getValues().email}.</span>
                     <br /> It may take a minute to arrive. Be sure to check your
                     spam folder too.
                   </p>
