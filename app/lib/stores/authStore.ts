@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-// import type {} from "@redux-devtools/extension"; // required for devtools typing
 
 interface AuthState {
   token: string | null;
