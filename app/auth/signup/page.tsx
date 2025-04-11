@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
 import { useMutation } from "@tanstack/react-query";
 import { handleGoogleLogin } from "@/app/lib/api/auth";
-import axios from "@/app/lib/api/axios";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
 import { AxiosResponse } from "axios";

@@ -11,13 +11,14 @@ import { useRouter } from "next/navigation";
 
 const queryClient = new QueryClient();
 const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
+const INACTIVITY_LIMIT_D = 60 * 24 * 60 * 60 * 1000; // 60 days
 
 export default function ClientLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { logout, isAuth } = useAuthStore();
+  const { logout, isAuth, rememberMe } = useAuthStore();
   const router = useRouter();
 
   const onIdle = () => {
@@ -27,9 +28,8 @@ export default function ClientLayoutWrapper({
       router.push("/auth/login");
     }
   };
-
-  const { getRemainingTime, reset } = useIdleTimer({
-    timeout: INACTIVITY_LIMIT,
+  useIdleTimer({
+    timeout: rememberMe ? INACTIVITY_LIMIT_D : INACTIVITY_LIMIT,
     onIdle,
     debounce: 500,
   });

@@ -20,10 +20,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     {
       type,
       name,
-      value,
       label,
       placeholder,
-      setValue,
+      setValue, // eslint-disable-line @typescript-eslint/no-unused-vars
       visibility,
       error,
       showErrorMessage,

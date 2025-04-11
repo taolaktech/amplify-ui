@@ -18,7 +18,7 @@ const defaultFormValues = {
 };
 
 export default function Login() {
-  const [rememberMe, setRememberMe] = useState(false);
+  const { rememberMe, storeRememberMe } = useAuthStore();
   const login = useAuthStore().login;
   const [error, setError] = useState(false);
   const {
@@ -67,7 +67,7 @@ export default function Login() {
 
   const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setRememberMe((rememberMe) => !rememberMe);
+    storeRememberMe(!rememberMe);
   };
 
   return (

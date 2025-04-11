@@ -1,13 +1,12 @@
 "use client";
 import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
-import axios from "@/app/lib/api/axios";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const defaultFormValues = {

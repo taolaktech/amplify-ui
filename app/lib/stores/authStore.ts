@@ -1,4 +1,3 @@
-import { bool } from "sharp";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
@@ -21,6 +20,7 @@ interface AuthActions {
   logout: () => void;
   setUser: (user: User) => void;
   getUser: () => User | null;
+  storeRememberMe: (rememberMe: boolean) => void;
 }
 
 export interface AuthStore extends AuthState, AuthActions {}
@@ -38,6 +38,9 @@ export const useAuthStore = create<AuthStore>()(
       logout: () => {
         localStorage.removeItem("auth-storage");
         set({ token: null, isAuth: false, user: null });
+      },
+      storeRememberMe: (rememberMe: boolean) => {
+        set({ rememberMe });
       },
       setUser: (user: User) => {
         set({ user });
@@ -74,7 +77,7 @@ interface CreateUserActions {
 
 export interface CreateUserStore extends CreateUserState, CreateUserActions {}
 
-export const useCreateUserStore = create<CreateUserStore>()((set, get) => ({
+export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   email: "",
   profile: null,
   retryError: false,
