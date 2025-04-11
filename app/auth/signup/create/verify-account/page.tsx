@@ -54,7 +54,8 @@ export default function VerifyAccount() {
   const [error, setError] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
-  const { email, retryError, storeRetryError } = useCreateUserStore();
+  const { email, retryError, justCreated, storeJustVerified } =
+    useCreateUserStore();
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
@@ -62,7 +63,9 @@ export default function VerifyAccount() {
   useEffect(() => {
     codeRefs.current[0]?.focus();
     setStartTimer(true);
-    if (retryError) {
+    if (!justCreated) {
+      router.replace("/auth/signup");
+    } else if (retryError) {
       resendVerificationEmail();
     }
   }, []);
@@ -106,6 +109,7 @@ export default function VerifyAccount() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("resendVerificationEmail:", response);
+        storeJustVerified(true);
       }
     },
     onError: (error: any) => {
@@ -141,7 +145,7 @@ export default function VerifyAccount() {
         });
         return;
       }
-      if (codes[index] === '') {
+      if (codes[index] === "") {
         codes[index] = e.key;
       }
       if (index < 5) {

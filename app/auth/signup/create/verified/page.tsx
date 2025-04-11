@@ -3,8 +3,20 @@
 import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/Button";
 import CompletionBackground from "@/app/ui/CompletionBackground";
+import { useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Verified() {
+  const justVerified = useCreateUserStore().justVerified;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!justVerified) {
+      router.replace("/auth/signup");
+    }
+  }, []);
+
   return (
     <div className="flex justify-center bg-white h-screen items-start md:min-h-[800px]">
       <div className="w-full lg:max-w-[882px] relative">

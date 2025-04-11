@@ -7,7 +7,7 @@ import Input from "@/app/ui/form/Input";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const defaultFormValues = {
@@ -19,7 +19,8 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
-  const { email, storeProfile, storeRetryError } = useCreateUserStore();
+  const { email, storeProfile, storeRetryError, storeJustCreated } =
+    useCreateUserStore();
 
   const {
     register,
@@ -29,6 +30,12 @@ export default function Create() {
   } = useForm({
     defaultValues: defaultFormValues,
   });
+
+  useEffect(() => {
+    if (!email) {
+      router.replace("/auth/signup/");
+    }
+  }, []);
 
   const password = watch("password");
 
@@ -47,7 +54,7 @@ export default function Create() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("sign up data:", response);
-
+        storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
       }
     },
@@ -55,6 +62,7 @@ export default function Create() {
       console.log("Error signing up:", error.response);
       if (error.response.data.message === AuthErrorCode.E_USER_ALREADY_EXISTS) {
         storeRetryError(true);
+        storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
       }
     },

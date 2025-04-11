@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware";
 interface AuthState {
   token: string | null;
   isAuth: boolean;
+  rememberMe: boolean;
   user: User | null;
 }
 
@@ -30,6 +31,7 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
       isAuth: false,
       user: null,
+      rememberMe: false,
       login: (token: string, user: User) => {
         set({ token, isAuth: true, user });
       },
@@ -52,6 +54,8 @@ export interface CreateUserState {
   email: string;
   profile: CreateProfileState | null;
   retryError: boolean;
+  justVerified: boolean;
+  justCreated: boolean;
 }
 
 export interface CreateProfileState {
@@ -64,6 +68,8 @@ interface CreateUserActions {
   storeEmail: (email: string) => void;
   storeProfile: (profile: CreateProfileState) => void;
   storeRetryError: (hasError: boolean) => void;
+  storeJustCreated: (justCreated: boolean) => void;
+  storeJustVerified: (justVerified: boolean) => void;
 }
 
 export interface CreateUserStore extends CreateUserState, CreateUserActions {}
@@ -72,8 +78,16 @@ export const useCreateUserStore = create<CreateUserStore>()((set, get) => ({
   email: "",
   profile: null,
   retryError: false,
+  justCreated: false,
+  justVerified: false,
   storeEmail: (email: string) => {
     set({ email });
+  },
+  storeJustCreated: (justCreated: boolean) => {
+    set({ justCreated });
+  },
+  storeJustVerified: (justVerified: boolean) => {
+    set({ justVerified });
   },
   storeRetryError: (hasError: boolean) => {
     set({ retryError: hasError });
