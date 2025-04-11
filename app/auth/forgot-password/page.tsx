@@ -7,7 +7,7 @@ import InboxIcon from "@/public/direct-inbox.svg";
 import InboxSMIcon from "@/public/direct-inbox-sm.svg";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { handleForgotPassword } from "@/app/lib/api/auth";
+import { AuthErrorCode, handleForgotPassword } from "@/app/lib/api/auth";
 
 const defaultFormValues = {
   email: "",
@@ -15,9 +15,12 @@ const defaultFormValues = {
 
 export default function ForgotPassword() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -32,6 +35,11 @@ export default function ForgotPassword() {
     },
     onError: (error: any) => {
       console.log("Error sending reset link:", error);
+      if (error.response.data.message === AuthErrorCode.E_USER_NOT_FOUND) {
+        setErrorMsg("User account doesn't exist, please sign up");
+        setError(true);
+        setTimeout(() => setError(false), 2500);
+      }
     },
   });
 
@@ -66,7 +74,7 @@ export default function ForgotPassword() {
                       message: "Invalid email format",
                     },
                   })}
-                  error={errors.email?.message}
+                  error={error ? errorMsg : errors.email?.message ?? undefined}
                 />
                 <div className="mt-3">
                   <Button
@@ -98,7 +106,7 @@ export default function ForgotPassword() {
                   </h1>
                   <p className="text-xs md:text-base text-[#595959] text-center mt-2 leading-[150%] px-7 md:px-0">
                     We've sent a password reset link to{" "}
-                    <span className="text-gradient">you@example.com.</span>
+                    <span className="text-gradient">{getValues().email}.</span>
                     <br /> It may take a minute to arrive. Be sure to check your
                     spam folder too.
                   </p>
