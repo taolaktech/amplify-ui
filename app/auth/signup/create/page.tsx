@@ -59,7 +59,7 @@ export default function Create() {
     },
     onError: (error: any) => {
       console.log("Error signing up:", error.response);
-      if (error.response.data.message === AuthErrorCode.E_USER_ALREADY_EXISTS) {
+      if (error.response.data.message === AuthErrorCode.E_UNVERIFIED_EMAIL) {
         storeRetryError(true);
         storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
