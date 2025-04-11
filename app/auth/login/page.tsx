@@ -32,6 +32,7 @@ export default function Login() {
   });
 
   const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState("");
 
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
@@ -44,7 +45,9 @@ export default function Login() {
     },
     onError: (error: any) => {
       console.log("Error logging in:", error);
+      setErrorMsg("Email or password is incorrect");
       setError(true);
+      setTimeout(() => setError(false), 2500);
     },
   });
 
@@ -91,11 +94,7 @@ export default function Login() {
                   message: "Invalid email format",
                 },
               })}
-              error={
-                errors.email?.message || error
-                  ? "Invalid email or password"
-                  : undefined
-              }
+              error={error ? errorMsg : errors.email?.message ?? undefined}
             />
             <Input
               type="password"
