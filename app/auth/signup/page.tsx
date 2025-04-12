@@ -35,7 +35,7 @@ export default function Signup() {
       if (response.status === 200 || response.status === 201) {
         console.log("Google Login Data:", response);
         login(response.data?.token, response.data?.user);
-        router.push("/");
+        router.push("/auth/create/verified");
       }
     },
   });

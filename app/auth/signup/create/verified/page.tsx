@@ -3,8 +3,22 @@
 import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/Button";
 import CompletionBackground from "@/app/ui/CompletionBackground";
+import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Verified() {
+  const justVerified = useCreateUserStore().justVerified;
+  const profileName = useCreateUserStore().profile?.firstName;
+  const name = useAuthStore().user?.name;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!justVerified) {
+      router.replace("/auth/signup");
+    }
+  }, []);
+
   return (
     <div className="flex justify-center bg-white h-screen items-start md:min-h-[800px]">
       <div className="w-full lg:max-w-[882px] relative">
@@ -18,7 +32,7 @@ export default function Verified() {
             </span>
             <div className="flex flex-col items-center mt-8 leading-[130%] tracking-[-0.84px] max-w-[382px] md:max-w-[447px] px-5 md:px-4">
               <h1 className="text-xl md:text-[1.75rem] font-medium md:font-bold">
-                Welcome to Amplify, Deni
+                Welcome to Amplify, {profileName ?? name}
               </h1>
               <p className="text-xs md:text-base text-[#595959] text-center mt-2 leading-[150%] px-7 md:px-0">
                 Your account is set up and ready to go. Let&apos;s personalize
