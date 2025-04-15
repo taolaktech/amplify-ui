@@ -97,13 +97,12 @@ svg.button-loader circle {
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
 
-button.gradient:not(:disabled):hover,
-button.gradient {
+button.gradient:not(:disabled):hover {
   background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
 }
 
-button.gradient:active,
-button.gradient:focus {
+/* button.gradient:active, */
+button.gradient:hover {
   background: #6800d7;
 }
 
@@ -115,9 +114,9 @@ button.secondary {
 button.secondary:not(:disabled):hover {
   background-color: #f3eff6;
 }
-button.secondary:active {
+/* button.secondary:active {
   background-color: #fbfafc;
-}
+} */
 
 @keyframes gradientAnimation {
   0% {
