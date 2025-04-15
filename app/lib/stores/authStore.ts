@@ -31,17 +31,17 @@ export const useAuthStore = create<AuthStore>()(
       isAuth: false,
       user: null,
       rememberMe: false,
-      login: (token: string, user: User) => {
+      login: (token, user) => {
         set({ token, isAuth: true, user });
       },
       logout: () => {
         localStorage.removeItem("auth-storage");
         set({ token: null, isAuth: false, user: null });
       },
-      storeRememberMe: (rememberMe: boolean) => {
+      storeRememberMe: (rememberMe) => {
         set({ rememberMe });
       },
-      setUser: (user: User) => {
+      setUser: (user) => {
         set({ user });
       },
       getUser: () => get().user,
@@ -82,19 +82,19 @@ export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   retryError: false,
   justCreated: false,
   justVerified: false,
-  storeEmail: (email: string) => {
+  storeEmail: (email) => {
     set({ email });
   },
-  storeJustCreated: (justCreated: boolean) => {
+  storeJustCreated: (justCreated) => {
     set({ justCreated });
   },
-  storeJustVerified: (justVerified: boolean) => {
+  storeJustVerified: (justVerified) => {
     set({ justVerified });
   },
-  storeRetryError: (hasError: boolean) => {
+  storeRetryError: (hasError) => {
     set({ retryError: hasError });
   },
-  storeProfile: (profile: CreateProfileState) => {
+  storeProfile: (profile) => {
     set({ profile });
   },
 }));

@@ -60,6 +60,7 @@ export default function Signup() {
       if (res.data?.data.userExists) {
         console.log("Email already exists, please login");
         setError(true);
+        storeEmail("");
       } else {
         console.log("Email:", data);
         storeEmail(data.email);

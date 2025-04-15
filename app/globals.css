@@ -101,11 +101,6 @@ button.gradient:not(:disabled):hover {
   background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
 }
 
-/* button.gradient:active, */
-button.gradient:hover {
-  background: #6800d7;
-}
-
 button.secondary {
   background-color: #fbfafc;
   transition: all 0.3s ease-in-out;
