@@ -6,11 +6,12 @@ import GoogleIcon from "@/public/google.svg";
 import Input from "@/app/ui/form/Input";
 import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
-import { useMutation } from "@tanstack/react-query";
-import { handleGoogleLogin } from "@/app/lib/api/auth";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { checkEmailExists, handleGoogleLogin } from "@/app/lib/api/auth";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
 import { AxiosResponse } from "axios";
+import { useState } from "react";
 
 const defaultFormValues = {
   email: "",
@@ -18,9 +19,11 @@ const defaultFormValues = {
 
 export default function Signup() {
   const storeEmail = useCreateUserStore().storeEmail;
+  const [error, setError] = useState(false);
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -40,10 +43,29 @@ export default function Signup() {
     },
   });
 
+  const email = watch("email");
+  const {
+    // data,
+    isFetching: fetchingEmailStatus,
+    refetch: getEmailStatus,
+  } = useQuery({
+    queryKey: ["emailStatus", email],
+    queryFn: () => checkEmailExists(email),
+    enabled: false,
+    retry: false,
+  });
+
   const handleProceed = (data: typeof defaultFormValues) => {
-    console.log("Email:", data);
-    storeEmail(data.email);
-    router.push("/auth/signup/create");
+    getEmailStatus().then((res) => {
+      if (res.data?.data.userExists) {
+        console.log("Email already exists, please login");
+        setError(true);
+      } else {
+        console.log("Email:", data);
+        storeEmail(data.email);
+        router.push("/auth/signup/create");
+      }
+    });
   };
 
   return (
@@ -97,10 +119,20 @@ export default function Signup() {
                     message: "Invalid email format",
                   },
                 })}
-                error={errors.email?.message}
+                error={
+                  error
+                    ? "Email already exists, please login"
+                    : errors.email?.message ?? undefined
+                }
+                onFocus={() => setError(false)}
               />
               <div className="mt-4 md:mt-3">
-                <Button text="Proceed" action={handleSubmit(handleProceed)} />
+                <Button
+                  text="Proceed"
+                  action={handleSubmit(handleProceed)}
+                  hasIconOrLoader
+                  loading={fetchingEmailStatus}
+                />
               </div>
               <div className="text-center text-[#BFBFBF] my-4 md:my-3 text-sm">
                 - or continue with -

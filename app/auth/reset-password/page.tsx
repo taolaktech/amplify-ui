@@ -5,6 +5,7 @@ import Input from "@/app/ui/form/Input";
 import { useState } from "react";
 import TickCircle from "@/public/tick-circle.svg";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 const defaultFormValues = {
   password: "",
@@ -14,7 +15,7 @@ const defaultFormValues = {
 export default function ResetPassword() {
   const [passwordChangeSuccessful, setPasswordChangeSuccessful] =
     useState(false);
-
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -56,7 +57,8 @@ export default function ResetPassword() {
                         message: "Password must be at least 8 characters",
                       },
                       pattern: {
-                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                        value:
+                          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
                         message: `Password must contain at least one uppercase letter, one lowercase letter, and one number`,
                       },
                     })}
@@ -109,7 +111,10 @@ export default function ResetPassword() {
                   </p>
                   <div className="mt-16 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
                     <div className="w-full md:max-w-[123px] ">
-                      <Button action={() => {}} text="Back to Login" />
+                      <Button
+                        action={() => router.push("/auth/login")}
+                        text="Back to Login"
+                      />
                     </div>
                   </div>
                 </div>

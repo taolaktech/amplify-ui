@@ -97,7 +97,8 @@ svg.button-loader circle {
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
 
-button.gradient:not(:disabled):hover {
+button.gradient:not(:disabled):hover,
+button.gradient {
   background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
 }
 

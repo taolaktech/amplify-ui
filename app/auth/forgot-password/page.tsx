@@ -38,7 +38,6 @@ export default function ForgotPassword() {
       if (error.response.data.message === AuthErrorCode.E_USER_NOT_FOUND) {
         setErrorMsg("User account doesn't exist, please sign up");
         setError(true);
-        setTimeout(() => setError(false), 2500);
       }
     },
   });
@@ -75,6 +74,7 @@ export default function ForgotPassword() {
                     },
                   })}
                   error={error ? errorMsg : errors.email?.message ?? undefined}
+                  onFocus={() => setError(false)}
                 />
                 <div className="mt-3">
                   <Button
