@@ -10,6 +10,7 @@ import {
   handleResendVerificationEmail,
   handleVerifyEmail,
 } from "@/app/lib/api/auth";
+import AccountVerified from "@/app/ui/AccountVerified";
 
 function enrollCode({
   codeRefs,
@@ -52,10 +53,10 @@ function enrollCode({
 export default function VerifyAccount() {
   const [code, setCode] = useState(new Array(6).fill(""));
   const [error, setError] = useState(false);
+  const [verified, setVerified] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
-  const { email, retryError, justCreated, storeJustVerified } =
-    useCreateUserStore();
+  const { email, retryError, justCreated } = useCreateUserStore();
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
@@ -109,7 +110,7 @@ export default function VerifyAccount() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("resendVerificationEmail:", response);
-        storeJustVerified(true);
+        setVerified(true);
       }
     },
     onError: (error: any) => {
@@ -184,60 +185,67 @@ export default function VerifyAccount() {
     });
   }
 
+  if (!justCreated) return null;
   return (
-    <div className="md:flex items-center justify-center md:min-h-[900px] h-screen py-[calc(3rem+54px)] md:py-0 px-5 lg:px-0">
-      <div className="w-full md:max-w-[840px] md:flex bg-white md:min-h-[550px] justify-center items-center rounded-2xl relative md:px-4">
-        <div className="max-w-[382px] md:max-w-[630px] w-full sm:mx-auto">
-          <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
-            Verify your Account
-          </h1>
-          <p className="md:text-leading md:tracking-[-0.32px] mt-1 text-sm md:text-base">
-            We’ve sent an OTP to your email address
-          </p>
-          <form className="mt-8 md:mt-16">
-            <div className="flex gap-2 md:gap-[18px] items-center">
-              {code.map((_, index) =>
-                enrollCode({
-                  codeRefs,
-                  index,
-                  code,
-                  handlePaste,
-                  handleCodeChange,
-                  error,
-                })
-              )}
+    <>
+      {" "}
+      {!verified && (
+        <div className="md:flex items-center justify-center md:min-h-[900px] h-screen py-[calc(3rem+54px)] md:py-0 px-5 lg:px-0">
+          <div className="w-full md:max-w-[840px] md:flex bg-white md:min-h-[550px] justify-center items-center rounded-2xl relative md:px-4">
+            <div className="max-w-[382px] md:max-w-[630px] w-full sm:mx-auto">
+              <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
+                Verify your Account
+              </h1>
+              <p className="md:text-leading md:tracking-[-0.32px] mt-1 text-sm md:text-base">
+                We’ve sent an OTP to your email address
+              </p>
+              <form className="mt-8 md:mt-16">
+                <div className="flex gap-2 md:gap-[18px] items-center">
+                  {code.map((_, index) =>
+                    enrollCode({
+                      codeRefs,
+                      index,
+                      code,
+                      handlePaste,
+                      handleCodeChange,
+                      error,
+                    })
+                  )}
+                </div>
+                <p
+                  className="text-[#FF4949] mt-3 text-xs md:text-sm"
+                  style={{ visibility: error ? "visible" : "hidden" }}
+                >
+                  Wrong OTP, Enter the right OTP sent to your email address
+                </p>
+                <div className="mt-8 md:mt-16 flex items-center justify-between gap-4">
+                  <button
+                    className="text-sm font-medium flex items-center gap-1 flex-1 w-full whitespace-nowrap"
+                    onClick={resendOTP}
+                  >
+                    <span className="text-gray-dark">Didn’t receive OTP?</span>
+                    <span className="text-purple-normal">
+                      {startTimer ? `${minutes}:${secondsEdit}` : "Resend it"}
+                    </span>
+                  </button>
+                  <div className="max-w-[176px] w-full md:max-w-[136px]">
+                    <Button
+                      text="Verify"
+                      height={40}
+                      icon={<ArrowRightIcon width={17} height={17} />}
+                      iconPosition="right"
+                      action={verifyOTP}
+                      hasIconOrLoader
+                      loading={verifyEmailMutation.isPending}
+                    />
+                  </div>
+                </div>
+              </form>
             </div>
-            <p
-              className="text-[#FF4949] mt-3 text-xs md:text-sm"
-              style={{ visibility: error ? "visible" : "hidden" }}
-            >
-              Wrong OTP, Enter the right OTP sent to your email address
-            </p>
-            <div className="mt-8 md:mt-16 flex items-center justify-between gap-4">
-              <button
-                className="text-sm font-medium flex items-center gap-1 flex-1 w-full whitespace-nowrap"
-                onClick={resendOTP}
-              >
-                <span className="text-gray-dark">Didn’t receive OTP?</span>
-                <span className="text-purple-normal">
-                  {startTimer ? `${minutes}:${secondsEdit}` : "Resend it"}
-                </span>
-              </button>
-              <div className="max-w-[176px] w-full md:max-w-[136px]">
-                <Button
-                  text="Verify"
-                  height={40}
-                  icon={<ArrowRightIcon width={17} height={17} />}
-                  iconPosition="right"
-                  action={verifyOTP}
-                  hasIconOrLoader
-                  loading={verifyEmailMutation.isPending}
-                />
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+      {verified && <AccountVerified />}
+    </>
   );
 }

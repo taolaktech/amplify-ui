@@ -28,9 +28,9 @@ export default function DefaultButton({
     <button
       disabled={loading}
       onClick={handleOnClick}
-      className={`w-full ${!secondary ? "gradient" : "secondary"} ${
-        loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      } ${
+      className={`w-full opacity-100 ${
+        !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
+      } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl font-medium flex items-center justify-center gap-[6px] h-[44px] md:h-[40px]`}
       style={{ height: height ?? height }}

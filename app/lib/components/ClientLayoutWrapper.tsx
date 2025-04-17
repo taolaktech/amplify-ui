@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 const queryClient = new QueryClient();
 const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
-const INACTIVITY_LIMIT_D = 60 * 24 * 60 * 60 * 1000; // 60 days
+const INACTIVITY_LIMIT_D = 20 * 24 * 60 * 60 * 1000; // 20 days
 
 export default function ClientLayoutWrapper({
   children,
