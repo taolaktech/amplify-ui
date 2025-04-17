@@ -84,3 +84,9 @@ export const handleForgotPassword = async (email: string) => {
   console.log("Forgot Password Response:", response);
   return response;
 };
+
+export const checkEmailExists = async (email: string) => {
+  const response = await axios.get(`/auth/does-user-exist/${email}`);
+  console.log("Check Email Response:", response);
+  return response;
+};

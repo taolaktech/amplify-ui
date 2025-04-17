@@ -47,7 +47,6 @@ export default function Login() {
       console.log("Error logging in:", error);
       setErrorMsg("Email or password is incorrect");
       setError(true);
-      setTimeout(() => setError(false), 2500);
     },
   });
 
@@ -95,6 +94,7 @@ export default function Login() {
                 },
               })}
               error={error ? errorMsg : errors.email?.message ?? undefined}
+              onFocus={() => setError(false)}
             />
             <Input
               type="password"
