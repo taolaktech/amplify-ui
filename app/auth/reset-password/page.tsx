@@ -6,6 +6,11 @@ import { useState } from "react";
 import TickCircle from "@/public/tick-circle.svg";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { handleResetPassword } from "@/app/lib/api/auth";
+import { AxiosResponse } from "axios";
+import { useSearchParams } from "next/navigation";
+import { passwordPattern } from "@/app/lib/utils";
 
 const defaultFormValues = {
   password: "",
@@ -15,6 +20,10 @@ const defaultFormValues = {
 export default function ResetPassword() {
   const [passwordChangeSuccessful, setPasswordChangeSuccessful] =
     useState(false);
+  const params = useSearchParams();
+  const token = params.get("token");
+
+  const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
   const {
     register,
@@ -23,14 +32,50 @@ export default function ResetPassword() {
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
   });
 
   const password = watch("password");
 
-  const handlePasswordChangeRequest = () => {
-    setPasswordChangeSuccessful(true);
+  const handlePasswordChangeRequest = (data: typeof defaultFormValues) => {
+    setErrorMsg("");
+    if (!token) {
+      console.error("Token is missing in the URL");
+      setErrorMsg("This reset link is invalid or has expired.");
+      return;
+    }
+    resetPasswordMutation.mutate({ newPassword: data.password, token });
   };
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: handleResetPassword,
+    onSuccess: (response: AxiosResponse<any, any>) => {
+      console.log("Password reset successful:", response.data);
+      setPasswordChangeSuccessful(true);
+    },
+    onError: (error: any) => {
+      if (error.response.data.message === "E_INVALID_TOKEN") {
+        setErrorMsg("This reset link is invalid or has expired.");
+      } else if (error.response.status === 500) {
+        setErrorMsg("Unable to process your request. Please try again later.");
+      }
+      console.log("Error signing up:", error.response);
+    },
+  });
+
+  const handleError = () => {
+    if (errorMsg) return errorMsg;
+    if (
+      errors.password?.type === "required" ||
+      errors.confirmPassword?.type === "required"
+    )
+      return "Please fill out all required fields.";
+    if (errors.password?.type === "pattern")
+      return "Password must be at least 8 characters, including a number and a symbol.";
+    if (errors.confirmPassword?.type === "validate")
+      return "Passwords do not match.";
+  };
   return (
     <>
       {!passwordChangeSuccessful && (
@@ -57,13 +102,11 @@ export default function ResetPassword() {
                         message: "Password must be at least 8 characters",
                       },
                       pattern: {
-                        value:
-                          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                        message: `Password must contain at least one uppercase letter, one lowercase letter, and one number`,
+                        value: passwordPattern,
+                        message:
+                          "Password must be at least 8 characters, including a number and a symbol.",
                       },
                     })}
-                    showPasswordErrorMessage
-                    visibility
                     error={errors.password?.message}
                   />
                 </div>
@@ -81,8 +124,13 @@ export default function ResetPassword() {
                   />
                 </div>
                 <div className="mt-3">
+                  <p className="text-red-500 text-xs">{handleError()}</p>
+                </div>
+                <div className="mt-3">
                   <Button
                     action={handleSubmit(handlePasswordChangeRequest)}
+                    loading={resetPasswordMutation.isPending}
+                    hasIconOrLoader
                     text="Reset Password"
                   />
                 </div>
@@ -109,7 +157,7 @@ export default function ResetPassword() {
                   <p className="text-xs md:text-base text-[#595959] text-center mt-2 leading-[150%] px-7 md:px-0">
                     You can now log in with your new password.
                   </p>
-                  <div className="mt-16 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
+                  <div className="mt-10 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
                     <div className="w-full md:max-w-[123px] ">
                       <Button
                         action={() => router.push("/auth/login")}

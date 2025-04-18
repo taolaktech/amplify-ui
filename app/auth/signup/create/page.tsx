@@ -1,12 +1,13 @@
 "use client";
 import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
+import { passwordPattern } from "@/app/lib/utils";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const defaultFormValues = {
@@ -20,6 +21,8 @@ export default function Create() {
   const router = useRouter();
   const { email, storeProfile, storeRetryError, storeJustCreated } =
     useCreateUserStore();
+  const [errorMsg, setErrorMsg] = useState("");
+  const [error, setError] = useState(false);
 
   const {
     register,
@@ -28,6 +31,8 @@ export default function Create() {
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
   });
 
   useEffect(() => {
@@ -56,6 +61,8 @@ export default function Create() {
         storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
       }
+      setErrorMsg("");
+      setError(false);
     },
     onError: (error: any) => {
       console.log("Error signing up:", error.response);
@@ -63,9 +70,27 @@ export default function Create() {
         storeRetryError(true);
         storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
+        setError(false);
+      } else {
+        setErrorMsg("We couldn’t create your account. Please try again.");
+        setError(true);
       }
     },
   });
+
+  const showErrorMessage = () => {
+    if (
+      errors.firstName ||
+      errors.lastName ||
+      errors.password?.type === "required" ||
+      errors.confirmPassword?.type === "required"
+    )
+      return "Please fill out all required fields.";
+    if (errors.password?.type === "pattern")
+      return "Password must be at least 8 characters, including a number and a symbol";
+    if (errors.confirmPassword) return "Passwords do not match.";
+    if (error) return errorMsg;
+  };
 
   if (!email) return null;
 
@@ -100,7 +125,7 @@ export default function Create() {
                 error={errors.lastName?.message}
               />
             </div>
-            <div className="flex flex-col md:flex-row gap-4 mt-5 md:min-h-[110px]">
+            <div className="flex flex-col md:flex-row gap-4 mt-5">
               <Input
                 type="password"
                 label="Create Password"
@@ -112,13 +137,10 @@ export default function Create() {
                     message: "Password must be at least 8 characters",
                   },
                   pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                    message: `Password must contain at least one uppercase letter, one lowercase letter, and one number`,
+                    value: passwordPattern,
+                    message: `Password must be at least 8 characters, including a number and a symbol`,
                   },
                 })}
-                showErrorMessage
-                visibility
                 error={errors.password?.message}
               />
               <Input
@@ -133,7 +155,10 @@ export default function Create() {
                 error={errors.confirmPassword?.message}
               />
             </div>
-            <div className="md:w-[160px] mx-auto mt-6 md:mt-10">
+            <div className="text-[#BE343B] text-sm mt-6 md:mt-0 md:h-[80px] flex items-center justify-center text-center">
+              {showErrorMessage()}
+            </div>
+            <div className="md:w-[160px] mx-auto mt-6 md:mt-0">
               <Button
                 text="Sign Up"
                 action={handleSubmit(handleSignup)}

@@ -4,10 +4,13 @@ import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/Button";
 import CompletionBackground from "@/app/ui/CompletionBackground";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useRouter } from "next/navigation";
 
 export default function Verified() {
   const profileName = useCreateUserStore().profile?.firstName;
   const name = useAuthStore().user?.name;
+
+  const router = useRouter();
 
   return (
     <div className="flex justify-center bg-white h-screen items-start md:min-h-[800px]">
@@ -30,10 +33,17 @@ export default function Verified() {
               </p>
               <div className="mt-16 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
                 <div className="w-full md:max-w-[118px] ">
-                  <Button secondary text="Skip for Now" action={() => {}} />
+                  <Button
+                    secondary
+                    text="Skip for Now"
+                    action={() => router.push("/")}
+                  />
                 </div>
-                <div className="w-full md:max-w-[139px]">
-                  <Button text="Complete Setup" action={() => {}} />
+                <div className="w-full md:max-w-[149px]">
+                  <Button
+                    text="Complete Setup"
+                    action={() => router.push("/")}
+                  />
                 </div>
               </div>
             </div>

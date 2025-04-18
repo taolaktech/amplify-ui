@@ -28,7 +28,7 @@ export default function DefaultButton({
     <button
       disabled={loading}
       onClick={handleOnClick}
-      className={`w-full opacity-100 ${
+      className={`w-full ${
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
       } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
         iconPosition === "right" ? "flex-row-reverse" : ""
@@ -42,7 +42,7 @@ export default function DefaultButton({
         </span>
       )}
       <span
-        className={`text-sm text-center ${
+        className={`text-sm text-center whitespace-nowrap ${
           secondary ? "text-purple-dark" : "text-white"
         }`}
       >
