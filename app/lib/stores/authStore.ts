@@ -35,8 +35,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ token, isAuth: true, user });
       },
       logout: () => {
-        localStorage.clear();
-        sessionStorage.clear();
+        localStorage.removeItem("auth-storage");
         set({ token: null, isAuth: false, user: null });
       },
       storeRememberMe: (rememberMe) => {
