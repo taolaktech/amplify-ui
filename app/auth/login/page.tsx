@@ -50,13 +50,19 @@ export default function Login() {
     },
     onError: (error: any) => {
       console.log("Error logging in:", error);
-      const errorParsed = JSON.parse(error.message);
-      setErrorMsg(errorParsed.message);
-      if (errorParsed.code === "E_UNVERIFIED_EMAIL") {
-        console.log(email);
-        storeEmail(email);
-        storeRetryError(true);
-        router.push("/auth/signup/create/verify-account");
+      let errorParsed;
+      try {
+        errorParsed = JSON.parse(error.message);
+        setErrorMsg(errorParsed.message);
+        if (errorParsed.code === "E_UNVERIFIED_EMAIL") {
+          console.log(email);
+          storeEmail(email);
+          storeRetryError(true);
+          router.push("/auth/signup/create/verify-account");
+        }
+      } catch (parseError) {
+        console.error("Failed to parse error message:", parseError);
+        setErrorMsg("An unexpected error occurred. Please try again.");
       }
       setError(true);
     },
