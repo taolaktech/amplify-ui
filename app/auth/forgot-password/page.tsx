@@ -32,11 +32,15 @@ export default function ForgotPassword() {
     mutationFn: handleForgotPassword,
     onSuccess: () => {
       setSent(true);
+      setError(false);
     },
     onError: (error: any) => {
       console.log("Error sending reset link:", error);
       if (error.response.data.message === AuthErrorCode.E_USER_NOT_FOUND) {
-        setErrorMsg("User account doesn't exist, please sign up");
+        setErrorMsg("We couldn't find an account with that email");
+        setError(true);
+      } else {
+        setErrorMsg("Unable to process your request. Please try again later.");
         setError(true);
       }
     },
@@ -73,7 +77,13 @@ export default function ForgotPassword() {
                       message: "Invalid email format",
                     },
                   })}
-                  error={error ? errorMsg : errors.email?.message ?? undefined}
+                  error={
+                    error
+                      ? errorMsg
+                      : errors.email?.message
+                      ? "Please enter your email address"
+                      : undefined
+                  }
                   onFocus={() => setError(false)}
                 />
                 <div className="mt-3">
@@ -112,7 +122,10 @@ export default function ForgotPassword() {
                   </p>
                   <div className="mt-16 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
                     <div className="w-full md:max-w-[241px] ">
-                      <button className="w-full secondary h-[40px] rounded-xl text-sm text-heading">
+                      <button
+                        className="w-full secondary h-[40px] rounded-xl text-sm text-heading"
+                        onClick={handleSubmit(handleForgotPasswordSubmit)}
+                      >
                         Didn't get the email?{" "}
                         <span className="text-gradient font-medium">
                           Resend Link

@@ -2,7 +2,7 @@
 import Button from "@/app/ui/Button";
 import { useEffect, useRef, useState } from "react";
 import ArrowRightIcon from "@/public/arrow-right.svg";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
@@ -18,12 +18,12 @@ function enrollCode({
   code,
   handlePaste,
   handleCodeChange,
-  error,
+  errorMsg,
 }: {
   codeRefs: React.RefObject<(HTMLInputElement | undefined)[]>;
   index: number;
   code: string[];
-  error?: boolean;
+  errorMsg?: string;
   handlePaste: (event: any) => void;
   handleCodeChange: (
     e: React.KeyboardEvent<HTMLInputElement>,
@@ -34,7 +34,7 @@ function enrollCode({
     <input
       className={`inline-block w-[49px] h-[49px] xs:w-[55.4px] xs:h-[55.4px] md:w-[89.4px] md:h-[89.4px] rounded-xl md:rounded-3xl text-center text-primary_700 border-[1.3px] 
       p-2 ${
-        !error
+        !errorMsg
           ? "border-[rgba(0,0,0,0.10)] focus:border-purple-normal"
           : "border-[#FF4949]"
       } bg-primary_100 text-black outline-0 text-sm md:text-[1.775rem] font-medium md:font-normal`}
@@ -52,19 +52,25 @@ function enrollCode({
 
 export default function VerifyAccount() {
   const [code, setCode] = useState(new Array(6).fill(""));
-  const [error, setError] = useState(false);
   const [verified, setVerified] = useState(false);
   const codeRefs = useRef<(HTMLInputElement | undefined)[]>([]);
   const router = useRouter();
   const { email, retryError, justCreated } = useCreateUserStore();
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [startTimer, setStartTimer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
+  const params = useSearchParams();
+  const googleVerified = params.get("verified");
+  const isGooglVerified = googleVerified === "true";
 
   useEffect(() => {
     codeRefs.current[0]?.focus();
     setStartTimer(true);
-    if (!justCreated) {
+    if (!email) {
+      router.replace("/auth/signup/");
+    }
+    if (!justCreated && !email) {
       router.replace("/auth/signup");
     } else if (retryError) {
       resendVerificationEmail();
@@ -96,25 +102,48 @@ export default function VerifyAccount() {
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("verifyEmail:", response);
-        router.push("/auth/signup/create/verified");
+        setVerified(true);
       }
     },
     onError: (error: any) => {
-      console.log("Error verifying email:", error);
-      setError(true);
+      console.log("Error resending verification email:", error);
+      switch (error.response.data.message) {
+        case "E_INVALID_OTP":
+          return setErrorMsg(
+            "The code you entered is incorrect. Please try again."
+          );
+        case "E_USER_NOT_FOUND":
+          return setErrorMsg("We couldn't find an account with that email.");
+        case "E_EXPIRED_OTP":
+          return setErrorMsg(
+            "Your verification code has expired. Request a new one."
+          );
+        case "E_USED_OTP":
+          return setErrorMsg(
+            "This code has already been used. Request a new one."
+          );
+        case "E_MANY_ATTEMPTS":
+          return setErrorMsg(
+            "Too many incorrect attempts. Please request a new code."
+          );
+        default:
+          return setErrorMsg(
+            "Couldn't verify the code right now. Try again shortly."
+          );
+      }
     },
   });
 
   const resendVerificationEmailMutation = useMutation({
     mutationFn: handleResendVerificationEmail,
     onSuccess: (response: AxiosResponse<any, any>) => {
+      setErrorMsg("");
       if (response.status === 200 || response.status === 201) {
         console.log("resendVerificationEmail:", response);
-        setVerified(true);
       }
     },
     onError: (error: any) => {
-      console.log("Error resending verification email:", error);
+      console.log("Error verifying email:", error);
     },
   });
 
@@ -129,7 +158,7 @@ export default function VerifyAccount() {
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
   ) => {
-    setError(false);
+    setErrorMsg("");
     const codes = [...code];
     if (e.key === "Backspace") {
       codes[index] = "";
@@ -161,7 +190,7 @@ export default function VerifyAccount() {
     console.log("here:");
     const data = { otp, email };
     if (otp.length < 6) {
-      setError(true);
+      setErrorMsg("Please enter the 6-digit code sent to your email.");
       return;
     }
     verifyEmailMutation.mutate(data);
@@ -185,11 +214,12 @@ export default function VerifyAccount() {
     });
   }
 
-  if (!justCreated) return null;
+  if (!justCreated && !email) return null;
+  const notGoogleVerified_notVerified = !isGooglVerified && !verified;
+  const googleVerified_or_verified = isGooglVerified || verified;
   return (
     <>
-      {" "}
-      {!verified && (
+      {notGoogleVerified_notVerified && (
         <div className="md:flex items-center justify-center md:min-h-[900px] h-screen py-[calc(3rem+54px)] md:py-0 px-5 lg:px-0">
           <div className="w-full md:max-w-[840px] md:flex bg-white md:min-h-[550px] justify-center items-center rounded-2xl relative md:px-4">
             <div className="max-w-[382px] md:max-w-[630px] w-full sm:mx-auto">
@@ -208,15 +238,15 @@ export default function VerifyAccount() {
                       code,
                       handlePaste,
                       handleCodeChange,
-                      error,
+                      errorMsg,
                     })
                   )}
                 </div>
                 <p
-                  className="text-[#FF4949] mt-3 text-xs md:text-sm"
-                  style={{ visibility: error ? "visible" : "hidden" }}
+                  className="text-[#FF4949] mt-3 text-xs md:text-sm h-[20px]"
+                  style={{ visibility: !!errorMsg ? "visible" : "hidden" }}
                 >
-                  Wrong OTP, Enter the right OTP sent to your email address
+                  {errorMsg ?? "An unexpected error occurred."}
                 </p>
                 <div className="mt-8 md:mt-16 flex items-center justify-between gap-4">
                   <button
@@ -245,7 +275,7 @@ export default function VerifyAccount() {
           </div>
         </div>
       )}
-      {verified && <AccountVerified />}
+      {googleVerified_or_verified && <AccountVerified />}
     </>
   );
 }

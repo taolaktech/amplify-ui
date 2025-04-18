@@ -40,15 +40,6 @@ body {
   letter-spacing: -0.28px;
 }
 
-button.gradient {
-  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
-  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
-    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
-    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-  transition: all 0.3s ease-in-out;
-}
-
 svg.button-loader {
   width: 18px;
   transform-origin: center;
@@ -96,9 +87,32 @@ svg.button-loader circle {
   -webkit-background-clip: text; /* Required for Safari */
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
+button.gradient {
+  position: relative;
+  overflow: hidden;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
 
-button.gradient:not(:disabled):hover {
+button.gradient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg, #5e00c2 19.35%, #5e00c2 97.65%);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 0;
+}
+
+button.gradient:hover::after {
+  opacity: 1;
+}
+
+button.gradient > * {
+  position: relative;
+  z-index: 1;
 }
 
 button.secondary {

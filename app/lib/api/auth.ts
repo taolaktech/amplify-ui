@@ -28,23 +28,71 @@ export const handleGoogleLogin = async () => {
   return response;
 };
 
+import { FirebaseError } from "firebase/app";
+import { AxiosError } from "axios";
+
 export const handleEmailLogin = async (data: {
   email: string;
   password: string;
 }) => {
-  const result = await signInWithEmailAndPassword(
-    auth,
-    data.email,
-    data.password
-  );
+  try {
+    const result = await signInWithEmailAndPassword(
+      auth,
+      data.email,
+      data.password
+    );
 
-  const user = result.user;
-  console.log("Email Login Success:", user);
-  const idToken = await user.getIdToken();
-  const response = await axios.post("/auth/log-in", { idToken });
-  console.log("Login Response:", response);
-  console.log("ID Token:", idToken);
-  return response;
+    const user = result.user;
+    console.log("Email Login Success:", user);
+
+    const idToken = await user.getIdToken();
+    const response = await axios.post("/auth/log-in", { idToken });
+    console.log("Login Response:", response);
+    console.log("ID Token:", idToken);
+    return response;
+  } catch (err) {
+    console.error("Login error:", err);
+    let errorMessage = "Something went wrong. Please try again.";
+    let errorCode = "unknown_error";
+
+    if (err instanceof AxiosError) {
+      if (err.response?.data.message === "E_UNVERIFIED_EMAIL") {
+        errorMessage =
+          "Your account isn't verified yet. Please check your email for the verification link.";
+        errorCode = err.response?.data.message;
+      }
+    }
+
+    if (err instanceof FirebaseError) {
+      console.log("Firebase error code:", err.code);
+      errorCode = err.code;
+
+      switch (err.code) {
+        case "auth/user-not-found":
+          errorMessage = "Incorrect email or password, please try again.";
+          break;
+        case "auth/wrong-password":
+          errorMessage = "Incorrect email or password, please try again.";
+          break;
+        case "auth/invalid-credential":
+          errorMessage = "Incorrect email or password, please try again.";
+          break;
+        case "auth/network-request-failed":
+          errorMessage = "Something went wrong. Please try again later.";
+          break;
+        case "auth/too-many-requests":
+          errorMessage =
+            "Your account has been temporarily locked due to multiple failed login attempts. Try again in 15 minutes.";
+          break;
+        default:
+          errorMessage = "Something went wrong. Please try again later.";
+          break;
+      }
+    }
+
+    console.log("Login error:", errorMessage);
+    throw new Error(JSON.stringify({ message: errorMessage, code: errorCode }));
+  }
 };
 
 export const handleEmailSignUp = async (user: {
@@ -82,6 +130,15 @@ export const handleResendVerificationEmail = async (data: {
 export const handleForgotPassword = async (email: string) => {
   const response = await axios.post("/auth/forgot-password", { email });
   console.log("Forgot Password Response:", response);
+  return response;
+};
+
+export const handleResetPassword = async (data: {
+  newPassword: string;
+  token: string;
+}) => {
+  const response = await axios.post("/auth/reset-password", data);
+  console.log("Reset Password Response:", response);
   return response;
 };
 
