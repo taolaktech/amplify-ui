@@ -246,7 +246,7 @@ export default function VerifyAccount() {
                   className="text-[#FF4949] mt-3 text-xs md:text-sm h-[20px]"
                   style={{ visibility: !!errorMsg ? "visible" : "hidden" }}
                 >
-                  {errorMsg ?? "9999"}
+                  {errorMsg ?? "An unexpected error occurred."}
                 </p>
                 <div className="mt-8 md:mt-16 flex items-center justify-between gap-4">
                   <button
