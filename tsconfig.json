@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/signup/create/verify-account"
-  ],
+, "tailwind.config.js"  ],
   "exclude": ["node_modules"]
 }

@@ -8,6 +8,7 @@ import Navbar from "@/app/ui/Navbar";
 import AuthBlock from "./AuthBlock";
 import SplashScreen from "@/app/ui/loaders/SplashScreen";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
@@ -33,6 +34,20 @@ export default function ClientLayoutWrapper({
     onIdle,
     debounce: 500,
   });
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!rememberMe) {
+        logout();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

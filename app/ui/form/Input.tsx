@@ -81,7 +81,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div>
             {!visibility && showErrorMessage && (
               <p
-                className="text-[#BE343B] text-[0.725rem] mt-1"
+                className="text-[#BE343B] text-xs mt-2"
                 style={{ display: !error ? "none" : "block" }}
               >
                 {error ?? "----"}

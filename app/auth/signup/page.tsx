@@ -18,8 +18,9 @@ const defaultFormValues = {
 };
 
 export default function Signup() {
-  const storeEmail = useCreateUserStore().storeEmail;
+  const { storeEmail, storeJustCreated } = useCreateUserStore();
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const {
     register,
     handleSubmit,
@@ -32,18 +33,30 @@ export default function Signup() {
   });
   const login = useAuthStore().login;
   const router = useRouter();
+  const email = watch("email");
+
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("Google Login Data:", response);
         login(response.data?.token, response.data?.user);
-        router.push("/auth/create/verified");
+        if (response.data?.userCreated) {
+          storeEmail(email);
+          storeJustCreated(true);
+          router.push("/auth/signup/create/verify-account?verified=true");
+        } else {
+          router.push("/");
+        }
       }
+    },
+    onError: (error: any) => {
+      console.log("Error logging in:", error);
+      setErrorMsg("We couldn’t create your account. Please try again.");
+      setError(true);
     },
   });
 
-  const email = watch("email");
   const {
     // data,
     isFetching: fetchingEmailStatus,
@@ -58,7 +71,7 @@ export default function Signup() {
   const handleProceed = (data: typeof defaultFormValues) => {
     getEmailStatus().then((res) => {
       if (res.data?.data.userExists) {
-        console.log("Email already exists, please login");
+        setErrorMsg("An account with this email already exists.");
         setError(true);
         storeEmail("");
       } else {
@@ -67,6 +80,12 @@ export default function Signup() {
         router.push("/auth/signup/create");
       }
     });
+  };
+
+  const handleProceedGoogle = () => {
+    setError(false);
+    setErrorMsg("");
+    googleLoginMutation.mutate();
   };
 
   return (
@@ -122,8 +141,10 @@ export default function Signup() {
                 })}
                 error={
                   error
-                    ? "Email already exists, please login"
-                    : errors.email?.message ?? undefined
+                    ? errorMsg
+                    : errors.email?.message
+                    ? "Enter a valid email address."
+                    : undefined
                 }
                 onFocus={() => setError(false)}
               />
@@ -141,7 +162,7 @@ export default function Signup() {
               <Button
                 text="Google"
                 icon={<GoogleIcon width={17} height={16} />}
-                action={googleLoginMutation.mutate}
+                action={handleProceedGoogle}
                 secondary
                 hasIconOrLoader
                 loading={googleLoginMutation.isPending}

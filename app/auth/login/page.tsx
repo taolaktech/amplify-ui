@@ -5,7 +5,7 @@ import Link from "next/link";
 import Button from "@/app/ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
 import GoogleIcon from "@/public/google.svg";
-import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { handleEmailLogin, handleGoogleLogin } from "@/app/lib/api/auth";
@@ -19,11 +19,14 @@ const defaultFormValues = {
 
 export default function Login() {
   const { rememberMe, storeRememberMe } = useAuthStore();
+  const { storeEmail, storeRetryError, storeJustCreated } =
+    useCreateUserStore();
   const login = useAuthStore().login;
   const [error, setError] = useState(false);
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -33,6 +36,8 @@ export default function Login() {
 
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
+
+  const email = watch("email");
 
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
@@ -45,7 +50,14 @@ export default function Login() {
     },
     onError: (error: any) => {
       console.log("Error logging in:", error);
-      setErrorMsg("Email or password is incorrect");
+      const errorParsed = JSON.parse(error.message);
+      setErrorMsg(errorParsed.message);
+      if (errorParsed.code === "E_UNVERIFIED_EMAIL") {
+        console.log(email);
+        storeEmail(email);
+        storeRetryError(true);
+        router.push("/auth/signup/create/verify-account");
+      }
       setError(true);
     },
   });
@@ -59,7 +71,13 @@ export default function Login() {
       if (response.status === 200 || response.status === 201) {
         console.log("Google Login Data:", response);
         login(response.data?.token, response.data?.user);
-        router.push("/");
+        if (response.data?.userCreated) {
+          storeEmail(email);
+          storeJustCreated(true);
+          router.push("/auth/signup/create/verify-account?verified=true");
+        } else {
+          router.push("/");
+        }
       }
     },
   });
@@ -67,6 +85,11 @@ export default function Login() {
   const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     storeRememberMe(!rememberMe);
+  };
+  const handleLoginButtonPressed = () => {
+    setError(false);
+    setErrorMsg("");
+    handleSubmit(handleEmailLoginSubmit)();
   };
 
   return (
@@ -85,7 +108,6 @@ export default function Login() {
               label="Email Address"
               placeholder="Enter your email"
               type="email"
-              showErrorMessage
               {...register("email", {
                 required: "Enter your email",
                 pattern: {
@@ -94,7 +116,6 @@ export default function Login() {
                 },
               })}
               error={error ? errorMsg : errors.email?.message ?? undefined}
-              onFocus={() => setError(false)}
             />
             <Input
               type="password"
@@ -103,8 +124,16 @@ export default function Login() {
               {...register("password", {
                 required: "Enter your password",
               })}
-              error={errors.password?.message}
+              showErrorMessage
+              error={
+                error
+                  ? errorMsg
+                  : errors.password?.message || errors.email?.message
+                  ? "Please enter both your email and password."
+                  : undefined
+              }
             />
+
             <div className="flex items-center justify-between">
               <button
                 className="flex items-center gap-1 cursor-pointer"
@@ -129,7 +158,7 @@ export default function Login() {
             <div>
               <Button
                 text="Proceed"
-                action={handleSubmit(handleEmailLoginSubmit)}
+                action={handleLoginButtonPressed}
                 loading={emailLoginMutation.isPending}
                 hasIconOrLoader
               />

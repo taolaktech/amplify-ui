@@ -34,7 +34,7 @@ export default function CompletionBackground({
   }, []);
   return (
     <div id="verified-bg">
-      <div className="h-[316px] w-full max-w-screen lg:hidden small">
+      <div className="h-[316px] max-h-[50vh] w-full max-w-screen lg:hidden small">
         <svg
           className="w-full"
           height="316"
@@ -206,7 +206,7 @@ export default function CompletionBackground({
           </g>
         </svg>
       </div>
-      <div className="h-[364.63px] w-full hidden lg:block big">
+      <div className="h-[364.63px] max-h-[50vh] w-full hidden lg:block big">
         <svg
           className="w-full h-full"
           // height="366"
