@@ -20,6 +20,7 @@ export default function AuthBlock({
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
     const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
     if (!isAuth && (pathname === "/" || !isPublic)) {
