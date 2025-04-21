@@ -27,7 +27,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 transform duration-300 ${
         showShadow ? "md:shadow-sm" : ""
-      } w-full bg-[#FBFAFC] md:bg-white flex items-center h-navbar-height z-10 container-base-container px-base-padding py-3`}
+      } w-full bg-[#FBFAFC] flex items-center h-navbar-height z-10 container-base-container px-5 py-3`}
     >
       <div className="max-w-[1512px] mx-auto w-full flex items-center">
         <Link
