@@ -4,8 +4,11 @@ import TickIcon from "@/public/tick-circle-gradient.svg";
 import TrendUpIcon from "@/public/trend-up.svg";
 import DefaultButton from "../ui/Button";
 import { ArrowRight } from "iconsax-react";
+import ConnectStore from "../ui/modals/ConnectStore";
+import { useState } from "react";
 
 function ConnectPage() {
+  const [connectStoreModal, setConnectStoreModal] = useState(false);
   return (
     <div className="">
       <h1 className="text-[1.75rem] text-heading font-bold mb-1 tracking-heading">
@@ -59,6 +62,7 @@ function ConnectPage() {
       <div className="mt-12 flex justify-center">
         <div className="sm:max-w-[127px]">
           <DefaultButton
+            action={() => setConnectStoreModal(true)}
             text="Connect"
             iconPosition="right"
             hasIconOrLoader
@@ -66,6 +70,11 @@ function ConnectPage() {
           />
         </div>
       </div>
+
+      {/* modal */}
+      {connectStoreModal && (
+        <ConnectStore closeModal={() => setConnectStoreModal(false)} />
+      )}
     </div>
   );
 }

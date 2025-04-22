@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 transform duration-300 ${
+      className={`sticky top-0 transform duration-300 ${
         showShadow ? "md:shadow-sm" : ""
       } w-full bg-[#FBFAFC] flex items-center h-navbar-height z-10 container-base-container px-5 py-3`}
     >

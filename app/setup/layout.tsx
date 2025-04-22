@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex pt-[56px]">
+    <main className="flex">
       {/* Sidebar */}
       <SetupSideBar />
       {/* Main Content */}
