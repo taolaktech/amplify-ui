@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Amplify: Forgot Your Password",
+  title: "Amplify - Forgot Your Password",
   description:
     "Enter your email to receive password reset instructions for your Amplify account.",
 };

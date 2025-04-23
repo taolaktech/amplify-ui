@@ -40,6 +40,10 @@
   font-family: "Satoshi", sans-serif;
 }
 
+/* .select-option {
+  font-family: "Trebuchet MS", sans-serif;
+} */
+
 body {
   background: var(--background);
   font-family: "Satoshi", sans-serif;
@@ -103,6 +107,10 @@ button.gradient {
   color: white;
   border: none;
   padding: 1rem 2rem;
+  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
+
+.bg-gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
 }
 

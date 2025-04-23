@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Amplify: Maximize Your Store's Potential",
+  title: "Amplify - Maximize Your Store's Potential",
   description:
     "Amplify is a powerful tool that helps you drive sales and traffic to your store. Choose the right connection option for your business.",
   keywords: [

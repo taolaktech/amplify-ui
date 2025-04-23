@@ -24,8 +24,8 @@ function SetupSideBar() {
   }, [connectStore, businessDetails]);
 
   return (
-    <div className="w-[402px] px-5 bg-[#FBFAFC] min-h-[calc(100vh-56px)] pt-18">
-      <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-8 relative flex items-center w-[330px] mx-auto">
+    <div className="hidden xl:block max-w-[402px] px-5 bg-[#FBFAFC] min-h-[calc(100vh-56px)] pt-18">
+      <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-8 relative flex items-center max-w-[330px] mx-auto">
         <div className="relative size-16">
           <svg
             className="size-full -rotate-90"
@@ -158,6 +158,12 @@ function SetupSideBar() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="fixed top-[56px] left-0 h-[2px] right-0 w-full rounded-lg">
+        <div
+          className="bg-gradient h-[2px] rounded-lg"
+          style={{ width: `${(1 / 4) * 100}%` }}
+        ></div>
       </div>
     </div>
   );

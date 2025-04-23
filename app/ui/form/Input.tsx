@@ -7,6 +7,7 @@ type InputProps = {
   name: string;
   value?: string;
   label: string;
+  large?: boolean;
   setValue?: (value: string) => void;
   error?: string;
   placeholder?: string;
@@ -24,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       placeholder,
       setValue, // eslint-disable-line @typescript-eslint/no-unused-vars
       visibility,
+      large,
       error,
       showErrorMessage,
       showPasswordErrorMessage,
@@ -39,7 +41,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ) => {
       e.preventDefault();
       if (!isPassword) return;
-      setCurrentType((prev) => (prev === "password" ? "text" : "password"));
+      setCurrentType((prev) => (prev === "password" ? type : "password"));
     };
 
     return (
@@ -50,14 +52,20 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         >
           {label}
         </label>
-        <div className="h-[44px] md:h-[40px] relative">
+        <div
+          className={`relative  ${
+            large ? `h-[44px] md:h-[48px]` : `h-[44px] md:h-[40px]`
+          }`}
+        >
           <input
             ref={ref}
             type={currentType}
             id={name}
             name={name}
             placeholder={placeholder}
-            className={`px-4 mt-2 block w-full py-3 h-[44px] md:h-[40px] placeholder:text-gray-dark text-purple-dark font-medium ${
+            className={`px-4 mt-2 block w-full py-3 ${
+              large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
+            }  placeholder:text-gray-dark text-purple-dark font-medium ${
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input-border focus:border-[#A755FF] "

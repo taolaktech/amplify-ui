@@ -16,7 +16,11 @@ export default function RootLayout({
       {/* Sidebar */}
       <SetupSideBar />
       {/* Main Content */}
-      <div className="flex-1 pt-22 max-w-[836px] mx-auto mb-5">{children}</div>
+      <div className="px-5 flex-1 flex">
+        <div className="flex-1 pt-22 max-w-[836px] mx-auto mb-5">
+          {children}
+        </div>
+      </div>
     </main>
   );
 }
