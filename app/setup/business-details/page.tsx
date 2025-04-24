@@ -6,10 +6,19 @@ import TextArea from "@/app/ui/form/TextArea";
 import URLInput from "@/app/ui/form/URLInput";
 import React, { useState } from "react";
 import { ArrowRight } from "iconsax-react";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
+
+const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
 
 export default function BusinessDetails() {
+  const storeBusinessDetails = useSetupStore().storeBusinessDetails;
   const [productCategory, setProductCategory] = useState<string | null>(null);
   const [companyRole, setCompanyRole] = useState<string | null>(null);
+  const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
+
+  const handleNext = () => {
+    storeBusinessDetails(true);
+  };
   return (
     <div>
       <h1 className="text-heading text-[1.75rem] font-bold tracking-[-0.84px]">
@@ -83,6 +92,27 @@ export default function BusinessDetails() {
         </div>
 
         <div>
+          <div className="flex items-center gap-2 mt-2">
+            {teamSize.map((size, index) => (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setTeamSizeSelected(index);
+                }}
+                key={size}
+                className={`flex items-center gap-2 px-6 py-3 rounded-[37px] ${
+                  teamSizeSelected === index
+                    ? "outline-2 outline-purple-dark border border-white"
+                    : "outline-2 outline-white border border-[#C2BFC5]  "
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
           <Input
             type="text"
             label="Company or Store Name"
@@ -115,6 +145,7 @@ export default function BusinessDetails() {
             hasIconOrLoader
             text="Next"
             iconPosition="right"
+            action={handleNext}
             icon={<ArrowRight size="16" color="#fff" />}
           />
         </div>

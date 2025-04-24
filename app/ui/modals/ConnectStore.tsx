@@ -3,13 +3,26 @@ import CloudIcon from "@/public/cloud.svg";
 import DefaultButton from "../Button";
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
 
 function ConnectStore({ closeModal }: { closeModal: () => void }) {
+  const { storeConnectStore } = useSetupStore();
   const [fetchingInfo, setFetchingInfo] = useState(false);
 
   const closeClicked = () => {
     if (!fetchingInfo) closeModal();
   };
+
+  const handleConnectStore = () => {
+    console.log("Connecting to Shopify store...");
+    setFetchingInfo(true);
+    setTimeout(() => {
+      setFetchingInfo(false);
+      storeConnectStore(true);
+      closeModal();
+    }, 2000);
+  };
+
   return (
     <div className="">
       <div
@@ -54,7 +67,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
                   <div className="max-w-[96px] mx-auto mt-14">
                     <DefaultButton
                       text="Continue"
-                      action={() => setFetchingInfo(true)}
+                      action={handleConnectStore}
                     />
                   </div>
                 </form>

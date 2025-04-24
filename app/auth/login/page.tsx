@@ -77,6 +77,7 @@ export default function Login() {
       if (response.status === 200 || response.status === 201) {
         console.log("Google Login Data:", response);
         login(response.data?.token, response.data?.user);
+        console.log("user-create:", response.data.userCreated);
         if (response.data?.userCreated) {
           storeEmail(email);
           storeJustCreated(true);

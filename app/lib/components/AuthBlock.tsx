@@ -3,13 +3,14 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "../stores/authStore";
 import { useEffect, useState } from "react";
+import SplashScreen from "@/app/ui/loaders/SplashScreen";
 
 const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/register"];
 
 export default function AuthBlock({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { isAuth } = useAuthStore();
+  const { isAuth } = useAuthStore(); // Make sure your store supports loading state
   const pathname = usePathname();
   const router = useRouter();
 
@@ -21,14 +22,23 @@ export default function AuthBlock({
 
   useEffect(() => {
     if (!isMounted) return;
-    const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
-    if (!isAuth && (pathname === "/" || !isPublic)) {
+    const isPublicRoute = PUBLIC_ROUTES.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`)
+    );
+
+    if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
     }
-  }, [isAuth, pathname, router]);
+  }, [isMounted, isAuth, pathname, router]);
 
-  if (!isMounted) return null;
+  const isPublicRoute = PUBLIC_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+
+  if (!isMounted || (!isPublicRoute && !isAuth)) {
+    return <SplashScreen />; // or return a <LoadingScreen />
+  }
 
   return <>{children}</>;
 }

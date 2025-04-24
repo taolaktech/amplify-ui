@@ -2,29 +2,41 @@
 import { TickCircle, Next } from "iconsax-react";
 import { useSetupStore } from "../lib/stores/setupStore";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 function SetupSideBar() {
-  const { connectStore, businessDetails } = useSetupStore();
+  const { connectStore, businessDetails, preferredSalesLocation } =
+    useSetupStore();
   const [step, setStep] = useState(1);
   const [lineProgress, setLineProgress] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     let step = 1;
     let lineProgress = 0;
-    if (connectStore) {
-      step += 1;
-      lineProgress += 33.33;
+    if (connectStore) step += 1;
+    if (businessDetails) step += 1;
+    if (preferredSalesLocation) step += 1;
+    if (step === 1) {
+      lineProgress = 0;
+      router.push("/setup");
+    } else if (step === 2) {
+      lineProgress = 33.33;
+      router.push("/setup/business-details");
+    } else if (step === 3) {
+      lineProgress = 66.66;
+      router.push("/setup/preferred-sales-location");
+    } else if (step === 4) {
+      lineProgress = 100;
+      router.push("/setup/business-goal");
     }
-    if (businessDetails) {
-      step += 1;
-      lineProgress += 33.33;
-    }
+
     setLineProgress(lineProgress);
     setStep(step);
-  }, [connectStore, businessDetails]);
+  }, [connectStore, businessDetails, preferredSalesLocation]);
 
   return (
-    <div className="hidden xl:block max-w-[402px] px-5 bg-[#FBFAFC] min-h-[calc(100vh-56px)] pt-18">
+    <div className="hidden xl:block max-w-[402px] px-5 -mt-[56px] pt-[128px] bg-[#FBFAFC] h-screen sticky top-0 bottom-0">
       <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-8 relative flex items-center max-w-[330px] mx-auto">
         <div className="relative size-16">
           <svg
@@ -48,7 +60,7 @@ function SetupSideBar() {
               className="stroke-current text-[#27AE60]"
               strokeWidth="2"
               strokeDasharray="100"
-              strokeDashoffset={100 - (step / 4) * 100}
+              strokeDashoffset={(step / 4) * 100 - 100}
               strokeLinecap="round"
             ></circle>
           </svg>
@@ -82,7 +94,7 @@ function SetupSideBar() {
 
           {/* Step 1 */}
           <div className="flex mb-8 relative">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-10">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
               <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                 <TickCircle
                   width="24"
@@ -93,8 +105,18 @@ function SetupSideBar() {
               </div>
             </div>
             <div className="ml-1 pt-2">
-              <div className="text-xs text-gray-light font-medium">STEP 1</div>
-              <div className="font-medium text-gray-light">
+              <div
+                className={`text-xs ${
+                  step >= 0 ? "text-black" : "text-gray-light"
+                } font-medium`}
+              >
+                STEP 1
+              </div>
+              <div
+                className={`font-medium ${
+                  step >= 0 ? "text-purple-dark" : "text-gray-light"
+                }`}
+              >
                 Connect your Store
               </div>
             </div>
@@ -102,7 +124,7 @@ function SetupSideBar() {
 
           {/* Step 2 */}
           <div className="flex mb-8 relative">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-10">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
               <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                 <TickCircle
                   width="24"
@@ -113,8 +135,18 @@ function SetupSideBar() {
               </div>
             </div>
             <div className="ml-1 pt-2">
-              <div className="text-xs text-gray-light font-medium">STEP 2</div>
-              <div className="font-medium text-gray-light">
+              <div
+                className={`text-xs ${
+                  step >= 2 ? "text-black" : "text-gray-light"
+                } font-medium`}
+              >
+                STEP 2
+              </div>
+              <div
+                className={`font-medium ${
+                  step >= 2 ? "text-purple-dark" : "text-gray-light"
+                }`}
+              >
                 Business Details
               </div>
             </div>
@@ -122,7 +154,7 @@ function SetupSideBar() {
 
           {/* Step 3 */}
           <div className="flex mb-8 relative">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-10">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
               <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                 <TickCircle
                   width="24"
@@ -133,8 +165,18 @@ function SetupSideBar() {
               </div>
             </div>
             <div className="ml-1 pt-2">
-              <div className="text-xs text-gray-light font-medium">STEP 3</div>
-              <div className="font-medium text-gray-light">
+              <div
+                className={`text-xs ${
+                  step >= 3 ? "text-black" : "text-gray-light"
+                } font-medium`}
+              >
+                STEP 3
+              </div>
+              <div
+                className={`font-medium ${
+                  step >= 3 ? "text-purple-dark" : "text-gray-light"
+                }`}
+              >
                 Preferred Sales Location
               </div>
             </div>
@@ -142,7 +184,7 @@ function SetupSideBar() {
 
           {/* Step 4 */}
           <div className="flex relative">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-10">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
               <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                 <TickCircle
                   width="24"
@@ -153,16 +195,28 @@ function SetupSideBar() {
               </div>
             </div>
             <div className="ml-1 pt-2">
-              <div className="text-xs text-gray-light">STEP 4</div>
-              <div className="font-medium text-gray-light">Business Goal</div>
+              <div
+                className={`text-xs ${
+                  step >= 4 ? "text-black" : "text-gray-light"
+                } font-medium`}
+              >
+                STEP 4
+              </div>
+              <div
+                className={`font-medium ${
+                  step >= 4 ? "text-purple-dark" : "text-gray-light"
+                }`}
+              >
+                Business Goal
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="fixed top-[56px] left-0 h-[2px] right-0 w-full rounded-lg">
+      <div className="fixed top-[56px] left-0 h-[2px] z-10 right-0 w-full rounded-lg">
         <div
           className="bg-gradient h-[2px] rounded-lg"
-          style={{ width: `${(1 / 4) * 100}%` }}
+          style={{ width: `${(step / 4) * 100}%` }}
         ></div>
       </div>
     </div>
