@@ -1,5 +1,6 @@
 import CloseIcon from "@/public/close-circle.svg";
 import CloudIcon from "@/public/cloud.svg";
+import CloudIconSM from "@/public/cloud-sm.svg";
 import DefaultButton from "../Button";
 import { useState } from "react";
 import { motion } from "motion/react";
@@ -32,22 +33,22 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
 
       <div
         className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
-      h-[80vh] w-[80vw] max-h-[480px] max-w-[720px]
+      h-[45vh] md:h-[50vh] w-[90vw] max-h-[300px] md:max-h-[420px] max-w-[720px]
       z-30 rounded-3xl p-6 flex flex-col
       "
       >
         {!fetchingInfo && (
           <div className="flex items-center justify-end">
-            <button onClick={closeModal}>
+            <button onClick={closeModal} className="-mt-4 -mr-5 md:m-0">
               <CloseIcon width={48} height={48} />
             </button>
           </div>
         )}
         <div className="flex-1 flex flex-col justify-center items-center">
           {!fetchingInfo && (
-            <div className="w-[90%] max-w-[536px] mr-1">
-              <div>
-                <p className="text-lg text-heading font-medium tracking-250 ">
+            <div className="w-full max-w-[536px] mr-1">
+              <div className="-mt-5 md:mt-0">
+                <p className="md:text-lg text-heading font-medium tracking-250 ">
                   Connect your Shopify Store
                 </p>
                 <p className="text-xs tracking-100">
@@ -64,7 +65,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
                     placeholder="http://www.rstore.com/"
                     className="block w-full h-[48px] border text-sm placeholder:text-heading text-heading font-medium tracking-100  px-4 border-[#C2BFC5] rounded-lg focus:outline-0 focus:border-[#A755FF]"
                   />
-                  <div className="max-w-[96px] mx-auto mt-14">
+                  <div className="sm:max-w-[96px] mx-auto mt-2 md:mt-14">
                     <DefaultButton
                       text="Continue"
                       action={handleConnectStore}
@@ -75,7 +76,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
             </div>
           )}
           {fetchingInfo && (
-            <div className="w-[90%] max-w-[467px] flex flex-col gap-9 items-center">
+            <div className="w-[90%] max-w-[467px] flex flex-col gap-4 md:gap-9 items-center">
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{
@@ -84,9 +85,14 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
                   ease: "easeInOut",
                 }}
               >
-                <CloudIcon />
+                <span className="hidden md:inline-block">
+                  <CloudIcon />
+                </span>
+                <span className="md:hidden">
+                  <CloudIconSM />
+                </span>
               </motion.div>
-              <div className="text-[#595959] -mt-2">
+              <div className="text-[#595959] text-sm md:text-base -mt-2">
                 Fetching information from your website
               </div>
 

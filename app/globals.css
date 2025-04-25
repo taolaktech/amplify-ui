@@ -1,3 +1,4 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"); */
 @import url("https://fonts.cdnfonts.com/css/satoshi");
 @import "tailwindcss";
 
@@ -36,6 +37,10 @@
   --breakpoint-xs: 412px;
 }
 
+/* * {
+  font-family: "Inter", sans-serif;
+} */
+
 * {
   font-family: "Satoshi", sans-serif;
 }
@@ -46,6 +51,7 @@
 
 body {
   background: var(--background);
+  /* font-family: "Inter", sans-serif; */
   font-family: "Satoshi", sans-serif;
   letter-spacing: -0.28px;
 }

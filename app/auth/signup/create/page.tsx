@@ -1,6 +1,6 @@
 "use client";
 import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
-import { useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { passwordPattern } from "@/app/lib/utils";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
@@ -19,6 +19,7 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
+  const login = useAuthStore().login;
   const { email, storeProfile, storeRetryError, storeJustCreated } =
     useCreateUserStore();
   const [errorMsg, setErrorMsg] = useState("");
@@ -59,6 +60,7 @@ export default function Create() {
       if (response.status === 200 || response.status === 201) {
         console.log("sign up data:", response);
         storeJustCreated(true);
+        login(response.data?.token, response.data?.user);
         router.push("/auth/signup/create/verify-account");
       }
       setErrorMsg("");

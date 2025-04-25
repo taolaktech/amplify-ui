@@ -70,14 +70,14 @@ const SelectInput = ({
       <p className="text-xs tracking-tight leading-4 block">{label}</p>
       <div
         id={id}
-        className={`relative outline-0 px-4 mt-2 w-full py-3 flex items-center justify-between ${
+        className={`relative outline-0  rounded-xl px-4 mt-2 w-full py-3 flex items-center justify-between ${
           large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
         }  placeholder:text-heading text-heading placeholder:font-medium font-medium ${
           error
             ? "border-red-500 focus:border-red-500"
             : isOpen
             ? "border-[#A755FF]"
-            : "border-input-border"
+            : "border-[#5F6368]"
         } rounded-lg text-sm focus:outline-0 border-[1.2px] `}
       >
         <p

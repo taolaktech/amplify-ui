@@ -21,12 +21,14 @@ export default function BusinessDetails() {
   };
   return (
     <div>
-      <h1 className="text-heading text-[1.75rem] font-bold tracking-[-0.84px]">
+      <h1 className="text-xl w-full md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
         Business Details
       </h1>
 
-      <form className="flex flex-col gap-6">
-        <p className="text-[#595959] mt-2">1. Tell us about your business</p>
+      <form className="flex flex-col gap-4 md:gap-6">
+        <p className="text-[#595959] text-sm md:text-base mt-1 md:mt-2">
+          1. Tell us about your business
+        </p>
         <div>
           <Input
             type="text"
@@ -67,7 +69,7 @@ export default function BusinessDetails() {
             large
           />
         </div>
-        <p className="text-[#595959] mt-14">
+        <p className="text-[#595959] mt-3 text-sm md:text-base md:mt-14">
           2. Tell us more about your business
         </p>
         <div>
@@ -92,7 +94,7 @@ export default function BusinessDetails() {
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center flex-wrap gap-2 mt-2">
             {teamSize.map((size, index) => (
               <button
                 onClick={(e) => {
@@ -100,7 +102,7 @@ export default function BusinessDetails() {
                   setTeamSizeSelected(index);
                 }}
                 key={size}
-                className={`flex items-center gap-2 px-6 py-3 rounded-[37px] ${
+                className={`flex text-sm md:text-base items-center gap-2 md:px-6 md:py-3 py-2 px-5 text-nowrap rounded-[37px] ${
                   teamSizeSelected === index
                     ? "outline-2 outline-purple-dark border border-white"
                     : "outline-2 outline-white border border-[#C2BFC5]  "
@@ -140,7 +142,7 @@ export default function BusinessDetails() {
           />
         </div>
 
-        <div className="max-w-[94px] mx-auto my-10">
+        <div className="sm:max-w-[94px] mx-auto my-4 md:my-10">
           <DefaultButton
             hasIconOrLoader
             text="Next"

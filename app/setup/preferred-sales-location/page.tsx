@@ -2,9 +2,10 @@
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
-import SelectInput from "@/app/ui/form/SelectInput";
+// import SelectInput from "@/app/ui/form/SelectInput";
 import { ArrowRight, SearchNormal } from "iconsax-react";
 import { useState } from "react";
+import PreferredLocationSelectInput from "@/app/ui/form/PreferredLocationSelectInput";
 function PreferredSalesLocation() {
   const storePreferredSalesLocation =
     useSetupStore().storePreferredSalesLocation;
@@ -15,14 +16,14 @@ function PreferredSalesLocation() {
   };
   return (
     <div>
-      <h1 className="text-heading text-[1.75rem] font-bold tracking-[-0.84px]">
+      <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
         Preferred Sales Location
       </h1>
-      <p className="text-[#595959] mb-18 tracking-[-0.32px]">
+      <p className="text-[#595959] text-sm md:tex-base md:mb-18 tracking-[-0.14px] md:tracking-[-0.32px]">
         Amplify is only available to merchants selling in the US and Canada.
       </p>
-      <div className="mt-12">
-        <div className="h-[40px] max-w-[387px] relative">
+      <div className="mt-6 md:mt-12">
+        <div className="h-[44px] max-w-[387px] relative">
           <div className="absolute top-[50%] translate-y-[-50%] left-3">
             <SearchNormal size={16} color="#000000" />
           </div>
@@ -35,7 +36,7 @@ function PreferredSalesLocation() {
       </div>
       <div className="rounded-lg bg-[#FBFAFC] p-5">
         <div
-          className="flex items-center gap-1 mb-4 cursor-pointer"
+          className="flex items-center gap-2 mb-4 cursor-pointer"
           onClick={() => setMerchantInUsCanada((prev) => !prev)}
         >
           <GreenCheckbox ticked={merchantInUsCanada} />
@@ -43,7 +44,7 @@ function PreferredSalesLocation() {
         </div>
 
         <div className="mt-4 max-w-[387px]">
-          <SelectInput
+          <PreferredLocationSelectInput
             options={[]}
             label=""
             placeholder=""
@@ -51,7 +52,7 @@ function PreferredSalesLocation() {
           />
         </div>
       </div>
-      <div className="max-w-[94px] mx-auto my-12">
+      <div className="sm:max-w-[94px] mx-auto my-7 md:my-12">
         <DefaultButton
           hasIconOrLoader
           text="Next"

@@ -13,7 +13,8 @@ export default function Verified() {
   const router = useRouter();
 
   return (
-    <div className="flex justify-center bg-white h-screen items-start md:min-h-[800px]">
+    <div className="md:flex items-center justify-center md:min-h-[800px] md:h-[calc(100vh-56px)] md:py-0">
+      {/* <div className="flex justify-center bg-white h-[calc(100vh-56px)] items-start md:min-h-[800px]"> */}
       <div className="w-full lg:max-w-[882px] relative">
         <CompletionBackground>
           <div className="absolute top-[80%] left-0 right-0 w-full flex flex-col items-center">
@@ -42,7 +43,7 @@ export default function Verified() {
                 <div className="w-full md:max-w-[149px]">
                   <Button
                     text="Complete Setup"
-                    action={() => router.push("/")}
+                    action={() => router.push("/setup")}
                   />
                 </div>
               </div>

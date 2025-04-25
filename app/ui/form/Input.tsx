@@ -39,9 +39,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const togglePasswordVisibility = (
       e: React.MouseEvent<HTMLButtonElement>
     ) => {
+      console.log("clicked");
+
       e.preventDefault();
+      console.log("clicked");
       if (!isPassword) return;
-      setCurrentType((prev) => (prev === "password" ? type : "password"));
+      setCurrentType((prev) => (prev === "password" ? "text" : "password"));
     };
 
     return (
@@ -75,7 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {isPassword && (
             <button
               onClick={togglePasswordVisibility}
-              className="absolute top-[50%] -translate-y-[50%] right-3 h-[16px] flex items-center justify-center"
+              className="absolute top-[50%] -translate-y-[50%] p-2 z-10 right-3 h-[16px] flex items-center justify-center"
             >
               {currentType === "text" ? (
                 <EyeIcon width={16} height={16} />

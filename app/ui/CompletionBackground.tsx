@@ -34,7 +34,7 @@ export default function CompletionBackground({
   }, []);
   return (
     <div id="verified-bg">
-      <div className="h-[316px] max-h-[50vh] w-full max-w-screen lg:hidden small">
+      <div className="h-[316px] max-h-[30vh] w-full max-w-screen lg:hidden small">
         <svg
           className="w-full"
           height="316"
