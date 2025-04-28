@@ -79,7 +79,7 @@ export default function ResetPassword() {
   return (
     <>
       {!passwordChangeSuccessful && (
-        <div className="md:flex items-center justify-center md:min-h-[800px] h-screen py-[calc(3rem+54px)] md:py-0 px-5">
+        <div className="md:flex items-center justify-center md:min-h-[800px] md:h-[calc(100vh-56px)] pt-[56px] md:pt-0 px-5">
           <div className="w-full md:max-w-[526px] md:flex bg-white md:min-h-[559px] justify-center items-center rounded-2xl relative md:px-4">
             <div className="max-w-[382px] w-full mx-auto">
               <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
@@ -140,7 +140,7 @@ export default function ResetPassword() {
         </div>
       )}
       {passwordChangeSuccessful && (
-        <div className="flex justify-center bg-white items-start h-screen md:min-h-[800px]">
+        <div className="flex justify-center bg-white items-start md:h-[calc(100vh-56px)] pt-[56px] md:min-h-[800px]">
           <div className="w-full lg:max-w-[882px] relative bg-white">
             <CompletionBackground>
               <div className="absolute top-[80%] left-0 right-0 w-full flex flex-col items-center">

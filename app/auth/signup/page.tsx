@@ -89,7 +89,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="block items-center justify-center md:min-h-[900px] h-screen md:flex py-[calc(3rem+54px)] md:py-0 px-5">
+    <div className="block items-center justify-center md:min-h-[900px] md:flex md:h-[calc(100vh-56px)] pt-[56px] md:py-0 px-5">
       <div className="w-full md:max-w-[1170px] md:flex bg-white md:min-h-[667px] rounded-2xl relative">
         <div className="hidden md:block w-[50%] lg:w-[59.83%] relative">
           <Image

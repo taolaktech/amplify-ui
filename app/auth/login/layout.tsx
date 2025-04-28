@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Amplify: Login",
+  title: "Amplify - Login",
   description: "Login to Amplify account",
 };
 
