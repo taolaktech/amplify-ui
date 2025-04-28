@@ -7,6 +7,7 @@ type InputProps = {
   name: string;
   value?: string;
   label: string;
+  large?: boolean;
   setValue?: (value: string) => void;
   error?: string;
   placeholder?: string;
@@ -24,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       placeholder,
       setValue, // eslint-disable-line @typescript-eslint/no-unused-vars
       visibility,
+      large,
       error,
       showErrorMessage,
       showPasswordErrorMessage,
@@ -37,7 +39,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const togglePasswordVisibility = (
       e: React.MouseEvent<HTMLButtonElement>
     ) => {
+      console.log("clicked");
+
       e.preventDefault();
+      console.log("clicked");
       if (!isPassword) return;
       setCurrentType((prev) => (prev === "password" ? "text" : "password"));
     };
@@ -50,14 +55,20 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         >
           {label}
         </label>
-        <div className="h-[44px] md:h-[40px] relative">
+        <div
+          className={`relative  ${
+            large ? `h-[44px] md:h-[48px]` : `h-[44px] md:h-[40px]`
+          }`}
+        >
           <input
             ref={ref}
             type={currentType}
             id={name}
             name={name}
             placeholder={placeholder}
-            className={`px-4 mt-2 block w-full py-3 h-[44px] md:h-[40px] placeholder:text-gray-dark text-purple-dark font-medium ${
+            className={`px-4 mt-2 block w-full py-3 ${
+              large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
+            }  placeholder:text-gray-dark text-purple-dark font-medium ${
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input-border focus:border-[#A755FF] "
@@ -67,7 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {isPassword && (
             <button
               onClick={togglePasswordVisibility}
-              className="absolute top-[50%] -translate-y-[50%] right-3 h-[16px] flex items-center justify-center"
+              className="absolute top-[50%] -translate-y-[50%] p-2 z-10 right-3 h-[16px] flex items-center justify-center"
             >
               {currentType === "text" ? (
                 <EyeIcon width={16} height={16} />

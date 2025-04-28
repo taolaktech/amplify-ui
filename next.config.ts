@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // images: {
-  //   unoptimized: true,
-  // },
-  // output: "export",
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -14,10 +10,7 @@ const nextConfig: NextConfig = {
           options: {
             icon: true,
             svgo: {
-              plugins: [
-                { removeViewBox: false },
-                { removeDimensions: false }, // Ensures width/height are not removed
-              ],
+              plugins: [{ removeViewBox: false }, { removeDimensions: false }],
             },
           },
         },
@@ -26,6 +19,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   experimental: {
+    allowedDevOrigins: ["http://172.20.10.6:3000"], // <-- 🔥 This is what you need
     turbo: {
       rules: {
         "*.svg": {

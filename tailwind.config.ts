@@ -6,6 +6,10 @@ const config: Config = {
       transitionProperty: {
         shadow: "box-shadow",
       },
+      fontFamily: {
+        poppins: ["var(--font-poppins)"],
+        inter: ["var(--font-inter)"],
+      },
     },
   },
   content: [

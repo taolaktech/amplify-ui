@@ -1,6 +1,6 @@
 "use client";
 import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
-import { useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 import { passwordPattern } from "@/app/lib/utils";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
@@ -19,6 +19,7 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
+  const login = useAuthStore().login;
   const { email, storeProfile, storeRetryError, storeJustCreated } =
     useCreateUserStore();
   const [errorMsg, setErrorMsg] = useState("");
@@ -59,6 +60,7 @@ export default function Create() {
       if (response.status === 200 || response.status === 201) {
         console.log("sign up data:", response);
         storeJustCreated(true);
+        login(response.data?.token, response.data?.user);
         router.push("/auth/signup/create/verify-account");
       }
       setErrorMsg("");
@@ -95,7 +97,7 @@ export default function Create() {
   if (!email) return null;
 
   return (
-    <div className="md:flex items-center justify-center md:min-h-[900px] h-screen py-[calc(3rem+54px)] md:py-0 px-5">
+    <div className="md:flex items-center justify-center md:min-h-[900px] md:h-[calc(100vh-56px)] pt-[56px] md:py-0 px-5">
       <div className="w-full md:max-w-[1063px] md:flex bg-white md:min-h-[600px] justify-center items-center rounded-2xl relative md:px-5">
         <div className="md:max-w-[863px] w-full mx-auto">
           <h1 className="font-bold text-2xl md:text-[1.75rem] md:leading-[130%] md:tracking-[-0.84px] text-purple-dark">
