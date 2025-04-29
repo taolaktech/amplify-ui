@@ -5,12 +5,9 @@ import Link from "next/link";
 import Button from "@/app/ui/Button";
 import RememberMeCheckIcon from "@/public/remember-me-check.svg";
 import GoogleIcon from "@/public/google.svg";
-import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
-import { useMutation } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
-import { handleEmailLogin, handleGoogleLogin } from "@/app/lib/api/auth";
-import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
+import { useEmailLogin, useGoogleLogin } from "@/app/lib/hooks/useLoginHooks";
 
 const defaultFormValues = {
   email: "",
@@ -19,10 +16,9 @@ const defaultFormValues = {
 
 export default function Login() {
   const { rememberMe, storeRememberMe } = useAuthStore();
-  const { storeEmail, storeRetryError, storeJustCreated } =
-    useCreateUserStore();
-  const login = useAuthStore().login;
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -34,60 +30,13 @@ export default function Login() {
     reValidateMode: "onBlur",
   });
 
-  const router = useRouter();
-  const [errorMsg, setErrorMsg] = useState("");
-
   const email = watch("email");
-
-  const emailLoginMutation = useMutation({
-    mutationFn: handleEmailLogin,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      if (response.status === 200 || response.status === 201) {
-        console.log("EmailLogin Data:", response);
-        login(response.data?.token, response.data?.user);
-        router.push("/");
-      }
-    },
-    onError: (error: any) => {
-      console.log("Error logging in:", error);
-      let errorParsed;
-      try {
-        errorParsed = JSON.parse(error.message);
-        setErrorMsg(errorParsed.message);
-        if (errorParsed.code === "E_UNVERIFIED_EMAIL") {
-          console.log(email);
-          storeEmail(email);
-          storeRetryError(true);
-          router.push("/auth/signup/create/verify-account");
-        }
-      } catch (parseError) {
-        console.error("Failed to parse error message:", parseError);
-        setErrorMsg("An unexpected error occurred. Please try again.");
-      }
-      setError(true);
-    },
-  });
+  const { emailLoginMutation } = useEmailLogin(setErrorMsg, email, setError);
+  const { googleLoginMutation } = useGoogleLogin();
 
   const handleEmailLoginSubmit = (data: typeof defaultFormValues) => {
     emailLoginMutation.mutate(data);
   };
-  const googleLoginMutation = useMutation({
-    mutationFn: handleGoogleLogin,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      if (response.status === 200 || response.status === 201) {
-        console.log("Google Login Data:", response);
-        login(response.data?.token, response.data?.user);
-        console.log("user-create:", response.data.userCreated);
-        if (response.data?.userCreated) {
-          storeEmail(email);
-          storeJustCreated(true);
-          router.push("/auth/signup/create/verify-account?verified=true");
-        } else {
-          router.push("/");
-        }
-      }
-    },
-  });
 
   const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

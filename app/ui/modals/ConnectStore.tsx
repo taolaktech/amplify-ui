@@ -33,7 +33,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
 
       <div
         className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
-      h-[45vh] md:h-[50vh] w-[90vw] max-h-[300px] md:max-h-[420px] max-w-[720px]
+      h-[50vh] w-[90vw] max-h-[330px] md:max-h-[420px] max-w-[720px]
       z-30 rounded-3xl p-6 flex flex-col
       "
       >

@@ -33,8 +33,8 @@ function SetupSideBar() {
       router.push("/setup/preferred-sales-location");
     } else if (step === 4) {
       lineProgress = 100;
-      setStepText("Business Goal");
-      router.push("/setup/business-goal");
+      setStepText("Marketing Goal");
+      router.push("/setup/marketing-goal");
     }
 
     setLineProgress(lineProgress);
@@ -214,7 +214,7 @@ function SetupSideBar() {
                     step >= 4 ? "text-purple-dark" : "text-gray-light"
                   }`}
                 >
-                  Business Goal
+                  Marketing Goal
                 </div>
               </div>
             </div>

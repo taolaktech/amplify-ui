@@ -31,10 +31,10 @@ export const handleGoogleLogin = async () => {
 import { FirebaseError } from "firebase/app";
 import { AxiosError } from "axios";
 
-export const handleEmailLogin = async (data: {
+export const handleEmailLogin: (data: {
   email: string;
   password: string;
-}) => {
+}) => Promise<any> = async (data) => {
   try {
     const result = await signInWithEmailAndPassword(
       auth,
@@ -56,7 +56,7 @@ export const handleEmailLogin = async (data: {
     let errorCode = "unknown_error";
 
     if (err instanceof AxiosError) {
-      if (err.response?.data.message === "E_UNVERIFIED_EMAIL") {
+      if (err.response?.data.message === AuthErrorCode.E_UNVERIFIED_EMAIL) {
         errorMessage =
           "Your account isn't verified yet. Please check your email for the verification link.";
         errorCode = err.response?.data.message;
