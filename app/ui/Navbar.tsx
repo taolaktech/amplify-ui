@@ -31,12 +31,12 @@ export default function Navbar() {
     >
       <div className="max-w-[1512px] mx-auto w-full flex items-center">
         <Link
-          href={isAuth ? "/" : "/auth/login"}
+          href={isAuth ? "/dashboard" : "/"}
           className="hidden md:inline-block"
         >
           <LogoIcon width={109} height={32} />
         </Link>
-        <Link href={isAuth ? "/" : "/auth/login"} className="md:hidden">
+        <Link href={isAuth ? "/dashboard" : "/"} className="md:hidden">
           <LogoSMIcon width={81} height={24} />
         </Link>
       </div>
