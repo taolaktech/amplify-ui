@@ -8,8 +8,11 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const { isAuth } = useAuthStore();
   const [showShadow, setShowShadow] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       if (scrollTop > 50) setShowShadow(true);
@@ -22,6 +25,8 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <nav

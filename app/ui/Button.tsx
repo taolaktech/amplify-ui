@@ -32,7 +32,7 @@ export default function DefaultButton({
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
       } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
         iconPosition === "right" ? "flex-row-reverse" : ""
-      } rounded-xl font-medium flex items-center justify-center gap-[6px] h-[44px] md:h-[40px]`}
+      } rounded-xl font-medium flex items-center justify-center gap-[6px] h-[44px] md:h-[40px] min-w-[90px]`}
       style={{ height: height ?? height }}
     >
       {hasIconOrLoader && (

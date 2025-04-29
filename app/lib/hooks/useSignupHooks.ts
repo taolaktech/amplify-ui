@@ -4,10 +4,10 @@ import {
   handleResendVerificationEmail,
   handleVerifyEmail,
 } from "../api/auth";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { AuthErrorCode } from "../api/errorcodes";
-import { useAuthStore, useCreateUserStore } from "../stores/authStore";
+import { useCreateUserStore } from "../stores/authStore";
 import { Dispatch, SetStateAction } from "react";
 import { FieldErrors } from "react-hook-form";
 
@@ -23,14 +23,12 @@ export const useEmailSignup = (
 ) => {
   const router = useRouter();
   const { storeJustCreated, storeRetryError } = useCreateUserStore();
-  const login = useAuthStore().login;
   const signupMutation = useMutation({
     mutationFn: handleEmailSignUp,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("sign up data:", response);
         storeJustCreated(true);
-        login(response.data?.token, response.data?.user);
         router.push("/auth/signup/create/verify-account");
       }
       setErrorMsg(null);

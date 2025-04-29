@@ -28,6 +28,7 @@ export default function EnrollCode({
       ref={(el) => {
         codeRefs.current[index] = el || undefined;
       }}
+      inputMode="numeric"
       onKeyDown={(e) => handleCodeChange(e, index)}
       onChange={() => {}}
       onPaste={handlePaste}

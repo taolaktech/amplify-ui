@@ -82,7 +82,7 @@ export default function ForgotPassword() {
         </div>
       )}
       {sent && (
-        <div className="flex justify-center bg-white items-start h-screen md:min-h-[800px]">
+        <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
           <div className="w-full lg:max-w-[882px] relative bg-white">
             <CompletionBackground>
               <div className="absolute top-[80%] left-0 right-0 w-full flex flex-col items-center">
