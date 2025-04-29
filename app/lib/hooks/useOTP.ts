@@ -43,7 +43,9 @@ export default function useOTP(setErrorMsg: Dispatch<SetStateAction<string>>) {
         code[index] = char;
         return [...code];
       });
-      codeRefs.current[index + 1]?.focus();
+      if (index + 1 < codeRefs.current.length) {
+        codeRefs.current[index + 1]?.focus();
+      }
     });
   }
 
