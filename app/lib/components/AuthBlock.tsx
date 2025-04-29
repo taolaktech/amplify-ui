@@ -5,7 +5,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useEffect, useState } from "react";
 import SplashScreen from "@/app/ui/loaders/SplashScreen";
 
-const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/register"];
+const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/signup"];
 
 export default function AuthBlock({
   children,

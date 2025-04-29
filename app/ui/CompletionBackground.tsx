@@ -206,7 +206,7 @@ export default function CompletionBackground({
           </g>
         </svg>
       </div>
-      <div className="h-[364.63px] max-h-[50vh] w-full hidden lg:block big">
+      <div className="h-[364.63px] max-h-[34vh] w-full hidden lg:block big">
         <svg
           className="w-full h-full"
           // height="366"

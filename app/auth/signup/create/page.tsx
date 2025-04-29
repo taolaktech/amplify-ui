@@ -1,11 +1,9 @@
 "use client";
-import { AuthErrorCode, handleEmailSignUp } from "@/app/lib/api/auth";
-import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useEmailSignup } from "@/app/lib/hooks/useSignupHooks";
+import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import { passwordPattern } from "@/app/lib/utils";
 import Button from "@/app/ui/Button";
 import Input from "@/app/ui/form/Input";
-import { useMutation } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,11 +17,8 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
-  const login = useAuthStore().login;
-  const { email, storeProfile, storeRetryError, storeJustCreated } =
-    useCreateUserStore();
-  const [errorMsg, setErrorMsg] = useState("");
-  const [error, setError] = useState(false);
+  const { email, storeProfile } = useCreateUserStore();
+  const [errorMsg, setErrorMsg] = useState<string | null>("");
 
   const {
     register,
@@ -35,6 +30,12 @@ export default function Create() {
     mode: "onSubmit",
     reValidateMode: "onBlur",
   });
+
+  const { signupMutation, showErrorMessage } = useEmailSignup(
+    setErrorMsg,
+    errors,
+    errorMsg
+  );
 
   useEffect(() => {
     if (!email) {
@@ -52,46 +53,6 @@ export default function Create() {
       password: data.password,
     };
     signupMutation.mutate({ email, profile });
-  };
-
-  const signupMutation = useMutation({
-    mutationFn: handleEmailSignUp,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      if (response.status === 200 || response.status === 201) {
-        console.log("sign up data:", response);
-        storeJustCreated(true);
-        login(response.data?.token, response.data?.user);
-        router.push("/auth/signup/create/verify-account");
-      }
-      setErrorMsg("");
-      setError(false);
-    },
-    onError: (error: any) => {
-      console.log("Error signing up:", error.response);
-      if (error.response.data.message === AuthErrorCode.E_UNVERIFIED_EMAIL) {
-        storeRetryError(true);
-        storeJustCreated(true);
-        router.push("/auth/signup/create/verify-account");
-        setError(false);
-      } else {
-        setErrorMsg("We couldn’t create your account. Please try again.");
-        setError(true);
-      }
-    },
-  });
-
-  const showErrorMessage = () => {
-    if (
-      errors.firstName ||
-      errors.lastName ||
-      errors.password?.type === "required" ||
-      errors.confirmPassword?.type === "required"
-    )
-      return "Please fill out all required fields.";
-    if (errors.password?.type === "pattern")
-      return "Password must be at least 8 characters, including a number and a symbol";
-    if (errors.confirmPassword) return "Passwords do not match.";
-    if (error) return errorMsg;
   };
 
   if (!email) return null;

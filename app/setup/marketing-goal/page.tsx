@@ -6,7 +6,7 @@ import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
 import DefaultButton from "@/app/ui/Button";
 
 export default function BusinessGoalPage() {
-  const [selectBusinessGoal, setSelectBusinessGoal] = useState([
+  const [selectMarketingGoal, setSelectMarketingGoal] = useState([
     {
       goal: "Brand Awareness",
       selected: false,
@@ -23,21 +23,21 @@ export default function BusinessGoalPage() {
 
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const handleSelectBusinessGoal = (index: number) => {
-    const updatedGoals = selectBusinessGoal.map((goal, i) => {
+  const handleSelectMarketingGoal = (index: number) => {
+    const updatedGoals = selectMarketingGoal.map((goal, i) => {
       if (i === index) {
         return { ...goal, selected: !goal.selected };
       }
       return goal;
     });
-    setSelectBusinessGoal(updatedGoals);
+    setSelectMarketingGoal(updatedGoals);
   };
   return (
     <div>
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
-            Business Details
+            Marketing Goal
           </h1>
           <span className="text-sm text-purple-dark tracking-[-0.17px]">
             Choose one or more
@@ -47,12 +47,12 @@ export default function BusinessGoalPage() {
           What's your primary goal with amplify
         </p>
       </div>
-      <div>
-        {selectBusinessGoal.map(({ goal, selected }, index) => (
+      <div className="flex flex-col items-start gap-3">
+        {selectMarketingGoal.map(({ goal, selected }, index) => (
           <div
             key={goal}
-            className="flex items-center gap-2 mb-3 md:mb-4 cursor-pointer"
-            onClick={() => handleSelectBusinessGoal(index)}
+            className="inline-flex items-center gap-2 cursor-pointer"
+            onClick={() => handleSelectMarketingGoal(index)}
           >
             <GradientCheckbox ticked={selected} />
             <span className="text-sm">{goal}</span>
@@ -61,7 +61,7 @@ export default function BusinessGoalPage() {
       </div>
       <div className="rounded-lg bg-[#FBFAFC] p-5 mt-3 md:mt-12">
         <div
-          className="flex items-center gap-2 mb-4 cursor-pointer"
+          className="inline-flex h-[30px] items-center gap-2 mb-4 cursor-pointer"
           onClick={() => setAcceptTerms((prev) => !prev)}
         >
           <GreenCheckbox ticked={acceptTerms} />

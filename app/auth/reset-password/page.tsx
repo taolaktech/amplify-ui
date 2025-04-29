@@ -6,11 +6,9 @@ import { useState } from "react";
 import TickCircle from "@/public/tick-circle.svg";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { handleResetPassword } from "@/app/lib/api/auth";
-import { AxiosResponse } from "axios";
 import { useSearchParams } from "next/navigation";
 import { passwordPattern } from "@/app/lib/utils";
+import { useResetPassword } from "@/app/lib/hooks/useLoginHooks";
 
 const defaultFormValues = {
   password: "",
@@ -38,6 +36,13 @@ export default function ResetPassword() {
 
   const password = watch("password");
 
+  const { resetPasswordMutation, handleError } = useResetPassword(
+    setPasswordChangeSuccessful,
+    setErrorMsg,
+    errorMsg,
+    errors
+  );
+
   const handlePasswordChangeRequest = (data: typeof defaultFormValues) => {
     setErrorMsg("");
     if (!token) {
@@ -48,34 +53,6 @@ export default function ResetPassword() {
     resetPasswordMutation.mutate({ newPassword: data.password, token });
   };
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: handleResetPassword,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      console.log("Password reset successful:", response.data);
-      setPasswordChangeSuccessful(true);
-    },
-    onError: (error: any) => {
-      if (error.response.data.message === "E_INVALID_TOKEN") {
-        setErrorMsg("This reset link is invalid or has expired.");
-      } else if (error.response.status === 500) {
-        setErrorMsg("Unable to process your request. Please try again later.");
-      }
-      console.log("Error signing up:", error.response);
-    },
-  });
-
-  const handleError = () => {
-    if (errorMsg) return errorMsg;
-    if (
-      errors.password?.type === "required" ||
-      errors.confirmPassword?.type === "required"
-    )
-      return "Please fill out all required fields.";
-    if (errors.password?.type === "pattern")
-      return "Password must be at least 8 characters, including a number and a symbol.";
-    if (errors.confirmPassword?.type === "validate")
-      return "Passwords do not match.";
-  };
   return (
     <>
       {!passwordChangeSuccessful && (
