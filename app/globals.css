@@ -34,6 +34,7 @@
   --color-gray-dark: #737373;
   --color-purple-dark: #1d0b30;
   --color-purple-normal: #6800d7;
+  --color-error-text: #be343b;
   --breakpoint-xs: 412px;
 }
 
@@ -103,11 +104,13 @@ svg.button-loader circle {
   -webkit-background-clip: text; /* Required for Safari */
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
-button:not(:disabled):hover {
+button:not(:disabled):hover,
+a:not(:disabled):hover {
   cursor: pointer;
 }
 
-button.gradient {
+button.gradient,
+a.gradient {
   position: relative;
   overflow: hidden;
   color: white;
@@ -120,7 +123,8 @@ button.gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
 }
 
-button.gradient::after {
+button.gradient::after,
+a.gradient::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -130,21 +134,25 @@ button.gradient::after {
   z-index: 0;
 }
 
-button.gradient:hover::after {
+button.gradient:hover::after,
+a.gradient:hover::after {
   opacity: 1;
 }
 
-button.gradient > * {
+button.gradient > *,
+a.gradient > * {
   position: relative;
   z-index: 1;
 }
 
-button.secondary {
+button.secondary,
+a.secondary {
   background-color: #fbfafc;
   transition: all 0.3s ease-in-out;
 }
 
-button.secondary:not(:disabled):hover {
+button.secondary:not(:disabled):hover,
+a.secondary:not(:disabled):hover {
   background-color: #f3eff6;
 }
 /* button.secondary:active {

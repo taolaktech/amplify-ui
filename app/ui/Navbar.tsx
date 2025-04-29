@@ -8,8 +8,11 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const { isAuth } = useAuthStore();
   const [showShadow, setShowShadow] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       if (scrollTop > 50) setShowShadow(true);
@@ -23,6 +26,8 @@ export default function Navbar() {
     };
   }, []);
 
+  if (!mounted) return null;
+
   return (
     <nav
       className={`sticky top-0 transform duration-300 ${
@@ -31,12 +36,12 @@ export default function Navbar() {
     >
       <div className="max-w-[1512px] mx-auto w-full flex items-center">
         <Link
-          href={isAuth ? "/" : "/auth/login"}
+          href={isAuth ? "/dashboard" : "/"}
           className="hidden md:inline-block"
         >
           <LogoIcon width={109} height={32} />
         </Link>
-        <Link href={isAuth ? "/" : "/auth/login"} className="md:hidden">
+        <Link href={isAuth ? "/dashboard" : "/"} className="md:hidden">
           <LogoSMIcon width={81} height={24} />
         </Link>
       </div>

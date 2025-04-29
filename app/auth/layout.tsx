@@ -11,24 +11,26 @@ export default function AuthLayout({
 }) {
   const isAuth = useAuthStore().isAuth;
   const router = useRouter();
-  let path = usePathname();
-  const [checked, setChecked] = useState(false);
-
-  path = path.trim().replace(/\/$/, ""); // Remove trailing slash
-
-  const validated = path === "/auth/signup/create/verify-account";
-  const validated2 =
-    path === "/auth/signup/create/verify-account?verified=true";
+  const path = usePathname().trim().replace(/\/$/, "");
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    if (isAuth && !(validated || validated2)) {
-      router.replace("/");
-    } else {
-      setChecked(true);
-    }
-  }, [isAuth]);
+    setHasMounted(true);
+  }, []);
 
-  if (!checked) return null;
+  useEffect(() => {
+    if (hasMounted) {
+      const validated =
+        path === "/auth/signup/create/verify-account" ||
+        path === "/auth/signup/create/verify-account?verified=true";
+
+      if (isAuth && !validated) {
+        router.replace("/dashboard");
+      }
+    }
+  }, [isAuth, hasMounted]);
+
+  if (!hasMounted) return null;
 
   return <>{children}</>;
 }

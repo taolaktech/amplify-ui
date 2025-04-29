@@ -6,21 +6,20 @@ import GoogleIcon from "@/public/google.svg";
 import Input from "@/app/ui/form/Input";
 import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { checkEmailExists, handleGoogleLogin } from "@/app/lib/api/auth";
-import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
+import { useQuery } from "@tanstack/react-query";
+import { checkEmailExists } from "@/app/lib/api/auth";
+import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
-import { AxiosResponse } from "axios";
 import { useState } from "react";
+import { useGoogleLogin } from "@/app/lib/hooks/useLoginHooks";
 
 const defaultFormValues = {
   email: "",
 };
 
 export default function Signup() {
-  const { storeEmail, storeJustCreated } = useCreateUserStore();
-  const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const { storeEmail } = useCreateUserStore();
+  const [errorMsg, setErrorMsg] = useState<string | null>("");
   const {
     register,
     handleSubmit,
@@ -31,32 +30,9 @@ export default function Signup() {
     mode: "onSubmit",
     reValidateMode: "onBlur",
   });
-  const login = useAuthStore().login;
   const router = useRouter();
   const email = watch("email");
-
-  const googleLoginMutation = useMutation({
-    mutationFn: handleGoogleLogin,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      if (response.status === 200 || response.status === 201) {
-        console.log("Google Login Data:", response);
-        login(response.data?.token, response.data?.user);
-        if (response.data?.userCreated) {
-          storeEmail(email);
-          storeJustCreated(true);
-          router.push("/auth/signup/create/verify-account?verified=true");
-        } else {
-          router.push("/");
-        }
-      }
-    },
-    onError: (error: any) => {
-      console.log("Error logging in:", error);
-      setErrorMsg("We couldn’t create your account. Please try again.");
-      setError(true);
-    },
-  });
-
+  const { googleLoginMutation } = useGoogleLogin(true, setErrorMsg);
   const {
     // data,
     isFetching: fetchingEmailStatus,
@@ -69,10 +45,10 @@ export default function Signup() {
   });
 
   const handleProceed = (data: typeof defaultFormValues) => {
+    setErrorMsg(null);
     getEmailStatus().then((res) => {
       if (res.data?.data.userExists) {
         setErrorMsg("An account with this email already exists.");
-        setError(true);
         storeEmail("");
       } else {
         console.log("Email:", data);
@@ -83,8 +59,7 @@ export default function Signup() {
   };
 
   const handleProceedGoogle = () => {
-    setError(false);
-    setErrorMsg("");
+    setErrorMsg(null);
     googleLoginMutation.mutate();
   };
 
@@ -140,13 +115,13 @@ export default function Signup() {
                   },
                 })}
                 error={
-                  error
+                  errorMsg
                     ? errorMsg
                     : errors.email?.message
                     ? "Enter a valid email address."
                     : undefined
                 }
-                onFocus={() => setError(false)}
+                onFocus={() => setErrorMsg(null)}
               />
               <div className="mt-4 md:mt-3">
                 <Button

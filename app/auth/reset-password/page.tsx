@@ -6,11 +6,9 @@ import { useState } from "react";
 import TickCircle from "@/public/tick-circle.svg";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { handleResetPassword } from "@/app/lib/api/auth";
-import { AxiosResponse } from "axios";
 import { useSearchParams } from "next/navigation";
 import { passwordPattern } from "@/app/lib/utils";
+import { useResetPassword } from "@/app/lib/hooks/useLoginHooks";
 
 const defaultFormValues = {
   password: "",
@@ -38,6 +36,13 @@ export default function ResetPassword() {
 
   const password = watch("password");
 
+  const { resetPasswordMutation, handleError } = useResetPassword(
+    setPasswordChangeSuccessful,
+    setErrorMsg,
+    errorMsg,
+    errors
+  );
+
   const handlePasswordChangeRequest = (data: typeof defaultFormValues) => {
     setErrorMsg("");
     if (!token) {
@@ -48,38 +53,10 @@ export default function ResetPassword() {
     resetPasswordMutation.mutate({ newPassword: data.password, token });
   };
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: handleResetPassword,
-    onSuccess: (response: AxiosResponse<any, any>) => {
-      console.log("Password reset successful:", response.data);
-      setPasswordChangeSuccessful(true);
-    },
-    onError: (error: any) => {
-      if (error.response.data.message === "E_INVALID_TOKEN") {
-        setErrorMsg("This reset link is invalid or has expired.");
-      } else if (error.response.status === 500) {
-        setErrorMsg("Unable to process your request. Please try again later.");
-      }
-      console.log("Error signing up:", error.response);
-    },
-  });
-
-  const handleError = () => {
-    if (errorMsg) return errorMsg;
-    if (
-      errors.password?.type === "required" ||
-      errors.confirmPassword?.type === "required"
-    )
-      return "Please fill out all required fields.";
-    if (errors.password?.type === "pattern")
-      return "Password must be at least 8 characters, including a number and a symbol.";
-    if (errors.confirmPassword?.type === "validate")
-      return "Passwords do not match.";
-  };
   return (
     <>
       {!passwordChangeSuccessful && (
-        <div className="md:flex items-center justify-center md:min-h-[800px] md:h-[calc(100vh-56px)] pt-[56px] md:pt-0 px-5">
+        <div className="md:flex items-center justify-center md:min-h-[700px] md:h-[calc(100vh-56px)] pt-[56px] md:pt-0 px-5">
           <div className="w-full md:max-w-[526px] md:flex bg-white md:min-h-[559px] justify-center items-center rounded-2xl relative md:px-4">
             <div className="max-w-[382px] w-full mx-auto">
               <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
@@ -124,7 +101,7 @@ export default function ResetPassword() {
                   />
                 </div>
                 <div className="mt-3">
-                  <p className="text-red-500 text-xs">{handleError()}</p>
+                  <p className="text-error-text text-xs">{handleError()}</p>
                 </div>
                 <div className="mt-3">
                   <Button
@@ -140,7 +117,7 @@ export default function ResetPassword() {
         </div>
       )}
       {passwordChangeSuccessful && (
-        <div className="flex justify-center bg-white items-start md:h-[calc(100vh-56px)] pt-[56px] md:min-h-[800px]">
+        <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
           <div className="w-full lg:max-w-[882px] relative bg-white">
             <CompletionBackground>
               <div className="absolute top-[80%] left-0 right-0 w-full flex flex-col items-center">

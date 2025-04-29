@@ -13,7 +13,7 @@ export default function Verified() {
   const router = useRouter();
 
   return (
-    <div className="md:flex items-center justify-center md:min-h-[800px] md:h-[calc(100vh-56px)] md:py-0">
+    <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
       {/* <div className="flex justify-center bg-white h-[calc(100vh-56px)] items-start md:min-h-[800px]"> */}
       <div className="w-full lg:max-w-[882px] relative">
         <CompletionBackground>
@@ -25,7 +25,7 @@ export default function Verified() {
               <TickCircle width={64} height={64} />
             </span>
             <div className="flex flex-col items-center mt-8 leading-[130%] tracking-[-0.84px] max-w-[382px] md:max-w-[447px] px-5 md:px-4">
-              <h1 className="text-xl md:text-[1.75rem] font-medium md:font-bold">
+              <h1 className="text-xl md:text-[1.75rem] text-center font-medium md:font-bold">
                 Welcome to Amplify, {profileName ?? name}
               </h1>
               <p className="text-xs md:text-base text-[#595959] text-center mt-2 leading-[150%] px-7 md:px-0">

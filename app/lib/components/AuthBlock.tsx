@@ -5,7 +5,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useEffect, useState } from "react";
 import SplashScreen from "@/app/ui/loaders/SplashScreen";
 
-const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/register"];
+const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/signup"];
 
 export default function AuthBlock({
   children,
@@ -16,6 +16,16 @@ export default function AuthBlock({
 
   const [isMounted, setIsMounted] = useState(false);
 
+  const checkIsPublicRoute = () => {
+    return PUBLIC_ROUTES.some(
+      (route) =>
+        pathname === route ||
+        pathname.startsWith(`${route}/`) ||
+        pathname === "" ||
+        pathname === "/"
+    );
+  };
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -23,18 +33,14 @@ export default function AuthBlock({
   useEffect(() => {
     if (!isMounted) return;
 
-    const isPublicRoute = PUBLIC_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`)
-    );
+    const isPublicRoute = checkIsPublicRoute();
 
     if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
     }
   }, [isMounted, isAuth, pathname, router]);
 
-  const isPublicRoute = PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
+  const isPublicRoute = checkIsPublicRoute();
 
   if (!isMounted || (!isPublicRoute && !isAuth)) {
     return <SplashScreen />; // or return a <LoadingScreen />
