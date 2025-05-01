@@ -5,10 +5,12 @@ import DefaultButton from "../Button";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useRouter } from "next/navigation";
 
 function ConnectStore({ closeModal }: { closeModal: () => void }) {
   const { storeConnectStore } = useSetupStore();
   const [fetchingInfo, setFetchingInfo] = useState(false);
+  const router = useRouter();
 
   const closeClicked = () => {
     if (!fetchingInfo) closeModal();
@@ -20,6 +22,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
     setTimeout(() => {
       setFetchingInfo(false);
       storeConnectStore(true);
+      router.push("/setup/business-details");
       closeModal();
     }, 2000);
   };
@@ -86,10 +89,10 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
                 }}
               >
                 <span className="hidden md:inline-block">
-                  <CloudIcon />
+                  <CloudIcon height={100} width={100} />
                 </span>
                 <span className="md:hidden">
-                  <CloudIconSM />
+                  <CloudIconSM height={72} width={72} />
                 </span>
               </motion.div>
               <div className="text-[#595959] text-sm md:text-base -mt-2">

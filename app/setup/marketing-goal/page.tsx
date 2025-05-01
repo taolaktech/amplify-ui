@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GradientCheckbox from "@/app/ui/form/GradientCheckbox";
 import { ArrowRight } from "iconsax-react";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
@@ -22,6 +22,10 @@ export default function BusinessGoalPage() {
   ]);
 
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const handleSelectMarketingGoal = (index: number) => {
     const updatedGoals = selectMarketingGoal.map((goal, i) => {

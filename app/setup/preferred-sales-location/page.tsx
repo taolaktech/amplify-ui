@@ -4,15 +4,22 @@ import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
 // import SelectInput from "@/app/ui/form/SelectInput";
 import { ArrowRight, SearchNormal } from "iconsax-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PreferredLocationSelectInput from "@/app/ui/form/PreferredLocationSelectInput";
+import { useRouter } from "next/navigation";
 function PreferredSalesLocation() {
   const storePreferredSalesLocation =
     useSetupStore().storePreferredSalesLocation;
   const [merchantInUsCanada, setMerchantInUsCanada] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const handleNext = () => {
     storePreferredSalesLocation(true);
+    router.push("/setup/marketing-goal");
   };
   return (
     <div>

@@ -95,10 +95,6 @@ export default function Create() {
                 placeholder="******************"
                 {...register("password", {
                   required: "Enter your password",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
                   pattern: {
                     value: passwordPattern,
                     message: `Password must be at least 8 characters, including a number and a symbol`,

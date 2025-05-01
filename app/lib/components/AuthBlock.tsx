@@ -37,6 +37,8 @@ export default function AuthBlock({
 
     if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
+    } else if (isPublicRoute && isAuth) {
+      router.replace("/dashboard"); // Redirect to dashboard if already authenticated
     }
   }, [isMounted, isAuth, pathname, router]);
 

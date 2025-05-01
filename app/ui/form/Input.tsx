@@ -81,9 +81,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className="absolute top-[50%] -translate-y-[50%] p-2 z-10 right-3 h-[16px] flex items-center justify-center"
             >
               {currentType === "text" ? (
-                <EyeIcon width={16} height={16} />
-              ) : (
                 <EyeSlashIcon width={16} height={16} />
+              ) : (
+                <EyeIcon width={16} height={16} />
               )}
             </button>
           )}

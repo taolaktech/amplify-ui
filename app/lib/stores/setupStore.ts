@@ -4,14 +4,14 @@ interface SetupState {
   connectStore: boolean;
   businessDetails: boolean;
   preferredSalesLocation: boolean;
-  businessGoal: boolean;
+  marketingGoal: boolean;
 }
 
 interface SetupActions {
   storeConnectStore: (connectStore: boolean) => void;
   storeBusinessDetails: (businessDetails: boolean) => void;
   storePreferredSalesLocation: (preferredSalesLocation: boolean) => void;
-  storeBusinessGoal: (businessGoal: boolean) => void;
+  storeMarketingGoal: (marketingGoal: boolean) => void;
 }
 
 export interface SetupStore extends SetupState, SetupActions {}
@@ -20,7 +20,7 @@ export const useSetupStore = create<SetupStore>()((set, get) => ({
   connectStore: false,
   businessDetails: false,
   preferredSalesLocation: false,
-  businessGoal: false,
+  marketingGoal: false,
   storeConnectStore: (connectStore) => {
     set({ connectStore });
   },
@@ -34,9 +34,9 @@ export const useSetupStore = create<SetupStore>()((set, get) => ({
       set({ preferredSalesLocation });
     }
   },
-  storeBusinessGoal: (businessGoal) => {
+  storeMarketingGoal: (marketingGoal) => {
     if (get().preferredSalesLocation) {
-      set({ businessGoal });
+      set({ marketingGoal });
     }
   },
 }));

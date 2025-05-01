@@ -2,8 +2,9 @@
 import { TickCircle, Next } from "iconsax-react";
 import { useSetupStore } from "../lib/stores/setupStore";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import NextSM from "@/public/next-sm.svg";
+import ArrowLeftIcon from "@/public/arrow-left.svg";
 
 function SetupSideBar() {
   const { connectStore, businessDetails, preferredSalesLocation } =
@@ -12,34 +13,41 @@ function SetupSideBar() {
   const [stepText, setStepText] = useState("Connect your Store");
   const [lineProgress, setLineProgress] = useState(0);
   const router = useRouter();
+  const pathname = usePathname().trim().replace(/\/$/, "");
 
   useEffect(() => {
     let step = 1;
     let lineProgress = 0;
-    if (connectStore) step += 1;
-    if (businessDetails) step += 1;
-    if (preferredSalesLocation) step += 1;
-    if (step === 1) {
-      lineProgress = 0;
-      setStepText("Connect your Store");
-      router.push("/setup");
-    } else if (step === 2) {
-      lineProgress = 33.33;
-      setStepText("Business Details");
-      router.push("/setup/business-details");
-    } else if (step === 3) {
-      lineProgress = 66.66;
-      setStepText("Preferred Sales Location");
-      router.push("/setup/preferred-sales-location");
-    } else if (step === 4) {
+    console.log("pathname", pathname);
+    console.log("connectStore", connectStore);
+    if (preferredSalesLocation && pathname === "/setup/marketing-goal") {
       lineProgress = 100;
+      step = 4;
       setStepText("Marketing Goal");
-      router.push("/setup/marketing-goal");
+    } else if (
+      businessDetails &&
+      pathname === "/setup/preferred-sales-location"
+    ) {
+      lineProgress = 66.66;
+      step = 3;
+      setStepText("Preferred Sales Location");
+    } else if (connectStore && pathname === "/setup/business-details") {
+      lineProgress = 33.33;
+      step = 2;
+      setStepText("Business Details");
+    } else if (pathname === "/setup") {
+      lineProgress = 0;
+      step = 1;
+      setStepText("Connect your Store");
+    } else {
+      router.replace("/setup");
+      lineProgress = 0;
+      step = 1;
+      setStepText("Connect your Store");
     }
-
     setLineProgress(lineProgress);
     setStep(step);
-  }, [connectStore, businessDetails, preferredSalesLocation]);
+  }, [connectStore, businessDetails, preferredSalesLocation, pathname]);
 
   return (
     <div>
@@ -81,7 +89,7 @@ function SetupSideBar() {
               Setup your Account
             </h1>
             <div className="mt-2">
-              <button className="bg-white rounded-xl h-[34px] w-[102px] flex items-center justify-center gap-1 hover:bg-gray-50 transition duration-200 ease-in-out">
+              <button className="bg-white rounded-xl h-[34px] w-[102px] flex items-center justify-center gap-1 custom-shadow-sm transition duration-200 ease-in-out">
                 <span className="text-xs">Skip Setup</span>
                 <Next size="14" color="#1D0B30" />
               </button>
@@ -227,17 +235,41 @@ function SetupSideBar() {
           style={{ width: `${(step / 4) * 100}%` }}
         ></div>
       </div>
-      <div className="px-5 mt-12 xl:hidden flex w-full items-center justify-between">
+      <div className="px-5 mt-12 xl:hidden">
+        <div className="flex items-center justify-between mb-3">
+          <GoBack />
+          <button className="bg-[#FBFAFC] rounded-xl py-2 px-4 flex items-center justify-center gap-1">
+            <span className="text-xs">Skip Setup</span>
+            <NextSM width="12" height="12" />
+          </button>
+        </div>
         <div className="text-xs rounded-3xl bg-[#F3EFF6] py-2.5 px-5 inline-block">
           STEP{` ${step}`}/4 - {stepText}
         </div>
-        <button className="bg-[#FBFAFC] rounded-xl py-2 px-4 flex items-center justify-center gap-1">
-          <span className="text-xs">Skip Setup</span>
-          <NextSM width="12" height="12" />
-        </button>
       </div>
     </div>
   );
 }
 
 export default SetupSideBar;
+
+export function GoBack() {
+  const pathname = usePathname().trim().replace(/\/$/, "");
+  const router = useRouter();
+
+  return (
+    <div
+      className={`${
+        pathname === "/setup" ? "invisible" : "visible"
+      } flex items-center `}
+    >
+      <button
+        onClick={() => router.back()}
+        className="bg-white transition-colors duration-300 ease-in-out hover:bg-[#F3EFF6] rounded-lg gap-[2px] py-2 px-3 -ml-[6px] flex items-center justify-center"
+      >
+        <ArrowLeftIcon className="-ml-2" />
+        <span className="text-sm font-medium">Go Back</span>
+      </button>
+    </div>
+  );
+}
