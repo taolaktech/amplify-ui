@@ -267,7 +267,7 @@ export function GoBack() {
         onClick={() => router.back()}
         className="bg-white transition-colors duration-300 ease-in-out hover:bg-[#F3EFF6] rounded-lg gap-[2px] py-2 px-3 -ml-[6px] flex items-center justify-center"
       >
-        <ArrowLeftIcon className="-ml-2" />
+        <ArrowLeftIcon width={20} height={20} className="-ml-2" />
         <span className="text-sm font-medium">Go Back</span>
       </button>
     </div>

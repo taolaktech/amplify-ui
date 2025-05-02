@@ -7,7 +7,9 @@ export default function DefaultButton({
   secondary,
   height,
   action = () => {},
+  showShadow = false,
   loading,
+  iconSize = 18,
   hasIconOrLoader,
 }: {
   text: string;
@@ -16,8 +18,10 @@ export default function DefaultButton({
   secondary?: boolean;
   height?: number;
   action?: () => void;
+  showShadow?: boolean;
   loading?: boolean;
   hasIconOrLoader?: boolean;
+  iconSize?: number;
 }) {
   const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -28,7 +32,7 @@ export default function DefaultButton({
     <button
       disabled={loading}
       onClick={handleOnClick}
-      className={`w-full ${
+      className={`w-full ${showShadow ? "custom-shadow-btn" : ""} ${
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
       } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
         iconPosition === "right" ? "flex-row-reverse" : ""
@@ -36,20 +40,20 @@ export default function DefaultButton({
       style={{ height: height ?? height }}
     >
       {hasIconOrLoader && (
-        <span className="w-[18px]">
+        <span style={{ width: iconSize }}>
           {!loading && <>{icon}</>}
           {loading && <ButtonLoader secondary={secondary} />}
         </span>
       )}
       <span
-        className={`text-sm text-center whitespace-nowrap ${
+        className={`text-sm text-center tracking-100 whitespace-nowrap ${
           secondary ? "text-purple-dark" : "text-white"
         }`}
       >
         {text}
       </span>
       {hasIconOrLoader && !right && (
-        <span className="w-[18px]">
+        <span style={{ width: iconSize }}>
           {loading && right && <ButtonLoader secondary={secondary} />}
         </span>
       )}

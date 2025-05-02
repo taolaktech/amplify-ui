@@ -30,7 +30,7 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
   return (
     <div className="">
       <div
-        className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-10"
+        className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"
         onClick={closeClicked}
       ></div>
 
