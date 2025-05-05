@@ -1,16 +1,13 @@
 "use client";
 
 import TickCircle from "@/public/tick-circle.svg";
-import Button from "@/app/ui/Button";
+import Button from "@/app/ui/DefaultLink";
 import CompletionBackground from "@/app/ui/CompletionBackground";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
-import { useRouter } from "next/navigation";
 
 export default function Verified() {
   const profileName = useCreateUserStore().profile?.firstName;
   const name = useAuthStore().user?.name;
-
-  const router = useRouter();
 
   return (
     <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
@@ -37,13 +34,15 @@ export default function Verified() {
                   <Button
                     secondary
                     text="Skip for Now"
-                    action={() => router.push("/")}
+                    href="/dashboard"
+                    // action={() => router.push("/dashboard")}
                   />
                 </div>
                 <div className="w-full md:max-w-[149px]">
                   <Button
                     text="Complete Setup"
-                    action={() => router.push("/setup")}
+                    href="/setup"
+                    // action={() => router.push("/setup")}
                   />
                 </div>
               </div>

@@ -70,7 +70,7 @@ export default function Steps() {
                 ></circle>
               </svg>
               <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                <span className="text-center text-white ">{step}/4</span>
+                <span className="text-center text-white num">{step}/4</span>
               </div>
             </div>
             <div className="text-xl font-medium text-white">{stepText}</div>

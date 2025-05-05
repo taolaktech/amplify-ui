@@ -80,7 +80,7 @@ function SetupSideBar() {
               ></circle>
             </svg>
             <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-              <span className="text-center text-heading ">{step}/4</span>
+              <span className="text-center text-heading num">{step}/4</span>
             </div>
           </div>
 

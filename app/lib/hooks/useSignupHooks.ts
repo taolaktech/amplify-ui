@@ -3,7 +3,7 @@ import {
   handleEmailSignUp,
   handleResendVerificationEmail,
   handleVerifyEmail,
-} from "../api/auth";
+} from "@/app/lib/api/base";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { AuthErrorCode } from "../api/errorcodes";
@@ -22,7 +22,9 @@ export const useEmailSignup = (
   errorMsg: string | null
 ) => {
   const router = useRouter();
-  const { storeJustCreated, storeRetryError } = useCreateUserStore();
+  const { storeJustCreated, storeRetryError } = useCreateUserStore(
+    (state) => state.actions
+  );
   const signupMutation = useMutation({
     mutationFn: handleEmailSignUp,
     onSuccess: (response: AxiosResponse<any, any>) => {

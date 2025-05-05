@@ -34,10 +34,13 @@ export default function AuthBlock({
     if (!isMounted) return;
 
     const isPublicRoute = checkIsPublicRoute();
+    const validated =
+      pathname.includes("/auth/signup/create/verify-account") ||
+      pathname.includes("/auth/signup/create/verify-account?verified=true");
 
     if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
-    } else if (isPublicRoute && isAuth) {
+    } else if (isPublicRoute && isAuth && !validated) {
       router.replace("/dashboard"); // Redirect to dashboard if already authenticated
     }
   }, [isMounted, isAuth, pathname, router]);

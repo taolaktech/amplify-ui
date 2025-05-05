@@ -7,7 +7,7 @@ import Input from "@/app/ui/form/Input";
 import { useRouter } from "next/navigation";
 import { signupImgBlur } from "@/app/lib/blurHash";
 import { useQuery } from "@tanstack/react-query";
-import { checkEmailExists } from "@/app/lib/api/auth";
+import { checkEmailExists } from "@/app/lib/api/base";
 import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
@@ -18,7 +18,7 @@ const defaultFormValues = {
 };
 
 export default function Signup() {
-  const { storeEmail } = useCreateUserStore();
+  const { storeEmail } = useCreateUserStore((state) => state.actions);
   const [errorMsg, setErrorMsg] = useState<string | null>("");
   const {
     register,
