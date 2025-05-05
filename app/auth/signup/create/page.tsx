@@ -17,7 +17,7 @@ const defaultFormValues = {
 
 export default function Create() {
   const router = useRouter();
-  const { email, storeProfile } = useCreateUserStore();
+  const { email, actions: { storeProfile } } = useCreateUserStore();
   const [errorMsg, setErrorMsg] = useState<string | null>("");
 
   const {
