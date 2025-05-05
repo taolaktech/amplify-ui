@@ -4,9 +4,10 @@ import Input from "@/app/ui/form/Input";
 import SelectInput from "@/app/ui/form/SelectInput";
 import TextArea from "@/app/ui/form/TextArea";
 import URLInput from "@/app/ui/form/URLInput";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight } from "iconsax-react";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useRouter } from "next/navigation";
 
 const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
 
@@ -15,9 +16,15 @@ export default function BusinessDetails() {
   const [productCategory, setProductCategory] = useState<string | null>(null);
   const [companyRole, setCompanyRole] = useState<string | null>(null);
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
+  const router = useRouter();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const handleNext = () => {
     storeBusinessDetails(true);
+    router.push("/setup/preferred-sales-location");
   };
   return (
     <div>

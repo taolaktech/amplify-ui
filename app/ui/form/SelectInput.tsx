@@ -1,5 +1,6 @@
 import { ArrowDown2 } from "iconsax-react";
 import { useEffect, useState } from "react";
+import CheckIcon from "@/public/custom-check.svg";
 // import { Poppins, Inter } from "next/font/google";
 
 // const poppins = Poppins({
@@ -70,7 +71,7 @@ const SelectInput = ({
       <p className="text-xs tracking-tight leading-4 block">{label}</p>
       <div
         id={id}
-        className={`relative outline-0 px-4 mt-2 w-full py-3 flex items-center justify-between ${
+        className={`cursor-pointer relative outline-0 px-4 mt-2 w-full py-3 flex items-center justify-between ${
           large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
         }  placeholder:text-heading text-heading placeholder:font-medium font-medium ${
           error
@@ -89,9 +90,9 @@ const SelectInput = ({
         </p>
         <ArrowDown2 size={16} color="#292D32" />
         {isOpen && (
-          <div className="absolute top-[48px] z-10 bg-white max-h-[300px] min-h-[100px] rounded-xl w-full border border-gray-200 left-0 right-0 shadow-[0_1px_4px_0px_rgba(0,0,0,0.16)] overflow-y-auto">
+          <div className="absolute top-[48px] z-10 bg-white max-h-[300px] min-h-[100px] rounded-md w-full border-0  left-0 right-0 custom-shadow-select overflow-y-auto">
             {options.map((option) => (
-              <Options key={option} text={option} />
+              <Options key={option} text={option} selected={selected} />
             ))}
           </div>
         )}
@@ -102,13 +103,25 @@ const SelectInput = ({
 
 export default SelectInput;
 
-const Options = ({ text }: { text: string }) => {
+const Options = ({
+  text,
+  selected,
+}: {
+  text: string;
+  selected?: string | null;
+}) => {
   return (
     <div
       key={text}
-      className={`p-3 hover:bg-[#FBFAFC] text-sm text-gray-dark cursor-pointer select-option`}
+      className={`p-3 relative hover:bg-[#FBFAFC] text-[#333] cursor-pointer select-option`}
     >
-      {text}
+      <span>{text}</span>
+      <span
+        className="absolute right-3 top-[50%] -translate-y-[50%]"
+        style={{ display: selected === text ? "inline-block" : "none" }}
+      >
+        <CheckIcon width={16} height={16} fill="#6800D7" />
+      </span>
     </div>
   );
 };

@@ -3,10 +3,10 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth } from "../../firebaseConfig";
 
 import axios from "./axios";
-import { CreateProfileState } from "../stores/authStore";
+import { CreateProfileState } from "../../stores/authStore";
 
 export enum AuthErrorCode {
   E_USER_ALREADY_EXISTS = "E_USER_ALREADY_EXISTS",
@@ -23,6 +23,7 @@ export const handleGoogleLogin = async () => {
   console.log("Google Login Success:", user);
   const idToken = await user.getIdToken();
   const response = await axios.post("/auth/log-in", { idToken });
+  response.data.user.photoUrl = user.photoURL;
   console.log("Login Response:", response);
   console.log("ID Token:", idToken);
   return response;

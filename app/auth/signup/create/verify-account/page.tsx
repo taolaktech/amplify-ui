@@ -69,10 +69,10 @@ export default function VerifyAccount() {
         <div className="md:flex items-center justify-center md:min-h-[600px] md:h-[calc(100vh-56px)] pt-[56px] md:py-0 px-5 lg:px-0">
           <div className="w-full md:max-w-[840px] md:flex bg-white md:min-h-[550px] justify-center items-center rounded-2xl relative md:px-4">
             <div className="max-w-[382px] md:max-w-[630px] w-full sm:mx-auto">
-              <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
+              <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-800 text-purple-dark">
                 Verify your Account
               </h1>
-              <p className="md:text-leading md:tracking-[-0.32px] mt-1 text-sm md:text-base">
+              <p className="md:text-leading md:tracking-200 mt-1 text-sm md:text-base">
                 We’ve sent an OTP to your email address
               </p>
               <form className="mt-8 md:mt-16">

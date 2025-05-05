@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function DefaultButton({
+export default function DefaultLink({
   text,
   icon,
   iconPosition,
@@ -22,7 +22,7 @@ export default function DefaultButton({
   return (
     <Link
       href={href}
-      className={`w-full ${
+      className={`w-full cursor-pointer ${
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
       } ${right ? "flex-row-reverse" : ""} 
         rounded-xl font-medium flex items-center justify-center 

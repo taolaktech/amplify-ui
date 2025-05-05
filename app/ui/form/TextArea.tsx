@@ -44,7 +44,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, InputProps>(
           ref={ref}
           rows={rows ?? 5}
           placeholder={placeholder}
-          className={`px-4 mt-2 block w-full py-3 resize-none  placeholder:text-gray-dark text-purple-dark font-medium ${
+          className={`px-4 mt-2 block w-full py-3 resize-none placeholder:text-gray-dark text-purple-dark font-medium ${
             error
               ? "border-red-500 focus:border-red-500"
               : "border-input-border focus:border-[#A755FF] "

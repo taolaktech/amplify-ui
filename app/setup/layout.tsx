@@ -1,5 +1,5 @@
 import type React from "react";
-import SetupSideBar from "../ui/SetupSideBar";
+import SetupSideBar, { GoBack } from "../ui/SetupSideBar";
 
 export const metadata = {
   title: "Amplify - Connect your Store",
@@ -17,8 +17,11 @@ export default function RootLayout({
       <SetupSideBar />
       {/* Main Content */}
       <div className="px-5 flex-1 flex">
-        <div className="flex-1 pt-3 w-full xl:pt-22 max-w-[836px] mx-auto mb-5">
-          {children}
+        <div className="flex-1 flex flex-col pt-3 w-full xl:pt-10 max-w-[836px] mx-auto mb-5">
+          <div className="hidden xl:block mb-3">
+            <GoBack />
+          </div>
+          <div className="flex-1">{children}</div>
         </div>
       </div>
     </main>

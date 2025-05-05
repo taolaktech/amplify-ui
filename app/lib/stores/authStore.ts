@@ -13,13 +13,22 @@ interface User {
   name: string;
   phone: string;
   photoUrl: string;
+  paymentStatus?: string;
+  hasActiveSubscription?: boolean;
+  shopifyAccountConnected?: boolean;
+}
+
+interface ProfileIcon {
+  initials: string;
+  color: string;
 }
 interface AuthActions {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
   getUser: () => User | null;
-  storeRememberMe: (rememberMe: boolean) => void;
+  storeRememberMe: () => void;
+  getProfileIcon?: () => string | ProfileIcon;
 }
 
 export interface AuthStore extends AuthState, AuthActions {}
@@ -29,7 +38,12 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       token: null,
       isAuth: false,
-      user: null,
+      user: {
+        name: "",
+        email: "",
+        phone: "",
+        photoUrl: "",
+      },
       rememberMe: false,
       login: (token, user) => {
         set({ token, isAuth: true, user });
@@ -38,7 +52,8 @@ export const useAuthStore = create<AuthStore>()(
         localStorage.removeItem("auth-storage");
         set({ token: null, isAuth: false, user: null });
       },
-      storeRememberMe: (rememberMe) => {
+      storeRememberMe: () => {
+        const rememberMe = !get().rememberMe;
         set({ rememberMe });
       },
       setUser: (user) => {
@@ -52,12 +67,13 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-export interface CreateUserState {
+export interface CreateUserStore {
   email: string;
   profile: CreateProfileState | null;
   retryError: boolean;
   justVerified: boolean;
   justCreated: boolean;
+  actions: CreateUserActions;
 }
 
 export interface CreateProfileState {
@@ -74,27 +90,30 @@ interface CreateUserActions {
   storeJustVerified: (justVerified: boolean) => void;
 }
 
-export interface CreateUserStore extends CreateUserState, CreateUserActions {}
-
 export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   email: "",
   profile: null,
   retryError: false,
   justCreated: false,
   justVerified: false,
-  storeEmail: (email) => {
-    set({ email });
-  },
-  storeJustCreated: (justCreated) => {
-    set({ justCreated });
-  },
-  storeJustVerified: (justVerified) => {
-    set({ justVerified });
-  },
-  storeRetryError: (hasError) => {
-    set({ retryError: hasError });
-  },
-  storeProfile: (profile) => {
-    set({ profile });
+  actions: {
+    storeEmail: (email) => {
+      set({ email });
+    },
+    storeJustCreated: (justCreated) => {
+      set({ justCreated });
+    },
+    storeJustVerified: (justVerified) => {
+      set({ justVerified });
+    },
+    storeRetryError: (hasError) => {
+      set({ retryError: hasError });
+    },
+    storeProfile: (profile) => {
+      set({ profile });
+    },
   },
 }));
+
+export const useCreateUserStoreActions = () =>
+  useCreateUserStore((state) => state.actions);
