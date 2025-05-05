@@ -1,6 +1,6 @@
 import ButtonLoader from "./loaders/ButtonLoader";
 
-export default function DefaultButton({
+export default function Button({
   text,
   icon,
   iconPosition,

@@ -10,7 +10,7 @@ import Notification from "./Notification";
 import Profile from "./Profile";
 
 export default function Navbar() {
-  const { isAuth } = useAuthStore();
+  const isAuth = useAuthStore((state) => state.isAuth);
   const [showShadow, setShowShadow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname().trim().replace(/\/$/, "");
@@ -69,16 +69,12 @@ export default function Navbar() {
       {/* dashboard list items */}
       {isDashboard && isAuth && (
         <>
-          <div className="hidden xl:block">
-            <div className="ml-[279px] flex justify-between font-medium items-center w-full max-w-[1152px]">
-              <p className={`block text-xl tracking-40`}>
-                {paths.get(pathname)}
-              </p>
+          <div className="ml-[279px] hidden xl:flex w-full justify-between font-medium items-center max-w-[1152px]">
+            <p className={`block text-xl tracking-40`}>{paths.get(pathname)}</p>
 
-              <div className="flex items-center gap-4">
-                <Notification />
-                <Profile />
-              </div>
+            <div className="flex items-center gap-3">
+              <Notification />
+              <Profile />
             </div>
           </div>
           <div className="xl:hidden flex items-center justify-between w-full max-w-[1152px]">

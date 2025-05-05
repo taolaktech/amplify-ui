@@ -24,7 +24,7 @@ export default function Verified() {
             <span className="md:hidden">
               <TickCircle width={64} height={64} />
             </span>
-            <div className="flex flex-col items-center mt-8 leading-[130%] tracking-[-0.84px] max-w-[382px] md:max-w-[447px] px-5 md:px-4">
+            <div className="flex flex-col items-center mt-8 leading-[130%] tracking-800 max-w-[382px] md:max-w-[447px] px-5 md:px-4">
               <h1 className="text-xl md:text-[1.75rem] text-center font-medium md:font-bold">
                 Welcome to Amplify, {profileName ?? name}
               </h1>

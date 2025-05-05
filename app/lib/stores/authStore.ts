@@ -1,8 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getColorByName } from "../utils";
-
-const colors = ["#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#8E44AD"];
 
 interface AuthState {
   token: string | null;
@@ -16,6 +13,9 @@ interface User {
   name: string;
   phone: string;
   photoUrl: string;
+  paymentStatus?: string;
+  hasActiveSubscription?: boolean;
+  shopifyAccountConnected?: boolean;
 }
 
 interface ProfileIcon {
@@ -27,8 +27,7 @@ interface AuthActions {
   logout: () => void;
   setUser: (user: User) => void;
   getUser: () => User | null;
-  storeRememberMe: (rememberMe: boolean) => void;
-  getNameIcon: () => ProfileIcon;
+  storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
 }
 
@@ -53,28 +52,14 @@ export const useAuthStore = create<AuthStore>()(
         localStorage.removeItem("auth-storage");
         set({ token: null, isAuth: false, user: null });
       },
-      storeRememberMe: (rememberMe) => {
+      storeRememberMe: () => {
+        const rememberMe = !get().rememberMe;
         set({ rememberMe });
       },
       setUser: (user) => {
         set({ user });
       },
       getUser: () => get().user,
-      getNameIcon: () => {
-        const user = get().user?.name || "User";
-        const initials =
-          user
-            ?.split(" ")
-            .slice(0, 2)
-            .map((name) => name.charAt(0))
-            .join("")
-            .toUpperCase() || "U";
-        const color = getColorByName(user, colors);
-        return {
-          initials,
-          color,
-        };
-      },
     }),
     {
       name: "auth-storage",
@@ -82,12 +67,13 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-export interface CreateUserState {
+export interface CreateUserStore {
   email: string;
   profile: CreateProfileState | null;
   retryError: boolean;
   justVerified: boolean;
   justCreated: boolean;
+  actions: CreateUserActions;
 }
 
 export interface CreateProfileState {
@@ -104,27 +90,30 @@ interface CreateUserActions {
   storeJustVerified: (justVerified: boolean) => void;
 }
 
-export interface CreateUserStore extends CreateUserState, CreateUserActions {}
-
 export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   email: "",
   profile: null,
   retryError: false,
   justCreated: false,
   justVerified: false,
-  storeEmail: (email) => {
-    set({ email });
-  },
-  storeJustCreated: (justCreated) => {
-    set({ justCreated });
-  },
-  storeJustVerified: (justVerified) => {
-    set({ justVerified });
-  },
-  storeRetryError: (hasError) => {
-    set({ retryError: hasError });
-  },
-  storeProfile: (profile) => {
-    set({ profile });
+  actions: {
+    storeEmail: (email) => {
+      set({ email });
+    },
+    storeJustCreated: (justCreated) => {
+      set({ justCreated });
+    },
+    storeJustVerified: (justVerified) => {
+      set({ justVerified });
+    },
+    storeRetryError: (hasError) => {
+      set({ retryError: hasError });
+    },
+    storeProfile: (profile) => {
+      set({ profile });
+    },
   },
 }));
+
+export const useCreateUserStoreActions = () =>
+  useCreateUserStore((state) => state.actions);

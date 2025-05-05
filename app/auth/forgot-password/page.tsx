@@ -39,10 +39,10 @@ export default function ForgotPassword() {
         <div className="flex md:items-center justify-center md:min-h-[600px] md:h-[calc(100vh-56px)] pt-[56px] px-5 md:pt-0 lg:px-0">
           <div className="w-full md:max-w-[526px] md:flex bg-white md:min-h-[426px] justify-center items-center rounded-2xl relative md:px-4">
             <div className="max-w-[382px] w-full mx-auto">
-              <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
+              <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-800 text-purple-dark">
                 Forgot your password?
               </h1>
-              <p className="md:text-leading md:tracking-[-0.32px] mt-1 text-sm md:text-base">
+              <p className="md:text-leading md:tracking-200 mt-1 text-sm md:text-base">
                 Don&apos;t worry. We&apos;ll help you reset it in a few steps.
               </p>
 
@@ -92,7 +92,7 @@ export default function ForgotPassword() {
                 <span className="md:hidden">
                   <InboxSMIcon width={64} height={64} />
                 </span>
-                <div className="flex flex-col items-center mt-8 leading-[130%] tracking-[-0.84px] max-w-[382px] md:max-w-[467px] px-5 md:px-4">
+                <div className="flex flex-col items-center mt-8 leading-[130%] tracking-800 max-w-[382px] md:max-w-[467px] px-5 md:px-4">
                   <h1 className="text-xl md:text-[1.75rem] font-medium md:font-bold">
                     Check your inbox
                   </h1>

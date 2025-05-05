@@ -40,14 +40,14 @@ export default function BusinessGoalPage() {
     <div>
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
+          <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-40 md:tracking-heading">
             Marketing Goal
           </h1>
-          <span className="text-sm text-purple-dark tracking-[-0.17px]">
+          <span className="text-sm text-purple-dark tracking-60">
             Choose one or more
           </span>
         </div>
-        <p className="text-[#595959] text-sm md:text-base mb-6 md:mb-12 tracking-[-0.32px]">
+        <p className="text-[#595959] text-sm md:text-base mb-6 md:mb-12 tracking-200">
           What's your primary goal with amplify
         </p>
       </div>

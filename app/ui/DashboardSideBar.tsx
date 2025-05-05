@@ -16,10 +16,14 @@ import {
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function DashboardSideBar() {
   const pathname = usePathname().trim().replace(/\/$/, "");
+  const logout = useAuthStore((state) => state.logout);
+  const router = useRouter();
   const isDashboard = pathname === "/dashboard";
   const isInsights = pathname.includes("/dashboard/insights");
   const isCampaigns = pathname.includes("/dashboard/campaigns");
@@ -27,11 +31,16 @@ export default function DashboardSideBar() {
   const isSupport = pathname.includes("/dashboard/support");
   const isIntegrations = pathname.includes("/dashboard/integrations");
 
+  const handleLogout = () => {
+    logout();
+    router.replace("/auth/login");
+  };
+
   return (
     <div
       className={`custom-shadow-sidebar bg-white w-[279px] top-0 fixed h-screen hidden xl:flex flex-col z-20 px-8`}
     >
-      <div className="flex items-center justify-between h-[81px]">
+      <div className="flex items-center justify-between h-[81px] py-7">
         <div className="flex items-center gap-2">
           <DashboardLogoIcon width={32} height={32} />
           <span className="font-medium text-xl">My Store</span>
@@ -178,7 +187,10 @@ export default function DashboardSideBar() {
           </li>
         </ul>
         <div className="flex-1 max-h-[200px] py-10 px-4 flex items-end">
-          <button className="h-[48px] w-full flex items-center gap-2">
+          <button
+            onClick={handleLogout}
+            className="h-[48px] w-full flex items-center gap-2 rounded-xl hover:bg-[#Fdfcfd] px-4 cursor-pointer"
+          >
             <LogoutCurve size="24" color="#FF4949" />
             <span className="text-sm">Logout</span>
           </button>

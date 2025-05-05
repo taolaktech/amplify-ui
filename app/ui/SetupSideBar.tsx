@@ -52,7 +52,7 @@ function SetupSideBar() {
   return (
     <div>
       <div className="hidden xl:block max-w-[402px] px-5 -mt-[56px] pt-[128px] bg-[#FBFAFC] h-screen sticky top-0 bottom-0">
-        <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-8 relative flex items-center max-w-[330px] mx-auto">
+        <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-7 relative flex items-center max-w-[330px] mx-auto">
           <div className="relative size-16">
             <svg
               className="size-full -rotate-90"
@@ -85,7 +85,7 @@ function SetupSideBar() {
           </div>
 
           <div>
-            <h1 className="text-xl text-heading font-medium">
+            <h1 className="text-xl text-heading font-medium ">
               Setup your Account
             </h1>
             <div className="mt-2">
@@ -97,7 +97,7 @@ function SetupSideBar() {
           </div>
         </div>
 
-        <div className="mt-8 w-[330px] mx-auto px-11">
+        <div className="mt-8 w-[330px] mx-auto px-10">
           <div className="relative">
             {/* Step connector line */}
             <div
@@ -112,8 +112,7 @@ function SetupSideBar() {
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                   <TickCircle
-                    width="24"
-                    height="24"
+                    size={24}
                     color={step >= 1 ? "#D0B0F3" : "#BFBFBF"}
                     variant={step >= 1 ? "Bold" : "Linear"}
                   />
@@ -142,8 +141,7 @@ function SetupSideBar() {
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                   <TickCircle
-                    width="24"
-                    height="24"
+                    size={24}
                     color={step >= 2 ? "#D0B0F3" : "#BFBFBF"}
                     variant={step >= 2 ? "Bold" : "Linear"}
                   />
@@ -172,8 +170,7 @@ function SetupSideBar() {
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                   <TickCircle
-                    width="24"
-                    height="24"
+                    size={24}
                     color={step >= 3 ? "#D0B0F3" : "#BFBFBF"}
                     variant={step >= 3 ? "Bold" : "Linear"}
                   />
@@ -202,8 +199,7 @@ function SetupSideBar() {
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FBFAFC] z-5">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                   <TickCircle
-                    width="24"
-                    height="24"
+                    size={24}
                     color={step >= 4 ? "#D0B0F3" : "#BFBFBF"}
                     variant={step >= 4 ? "Bold" : "Linear"}
                   />

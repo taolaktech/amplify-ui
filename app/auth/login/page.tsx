@@ -15,7 +15,8 @@ const defaultFormValues = {
 };
 
 export default function Login() {
-  const { rememberMe, storeRememberMe } = useAuthStore();
+  const rememberMe = useAuthStore((state) => state.rememberMe);
+  const storeRememberMe = useAuthStore((state) => state.storeRememberMe);
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -40,7 +41,7 @@ export default function Login() {
 
   const toggleRemberMe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    storeRememberMe(!rememberMe);
+    storeRememberMe();
   };
   const handleLoginButtonPressed = () => {
     setError(false);
@@ -55,7 +56,7 @@ export default function Login() {
           <h1 className="font-bold text-2xl md:text-3xl text-heading md:leading-8 tr">
             Welcome Back
           </h1>
-          <p className="text-leading text-sm md:text-base tracking-[-0.32px] md:mt-1">
+          <p className="text-leading text-sm md:text-base tracking-200 md:mt-1">
             Login to your account
           </p>
 

@@ -82,7 +82,7 @@ export default function Signup() {
 
           <div className="absolute left-0 right-0 w-full bottom-[72px]">
             <div className="max-w-[80%] lg:max-w-[70%] mx-auto">
-              <p className="text-white font-bold text-[1.75rem] leading-[130%] tracking-[-0.84px]">
+              <p className="text-white font-bold text-[1.75rem] leading-[130%] tracking-800">
                 Automate Your Marketing & Boost <br />
                 Sales Effortlessly
               </p>
@@ -95,10 +95,10 @@ export default function Signup() {
         </div>
         <div className="w-full md:w-[50%] lg:w-[42%] z-10 bg-white md:absolute top-0 bottom-0 right-0 rounded-2xl flex flex-col justify-center px-0 lg:px-5">
           <div className="md:max-w-[342px] mx-auto w-full">
-            <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-[-0.84px] text-purple-dark">
+            <h1 className="font-bold text-2xl md:text-[1.75rem] leading-[130%] tracking-800 text-purple-dark">
               Get Started
             </h1>
-            <p className="text-leading tracking-[-0.32px] text-sm md:text-base md:mt-1">
+            <p className="text-leading tracking-200 text-sm md:text-base md:mt-1">
               Sign up by creating your account
             </p>
             <form className="mt-9">

@@ -61,10 +61,10 @@ export default function Create() {
     <div className="md:flex items-center justify-center md:min-h-[800px] md:h-[calc(100vh-56px)] pt-[56px] md:py-0 px-5">
       <div className="w-full md:max-w-[1063px] md:flex bg-white md:min-h-[600px] justify-center items-center rounded-2xl relative md:px-5">
         <div className="md:max-w-[863px] w-full mx-auto">
-          <h1 className="font-bold text-2xl md:text-[1.75rem] md:leading-[130%] md:tracking-[-0.84px] text-purple-dark">
+          <h1 className="font-bold text-2xl md:text-[1.75rem] md:leading-[130%] md:tracking-800 text-purple-dark">
             Create your Account
           </h1>
-          <p className="text-leading text-sm md:text-base tracking-[-0.32px] md:mt-1">
+          <p className="text-leading text-sm md:text-base tracking-200 md:mt-1">
             Sign up by creating your account
           </p>
           <form className="mt-6 md:mt-16">
