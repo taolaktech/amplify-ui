@@ -4,22 +4,29 @@ import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
 // import SelectInput from "@/app/ui/form/SelectInput";
 import { ArrowRight, SearchNormal } from "iconsax-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PreferredLocationSelectInput from "@/app/ui/form/PreferredLocationSelectInput";
+import { useRouter } from "next/navigation";
 function PreferredSalesLocation() {
   const storePreferredSalesLocation =
     useSetupStore().storePreferredSalesLocation;
   const [merchantInUsCanada, setMerchantInUsCanada] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const handleNext = () => {
     storePreferredSalesLocation(true);
+    router.push("/setup/marketing-goal");
   };
   return (
     <div>
-      <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
+      <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-40 md:tracking-heading">
         Preferred Sales Location
       </h1>
-      <p className="text-[#595959] text-sm md:tex-base md:mb-18 tracking-[-0.14px] md:tracking-[-0.32px]">
+      <p className="text-[#595959] text-sm md:tex-base md:mb-18 tracking-60 md:tracking-200">
         Amplify is only available to merchants selling in the US and Canada.
       </p>
       <div className="mt-6 md:mt-12">

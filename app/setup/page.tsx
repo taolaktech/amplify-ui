@@ -14,10 +14,10 @@ function ConnectPage() {
   const [connectStoreModal, setConnectStoreModal] = useState(false);
   return (
     <div className="">
-      <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold mb-1 tracking-[-0.4px] md:tracking-heading">
+      <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold mb-1 tracking-40 md:tracking-heading">
         Connect your Shopify Store or Website
       </h1>
-      <p className="text-[#595959] mb-6 md:mb-18 text-sm md:text-base tracking-[-0.14px] md:tracking-[-0.32px] ">
+      <p className="text-[#595959] mb-6 md:mb-18 text-sm md:text-base tracking-60 md:tracking-200 ">
         Amplify works best when it's linked to your store. Choose an option to
         continue
       </p>

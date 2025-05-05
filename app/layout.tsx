@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ClientLayoutWrapper from "./lib/components/ClientLayoutWrapper";
+import { inter, rubik } from "./ui/fonts";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -37,12 +38,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
-        {/* <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-        /> */}
       </head>
-      <body className="antialiased">
+      <body className={`antialiased ${inter.className} ${rubik.variable}`}>
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>

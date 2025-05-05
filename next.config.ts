@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  images: {
+    domains: ["lh3.googleusercontent.com"],
+  },
   experimental: {
     allowedDevOrigins: ["http://172.20.10.6:3000"], // <-- 🔥 This is what you need
     turbo: {

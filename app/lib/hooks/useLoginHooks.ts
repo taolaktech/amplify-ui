@@ -5,7 +5,7 @@ import {
   handleForgotPassword,
   handleGoogleLogin,
   handleResetPassword,
-} from "../api/auth";
+} from "../api/base";
 import { useAuthStore, useCreateUserStore } from "../stores/authStore";
 import { useRouter } from "next/navigation";
 import { AuthErrorCode } from "../api/errorcodes";
@@ -18,7 +18,9 @@ export const useEmailLogin = (
   setError: Dispatch<SetStateAction<boolean>>
 ) => {
   const router = useRouter();
-  const { storeEmail, storeRetryError } = useCreateUserStore();
+  const { storeEmail, storeRetryError } = useCreateUserStore(
+    (state) => state.actions
+  );
   const login = useAuthStore().login;
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
@@ -59,7 +61,9 @@ export const useGoogleLogin = (
   setErrorMsg: Dispatch<SetStateAction<string | null>> = () => {}
 ) => {
   const router = useRouter();
-  const { storeEmail, storeJustCreated } = useCreateUserStore();
+  const { storeEmail, storeJustCreated } = useCreateUserStore(
+    (state) => state.actions
+  );
   const login = useAuthStore().login;
 
   const googleLoginMutation = useMutation({
@@ -67,6 +71,7 @@ export const useGoogleLogin = (
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
         console.log("Google Login Data:", response);
+
         console.log("user-create:", response.data.userCreated);
         if (response.data?.userCreated) {
           console.log("here");
