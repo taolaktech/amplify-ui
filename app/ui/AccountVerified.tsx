@@ -6,8 +6,8 @@ import CompletionBackground from "@/app/ui/CompletionBackground";
 import { useAuthStore, useCreateUserStore } from "@/app/lib/stores/authStore";
 
 export default function Verified() {
-  const profileName = useCreateUserStore().profile?.firstName;
-  const name = useAuthStore().user?.name;
+  const profileName = useCreateUserStore((state) => state.profile)?.firstName;
+  const name = useAuthStore((state) => state.user)?.name;
 
   return (
     <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">

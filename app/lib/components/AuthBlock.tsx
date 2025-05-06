@@ -10,7 +10,7 @@ const PUBLIC_ROUTES = ["/auth", "/auth/login", "/auth/signup"];
 export default function AuthBlock({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { isAuth } = useAuthStore(); // Make sure your store supports loading state
+  const isAuth = useAuthStore((state) => state.isAuth); // Make sure your store supports loading state
   const pathname = usePathname();
   const router = useRouter();
 
