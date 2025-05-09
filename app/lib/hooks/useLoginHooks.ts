@@ -21,7 +21,7 @@ export const useEmailLogin = (
   const { storeEmail, storeRetryError } = useCreateUserStore(
     (state) => state.actions
   );
-  const login = useAuthStore().login;
+  const login = useAuthStore((state) => state.login);
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
     onSuccess: (response: AxiosResponse<any, any>) => {
@@ -64,7 +64,7 @@ export const useGoogleLogin = (
   const { storeEmail, storeJustCreated } = useCreateUserStore(
     (state) => state.actions
   );
-  const login = useAuthStore().login;
+  const login = useAuthStore((state) => state.login);
 
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
