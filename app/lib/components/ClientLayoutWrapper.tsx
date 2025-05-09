@@ -22,7 +22,6 @@ export default function ClientLayoutWrapper({
   const router = useRouter();
 
   const onIdle = () => {
-    console.log("User is idle");
     if (isAuth) {
       logout();
       router.push("/auth/login");

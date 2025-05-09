@@ -51,12 +51,12 @@ function PreferredSalesLocation() {
         </div>
 
         <div className="mt-4 max-w-[387px]">
-          <PreferredLocationSelectInput
+         { merchantInUsCanada && <PreferredLocationSelectInput
             options={[]}
             label=""
             placeholder=""
             setSelected={() => {}}
-          />
+          />}
         </div>
       </div>
       <div className="sm:max-w-[94px] mx-auto my-7 md:my-12">

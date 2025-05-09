@@ -29,7 +29,6 @@ export default function ForgotPassword() {
   const { forgotPasswordMutation } = useForgotPassword(setSent, setErrorMsg);
 
   const handleForgotPasswordSubmit = (data: typeof defaultFormValues) => {
-    console.log("Email:", data);
     forgotPasswordMutation.mutate(data.email);
   };
 

@@ -3,15 +3,35 @@ import ShopIcon from "@/public/shop.svg";
 import ShopIconSM from "@/public/shop-sm.svg";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-gradient-sm.svg";
+// import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useSearchParams } from "next/navigation";
 import TrendUpIcon from "@/public/trend-up.svg";
 import TrendUpIconSM from "@/public/trendup-sm.svg";
 import DefaultButton from "../ui/Button";
 import { ArrowRight } from "iconsax-react";
 import ConnectStore from "../ui/modals/ConnectStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
 
 function ConnectPage() {
   const [connectStoreModal, setConnectStoreModal] = useState(false);
+  // const router = useRouter();
+  // const connectStore = useSetupStore(
+  //   (state) => state.connectStore
+  // );
+  const params = useSearchParams();
+  const isLinkedStore = params.get("linked_store") === "true";
+
+  const handleContinue = () => {
+    // if (connectStore.complete) router.push("/setup/business-details");
+    // else setConnectStoreModal(true);
+    setConnectStoreModal(true);
+  };
+
+  useEffect(() => {
+    if (isLinkedStore) setConnectStoreModal(true);
+  }, [isLinkedStore]);
+
   return (
     <div className="">
       <h1 className="text-xl md:text-[1.75rem] text-heading font-medium md:font-bold mb-1 tracking-40 md:tracking-heading">
@@ -83,7 +103,7 @@ function ConnectPage() {
       <div className="mt-8 md:mt-12 flex justify-center">
         <div className="w-full sm:max-w-[127px]">
           <DefaultButton
-            action={() => setConnectStoreModal(true)}
+            action={handleContinue}
             text="Connect"
             iconPosition="right"
             hasIconOrLoader
@@ -94,7 +114,10 @@ function ConnectPage() {
 
       {/* modal */}
       {connectStoreModal && (
-        <ConnectStore closeModal={() => setConnectStoreModal(false)} />
+        <ConnectStore
+          closeModal={() => setConnectStoreModal(false)}
+          isLinkedStore={isLinkedStore}
+        />
       )}
     </div>
   );

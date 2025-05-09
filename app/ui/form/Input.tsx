@@ -39,10 +39,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const togglePasswordVisibility = (
       e: React.MouseEvent<HTMLButtonElement>
     ) => {
-      console.log("clicked");
-
       e.preventDefault();
-      console.log("clicked");
       if (!isPassword) return;
       setCurrentType((prev) => (prev === "password" ? "text" : "password"));
     };

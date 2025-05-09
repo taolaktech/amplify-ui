@@ -3,6 +3,7 @@ import Link from "next/link";
 import LogoIcon from "@/public/nav-logo.svg";
 import LogoSMIcon from "@/public/nav-logo-sm.svg";
 import { useAuthStore } from "../lib/stores/authStore";
+import { HambergerMenu } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { paths } from "../lib/utils";
@@ -78,21 +79,15 @@ export default function Navbar() {
             </div>
           </div>
           <div className="xl:hidden flex items-center justify-between w-full max-w-[1152px]">
-            {/* <div className="flex items-center gap-2"> */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              width={24}
-              height={24}
-              fill="#333"
-            >
-              <path d="M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM64 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L96 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z" />
-            </svg>
-            <LogoIcon width={109} height={32} />
-            {/* </div> */}
-
-            {/* <Notification /> */}
-            <Profile />
+            <div className="flex items-center gap-2">
+              {/* <SidebarLeft size="32" color="#333"/> */}
+              <HambergerMenu size="32" color="#333" />
+              <LogoIcon width={109} height={32} />
+            </div>
+            <div className="flex items-center gap-1">
+              <Notification />
+              <Profile />
+            </div>
           </div>
         </>
       )}

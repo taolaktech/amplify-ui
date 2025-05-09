@@ -7,24 +7,71 @@ import URLInput from "@/app/ui/form/URLInput";
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "iconsax-react";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useSubmitBusinessDetails } from "@/app/lib/hooks/useOnboardingHooks";
 
-const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
+export const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
+export const teamSizeValue = [
+  { min: 1, max: 1 },
+  { min: 2, max: 5 },
+  { min: 6, max: 10 },
+  { min: 11, max: 15 },
+  { min: 16, max: 1000 },
+];
 
 export default function BusinessDetails() {
-  const storeBusinessDetails = useSetupStore().storeBusinessDetails;
+  const defaultBusinessDetails = useSetupStore(
+    (state) => state.businessDetails
+  );
   const [productCategory, setProductCategory] = useState<string | null>(null);
+  const [productCategoryError, setProductCategoryError] = useState(false);
   const [companyRole, setCompanyRole] = useState<string | null>(null);
+  const [companyRoleError, setCompanyRoleError] = useState(false);
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
-  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: defaultBusinessDetails,
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
+  });
+
+  const { handleSubmitBusinessDetails, submitBusinessDetailsMutation } =
+    useSubmitBusinessDetails();
+
+  useEffect(() => {
+    if (defaultBusinessDetails.industry)
+      setProductCategory(defaultBusinessDetails.industry);
+    if (defaultBusinessDetails.companyRole)
+      setCompanyRole(defaultBusinessDetails.companyRole);
+    const teamSizeIndex = teamSizeValue.findIndex(
+      (size) => size.min === defaultBusinessDetails.teamSize.min
+    );
+    setTeamSizeSelected(teamSizeIndex !== -1 ? teamSizeIndex : 1);
+  }, [defaultBusinessDetails]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  const handleNext = () => {
-    storeBusinessDetails(true);
-    router.push("/setup/preferred-sales-location");
+  const handleAction = () => {
+    if (!productCategory) setProductCategoryError(true);
+    else setProductCategoryError(false);
+    if (!companyRole) setCompanyRoleError(true);
+    else setCompanyRoleError(false);
+    handleSubmit(handleNext)(); // Notice the additional ()
+  };
+
+  const handleNext = (data: typeof defaultBusinessDetails) => {
+    const businessDetails = {
+      ...data,
+      industry: productCategory ?? "",
+      companyRole: companyRole ?? "",
+      teamSize: teamSizeValue[teamSizeSelected as number],
+    };
+    handleSubmitBusinessDetails(businessDetails);
   };
   return (
     <div>
@@ -32,7 +79,7 @@ export default function BusinessDetails() {
         Business Details
       </h1>
 
-      <form className="flex flex-col gap-4 md:gap-6">
+      <form className="flex flex-col gap-4 md:gap-4">
         <p className="text-[#595959] text-sm md:text-base mt-1 md:mt-2">
           1. Tell us about your business
         </p>
@@ -41,20 +88,47 @@ export default function BusinessDetails() {
             type="text"
             label="Company or Store Name"
             placeholder="Enter your company or store name"
-            name="companyName"
             large
+            {...register("storeName", {
+              required: "Enter your store name",
+            })}
+            showErrorMessage
+            error={errors.storeName?.message}
+            visibility
           />
         </div>
 
         <div>
           <TextArea
-            name="description"
             label="Description"
             placeholder="Describe your company or store"
+            {...register("description", {
+              required: "Enter store description",
+              minLength: {
+                value: 20,
+                message: "Description must be at least 20 characters",
+              },
+            })}
+            showErrorMessage
+            error={errors.description?.message}
           />
         </div>
         <div>
-          <URLInput name="website" label="Website or Store URL" large />
+          <URLInput
+            label="Website or Store URL"
+            large
+            {...register("storeUrl", {
+              required: "Enter store URL",
+              pattern: {
+                value:
+                  /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i,
+                message: "Enter a valid URL",
+              },
+            })}
+            showErrorMessage
+            error={errors.storeUrl?.message}
+            visibility
+          />
         </div>
         <div>
           <SelectInput
@@ -74,8 +148,11 @@ export default function BusinessDetails() {
             setSelected={setProductCategory}
             selected={productCategory}
             large
+            setError={setProductCategoryError}
+            error={productCategoryError ? "Choose product category" : undefined}
           />
         </div>
+
         <p className="text-[#595959] mt-3 text-sm md:text-base md:mt-14">
           2. Tell us more about your business
         </p>
@@ -97,11 +174,13 @@ export default function BusinessDetails() {
             setSelected={setCompanyRole}
             selected={companyRole}
             large
+            setError={setCompanyRoleError}
+            error={companyRoleError ? "Choose company role" : undefined}
           />
         </div>
 
         <div>
-          <div className="flex items-center flex-wrap gap-2 mt-2">
+          <div className="flex items-center flex-wrap gap-2 my-4">
             {teamSize.map((size, index) => (
               <button
                 onClick={(e) => {
@@ -121,22 +200,37 @@ export default function BusinessDetails() {
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <Input
             type="text"
             label="Company or Store Name"
             placeholder="Enter your company or store name"
-            name="companyName"
             large
+            {...register("storeName", {
+              required: "Enter your store name",
+            })}
+            showErrorMessage
+            error={errors.storeName?.message}
+            visibility
           />
-        </div>
+        </div> */}
         <div>
           <Input
             type="number"
             label="Estimated monthly ad spend budget ($)"
             placeholder="Enter amount"
-            name="monthlyAdBudget"
             large
+            {...register("adSpendBudget", {
+              required: "Enter your monthly ad spend budget",
+              min: {
+                value: 1,
+                message: "Ad spend budget must be greater than 0",
+              },
+            })}
+            inputMode="numeric"
+            showErrorMessage
+            error={errors.adSpendBudget?.message}
+            visibility
           />
         </div>
         <div>
@@ -144,17 +238,27 @@ export default function BusinessDetails() {
             type="number"
             label="Estimated annual revenue ($)"
             placeholder="Enter amount"
-            name="annual"
             large
+            {...register("annualRevenue", {
+              required: "Enter your annual revenue",
+              min: {
+                value: 1,
+                message: "Annual revenue must be greater than 0",
+              },
+            })}
+            inputMode="numeric"
+            showErrorMessage
+            error={errors.annualRevenue?.message}
+            visibility
           />
         </div>
-
         <div className="sm:max-w-[94px] mx-auto my-4 md:my-10">
           <DefaultButton
             hasIconOrLoader
             text="Next"
             iconPosition="right"
-            action={handleNext}
+            action={handleAction}
+            loading={submitBusinessDetailsMutation.isPending}
             icon={<ArrowRight size="16" color="#fff" />}
           />
         </div>

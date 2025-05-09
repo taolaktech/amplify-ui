@@ -51,7 +51,6 @@ export default function Signup() {
         setErrorMsg("An account with this email already exists.");
         storeEmail("");
       } else {
-        console.log("Email:", data);
         storeEmail(data.email);
         router.push("/auth/signup/create");
       }
