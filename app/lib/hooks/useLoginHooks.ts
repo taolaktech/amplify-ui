@@ -1,16 +1,78 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
+import { useSetupStore } from "../stores/setupStore";
 import {
   handleEmailLogin,
   handleForgotPassword,
   handleGoogleLogin,
   handleResetPassword,
 } from "../api/base";
+import {
+  handleGetShopifyAccount,
+  handleRetrieveStoreDetails,
+} from "../api/integrations";
 import { useAuthStore, useCreateUserStore } from "../stores/authStore";
 import { useRouter } from "next/navigation";
 import { AuthErrorCode } from "../api/errorcodes";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { FieldErrors } from "react-hook-form";
+
+export const useInitialize = () => {
+  const token = useAuthStore((state) => state.token);
+  const { connectStore } = useSetupStore((state) => state);
+  // const completeConnectStore = useSetupStore(
+  //   (state) => state.completeConnectStore
+  // );
+  const reset = useSetupStore((state) => state.reset);
+
+  const setConnectStore = useSetupStore((state) => state.storeConnectStore);
+  const setBusinessDetails = useSetupStore(
+    (state) => state.storeBusinessDetails
+  );
+  useEffect(() => {
+    if (token && connectStore.complete) {
+      handleGetShopifyAccount(token)
+        .then((response) => {
+          setConnectStore({
+            storeUrl: response.account._doc.shop,
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching Shopify account data:", error);
+        });
+
+      handleRetrieveStoreDetails(token).then((response) => {
+        if (!response.businessDetails) return;
+        const {
+          companyName,
+          description,
+          website,
+          industry,
+          companyRole,
+          teamSize,
+          estimatedMonthlyBudget,
+          estimatedAnnualRevenue,
+        } = response.businessDetails;
+        console.log(
+          "Store Details Data:",
+          response.businessDetails.estimatedMonthlyBudget
+        );
+        setBusinessDetails({
+          storeName: companyName,
+          description,
+          storeUrl: website,
+          industry,
+          companyRole,
+          teamSize: teamSize,
+          adSpendBudget: estimatedMonthlyBudget?.amount,
+          annualRevenue: estimatedAnnualRevenue?.amount,
+        });
+      });
+    } else {
+      reset();
+    }
+  }, [token, connectStore.complete]);
+};
 
 export const useEmailLogin = (
   setErrorMsg: Dispatch<SetStateAction<string>>,
@@ -21,24 +83,28 @@ export const useEmailLogin = (
   const { storeEmail, storeRetryError } = useCreateUserStore(
     (state) => state.actions
   );
+  const completeConnectStore = useSetupStore(
+    (state) => state.completeConnectStore
+  );
   const login = useAuthStore((state) => state.login);
+  useInitialize();
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
-        console.log("EmailLogin Data:", response);
-        login(response.data?.token, response.data?.user);
+        const isShopifyAccountConnected =
+          response.data?.user?.shopifyAccountConnected;
+        completeConnectStore(isShopifyAccountConnected);
+        login(response.data?.access_token, response.data?.user);
         router.push("/");
       }
     },
     onError: (error: any) => {
-      console.log("Error logging in:", error);
       let errorParsed;
       try {
         errorParsed = JSON.parse(error.message);
         setErrorMsg(errorParsed.message);
         if (errorParsed.code === AuthErrorCode.E_UNVERIFIED_EMAIL) {
-          console.log(email);
           storeEmail(email);
           storeRetryError(true);
           router.push("/auth/signup/create/verify-account");
@@ -64,33 +130,36 @@ export const useGoogleLogin = (
   const { storeEmail, storeJustCreated } = useCreateUserStore(
     (state) => state.actions
   );
+  const completeConnectStore = useSetupStore(
+    (state) => state.completeConnectStore
+  );
+
   const login = useAuthStore((state) => state.login);
+
+  useInitialize();
 
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
-        console.log("Google Login Data:", response);
-
-        console.log("user-create:", response.data.userCreated);
         if (response.data?.userCreated) {
-          console.log("here");
           storeEmail(response.data?.user.email);
           storeJustCreated(true);
-          login(response.data?.token, response.data?.user);
+          login(response.data?.access_token, response.data?.user);
           setTimeout(() => {
             router.push("/auth/signup/create/verify-account?verified=true");
           }, 0);
         } else {
-          login(response.data?.token, response.data?.user);
-          console.log("else");
+          const isShopifyAccountConnected =
+            response.data?.user?.shopifyAccountConnected;
+          login(response.data?.access_token, response.data?.user);
+          completeConnectStore(isShopifyAccountConnected);
           router.push("/");
         }
       }
     },
-    onError: (error: any) => {
+    onError: () => {
       if (onSignupScreen) {
-        console.log("Error logging in:", error);
         setErrorMsg("We couldn’t create your account. Please try again.");
       }
     },
@@ -111,8 +180,8 @@ export const useResetPassword = (
   const resetPasswordMutation = useMutation({
     mutationFn: handleResetPassword,
     onSuccess: (response: AxiosResponse<any, any>) => {
-      console.log("Password reset successful:", response.data);
       setPasswordChangeSuccessful(true);
+      console.log("Password reset successful:", response);
     },
     onError: (error: any) => {
       if (error.response.data.message === "E_INVALID_TOKEN") {
@@ -120,7 +189,6 @@ export const useResetPassword = (
       } else if (error.response.status === 500) {
         setErrorMsg("Unable to process your request. Please try again later.");
       }
-      console.log("Error signing up:", error.response);
     },
   });
 
@@ -154,7 +222,6 @@ export const useForgotPassword = (
       setErrorMsg("");
     },
     onError: (error: any) => {
-      console.log("Error sending reset link:", error);
       if (error.response.data.message === AuthErrorCode.E_USER_NOT_FOUND) {
         setErrorMsg("We couldn't find an account with that email");
       } else {

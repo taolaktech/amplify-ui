@@ -18,20 +18,21 @@ function SetupSideBar() {
   useEffect(() => {
     let step = 1;
     let lineProgress = 0;
-    console.log("pathname", pathname);
-    console.log("connectStore", connectStore);
     if (preferredSalesLocation && pathname === "/setup/marketing-goal") {
       lineProgress = 100;
       step = 4;
       setStepText("Marketing Goal");
     } else if (
-      businessDetails &&
+      businessDetails.complete &&
       pathname === "/setup/preferred-sales-location"
     ) {
       lineProgress = 66.66;
       step = 3;
       setStepText("Preferred Sales Location");
-    } else if (connectStore && pathname === "/setup/business-details") {
+    } else if (
+      connectStore.complete &&
+      pathname === "/setup/business-details"
+    ) {
       lineProgress = 33.33;
       step = 2;
       setStepText("Business Details");
@@ -51,7 +52,7 @@ function SetupSideBar() {
 
   return (
     <div>
-      <div className="hidden xl:block max-w-[402px] px-5 -mt-[56px] pt-[128px] bg-[#FBFAFC] h-screen sticky top-0 bottom-0">
+      <div className="hidden xl:block w-[402px] px-5 pt-[115px] bg-[#FBFAFC] h-screen fixed top-0 left-0 bottom-0">
         <div className="bg-[#F3EFF6] rounded-[20px] gap-4 py-6 px-7 relative flex items-center max-w-[330px] mx-auto">
           <div className="relative size-16">
             <svg
@@ -249,8 +250,15 @@ function SetupSideBar() {
 
 export default SetupSideBar;
 
+const goBackPaths = new Map()
+  .set("/setup", "/setup")
+  .set("/setup/business-details", "/setup")
+  .set("/setup/preferred-sales-location", "/setup/business-details")
+  .set("/setup/marketing-goal", "/setup/preferred-sales-location");
+
 export function GoBack() {
   const pathname = usePathname().trim().replace(/\/$/, "");
+
   const router = useRouter();
 
   return (
@@ -260,7 +268,7 @@ export function GoBack() {
       } flex items-center `}
     >
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push(goBackPaths.get(pathname))}
         className="bg-white transition-colors duration-300 ease-in-out hover:bg-[#F3EFF6] rounded-lg gap-[2px] py-2 px-3 -ml-[6px] flex items-center justify-center"
       >
         <ArrowLeftIcon width={20} height={20} className="-ml-2" />

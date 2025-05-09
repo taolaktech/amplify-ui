@@ -23,11 +23,11 @@ export default function Steps() {
       setStep(3);
       setLink("/setup/marketing-goal");
       setStepText("Set Marketing Goal");
-    } else if (businessDetails) {
+    } else if (businessDetails.complete) {
       setStep(2);
       setLink("/setup/preferred-sales-location");
       setStepText("Select Preferred Sales Location");
-    } else if (connectStore) {
+    } else if (connectStore.complete) {
       setStep(1);
       setLink("/setup/business-details");
       setStepText("Add Business Details");
@@ -39,7 +39,7 @@ export default function Steps() {
   }, [connectStore, businessDetails, preferredSalesLocation, marketingGoal]);
 
   return (
-    <div className="max-w-[536px] mx-auto flex w-full justify-between h-[326px] items-center">
+    <div className="max-w-[566px] h-[390px] lg:h-[326px] p-5 py-7 lg:p-0 mx-auto flex-col lg:flex-row flex w-full lg:justify-between lg:items-center">
       <div>
         <div className="">
           <div className="flex items-center gap-3 mb-4">
@@ -85,7 +85,11 @@ export default function Steps() {
                   variant={step >= 1 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white`}>Connect your Store</div>
+                  <div
+                    className={`text-white ${step >= 1 ? "line-through" : ""}`}
+                  >
+                    Connect your Store
+                  </div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
@@ -102,7 +106,11 @@ export default function Steps() {
                   variant={step >= 2 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white`}>Add Business Details</div>
+                  <div
+                    className={`text-white ${step >= 2 ? "line-through" : ""}`}
+                  >
+                    Add Business Details
+                  </div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
@@ -119,7 +127,9 @@ export default function Steps() {
                   variant={step >= 3 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white`}>
+                  <div
+                    className={`text-white ${step >= 3 ? "line-through" : ""}`}
+                  >
                     Select Preferred Sales Location
                   </div>
                 </div>
@@ -137,7 +147,11 @@ export default function Steps() {
                   variant={step >= 4 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white`}>Set Marketing Goal</div>
+                  <div
+                    className={`text-white ${step >= 4 ? "line-through" : ""}`}
+                  >
+                    Set Marketing Goal
+                  </div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
@@ -153,7 +167,11 @@ export default function Steps() {
                   variant={step >= 4 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white flex items-start gap-1`}>
+                  <div
+                    className={`text-white flex items-start gap-1 ${
+                      step >= 5 ? "line-through" : ""
+                    }`}
+                  >
                     <span>Upload Brand Kit</span>
                     <span className="text-[8px]">Optional</span>
                   </div>
@@ -163,7 +181,7 @@ export default function Steps() {
           </div>
         </div>
       </div>
-      <div className="min-w-[167px] z-1">
+      <div className="w-[167px] ml-0 mt-auto lg:mt-0 z-2">
         <Button
           text="Complete Setup"
           secondary

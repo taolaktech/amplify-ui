@@ -7,9 +7,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { AuthErrorCode } from "../api/errorcodes";
-import { useCreateUserStore } from "../stores/authStore";
+import { useCreateUserStore, useAuthStore } from "../stores/authStore";
 import { Dispatch, SetStateAction } from "react";
 import { FieldErrors } from "react-hook-form";
+import { useInitialize } from "./useLoginHooks";
 
 export const useEmailSignup = (
   setErrorMsg: Dispatch<SetStateAction<string | null>> = () => {},
@@ -29,14 +30,12 @@ export const useEmailSignup = (
     mutationFn: handleEmailSignUp,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
-        console.log("sign up data:", response);
         storeJustCreated(true);
         router.push("/auth/signup/create/verify-account");
       }
       setErrorMsg(null);
     },
     onError: (error: any) => {
-      console.log("Error signing up:", error.response);
       if (error.response.data.message === AuthErrorCode.E_UNVERIFIED_EMAIL) {
         storeRetryError(true);
         storeJustCreated(true);
@@ -72,16 +71,19 @@ export const useVerifyAccount = (
   setVerified: Dispatch<SetStateAction<boolean>>,
   setErrorMsg: Dispatch<SetStateAction<string>> = () => {}
 ) => {
+  const login = useAuthStore((state) => state.login);
+
+  useInitialize();
+
   const verifyEmailMutation = useMutation({
     mutationFn: handleVerifyEmail,
     onSuccess: (response: AxiosResponse<any, any>) => {
       if (response.status === 200 || response.status === 201) {
-        console.log("verifyEmail:", response);
         setVerified(true);
+        login(response.data?.access_token, response.data?.user);
       }
     },
     onError: (error: any) => {
-      console.log("Error resending verification email:", error);
       switch (error.response.data.message) {
         case "E_INVALID_OTP":
           return setErrorMsg(
@@ -114,11 +116,10 @@ export const useVerifyAccount = (
     onSuccess: (response: AxiosResponse<any, any>) => {
       setErrorMsg("");
       if (response.status === 200 || response.status === 201) {
-        console.log("resendVerificationEmail:", response);
       }
     },
     onError: (error: any) => {
-      console.log("Error verifying email:", error);
+      console.error(error);
     },
   });
 

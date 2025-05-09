@@ -45,7 +45,6 @@ export default function VerifyAccount() {
 
   const verifyOTP = () => {
     const otp = code.join("");
-    console.log("here:");
     const data = { otp, email };
     if (otp.length < 6) {
       setErrorMsg("Please enter the 6-digit code sent to your email.");

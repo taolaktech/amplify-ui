@@ -18,12 +18,11 @@ function GettingStarted() {
         <p>Let's get you setup</p>
       </div>
       {!cancelNotification && (
-        <div className="bg-[#FEF5EA] p-7 rounded-2xl flex w-full items-center justify-between">
-          <div className="flex gap-4 items-center ">
-            <span className="w-[44px] h-[44px] bg-[#FDE0BD] flex items-center justify-center rounded-full">
+        <div className="bg-[#FEF5EA] p-7 rounded-2xl flex flex-col-reverse lg:flex-row w-full items-center justify-between">
+          <div className="flex gap-4 items-center">
+            <span className="w-[44px] h-[44px] flex-shrink-0 bg-[#FDE0BD] flex items-center justify-center rounded-full">
               <Notification size={24} color="#FA9B0C" variant="Bold" />
             </span>
-
             <div>
               <p className="text-[#C67B22] text-xl font-medium mb-1">
                 You're almost there!
@@ -34,12 +33,15 @@ function GettingStarted() {
               </p>
             </div>
           </div>
-          <button onClick={() => setCancelNotification(true)}>
+          <button
+            onClick={() => setCancelNotification(true)}
+            className="mb-3 lg:mb-0 ml-auto lg:ml-0"
+          >
             <CloseCircle size={24} color="#333" />
           </button>
         </div>
       )}
-      <div className="h-[326px] flex gap-2 overflow-hidden">
+      <div className="h-[390px] lg:h-[326px] flex gap-2 overflow-hidden">
         <div className="bg-gradient relative w-full rounded-3xl ">
           <Steps />
           <div className="absolute top-0 right-0 translate-x-[25%] -translate-y-[35%] bg-[rgba(255,255,255,0.05)] h-[610px] w-[610px] flex items-center justify-center rounded-full">

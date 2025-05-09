@@ -15,7 +15,6 @@ export const generateAvatar = (name: string) => {
     scale: 100,
     radius: 50,
   });
-  console.log(avatar);
   return avatar;
 };
 

@@ -16,13 +16,15 @@ import {
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 import { usePathname } from "next/navigation";
-import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useAuthStore} from "@/app/lib/stores/authStore";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function DashboardSideBar() {
   const pathname = usePathname().trim().replace(/\/$/, "");
   const logout = useAuthStore((state) => state.logout);
+  const reset = useSetupStore((state) => state.reset);
   const router = useRouter();
   const isDashboard = pathname === "/dashboard";
   const isInsights = pathname.includes("/dashboard/insights");
@@ -33,6 +35,7 @@ export default function DashboardSideBar() {
 
   const handleLogout = () => {
     logout();
+    reset()
     router.replace("/auth/login");
   };
 
