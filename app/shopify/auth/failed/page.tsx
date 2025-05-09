@@ -6,7 +6,7 @@ export default function ShopifyFailed() {
   const params = useSearchParams();
   const router = useRouter();
   const error = params.get("error");
-  let errorDescription;
+  let errorDescription = '';
   switch (error) {
     case "E_CURRENCY_NOT_SUPPORTED":
       errorDescription = ", your store currency is not supported";
