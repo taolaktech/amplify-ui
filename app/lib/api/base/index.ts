@@ -14,18 +14,17 @@ export enum AuthErrorCode {
   E_USER_NOT_FOUND = "E_USER_NOT_FOUND",
   E_INVALID_OTP = "E_INVALID_OTP",
   E_EMAIL_ALREADY_VERIFIED = "E_EMAIL_ALREADY_VERIFIED",
+  INTERNAL_SERVER_ERROR = "E_INTERNAL_SERVER_ERROR",
 }
 
 export const handleGoogleLogin = async () => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
   const user = result.user;
-  console.log("Google Login Success:", user);
   const idToken = await user.getIdToken();
   const response = await axios.post("/auth/log-in", { idToken });
   response.data.user.photoUrl = user.photoURL;
-  console.log("Login Response:", response);
-  console.log("ID Token:", idToken);
+
   return response;
 };
 
@@ -44,12 +43,10 @@ export const handleEmailLogin: (data: {
     );
 
     const user = result.user;
-    console.log("Email Login Success:", user);
 
     const idToken = await user.getIdToken();
     const response = await axios.post("/auth/log-in", { idToken });
-    console.log("Login Response:", response);
-    console.log("ID Token:", idToken);
+
     return response;
   } catch (err) {
     console.error("Login error:", err);
@@ -65,7 +62,6 @@ export const handleEmailLogin: (data: {
     }
 
     if (err instanceof FirebaseError) {
-      console.log("Firebase error code:", err.code);
       errorCode = err.code;
 
       switch (err.code) {
@@ -91,7 +87,6 @@ export const handleEmailLogin: (data: {
       }
     }
 
-    console.log("Login error:", errorMessage);
     throw new Error(JSON.stringify({ message: errorMessage, code: errorCode }));
   }
 };
@@ -104,9 +99,9 @@ export const handleEmailSignUp = async (user: {
     email: user.email,
     ...user.profile,
   };
-  console.log("User Data:", userData);
+
   const response = await axios.post("/auth/sign-up", userData);
-  console.log("Sign Up Response:", response);
+
   return response;
 };
 
@@ -115,7 +110,6 @@ export const handleVerifyEmail = async (data: {
   email: string;
 }) => {
   const response = await axios.post("/auth/verify-email", data);
-  console.log("Verify Email Response:", response);
   return response;
 };
 
@@ -124,13 +118,13 @@ export const handleResendVerificationEmail = async (data: {
   email: string;
 }) => {
   const response = await axios.post("/auth/resend-verfication-email", data);
-  console.log("Resend Verification Email Response:", response);
+
   return response;
 };
 
 export const handleForgotPassword = async (email: string) => {
   const response = await axios.post("/auth/forgot-password", { email });
-  console.log("Forgot Password Response:", response);
+
   return response;
 };
 
@@ -139,12 +133,12 @@ export const handleResetPassword = async (data: {
   token: string;
 }) => {
   const response = await axios.post("/auth/reset-password", data);
-  console.log("Reset Password Response:", response);
+
   return response;
 };
 
 export const checkEmailExists = async (email: string) => {
   const response = await axios.get(`/auth/does-user-exist/${email}`);
-  console.log("Check Email Response:", response);
+
   return response;
 };

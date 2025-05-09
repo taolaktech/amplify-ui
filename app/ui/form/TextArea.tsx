@@ -52,7 +52,12 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, InputProps>(
           {...props}
         ></textarea>
         {error && showErrorMessage && (
-          <div className="text-red text-xs mt-1">{error}</div>
+          <div
+            className="text-error-text text-xs mt-2"
+            style={{ visibility: !error ? "hidden" : "visible" }}
+          >
+            {error ?? "error"}
+          </div>
         )}
       </div>
     );

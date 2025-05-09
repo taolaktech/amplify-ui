@@ -2,29 +2,88 @@ import CloseIcon from "@/public/close-circle.svg";
 import CloudIcon from "@/public/cloud.svg";
 import CloudIconSM from "@/public/cloud-sm.svg";
 import DefaultButton from "../Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
+import {
+  useLinkShopify,
+  useRetrieveStoreDetails,
+} from "@/app/lib/hooks/useOnboardingHooks";
 import { useRouter } from "next/navigation";
 
-function ConnectStore({ closeModal }: { closeModal: () => void }) {
-  const { storeConnectStore } = useSetupStore();
+function ConnectStore({
+  closeModal,
+  isLinkedStore,
+}: {
+  closeModal: () => void;
+  isLinkedStore: boolean;
+}) {
+  const completeConnectStore = useSetupStore(
+    (state) => state.completeConnectStore
+  );
+  const storeUrl = useSetupStore((state) => state.connectStore.storeUrl);
+  const [errorMsg, setErrorMsg] = useState("");
+  const { handleRetrieveStoreDetails, retrieveStoreDetails } =
+    useRetrieveStoreDetails();
   const [fetchingInfo, setFetchingInfo] = useState(false);
+  const [fetchingProgress, setFetchingProgress] = useState(10);
+  const [shopifyStore, setShopifyStore] = useState(storeUrl);
+  const { linkShopifyMutation, handleConnectStore } = useLinkShopify(
+    setErrorMsg,
+    shopifyStore
+  );
+
   const router = useRouter();
 
   const closeClicked = () => {
     if (!fetchingInfo) closeModal();
   };
 
-  const handleConnectStore = () => {
-    console.log("Connecting to Shopify store...");
-    setFetchingInfo(true);
-    setTimeout(() => {
-      setFetchingInfo(false);
-      storeConnectStore(true);
-      router.push("/setup/business-details");
-      closeModal();
-    }, 2000);
+  useEffect(() => {
+    if (isLinkedStore) {
+      setFetchingInfo(true);
+      setFetchingProgress(10);
+      handleRetrieveStoreDetails();
+    }
+  }, [isLinkedStore]);
+
+  useEffect(() => {
+    if (retrieveStoreDetails.isSuccess) {
+      setFetchingProgress(100);
+      setTimeout(() => {
+        setFetchingInfo(false);
+        completeConnectStore(true);
+        closeModal();
+        router.push("/setup/business-details");
+      }, 2000);
+    }
+  }, [retrieveStoreDetails.isSuccess]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (retrieveStoreDetails.isPending) {
+      interval = setInterval(() => {
+        setFetchingProgress((prev) => {
+          if (retrieveStoreDetails.isPending && prev >= 90) {
+            if (interval) clearInterval(interval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [retrieveStoreDetails.isPending]);
+
+  const handleOnChangeShopifyStore = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setShopifyStore(e.target.value);
+    if (errorMsg) setErrorMsg("");
   };
 
   return (
@@ -63,15 +122,28 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
                   <label className="text-xs tracking-100 mb-2 block">
                     Enter Shopify Store Link
                   </label>
+
                   <input
                     type="text"
                     placeholder="http://www.rstore.com/"
-                    className="block w-full h-[48px] border text-sm placeholder:text-heading text-heading font-medium tracking-100  px-4 border-[#C2BFC5] rounded-lg focus:outline-0 focus:border-[#A755FF]"
+                    value={shopifyStore}
+                    onChange={handleOnChangeShopifyStore}
+                    className="block w-full h-[48px] border text-sm text-heading font-medium tracking-100  px-4 border-[#C2BFC5] rounded-lg focus:outline-0 focus:border-[#A755FF]"
                   />
-                  <div className="sm:max-w-[96px] mx-auto mt-2 md:mt-14">
+                  <div
+                    className="text-error-text text-xs h-[18px] mt-1"
+                    style={{
+                      opacity: errorMsg ? 1 : 0,
+                    }}
+                  >
+                    {errorMsg}
+                  </div>
+                  <div className="sm:max-w-[136px] mx-auto mt-2 pb-4 md:mt-14">
                     <DefaultButton
                       text="Continue"
-                      action={handleConnectStore}
+                      action={() => handleConnectStore(shopifyStore)}
+                      hasIconOrLoader
+                      loading={linkShopifyMutation.isPending}
                     />
                   </div>
                 </form>
@@ -101,7 +173,12 @@ function ConnectStore({ closeModal }: { closeModal: () => void }) {
 
               <div>
                 <div className="w-[289px] bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
-                  <div className="w-[50%] bg-[#27AE60] h-[3px] rounded-[2.5px]"></div>
+                  <div
+                    className="bg-[#27AE60] h-[3px] rounded-[2.5px] transition-all duration-200"
+                    style={{
+                      width: `${fetchingProgress}%`,
+                    }}
+                  ></div>
                 </div>
                 <div className="text-center text-[#595959] mt-3 text-xs">
                   This might take a few minutes
