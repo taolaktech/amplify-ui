@@ -10,8 +10,8 @@ import { useSetupStore } from "@/app/lib/stores/setupStore";
 import { useForm } from "react-hook-form";
 import { useSubmitBusinessDetails } from "@/app/lib/hooks/useOnboardingHooks";
 
-export const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
-export const teamSizeValue = [
+const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
+const teamSizeValue = [
   { min: 1, max: 1 },
   { min: 2, max: 5 },
   { min: 6, max: 10 },
