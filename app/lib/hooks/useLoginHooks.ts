@@ -134,7 +134,7 @@ export const useGoogleLogin = (
     (state) => state.completeConnectStore
   );
 
-  const login = useAuthStore().login;
+  const login = useAuthStore((state) => state.login);
 
   useInitialize();
 
