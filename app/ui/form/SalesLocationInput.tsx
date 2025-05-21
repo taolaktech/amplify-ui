@@ -2,11 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { SearchNormal } from "iconsax-react";
 
 const SalesLocationInput = ({
-  salesLocation,
   setSalesLocation,
-  placeholder = "Select an option",
   label,
-  large,
   error,
 }: {
   salesLocation: string[];
@@ -20,7 +17,7 @@ const SalesLocationInput = ({
   const selectRef = useRef<HTMLDivElement>(null); // Ref to the select input container
   const [searchQuery, setSearchQuery] = useState("");
   const [searchedLocation, setSearchedLocation] = useState<string[]>([]);
-  const [locationOptions, setLocationOptions] = useState<string[]>([
+  const [locationOptions] = useState<string[]>([
     "New York City, NY",
     "Los Angeles, CA",
     "Chicago, IL",

@@ -4,7 +4,6 @@ import {
   Box,
   People,
   FolderOpen,
-  Map1,
   Map,
   ReceiptText,
   Profile2User,
