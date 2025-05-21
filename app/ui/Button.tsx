@@ -11,11 +11,13 @@ export default function Button({
   loading,
   iconSize = 18,
   hasIconOrLoader,
+  buttonSize = "medium",
 }: {
   text: string;
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   secondary?: boolean;
+  buttonSize?: "small" | "medium" | "large";
   height?: number;
   action?: () => void;
   showShadow?: boolean;
@@ -28,6 +30,9 @@ export default function Button({
     action();
   };
   const right = iconPosition === "right";
+  const isSmall = buttonSize === "small";
+  // const isMedium = buttonSize === "medium";
+  // const isLarge = buttonSize === "large";
   return (
     <button
       disabled={loading}
@@ -36,7 +41,9 @@ export default function Button({
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
       } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
         iconPosition === "right" ? "flex-row-reverse" : ""
-      } rounded-xl font-medium flex items-center justify-center gap-[6px] h-[44px] md:h-[40px] min-w-[90px]`}
+      } rounded-xl flex items-center justify-center gap-[6px] ${
+        !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"
+      } min-w-[90px]`}
       style={{ height: height ?? height }}
     >
       {hasIconOrLoader && (

@@ -7,6 +7,7 @@ import {
   IntegrationErrorCode,
   handleRetrieveStoreDetails,
   handlePostBusinessDetails,
+  handleGetPlacesAutocomplete,
 } from "@/app/lib/api/integrations";
 import { useRouter } from "next/navigation";
 
@@ -34,7 +35,7 @@ export const useLinkShopify = (
           setErrorMsg("Shopify account linked already.");
           setTimeout(() => {
             router.push("/setup/business-details");
-          }, 2000);
+          }, 1000);
           break;
         default:
           setErrorMsg("Failed to connect to Shopify store. Please try again.");
@@ -46,9 +47,10 @@ export const useLinkShopify = (
   const handleConnectStore = (shopifyStore: string) => {
     setErrorMsg("");
     if (!token) return;
-    const regex =
-      /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
-    if (!regex.test(shopifyStore)) {
+    const shopifyRegex =
+      /^(https?:\/\/)?[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com\/?$/;
+
+    if (!shopifyRegex.test(shopifyStore)) {
       setErrorMsg("Please enter a valid Shopify store link");
       return;
     }
@@ -70,6 +72,8 @@ export const useRetrieveStoreDetails = () => {
     queryFn: () => handleRetrieveStoreDetails(token || ""),
     enabled: false, // Don't auto-run
   });
+
+  console.log('retrieve details data:', retrieveStoreDetails.data)
 
   const fetchStoreDetails = () => {
     if (token) retrieveStoreDetails.refetch();
@@ -109,8 +113,8 @@ export const useSubmitBusinessDetails = () => {
   const handleSubmitBusinessDetails = (data: any) => {
     if (!token) return;
     if (JSON.stringify(data) === JSON.stringify(businessDetailsStore)) {
+      completeBusinessDetails(true);
       router.push("/setup/preferred-sales-location");
-      return;
     }
     const businessDetails = {
       companyName: data.storeName,
@@ -127,4 +131,22 @@ export const useSubmitBusinessDetails = () => {
   };
 
   return { submitBusinessDetailsMutation, handleSubmitBusinessDetails };
+};
+
+export const useGetPlaces = (place: string) => {
+  const getPlaces = useQuery({
+    queryKey: ["places"],
+    queryFn: () => handleGetPlacesAutocomplete({ input: place }),
+    enabled: false, // Don't auto-run
+  });
+
+  console.log("getPlaces", getPlaces.data);
+
+  const fetchPlaces = () => {
+    getPlaces.refetch();
+  };
+  return {
+    getPlaces,
+    handleGetPlaces: fetchPlaces,
+  };
 };

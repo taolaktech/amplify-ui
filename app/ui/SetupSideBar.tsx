@@ -76,7 +76,7 @@ function SetupSideBar() {
                 className="stroke-current text-[#27AE60]"
                 strokeWidth="2"
                 strokeDasharray="100"
-                strokeDashoffset={(step / 4) * 100 - 100}
+                strokeDashoffset={((step / 4) * 100 - 100) * -1}
                 strokeLinecap="round"
               ></circle>
             </svg>

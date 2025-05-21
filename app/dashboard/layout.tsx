@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import DashboardSideBar from "../ui/DashboardSideBar";
+import DashboardChildren from "../ui/dashboard/DashboardChildren";
 
 export const metadata: Metadata = {
   title: "Amplify - Dashboard",
@@ -27,11 +28,7 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <DashboardSideBar />
       {/* Main Content */}
-      <div className="px-5 flex-1 flex xl:ml-[279px]">
-        <div className="flex-1 flex flex-col pt-3 w-full xl:pt-10 max-w-[1106px] mx-auto mb-5">
-          <div className="flex-1">{children}</div>
-        </div>
-      </div>
+      <DashboardChildren>{children}</DashboardChildren>
     </div>
   );
 }
