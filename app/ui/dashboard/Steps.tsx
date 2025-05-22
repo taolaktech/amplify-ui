@@ -12,14 +12,14 @@ export default function Steps() {
     connectStore,
     businessDetails,
     preferredSalesLocation,
-    marketingGoal,
+    marketingGoals,
   } = useSetupStore();
 
   useEffect(() => {
-    if (marketingGoal) {
+    if (marketingGoals.complete) {
       setStep(4);
       setStepText("Upload Brand Kit");
-    } else if (preferredSalesLocation) {
+    } else if (preferredSalesLocation.complete) {
       setStep(3);
       setLink("/setup/marketing-goal");
       setStepText("Set Marketing Goal");
@@ -36,14 +36,18 @@ export default function Steps() {
       setStep(0);
       setStepText("Getting Started");
     }
-  }, [connectStore, businessDetails, preferredSalesLocation, marketingGoal]);
+  }, [connectStore, businessDetails, preferredSalesLocation, marketingGoals]);
+
+  const progress = step / 5;
+  const circumference = 2 * Math.PI * 13;
+  const offset = circumference * (1 - progress);
 
   return (
     <div className="max-w-[566px] h-[390px] lg:h-[326px] p-5 py-7 lg:p-0 mx-auto flex-col lg:flex-row flex w-full lg:justify-between lg:items-center">
       <div>
         <div className="">
           <div className="flex items-center gap-3 mb-4">
-            <div className="relative size-16">
+            <div className="relative size-14 md:size-16">
               <svg
                 className="size-full -rotate-90"
                 viewBox="0 0 30 30"
@@ -64,18 +68,23 @@ export default function Steps() {
                   fill="none"
                   className="stroke-current text-[#FA9B0C]"
                   strokeWidth="2"
-                  strokeDasharray="100"
-                  strokeDashoffset={(step / 4) * 100 - 100}
+                  // strokeDasharray="100"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
                   strokeLinecap="round"
                 ></circle>
               </svg>
               <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                <span className="text-center text-white num">{step}/4</span>
+                <span className="text-center text-sm text-base text-white num">
+                  {step}/5
+                </span>
               </div>
             </div>
-            <div className="text-xl font-medium text-white">{stepText}</div>
+            <div className="text-lg md:text-xl font-medium text-white">
+              {stepText}
+            </div>
           </div>
-          <div className="ml-4">
+          <div className="ml-4 txt-sm">
             {/* Step 1 */}
             <div className="">
               <div className="flex items-center">
@@ -85,11 +94,7 @@ export default function Steps() {
                   variant={step >= 1 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div
-                    className={`text-white ${step >= 1 ? "line-through" : ""}`}
-                  >
-                    Connect your Store
-                  </div>
+                  <div className={`text-white text-sm`}>Connect your Store</div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
@@ -106,9 +111,7 @@ export default function Steps() {
                   variant={step >= 2 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div
-                    className={`text-white ${step >= 2 ? "line-through" : ""}`}
-                  >
+                  <div className={`text-white text-sm`}>
                     Add Business Details
                   </div>
                 </div>
@@ -127,9 +130,7 @@ export default function Steps() {
                   variant={step >= 3 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div
-                    className={`text-white ${step >= 3 ? "line-through" : ""}`}
-                  >
+                  <div className={`text-white text-sm`}>
                     Select Preferred Sales Location
                   </div>
                 </div>
@@ -147,11 +148,7 @@ export default function Steps() {
                   variant={step >= 4 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div
-                    className={`text-white ${step >= 4 ? "line-through" : ""}`}
-                  >
-                    Set Marketing Goal
-                  </div>
+                  <div className={`text-white text-sm`}>Set Marketing Goal</div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
@@ -166,12 +163,8 @@ export default function Steps() {
                   color="#ffffff"
                   variant={step >= 4 ? "Bold" : "Linear"}
                 />
-                <div className="ml-1">
-                  <div
-                    className={`text-white flex items-start gap-1 ${
-                      step >= 5 ? "line-through" : ""
-                    }`}
-                  >
+                <div className="ml-1 text-sm">
+                  <div className={`text-white flex items-start gap-1`}>
                     <span>Upload Brand Kit</span>
                     <span className="text-[8px]">Optional</span>
                   </div>
@@ -181,7 +174,7 @@ export default function Steps() {
           </div>
         </div>
       </div>
-      <div className="w-[167px] ml-0 mt-auto lg:mt-0 z-2">
+      <div className="w-[167px] ml-auto lg:ml-0 mt-auto lg:mt-0 z-2">
         <Button
           text="Complete Setup"
           secondary

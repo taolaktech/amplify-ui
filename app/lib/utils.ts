@@ -1,5 +1,5 @@
 import { createAvatar } from "@dicebear/core";
-import { identicon } from "@dicebear/collection";
+import { initials } from "@dicebear/collection";
 
 export const passwordPattern =
   /^(?=.*\d)(?=.*[@$!%*?&\-])[A-Za-z\d@$!%*?&\-]{8,}$/;
@@ -9,11 +9,14 @@ export const paths = new Map<string, string>();
 paths.set("/dashboard", "Dashboard");
 
 export const generateAvatar = (name: string) => {
-  const avatar = createAvatar(identicon, {
+  const avatar = createAvatar(initials, {
     seed: name,
-    backgroundColor: ["F3EFF6"],
+    backgroundColor: ["F0E6FB"],
+    textColor: ["6800d7"],
     scale: 100,
     radius: 50,
+    fontSize: 35,
+    fontWeight: 700,
   });
   return avatar;
 };

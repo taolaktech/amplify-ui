@@ -10,6 +10,7 @@ import {
 import {
   handleGetShopifyAccount,
   handleRetrieveStoreDetails,
+  handleGetMe,
 } from "../api/integrations";
 import { useAuthStore, useCreateUserStore } from "../stores/authStore";
 import { useRouter } from "next/navigation";
@@ -19,59 +20,103 @@ import { FieldErrors } from "react-hook-form";
 
 export const useInitialize = () => {
   const token = useAuthStore((state) => state.token);
-  const { connectStore } = useSetupStore((state) => state);
-  // const completeConnectStore = useSetupStore(
-  //   (state) => state.completeConnectStore
-  // );
+  console.log("token", token);
   const reset = useSetupStore((state) => state.reset);
-
+  const { connectStore, businessDetails } = useSetupStore((state) => state);
   const setConnectStore = useSetupStore((state) => state.storeConnectStore);
   const setBusinessDetails = useSetupStore(
     (state) => state.storeBusinessDetails
   );
+  const completeConnectStore = useSetupStore(
+    (state) => state.completeConnectStore
+  );
+  const completeMarketingGoals = useSetupStore(
+    (state) => state.completeMarketingGoals
+  );
+  const completeBusinessDetails = useSetupStore(
+    (state) => state.completeBusinessDetails
+  );
+  const completePreferredSalesLocation = useSetupStore(
+    (state) => state.completePreferredSalesLocation
+  );
   useEffect(() => {
+    if (token) {
+      handleGetMe(token)
+        .then((response) => {
+          console.log("User data:", response.onboarding);
+          if (!response.onboarding) return
+          completeConnectStore(response.onboarding?.shopifyAccountConnected);
+          completeBusinessDetails(
+            response.onboarding?.isBusinessDetailsSet || false
+          );
+          completeMarketingGoals(
+            response.onboarding?.isBusinessGoalsSet || false
+          );
+          completePreferredSalesLocation(
+            response.onboarding?.isShippingDetailsSet || false
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("useEffect triggered with token:", token);
+    console.log("connectStore.complete:", connectStore.complete);
     if (token && connectStore.complete) {
       handleGetShopifyAccount(token)
         .then((response) => {
+          console.log("Shopify account data:", response);
           setConnectStore({
-            storeUrl: response.account._doc.shop,
+            storeUrl: response.account.shop,
           });
+          completeConnectStore(true);
         })
         .catch((error) => {
           console.error("Error fetching Shopify account data:", error);
         });
-
-      handleRetrieveStoreDetails(token).then((response) => {
-        if (!response.businessDetails) return;
-        const {
-          companyName,
-          description,
-          website,
-          industry,
-          companyRole,
-          teamSize,
-          estimatedMonthlyBudget,
-          estimatedAnnualRevenue,
-        } = response.businessDetails;
-        console.log(
-          "Store Details Data:",
-          response.businessDetails.estimatedMonthlyBudget
-        );
-        setBusinessDetails({
-          storeName: companyName,
-          description,
-          storeUrl: website,
-          industry,
-          companyRole,
-          teamSize: teamSize,
-          adSpendBudget: estimatedMonthlyBudget?.amount,
-          annualRevenue: estimatedAnnualRevenue?.amount,
-        });
-      });
     } else {
       reset();
     }
   }, [token, connectStore.complete]);
+
+  useEffect(() => {
+    console.log("businessDetails.complete:", businessDetails.complete);
+    if (!connectStore.complete) return;
+    if (!token) return;
+    handleRetrieveStoreDetails(token).then((response) => {
+      console.log("Store details response:", response);
+      if (!response.businessDetails) {
+        console.error("No business details found");
+        completeBusinessDetails(false);
+        return;
+      }
+
+      const {
+        companyName,
+        description,
+        website,
+        industry,
+        companyRole,
+        teamSize,
+        estimatedMonthlyBudget,
+        estimatedAnnualRevenue,
+      } = response.businessDetails;
+      console.log("Store Details Data:", response.businessDetails);
+      setBusinessDetails({
+        storeName: companyName,
+        description,
+        storeUrl: website,
+        industry,
+        companyRole,
+        teamSize: teamSize ? teamSize : { min: 2, max: 5 },
+        adSpendBudget: estimatedMonthlyBudget?.amount,
+        annualRevenue: estimatedAnnualRevenue?.amount,
+      });
+    });
+  }, [connectStore.complete, token]);
 };
 
 export const useEmailLogin = (
@@ -141,6 +186,7 @@ export const useGoogleLogin = (
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
     onSuccess: (response: AxiosResponse<any, any>) => {
+      console.log("Google login response:", response);
       if (response.status === 200 || response.status === 201) {
         if (response.data?.userCreated) {
           storeEmail(response.data?.user.email);
