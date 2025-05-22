@@ -65,6 +65,7 @@ export default function BusinessDetails() {
   };
 
   const handleNext = (data: typeof defaultBusinessDetails) => {
+    console.log("data", data);
     const businessDetails = {
       ...data,
       industry: productCategory ?? "",

@@ -34,6 +34,7 @@ interface AuthActions {
 export interface AuthStore extends AuthState, AuthActions {}
 
 export const useAuthStore = create<AuthStore>()(
+  // devtools(
   persist(
     (set, get) => ({
       token: null,
@@ -49,7 +50,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ token, isAuth: true, user });
       },
       logout: () => {
-        localStorage.removeItem("auth-storage");
+        localStorage.clear();
         set({ token: null, isAuth: false, user: null });
       },
       storeRememberMe: () => {
@@ -66,6 +67,7 @@ export const useAuthStore = create<AuthStore>()(
     }
   )
 );
+// );
 
 export interface CreateUserStore {
   email: string;

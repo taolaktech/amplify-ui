@@ -16,6 +16,21 @@ interface BusinessDetails {
   complete?: boolean;
 }
 
+
+interface PreferredSalesLocation {
+  localShippingLocations: string[];
+  internationalShippingLocations:  string[];
+  complete: boolean;
+};
+
+interface MarketingGoals {
+  brandAwareness: boolean;
+  acquireNewCustomers: boolean;
+  boostRepeatPurchases: boolean;
+  complete: boolean;
+}
+
+
 const defaultBusinessDetails: BusinessDetails = {
   storeName: "",
   description: "",
@@ -28,16 +43,30 @@ const defaultBusinessDetails: BusinessDetails = {
   },
   adSpendBudget: 0,
   annualRevenue: 0,
+  complete:false,
+};
+
+const defaultPreferredSalesLocation = {
+  localShippingLocations: [],
+  internationalShippingLocations: [],
   complete: false,
 };
+
+const defaultMarketingGoals =  {
+  brandAwareness: false,
+  acquireNewCustomers: false,
+  boostRepeatPurchases: false,
+  complete: false,
+}
+
 interface SetupState {
   connectStore: {
     storeUrl: string;
     complete: boolean;
   };
   businessDetails: BusinessDetails;
-  preferredSalesLocation: boolean;
-  marketingGoal: boolean;
+  preferredSalesLocation: PreferredSalesLocation;
+  marketingGoals: MarketingGoals;
 }
 
 interface SetupActions {
@@ -46,8 +75,10 @@ interface SetupActions {
   reset: () => void;
   storeBusinessDetails: (businessDetails: BusinessDetails) => void;
   completeBusinessDetails: (complete: boolean) => void;
-  storePreferredSalesLocation: (preferredSalesLocation: boolean) => void;
-  storeMarketingGoal: (marketingGoal: boolean) => void;
+  storePreferredSalesLocation: (preferredSalesLocation: PreferredSalesLocation) => void;
+  completePreferredSalesLocation: (complete: boolean) => void;
+  storeMarketingGoals: (marketingGoals: MarketingGoals) => void;
+  completeMarketingGoals: (complete: boolean) => void;
 }
 
 export interface SetupStore extends SetupState, SetupActions {}
@@ -60,8 +91,8 @@ export const useSetupStore = create<SetupStore>()(
         complete: false,
       },
       businessDetails: defaultBusinessDetails,
-      preferredSalesLocation: false,
-      marketingGoal: false,
+      preferredSalesLocation: defaultPreferredSalesLocation,
+      marketingGoals: defaultMarketingGoals,
       storeConnectStore: (connectStore) => {
         set({ connectStore: { ...get().connectStore, ...connectStore } });
         set({
@@ -97,13 +128,23 @@ export const useSetupStore = create<SetupStore>()(
         }
       },
       storePreferredSalesLocation: (preferredSalesLocation) => {
-        if (get().businessDetails) {
-          set({ preferredSalesLocation });
+        if (get().businessDetails.complete) {
+          set({ preferredSalesLocation: { ...get().preferredSalesLocation, ...preferredSalesLocation } });
         }
       },
-      storeMarketingGoal: (marketingGoal) => {
-        if (get().preferredSalesLocation) {
-          set({ marketingGoal });
+      completePreferredSalesLocation: (complete) => {
+        if (get().businessDetails.complete) {
+          set({ preferredSalesLocation: { ...get().preferredSalesLocation, complete } });
+        }
+      },
+      storeMarketingGoals: (marketingGoals) => {
+        if (get().preferredSalesLocation.complete) {
+          set({ marketingGoals: { ...get().marketingGoals, ...marketingGoals } });
+        }
+      },
+      completeMarketingGoals: (complete) => {
+        if (get().preferredSalesLocation.complete) {
+          set({ marketingGoals: { ...get().marketingGoals, complete } });
         }
       },
     }),

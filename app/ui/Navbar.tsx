@@ -7,11 +7,15 @@ import { HambergerMenu } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { paths } from "../lib/utils";
+import useUIStore from "../lib/stores/uiStore";
 import Notification from "./Notification";
 import Profile from "./Profile";
 
 export default function Navbar() {
   const isAuth = useAuthStore((state) => state.isAuth);
+  const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+  const toggleSidebar = useUIStore(
+    (state) => state.actions.toggleSidebar)
   const [showShadow, setShowShadow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname().trim().replace(/\/$/, "");
@@ -39,13 +43,13 @@ export default function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-15 ${
-        showShadow && !isDashboard ? "md:shadow-sm" : ""
+        showShadow && !isDashboard ? "md:shadow-sm" : showShadow? "shadow-sm md:shadow-none" : ""
       } ${
         isDashboard
-          ? "custom-shadow-navbar justify-center h-[64px] xl:h-[81px] bg-white"
-          : "h-navbar-height bg-[#FBFAFC]"
+          ? "custom-shadow-navbar justify-center h-[64px] xl:h-[81px]"
+          : "h-navbar-height"
       } w-full flex items-center 
-       container-base-container px-5 py-3`}
+       container-base-container px-5 py-3 bg-[#FBFAFC] md:bg-white`}
     >
       {(!isDashboard || !isAuth) && (
         <div
@@ -70,7 +74,11 @@ export default function Navbar() {
       {/* dashboard list items */}
       {isDashboard && isAuth && (
         <>
-          <div className="ml-[279px] hidden xl:flex w-full justify-between font-medium items-center max-w-[1152px]">
+          <div
+            className={`${
+              isSidebarOpen ? "ml-[279px]" : "ml-[91px]"
+            } hidden xl:flex w-full justify-between font-medium items-center max-w-[1152px]`}
+          >
             <p className={`block text-xl tracking-40`}>{paths.get(pathname)}</p>
 
             <div className="flex items-center gap-3">
@@ -81,8 +89,8 @@ export default function Navbar() {
           <div className="xl:hidden flex items-center justify-between w-full max-w-[1152px]">
             <div className="flex items-center gap-2">
               {/* <SidebarLeft size="32" color="#333"/> */}
-              <HambergerMenu size="32" color="#333" />
-              <LogoIcon width={109} height={32} />
+              <button onClick={toggleSidebar}><HambergerMenu size="24" color="#333" /></button>
+              <LogoSMIcon width={81} height={24} />
             </div>
             <div className="flex items-center gap-1">
               <Notification />

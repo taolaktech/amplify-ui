@@ -119,7 +119,7 @@ function ConnectStore({
               </div>
               <div className="mt-9">
                 <form>
-                  <label className="text-xs tracking-100 mb-2 block">
+                  <label htmlFor='store' className="text-xs tracking-100 mb-2 block">
                     Enter Shopify Store Link
                   </label>
 
@@ -127,6 +127,8 @@ function ConnectStore({
                     type="text"
                     placeholder="http://www.rstore.com/"
                     value={shopifyStore}
+                    name='store'
+                    id="store"
                     onChange={handleOnChangeShopifyStore}
                     className="block w-full h-[48px] border text-sm text-heading font-medium tracking-100  px-4 border-[#C2BFC5] rounded-lg focus:outline-0 focus:border-[#A755FF]"
                   />
