@@ -9,6 +9,7 @@ export default function Button({
   action = () => {},
   showShadow = false,
   loading,
+  disabled,
   iconSize = 18,
   hasIconOrLoader,
   buttonSize = "medium",
@@ -19,6 +20,7 @@ export default function Button({
   secondary?: boolean;
   buttonSize?: "small" | "medium" | "large";
   height?: number;
+  disabled?: boolean;
   action?: () => void;
   showShadow?: boolean;
   loading?: boolean;
@@ -39,7 +41,9 @@ export default function Button({
       onClick={handleOnClick}
       className={`w-full ${showShadow ? "custom-shadow-btn" : ""} ${
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
-      } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
+      } ${
+        loading || disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl flex items-center justify-center gap-[6px] ${
         !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"

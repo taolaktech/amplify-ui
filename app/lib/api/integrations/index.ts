@@ -50,10 +50,10 @@ export const handleGetMe = async (token: string) => {
   const response = await axiosInstance.get("/auth/me", {
     headers: {
       Authorization: `Bearer ${token}`,
-    }
+    },
   });
   return response.data;
-}
+};
 
 export const handleGetShopifyAccount = async (token: string) => {
   const response = await axiosInstance.get("/shopify/connected-account", {
@@ -71,6 +71,46 @@ export const handlePostBusinessDetails = async (data: {
   const response = await axiosInstance.post(
     "/business-details",
     data.businessDetails,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const postPreferredSalesLocation = async (data: {
+  data: {
+    localShippingLocations: string[];
+    internationalShippingLocations: string[];
+  };
+  token: string;
+}) => {
+  console.log("data", data);
+  const response = await axiosInstance.post(
+    "/business-details/set-shipping-locations",
+    data.data,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const postMarketingGoals = async (data: {
+  data: {
+    brandAwareness: boolean;
+    acquireNewCustomers: boolean;
+    boostRepeatPurchases: boolean;
+  };
+  token: string;
+}) => {
+  const response = await axiosInstance.post(
+    "/business-details/set-goals",
+    data.data,
     {
       headers: {
         Authorization: `Bearer ${data.token}`,
