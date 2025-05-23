@@ -24,14 +24,14 @@
   --color-leading: #595959;
   --color-input-border: #c2bfc5;
   --leading-base-leading: 120%;
-  /* --tracking-heading: -0.84px;
+  --tracking-heading: -0.84px;
   --tracking-40: -0.4px;
   --tracking-60: -0.14px;
   --tracking-100: -0.24px;
   --tracking-150: -0.28px;
   --tracking-200: -0.32px;
   --tracking-250: -0.36px;
-  --tracking-800: -0.84px; */
+  --tracking-800: -0.84px;
   --color-gray-light: #bfbfbf;
   --color-gray-dark: #737373;
   --color-purple-dark: #1d0b30;
@@ -42,13 +42,13 @@
 }
 
 * {
-  font-family: "Satoshi", sans-serif;
+  /* font-family: "Satoshi", sans-serif; */
 }
 
 body {
   background: var(--background);
   color: #333;
-  font-family: "Satoshi", sans-serif;
+  /* font-family: "Satoshi", sans-serif; */
   /* letter-spacing: var(--tracking-100); */
 }
 

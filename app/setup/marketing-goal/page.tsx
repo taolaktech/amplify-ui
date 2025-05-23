@@ -4,37 +4,58 @@ import GradientCheckbox from "@/app/ui/form/GradientCheckbox";
 import { ArrowRight } from "iconsax-react";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
 import DefaultButton from "@/app/ui/Button";
+import { useSubmitBusinessGoals } from "@/app/lib/hooks/useOnboardingHooks";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
+
+type MarketingGoalKey =
+  | "Brand Awareness"
+  | "Aquire New Customers"
+  | "Boost Repeated Purchases";
 
 export default function BusinessGoalPage() {
-  const [selectMarketingGoal, setSelectMarketingGoal] = useState([
-    {
-      goal: "Brand Awareness",
-      selected: false,
-    },
-    {
-      goal: "Aquire New Customers",
-      selected: false,
-    },
-    {
-      goal: "Boost Repeated Purchases",
-      selected: false,
-    },
-  ]);
+  const marketingGoalFromStore = useSetupStore((state) => state.marketingGoals);
+  const [selectMarketingGoal, setSelectMarketingGoal] = useState<
+    Record<MarketingGoalKey, boolean>
+  >({
+    "Brand Awareness": false,
+    "Aquire New Customers": false,
+    "Boost Repeated Purchases": false,
+  });
 
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const { submitMarketingGoalsMutation, handleSubmitMarketingGoals } =
+    useSubmitBusinessGoals();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+    if (marketingGoalFromStore.complete) {
+      setSelectMarketingGoal({
+        "Brand Awareness": marketingGoalFromStore.brandAwareness,
+        "Aquire New Customers": marketingGoalFromStore.acquireNewCustomers,
+        "Boost Repeated Purchases": marketingGoalFromStore.boostRepeatPurchases,
+      });
+      setAcceptTerms(true);
+    }
   }, []);
 
-  const handleSelectMarketingGoal = (index: number) => {
-    const updatedGoals = selectMarketingGoal.map((goal, i) => {
-      if (i === index) {
-        return { ...goal, selected: !goal.selected };
-      }
-      return goal;
-    });
+  const handleSelectMarketingGoal = (key: MarketingGoalKey) => {
+    const goals = {
+      ...selectMarketingGoal,
+    };
+    if (!Object.keys(goals).includes(key)) return;
+    const updatedGoals = {
+      ...goals,
+      [key]: !goals[key],
+    };
     setSelectMarketingGoal(updatedGoals);
+  };
+
+  const handleNext = () => {
+    handleSubmitMarketingGoals({
+      brandAwareness: selectMarketingGoal["Brand Awareness"],
+      acquireNewCustomers: selectMarketingGoal["Aquire New Customers"],
+      boostRepeatPurchases: selectMarketingGoal["Boost Repeated Purchases"],
+    });
   };
   return (
     <div>
@@ -52,11 +73,11 @@ export default function BusinessGoalPage() {
         </p>
       </div>
       <div className="flex flex-col items-start gap-3">
-        {selectMarketingGoal.map(({ goal, selected }, index) => (
+        {Object.entries(selectMarketingGoal).map(([goal, selected]) => (
           <div
             key={goal}
             className="inline-flex items-center gap-2 cursor-pointer"
-            onClick={() => handleSelectMarketingGoal(index)}
+            onClick={() => handleSelectMarketingGoal(goal as MarketingGoalKey)}
           >
             <GradientCheckbox ticked={selected} />
             <span className="text-sm">{goal}</span>
@@ -78,8 +99,10 @@ export default function BusinessGoalPage() {
         <DefaultButton
           hasIconOrLoader
           text="Finish"
+          disabled={!acceptTerms}
+          loading={submitMarketingGoalsMutation.isPending}
           iconPosition="right"
-          action={() => {}}
+          action={handleNext}
           icon={<ArrowRight size="16" color="#fff" />}
         />
       </div>
