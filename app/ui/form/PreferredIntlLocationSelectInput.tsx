@@ -41,7 +41,7 @@ const PreferredIntlLocationSelectInput = ({
       <p className="text-xs tracking-tight leading-4 block">{label}</p>
       <div
         ref={selectRef}
-        className={`cursor-pointer relative px-4 mt-2 w-[500px] py-3 flex items-center justify-between ${
+        className={`cursor-pointer relative px-4 mt-2 w-full sm:w-[500px] py-3 flex items-center justify-between ${
           large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
         } placeholder:text-heading text-heading font-medium ${
           error
@@ -88,19 +88,8 @@ const SelectionModal = ({
   selectedIntlLocation: string[];
   toggleSelectedIntlLocation: (location: string) => void;
 }) => {
-  console.log("SelectionModal: ", Object.values(countries));
   const countryList = Object.values(countries);
-  const columnCount = 3;
-  const rowCount = Math.ceil(countryList.length / columnCount);
 
-  // Fill columns first, then build rows
-  const columns = Array.from({ length: columnCount }, (_, col) =>
-    countryList.slice(col * rowCount, (col + 1) * rowCount)
-  );
-
-  const rows = Array.from({ length: rowCount }, (_, rowIndex) =>
-    columns.map((col) => col[rowIndex] || "")
-  );
   const handleClick = (
     e: React.MouseEvent<HTMLDivElement>,
     country: string
@@ -111,36 +100,24 @@ const SelectionModal = ({
 
   return (
     <div className="max-h-[336px] overflow-y-auto py-5 px-3">
-      <table className="w-full table-auto">
-        <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((country, colIndex) => (
-                <>
-                  {country.name && (
-                    <td
-                      key={colIndex}
-                      className="py-2 px-2 text-sm text-black cursor-pointer"
-                      onClick={(e) => handleClick(e, country.name)}
-                    >
-                      <span className="flex gap-1 items-center">
-                        <span className="flex-shrink-0">
-                          <GradientCheckbox
-                            ticked={selectedIntlLocation?.includes(
-                              country.name
-                            )}
-                          />
-                        </span>
-                        <span>{country.name}</span>
-                      </span>
-                    </td>
-                  )}
-                </>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-3">
+        {countryList.map((country, index) =>
+          country.name ? (
+            <div
+              key={index}
+              className="flex items-center gap-1 text-sm text-black cursor-pointer"
+              onClick={(e) => handleClick(e, country.name)}
+            >
+              <span className="flex-shrink-0">
+                <GradientCheckbox
+                  ticked={selectedIntlLocation?.includes(country.name)}
+                />
+              </span>
+              <span>{country.name}</span>
+            </div>
+          ) : null
+        )}
+      </div>
     </div>
   );
 };

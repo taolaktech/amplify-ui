@@ -23,28 +23,23 @@ export const useInitialize = () => {
   console.log("token", token);
   const reset = useSetupStore((state) => state.reset);
   const { connectStore, businessDetails } = useSetupStore((state) => state);
-  const setConnectStore = useSetupStore((state) => state.storeConnectStore);
-  const setBusinessDetails = useSetupStore(
-    (state) => state.storeBusinessDetails
-  );
-  const completeConnectStore = useSetupStore(
-    (state) => state.completeConnectStore
-  );
-  const completeMarketingGoals = useSetupStore(
-    (state) => state.completeMarketingGoals
-  );
-  const completeBusinessDetails = useSetupStore(
-    (state) => state.completeBusinessDetails
-  );
-  const completePreferredSalesLocation = useSetupStore(
-    (state) => state.completePreferredSalesLocation
-  );
+  const {
+    storeBusinessDetails,
+    completeConnectStore,
+    completeMarketingGoals,
+    completeBusinessDetails,
+    completePreferredSalesLocation,
+    storeConnectStore,
+    storeMarketingGoals,
+    // storePreferredSalesLocation,
+  } = useSetupStore((state) => state);
+
   useEffect(() => {
     if (token) {
       handleGetMe(token)
         .then((response) => {
           console.log("User data:", response.onboarding);
-          if (!response.onboarding) return
+          if (!response.onboarding) return;
           completeConnectStore(response.onboarding?.shopifyAccountConnected);
           completeBusinessDetails(
             response.onboarding?.isBusinessDetailsSet || false
@@ -69,7 +64,7 @@ export const useInitialize = () => {
       handleGetShopifyAccount(token)
         .then((response) => {
           console.log("Shopify account data:", response);
-          setConnectStore({
+          storeConnectStore({
             storeUrl: response.account.shop,
           });
           completeConnectStore(true);
@@ -84,6 +79,7 @@ export const useInitialize = () => {
 
   useEffect(() => {
     console.log("businessDetails.complete:", businessDetails.complete);
+    console.log("token", token);
     if (!connectStore.complete) return;
     if (!token) return;
     handleRetrieveStoreDetails(token).then((response) => {
@@ -93,7 +89,12 @@ export const useInitialize = () => {
         completeBusinessDetails(false);
         return;
       }
-
+      const details = response.businessDetails;
+      if (!details) {
+        console.error("No details found");
+        completeBusinessDetails(false);
+        return;
+      }
       const {
         companyName,
         description,
@@ -103,9 +104,9 @@ export const useInitialize = () => {
         teamSize,
         estimatedMonthlyBudget,
         estimatedAnnualRevenue,
-      } = response.businessDetails;
-      console.log("Store Details Data:", response.businessDetails);
-      setBusinessDetails({
+      } = details;
+      console.log("Store Details Data:", details);
+      storeBusinessDetails({
         storeName: companyName,
         description,
         storeUrl: website,
@@ -115,6 +116,16 @@ export const useInitialize = () => {
         adSpendBudget: estimatedMonthlyBudget?.amount,
         annualRevenue: estimatedAnnualRevenue?.amount,
       });
+
+      if (details.businessGoals) {
+        console.log("Business goals found:", details.businessGoals);
+        storeMarketingGoals({
+          brandAwareness: details.brandAwareness,
+          acquireNewCustomers: details?.acquireNewCustomers,
+          boostRepeatPurchases: details.businessGoals?.boostRepeatPurchases,
+          complete: true,
+        });
+      }
     });
   }, [connectStore.complete, token]);
 };

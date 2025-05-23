@@ -1,5 +1,4 @@
 "use client";
-import { useSetupStore } from "@/app/lib/stores/setupStore";
 import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
 // import SelectInput from "@/app/ui/form/SelectInput";
@@ -7,14 +6,29 @@ import { ArrowRight, CloseCircle } from "iconsax-react";
 import { useEffect, useState } from "react";
 // import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
 import PreferredIntlLocationSelectInput from "@/app/ui/form/PreferredIntlLocationSelectInput";
-import { useRouter } from "next/navigation";
 import SalesLocationInput from "@/app/ui/form/SalesLocationInput";
+import { useSubmitPreferredLocation } from "@/app/lib/hooks/useOnboardingHooks";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
 function PreferredSalesLocation() {
-  const storePreferredSalesLocation =
-    useSetupStore().storePreferredSalesLocation;
   const [merchantInUsCanada, setMerchantInUsCanada] = useState(false);
   const [salesLocation, setSalesLocation] = useState<string[]>([]);
   const [selectedIntLocation, setSelectedIntLocation] = useState<string[]>([]);
+  const preferredSalesLocationFromStore = useSetupStore(
+    (state) => state.preferredSalesLocation
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const { handleSubmitPreferredLocation, submitPreferredLocationMutation } =
+    useSubmitPreferredLocation();
+
+  useEffect(() => {
+    if (preferredSalesLocationFromStore.complete) {
+      setSalesLocation(preferredSalesLocationFromStore.localShippingLocations);
+      setSelectedIntLocation(
+        preferredSalesLocationFromStore.internationalShippingLocations
+      );
+      setMerchantInUsCanada(true);
+    }
+  }, []);
 
   const toggleSelectedIntLocation = (location: string) => {
     const isSelected = selectedIntLocation.some((item) => item === location);
@@ -28,24 +42,32 @@ function PreferredSalesLocation() {
   };
 
   const toggleSalesLocation = (location: string) => {
-    const isSelected = salesLocation.some((item) => item === location);
+    console.log("location", location);
+    const isSelected = salesLocation.includes(location);
     if (isSelected) {
       setSalesLocation((prev) => prev.filter((item) => item !== location));
+      setSearchQuery("");
     } else {
       setSalesLocation((prev) => [...prev, location]);
     }
   };
 
+  const clearSalesLocation = () => {
+    setSalesLocation([]);
+  };
+
   // const { getPlaces, handleGetPlaces } = useGetPlaces(searchQuery);
-  const router = useRouter();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
   const handleNext = () => {
-    storePreferredSalesLocation(true);
-    router.push("/setup/marketing-goal");
+    const data = {
+      localShippingLocations: salesLocation,
+      internationalShippingLocations: selectedIntLocation,
+    };
+    handleSubmitPreferredLocation(data);
   };
   return (
     <div>
@@ -57,22 +79,30 @@ function PreferredSalesLocation() {
       </p>
       <div className="mt-6 md:mt-12">
         <SalesLocationInput
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           salesLocation={salesLocation}
-          setSalesLocation={toggleSalesLocation}
+          toggleSalesLocation={toggleSalesLocation}
+          clearSalesLocation={clearSalesLocation}
         />
       </div>
-      <div className="min-h-[250px] py-4 flex items-start flex-wrap">
-        {salesLocation.map((location) => (
-          <div
-            className="flex flex-shrink-0 items-center rounded-[24px] gap-2 mb-4 py-4 px-3 cursor-pointer bg-[#F7F7F7]"
-            key={location}
-          >
-            <span className="text-sm text-heading font-medium">{location}</span>
-            <span className="flex-shrink-0">
-              <CloseCircle size={16} color="#333" />
-            </span>
-          </div>
-        ))}
+      <div className="min-h-[250px] mt-4">
+        <div className="py-4 flex items-start gap-3 flex-wrap">
+          {salesLocation.map((location) => (
+            <div
+              onClick={() => toggleSalesLocation(location)}
+              className="flex flex-shrink-0 items-center rounded-[24px] gap-2 py-4 px-3 cursor-pointer bg-[#F7F7F7]"
+              key={location}
+            >
+              <span className="text-sm text-heading font-medium">
+                {location}
+              </span>
+              <span className="flex-shrink-0">
+                <CloseCircle size={16} color="#333" />
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="h-[120px]">
@@ -103,6 +133,7 @@ function PreferredSalesLocation() {
           text="Next"
           iconPosition="right"
           action={handleNext}
+          loading={submitPreferredLocationMutation.isPending}
           icon={<ArrowRight size="16" color="#fff" />}
         />
       </div>

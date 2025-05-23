@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import {
   handleShopifyAuth,
@@ -8,6 +8,8 @@ import {
   handleRetrieveStoreDetails,
   handlePostBusinessDetails,
   handleGetPlacesAutocomplete,
+  postPreferredSalesLocation,
+  postMarketingGoals,
 } from "@/app/lib/api/integrations";
 import { useRouter } from "next/navigation";
 
@@ -66,6 +68,9 @@ export const useLinkShopify = (
 
 export const useRetrieveStoreDetails = () => {
   const token = useAuthStore((state) => state.token);
+  const storeBusinessDetails = useSetupStore(
+    (state) => state.storeBusinessDetails
+  );
 
   const retrieveStoreDetails = useQuery({
     queryKey: ["storeDetails", token],
@@ -73,7 +78,31 @@ export const useRetrieveStoreDetails = () => {
     enabled: false, // Don't auto-run
   });
 
-  console.log('retrieve details data:', retrieveStoreDetails.data)
+  console.log("retrieve details data:", retrieveStoreDetails.data);
+
+  useEffect(() => {
+    const {
+      companyName,
+      description,
+      website,
+      industry,
+      companyRole,
+      teamSize,
+      estimatedMonthlyBudget,
+      estimatedAnnualRevenue,
+    } = retrieveStoreDetails.data;
+    console.log("Store Details Data:", retrieveStoreDetails.data);
+    storeBusinessDetails({
+      storeName: companyName,
+      description,
+      storeUrl: website,
+      industry: industry || null,
+      companyRole: companyRole || null,
+      teamSize: teamSize ? teamSize : { min: 2, max: 5 },
+      adSpendBudget: estimatedMonthlyBudget?.amount || 0,
+      annualRevenue: estimatedAnnualRevenue?.amount || 0,
+    });
+  }, [retrieveStoreDetails.isSuccess]);
 
   const fetchStoreDetails = () => {
     if (token) retrieveStoreDetails.refetch();
@@ -112,7 +141,10 @@ export const useSubmitBusinessDetails = () => {
 
   const handleSubmitBusinessDetails = (data: any) => {
     if (!token) return;
-    if (JSON.stringify(data) === JSON.stringify(businessDetailsStore)) {
+    if (
+      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(businessDetailsStore)
+    ) {
       completeBusinessDetails(true);
       router.push("/setup/preferred-sales-location");
     }
@@ -149,4 +181,110 @@ export const useGetPlaces = (place: string) => {
     getPlaces,
     handleGetPlaces: fetchPlaces,
   };
+};
+
+export const useSubmitPreferredLocation = () => {
+  const token = useAuthStore((state) => state.token);
+  const preferredSalesLocationFromStore = useSetupStore(
+    (state) => state.preferredSalesLocation
+  );
+  const [preferredSalesLocation, setPreferredSalesLocation] = useState<{
+    localShippingLocations: string[];
+    internationalShippingLocations: string[];
+  }>({
+    localShippingLocations: [],
+    internationalShippingLocations: [],
+  });
+  const storePreferredSalesLocation = useSetupStore(
+    (state) => state.storePreferredSalesLocation
+  );
+  const router = useRouter();
+
+  const submitPreferredLocationMutation = useMutation({
+    mutationFn: postPreferredSalesLocation,
+    onSuccess: (data) => {
+      storePreferredSalesLocation({
+        ...preferredSalesLocation,
+        complete: true,
+      });
+      console.log("Preferred location submitted successfully:", data);
+      router.push("/setup/marketing-goals");
+    },
+    onError: (error: any) => {
+      console.error("Error submitting preferred location:", error);
+    },
+  });
+
+  const handleSubmitPreferredLocation = (data: {
+    localShippingLocations: string[];
+    internationalShippingLocations: string[];
+  }) => {
+    if (!token) return;
+    if (
+      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(preferredSalesLocationFromStore)
+    ) {
+      router.push("/setup/marketing-goals");
+      return;
+    }
+    console.log("data", data);
+    console.log("called");
+    setPreferredSalesLocation(data);
+    submitPreferredLocationMutation.mutate({ data, token });
+  };
+
+  return { submitPreferredLocationMutation, handleSubmitPreferredLocation };
+};
+
+export const useSubmitBusinessGoals = () => {
+  const token = useAuthStore((state) => state.token);
+  const marketingGoalsFromStore = useSetupStore(
+    (state) => state.marketingGoals
+  );
+  const [marketingGoals, setMarketingGoals] = useState<{
+    brandAwareness: boolean;
+    acquireNewCustomers: boolean;
+    boostRepeatPurchases: boolean;
+  } | null>(null);
+  const storeMarketingGoals = useSetupStore(
+    (state) => state.storeMarketingGoals
+  );
+  const router = useRouter();
+
+  const submitMarketingGoalsMutation = useMutation({
+    mutationFn: postMarketingGoals,
+    onSuccess: (data) => {
+      if (!marketingGoals) return;
+      storeMarketingGoals({
+        ...marketingGoals,
+        complete: true,
+      });
+      console.log("Maketing Goals submitted successfully:", data);
+    },
+    onError: (error: any) => {
+      console.error("Error submitting marketing goals:", error);
+    },
+  });
+
+  const handleSubmitMarketingGoals = (data: {
+    brandAwareness: boolean;
+    acquireNewCustomers: boolean;
+    boostRepeatPurchases: boolean;
+  }) => {
+    if (!token) return;
+
+    if (
+      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(marketingGoalsFromStore)
+    ) {
+      router.push("/setup/complete");
+      return;
+    }
+    console.log("data", data);
+    console.log("called");
+    setMarketingGoals(data);
+    submitMarketingGoalsMutation.mutate({ data, token });
+  };
+
+  return { submitMarketingGoalsMutation, handleSubmitMarketingGoals };
 };
