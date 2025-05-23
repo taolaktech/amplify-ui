@@ -42,18 +42,18 @@
 }
 
 * {
-  /* font-family: "Satoshi", sans-serif; */
+  font-family: "Satoshi", sans-serif;
 }
 
 body {
   background: var(--background);
   color: #333;
-  /* font-family: "Satoshi", sans-serif; */
-  /* letter-spacing: var(--tracking-100); */
+  font-family: "Satoshi", sans-serif;
+  letter-spacing: var(--tracking-100);
 }
 
 .num {
-  font-family: var(--font-rubik), sans-serif;
+  /* font-family: var(--font-rubik), sans-serif; */
 }
 
 svg.button-loader {
