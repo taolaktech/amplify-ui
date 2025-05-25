@@ -9,6 +9,7 @@ import {
   handleGetPlacesAutocomplete,
   postPreferredSalesLocation,
   postMarketingGoals,
+  handlePostBusinessDetails,
 } from "@/app/lib/api/integrations";
 import { useRouter } from "next/navigation";
 
@@ -119,6 +120,58 @@ export const useRetrieveStoreDetails = () => {
     retrieveStoreDetails,
     handleRetrieveStoreDetails: fetchStoreDetails,
   };
+};
+
+export const useSubmitBusinessDetails = () => {
+  const token = useAuthStore((state) => state.token);
+  const router = useRouter();
+
+  const [businessDetails, setBusinessDetails] = useState(null);
+  const businessDetailsStore = useSetupStore((state) => state.businessDetails);
+  const storeBusinessDetails = useSetupStore(
+    (state) => state.storeBusinessDetails
+  );
+
+  const completeBusinessDetails = useSetupStore(
+    (state) => state.completeBusinessDetails
+  );
+  const submitBusinessDetailsMutation = useMutation({
+    mutationFn: handlePostBusinessDetails,
+    onSuccess: (data) => {
+      if (businessDetails) storeBusinessDetails(businessDetails);
+      completeBusinessDetails(true);
+      console.log("Business details submitted successfully:", data);
+      router.push("/setup/preferred-sales-location");
+    },
+    onError: (error: any) => {
+      console.error("Error retrieving business details:", error);
+    },
+  });
+
+  const handleSubmitBusinessDetails = (data: any) => {
+    if (!token) return;
+    if (
+      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(businessDetailsStore)
+    ) {
+      completeBusinessDetails(true);
+      router.push("/setup/preferred-sales-location");
+    }
+    const businessDetails = {
+      companyName: data.storeName,
+      description: data.description,
+      industry: data.industry,
+      website: data.storeUrl,
+      estimatedMonthlyBudget: parseInt(data.adSpendBudget),
+      estimatedAnnualRevenue: parseInt(data.annualRevenue),
+      teamSize: data.teamSize,
+      companyRole: data.companyRole,
+    };
+    setBusinessDetails(data);
+    submitBusinessDetailsMutation.mutate({ businessDetails, token });
+  };
+
+  return { submitBusinessDetailsMutation, handleSubmitBusinessDetails };
 };
 
 export const useGetPlaces = (place: string) => {
