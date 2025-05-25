@@ -6,7 +6,6 @@ import {
   handleShopifyAuth,
   IntegrationErrorCode,
   handleRetrieveStoreDetails,
-  handlePostBusinessDetails,
   handleGetPlacesAutocomplete,
   postPreferredSalesLocation,
   postMarketingGoals,
@@ -71,16 +70,22 @@ export const useRetrieveStoreDetails = () => {
   const storeBusinessDetails = useSetupStore(
     (state) => state.storeBusinessDetails
   );
+  const [shouldFetchData, setShouldFetchData] = useState(false);
 
   const retrieveStoreDetails = useQuery({
-    queryKey: ["storeDetails", token],
-    queryFn: () => handleRetrieveStoreDetails(token || ""),
+    queryKey: ["storeDetails"],
+    queryFn: () => {
+      if (!token || !shouldFetchData) return;
+      else return handleRetrieveStoreDetails(token);
+    },
     enabled: false, // Don't auto-run
   });
 
   console.log("retrieve details data:", retrieveStoreDetails.data);
+  console.log("Store Details Data:", retrieveStoreDetails?.data);
 
   useEffect(() => {
+    if (!retrieveStoreDetails?.data) return;
     const {
       companyName,
       description,
@@ -90,8 +95,8 @@ export const useRetrieveStoreDetails = () => {
       teamSize,
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
-    } = retrieveStoreDetails.data;
-    console.log("Store Details Data:", retrieveStoreDetails.data);
+    } = retrieveStoreDetails?.data;
+    console.log("Store Details Data:", retrieveStoreDetails?.data);
     storeBusinessDetails({
       storeName: companyName,
       description,
@@ -105,64 +110,15 @@ export const useRetrieveStoreDetails = () => {
   }, [retrieveStoreDetails.isSuccess]);
 
   const fetchStoreDetails = () => {
-    if (token) retrieveStoreDetails.refetch();
+    if (token) {
+      setShouldFetchData(true);
+      retrieveStoreDetails.refetch();
+    }
   };
   return {
     retrieveStoreDetails,
     handleRetrieveStoreDetails: fetchStoreDetails,
   };
-};
-
-export const useSubmitBusinessDetails = () => {
-  const token = useAuthStore((state) => state.token);
-  const router = useRouter();
-
-  const [businessDetails, setBusinessDetails] = useState(null);
-  const businessDetailsStore = useSetupStore((state) => state.businessDetails);
-  const storeBusinessDetails = useSetupStore(
-    (state) => state.storeBusinessDetails
-  );
-
-  const completeBusinessDetails = useSetupStore(
-    (state) => state.completeBusinessDetails
-  );
-  const submitBusinessDetailsMutation = useMutation({
-    mutationFn: handlePostBusinessDetails,
-    onSuccess: (data) => {
-      if (businessDetails) storeBusinessDetails(businessDetails);
-      completeBusinessDetails(true);
-      console.log("Business details submitted successfully:", data);
-      router.push("/setup/preferred-sales-location");
-    },
-    onError: (error: any) => {
-      console.error("Error retrieving business details:", error);
-    },
-  });
-
-  const handleSubmitBusinessDetails = (data: any) => {
-    if (!token) return;
-    if (
-      JSON.stringify({ data, complete: true }) ===
-      JSON.stringify(businessDetailsStore)
-    ) {
-      completeBusinessDetails(true);
-      router.push("/setup/preferred-sales-location");
-    }
-    const businessDetails = {
-      companyName: data.storeName,
-      description: data.description,
-      industry: data.industry,
-      website: data.storeUrl,
-      estimatedMonthlyBudget: parseInt(data.adSpendBudget),
-      estimatedAnnualRevenue: parseInt(data.annualRevenue),
-      teamSize: data.teamSize,
-      companyRole: data.companyRole,
-    };
-    setBusinessDetails(data);
-    submitBusinessDetailsMutation.mutate({ businessDetails, token });
-  };
-
-  return { submitBusinessDetailsMutation, handleSubmitBusinessDetails };
 };
 
 export const useGetPlaces = (place: string) => {
