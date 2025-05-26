@@ -47,7 +47,7 @@ export default function Button({
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl flex items-center justify-center gap-[6px] ${
         !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"
-      } min-w-[90px]`}
+      } min-w-[90px] font-medium`}
       style={{ height: height ?? height }}
     >
       {hasIconOrLoader && (

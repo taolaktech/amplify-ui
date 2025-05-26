@@ -89,12 +89,13 @@ export const useInitialize = () => {
         completeBusinessDetails(false);
         return;
       }
-      const details = response.businessDetails;
+      const details = response?.businessDetails;
       if (!details) {
         console.error("No details found");
         completeBusinessDetails(false);
         return;
       }
+      console.log("Retrieved store details:", details);
       const {
         companyName,
         description,
