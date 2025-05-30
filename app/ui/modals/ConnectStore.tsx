@@ -10,13 +10,16 @@ import {
   useRetrieveStoreDetails,
 } from "@/app/lib/hooks/useOnboardingHooks";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/app/lib/hooks/useModal";
 
 function ConnectStore({
   closeModal,
   isLinkedStore,
+  isOpen,
 }: {
   closeModal: () => void;
   isLinkedStore: boolean;
+  isOpen: boolean;
 }) {
   const completeConnectStore = useSetupStore(
     (state) => state.completeConnectStore
@@ -24,8 +27,7 @@ function ConnectStore({
 
   const storeUrl = useSetupStore((state) => state.connectStore.storeUrl);
   const [errorMsg, setErrorMsg] = useState("");
-  const { handleRetrieveStoreDetails, retrieveStoreDetails } =
-    useRetrieveStoreDetails();
+  const retrieveStoreDetails = useRetrieveStoreDetails();
   const [fetchingInfo, setFetchingInfo] = useState(false);
   const [fetchingProgress, setFetchingProgress] = useState(10);
   const [shopifyStore, setShopifyStore] = useState(storeUrl);
@@ -35,6 +37,7 @@ function ConnectStore({
   );
 
   const router = useRouter();
+  useModal(isOpen);
 
   const closeClicked = () => {
     if (!fetchingInfo) closeModal();
@@ -44,7 +47,7 @@ function ConnectStore({
     if (isLinkedStore) {
       setFetchingInfo(true);
       setFetchingProgress(10);
-      handleRetrieveStoreDetails();
+      retrieveStoreDetails.handleRetrieveStoreDetails();
     }
   }, [isLinkedStore]);
 
@@ -63,10 +66,10 @@ function ConnectStore({
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
 
-    if (retrieveStoreDetails.isPending) {
+    if (retrieveStoreDetails.isLoading) {
       interval = setInterval(() => {
         setFetchingProgress((prev) => {
-          if (retrieveStoreDetails.isPending && prev >= 90) {
+          if (retrieveStoreDetails.isLoading && prev >= 90) {
             if (interval) clearInterval(interval);
             return prev;
           }
@@ -78,7 +81,7 @@ function ConnectStore({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [retrieveStoreDetails.isPending]);
+  }, [retrieveStoreDetails.isLoading]);
 
   const handleOnChangeShopifyStore = (
     e: React.ChangeEvent<HTMLInputElement>

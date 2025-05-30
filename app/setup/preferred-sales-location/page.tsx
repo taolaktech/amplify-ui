@@ -1,10 +1,8 @@
 "use client";
 import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
-// import SelectInput from "@/app/ui/form/SelectInput";
 import { ArrowRight, CloseCircle } from "iconsax-react";
 import { useEffect, useState } from "react";
-// import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
 import PreferredIntlLocationSelectInput from "@/app/ui/form/PreferredIntlLocationSelectInput";
 import SalesLocationInput from "@/app/ui/form/SalesLocationInput";
 import { useSubmitPreferredLocation } from "@/app/lib/hooks/useOnboardingHooks";
@@ -22,6 +20,10 @@ function PreferredSalesLocation() {
 
   useEffect(() => {
     if (preferredSalesLocationFromStore.complete) {
+      console.log(
+        "preferredSalesLocationFromStore",
+        preferredSalesLocationFromStore
+      );
       setSalesLocation(preferredSalesLocationFromStore.localShippingLocations);
       setSelectedIntLocation(
         preferredSalesLocationFromStore.internationalShippingLocations
@@ -43,7 +45,7 @@ function PreferredSalesLocation() {
 
   const toggleSalesLocation = (location: string) => {
     console.log("location", location);
-    const isSelected = salesLocation.includes(location);
+    const isSelected = salesLocation.some((item) => item === location);
     if (isSelected) {
       setSalesLocation((prev) => prev.filter((item) => item !== location));
       setSearchQuery("");
@@ -55,8 +57,6 @@ function PreferredSalesLocation() {
   const clearSalesLocation = () => {
     setSalesLocation([]);
   };
-
-  // const { getPlaces, handleGetPlaces } = useGetPlaces(searchQuery);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -88,11 +88,11 @@ function PreferredSalesLocation() {
       </div>
       <div className="min-h-[250px] mt-4">
         <div className="py-4 flex items-start gap-3 flex-wrap">
-          {salesLocation.map((location) => (
+          {salesLocation.map((location, index) => (
             <div
               onClick={() => toggleSalesLocation(location)}
               className="flex flex-shrink-0 items-center rounded-[24px] gap-2 py-4 px-3 cursor-pointer bg-[#F7F7F7]"
-              key={location}
+              key={index}
             >
               <span className="text-sm text-heading font-medium">
                 {location}

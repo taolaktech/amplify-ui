@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       token: null,
-      isAuth: false,
+      isAuth: true,
       user: {
         name: "",
         email: "",

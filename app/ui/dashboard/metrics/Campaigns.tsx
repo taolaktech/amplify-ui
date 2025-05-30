@@ -67,7 +67,7 @@ function MetricsPoint({
 }) {
   const metricsPoints = useMetricsStore((state) => state.metricsPoints);
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 ">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 xl:gap-3">
       {metricsPoints.map((metric) => (
         <div
           className={`

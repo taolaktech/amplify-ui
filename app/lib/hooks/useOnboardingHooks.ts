@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
@@ -6,12 +6,13 @@ import {
   handleShopifyAuth,
   IntegrationErrorCode,
   handleRetrieveStoreDetails,
-  handleGetPlacesAutocomplete,
+  handleGetCities,
   postPreferredSalesLocation,
   postMarketingGoals,
   handlePostBusinessDetails,
 } from "@/app/lib/api/integrations";
 import { useRouter } from "next/navigation";
+import useUIStore from "../stores/uiStore";
 
 export const useLinkShopify = (
   setErrorMsg: React.Dispatch<React.SetStateAction<string>>,
@@ -19,6 +20,9 @@ export const useLinkShopify = (
 ) => {
   const storeConnectStore = useSetupStore((state) => state.storeConnectStore);
   const router = useRouter();
+  const storeUrlFromStore = useSetupStore(
+    (state) => state.connectStore.storeUrl
+  );
   const token = useAuthStore((state) => state.token);
 
   const linkShopifyMutation = useMutation({
@@ -49,6 +53,10 @@ export const useLinkShopify = (
   const handleConnectStore = (shopifyStore: string) => {
     setErrorMsg("");
     if (!token) return;
+    if (storeUrlFromStore === shopifyStore) {
+      router.push("/setup/business-details");
+      return;
+    }
     const shopifyRegex =
       /^(https?:\/\/)?[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com\/?$/;
 
@@ -71,22 +79,42 @@ export const useRetrieveStoreDetails = () => {
   const storeBusinessDetails = useSetupStore(
     (state) => state.storeBusinessDetails
   );
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [retrieveStoreDetailsData, setRetrieveStoreDetailsData] =
+    useState<any>(null);
   const [shouldFetchData, setShouldFetchData] = useState(false);
 
-  const retrieveStoreDetails = useQuery({
-    queryKey: ["storeDetails"],
-    queryFn: () => {
-      if (!token || !shouldFetchData) return;
-      else return handleRetrieveStoreDetails(token);
-    },
-    enabled: false, // Don't auto-run
-  });
+  // const retrieveStoreDetails = useQuery({
+  //   queryKey: ["storeDetails"],
+  //   queryFn: () => {
+  //     if (!token || !shouldFetchData) return;
+  //     else return handleRetrieveStoreDetails(token);
+  //   },
+  //   enabled: false, // Don't auto-run
+  // });
 
-  console.log("retrieve details data:", retrieveStoreDetails.data);
-  console.log("Store Details Data:", retrieveStoreDetails?.data);
+  const retrieveStoreDetails = async () => {
+    if (!token || !shouldFetchData) return;
+    else {
+      try {
+        setIsLoading(true);
+        const data = await handleRetrieveStoreDetails(token);
+        setIsSuccess(true);
+        setRetrieveStoreDetailsData(data.data);
+      } catch (error) {
+        console.error("Error retrieving store details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  console.log("retrieve details data:", retrieveStoreDetailsData);
+  console.log("Store Details Data:", retrieveStoreDetailsData);
 
   useEffect(() => {
-    if (!retrieveStoreDetails?.data) return;
+    if (!retrieveStoreDetailsData) return;
     const {
       companyName,
       description,
@@ -96,8 +124,8 @@ export const useRetrieveStoreDetails = () => {
       teamSize,
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
-    } = retrieveStoreDetails?.data;
-    console.log("Store Details Data:", retrieveStoreDetails?.data);
+    } = retrieveStoreDetailsData;
+    console.log("Store Details Data:", retrieveStoreDetailsData);
     storeBusinessDetails({
       storeName: companyName,
       description,
@@ -108,16 +136,18 @@ export const useRetrieveStoreDetails = () => {
       adSpendBudget: estimatedMonthlyBudget?.amount || 0,
       annualRevenue: estimatedAnnualRevenue?.amount || 0,
     });
-  }, [retrieveStoreDetails.isSuccess]);
+  }, [isSuccess]);
 
   const fetchStoreDetails = () => {
     if (token) {
       setShouldFetchData(true);
-      retrieveStoreDetails.refetch();
+      retrieveStoreDetails();
     }
   };
   return {
-    retrieveStoreDetails,
+    isLoading,
+    isSuccess,
+    retrieveStoreDetailsData,
     handleRetrieveStoreDetails: fetchStoreDetails,
   };
 };
@@ -150,13 +180,30 @@ export const useSubmitBusinessDetails = () => {
 
   const handleSubmitBusinessDetails = (data: any) => {
     if (!token) return;
+    console.log("data", data);
+    console.log("businessDetailsStore", businessDetailsStore);
+
+    const normalizedNewData = {
+      storeName: data.storeName,
+      description: data.description,
+      storeUrl: data.storeUrl,
+      industry: data.industry,
+      companyRole: data.companyRole,
+      teamSize: data.teamSize,
+      adSpendBudget: parseInt(data.adSpendBudget),
+      annualRevenue: parseInt(data.annualRevenue),
+      complete: true,
+    };
+
     if (
-      JSON.stringify({ data, complete: true }) ===
-      JSON.stringify(businessDetailsStore)
+      JSON.stringify(normalizedNewData) === JSON.stringify(businessDetailsStore)
     ) {
+      console.log("equal");
       completeBusinessDetails(true);
       router.push("/setup/preferred-sales-location");
+      return;
     }
+
     const businessDetails = {
       companyName: data.storeName,
       description: data.description,
@@ -167,6 +214,7 @@ export const useSubmitBusinessDetails = () => {
       teamSize: data.teamSize,
       companyRole: data.companyRole,
     };
+
     setBusinessDetails(data);
     submitBusinessDetailsMutation.mutate({ businessDetails, token });
   };
@@ -174,21 +222,29 @@ export const useSubmitBusinessDetails = () => {
   return { submitBusinessDetailsMutation, handleSubmitBusinessDetails };
 };
 
-export const useGetPlaces = (place: string) => {
-  const getPlaces = useQuery({
-    queryKey: ["places"],
-    queryFn: () => handleGetPlacesAutocomplete({ input: place }),
-    enabled: false, // Don't auto-run
+export const useGetPlaces = () => {
+  const token = useAuthStore((state) => state.token);
+  const [citiesData, setCitiesData] = useState<any[] | null>(null);
+
+  const getCitiesMutation = useMutation({
+    mutationFn: handleGetCities,
+    onSuccess: (data) => {
+      console.log("Cities fetched successfully:", data);
+      setCitiesData(data);
+    },
+    onError: (error: any) => {
+      console.error("Error fetching cities:", error);
+    },
   });
 
-  console.log("getPlaces", getPlaces.data);
-
-  const fetchPlaces = () => {
-    getPlaces.refetch();
+  const fetchPlaces = (input: string) => {
+    if (!token) return;
+    getCitiesMutation.mutate({ input, token });
   };
   return {
-    getPlaces,
+    getCitiesMutation,
     handleGetPlaces: fetchPlaces,
+    citiesData,
   };
 };
 
@@ -212,6 +268,7 @@ export const useSubmitPreferredLocation = () => {
   const submitPreferredLocationMutation = useMutation({
     mutationFn: postPreferredSalesLocation,
     onSuccess: (data) => {
+      console.log("post preferred location data:", data);
       storePreferredSalesLocation({
         ...preferredSalesLocation,
         complete: true,
@@ -229,17 +286,47 @@ export const useSubmitPreferredLocation = () => {
     internationalShippingLocations: string[];
   }) => {
     if (!token) return;
+
+    const normalizedNewData = {
+      localShippingLocations: data.localShippingLocations,
+      internationalShippingLocations: data.internationalShippingLocations,
+      complete: true,
+    };
+
+    console.log("Comparing preferred locations:");
+    console.log("New data:", JSON.stringify(normalizedNewData, null, 2));
+    console.log(
+      "Store data:",
+      JSON.stringify(preferredSalesLocationFromStore, null, 2)
+    );
+
     if (
-      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(normalizedNewData) ===
       JSON.stringify(preferredSalesLocationFromStore)
     ) {
       router.push("/setup/marketing-goals");
       return;
     }
-    console.log("data", data);
-    console.log("called");
+
     setPreferredSalesLocation(data);
-    submitPreferredLocationMutation.mutate({ data, token });
+    const localShippingLocations = data.localShippingLocations.map(
+      (location) => {
+        const [city, state, country] = location.split(", ");
+        return {
+          shorthand: location,
+          country,
+          city,
+          state,
+        };
+      }
+    );
+    submitPreferredLocationMutation.mutate({
+      data: {
+        localShippingLocations,
+        internationalShippingLocations: data.internationalShippingLocations,
+      },
+      token,
+    });
   };
 
   return { submitPreferredLocationMutation, handleSubmitPreferredLocation };
@@ -250,6 +337,7 @@ export const useSubmitBusinessGoals = () => {
   const marketingGoalsFromStore = useSetupStore(
     (state) => state.marketingGoals
   );
+  const { setOnboardingCompleted } = useUIStore((state) => state.actions);
   const [marketingGoals, setMarketingGoals] = useState<{
     brandAwareness: boolean;
     acquireNewCustomers: boolean;
@@ -269,6 +357,7 @@ export const useSubmitBusinessGoals = () => {
         complete: true,
       });
       console.log("Maketing Goals submitted successfully:", data);
+      router.push("/setup?onboarding=success");
     },
     onError: (error: any) => {
       console.error("Error submitting marketing goals:", error);
@@ -282,15 +371,29 @@ export const useSubmitBusinessGoals = () => {
   }) => {
     if (!token) return;
 
+    const normalizedNewData = {
+      brandAwareness: data.brandAwareness,
+      acquireNewCustomers: data.acquireNewCustomers,
+      boostRepeatPurchases: data.boostRepeatPurchases,
+      complete: true,
+    };
+
+    console.log("Comparing marketing goals:");
+    console.log("New data:", JSON.stringify(normalizedNewData, null, 2));
+    console.log(
+      "Store data:",
+      JSON.stringify(marketingGoalsFromStore, null, 2)
+    );
+
     if (
-      JSON.stringify({ data, complete: true }) ===
+      JSON.stringify(normalizedNewData) ===
       JSON.stringify(marketingGoalsFromStore)
     ) {
-      router.push("/setup/complete");
+      setOnboardingCompleted(true);
+      router.push("/setup?onboarding=success");
       return;
     }
-    console.log("data", data);
-    console.log("called");
+
     setMarketingGoals(data);
     submitMarketingGoalsMutation.mutate({ data, token });
   };

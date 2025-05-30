@@ -2,11 +2,11 @@ import Link from "next/link";
 import {
   InfoCircle,
   Box,
-  People,
-  FolderOpen,
-  Map,
-  ReceiptText,
-  Profile2User,
+  // People,
+  // FolderOpen,
+  // Map,
+  // ReceiptText,
+  // Profile2User,
 } from "iconsax-react";
 
 export const DashboardCompanyLinks = () => {
@@ -26,7 +26,7 @@ export const DashboardCompanyLinks = () => {
         <Box size="20" color="#BFBFBF" />
         <span>Products</span>
       </Link>
-      <Link
+      {/* <Link
         href="/"
         className="flex items-center gap-2 text-xs hover:bg-[#F6F6F6] rounded-[12px] text-gray-dark py-2 px-3"
       >
@@ -39,8 +39,8 @@ export const DashboardCompanyLinks = () => {
       >
         <Map size="20" color="#BFBFBF" />
         <span>Locations</span>
-      </Link>
-      <Link
+      </Link> */}
+      {/* <Link
         href="/"
         className="flex items-center gap-2 text-xs hover:bg-[#F6F6F6] rounded-[12px] text-gray-dark py-2 px-3"
       >
@@ -60,7 +60,7 @@ export const DashboardCompanyLinks = () => {
       >
         <ReceiptText size="20" color="#BFBFBF" />
         <span>Subscription</span>
-      </Link>
+      </Link> */}
     </>
   );
 };

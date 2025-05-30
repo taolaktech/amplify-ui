@@ -34,3 +34,7 @@ export const generateAvatar = (name: string) => {
 //   // Step 3: Return color
 //   return colors[index];
 // }
+
+export const normalize = (obj: any) => {
+  return JSON.parse(JSON.stringify(obj));
+};

@@ -115,6 +115,7 @@ function ConnectPage() {
       {/* modal */}
       {connectStoreModal && (
         <ConnectStore
+          isOpen={connectStoreModal}
           closeModal={() => setConnectStoreModal(false)}
           isLinkedStore={isLinkedStore}
         />

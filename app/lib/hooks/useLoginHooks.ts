@@ -15,14 +15,15 @@ import {
 import { useAuthStore, useCreateUserStore } from "../stores/authStore";
 import { useRouter } from "next/navigation";
 import { AuthErrorCode } from "../api/errorcodes";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { FieldErrors } from "react-hook-form";
 
 export const useInitialize = () => {
-  const token = useAuthStore((state) => state.token);
-  console.log("token", token);
+  // const token = useAuthStore((state) => state.token);
+  // console.log("token", token);
+  const [loading, setLoading] = useState(false);
   const reset = useSetupStore((state) => state.reset);
-  const { connectStore, businessDetails } = useSetupStore((state) => state);
+  const { businessDetails } = useSetupStore((state) => state);
   const {
     storeBusinessDetails,
     completeConnectStore,
@@ -31,104 +32,115 @@ export const useInitialize = () => {
     completePreferredSalesLocation,
     storeConnectStore,
     storeMarketingGoals,
-    // storePreferredSalesLocation,
+    storePreferredSalesLocation,
   } = useSetupStore((state) => state);
 
-  useEffect(() => {
+  async function getMe(token: string) {
+    // tun this to async
     if (token) {
-      handleGetMe(token)
-        .then((response) => {
-          console.log("User data:", response.onboarding);
-          if (!response.onboarding) return;
-          completeConnectStore(response.onboarding?.shopifyAccountConnected);
-          completeBusinessDetails(
-            response.onboarding?.isBusinessDetailsSet || false
-          );
-          completeMarketingGoals(
-            response.onboarding?.isBusinessGoalsSet || false
-          );
-          completePreferredSalesLocation(
-            response.onboarding?.isShippingDetailsSet || false
-          );
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
+      const response = await handleGetMe(token);
+      console.log("User data:", response.onboarding);
+      if (!response.onboarding) return false;
+      completeConnectStore(response.onboarding?.shopifyAccountConnected);
+      completeBusinessDetails(
+        response.onboarding?.isBusinessDetailsSet || false
+      );
+      completeMarketingGoals(response.onboarding?.isBusinessGoalsSet || false);
+      completePreferredSalesLocation(
+        response.onboarding?.isShippingDetailsSet || false
+      );
+      return true;
     }
-  }, []);
+    return false;
+  }
 
-  useEffect(() => {
+  async function getShopifyAccount(token: string, isConnected: boolean) {
     console.log("useEffect triggered with token:", token);
-    console.log("connectStore.complete:", connectStore.complete);
-    if (token && connectStore.complete) {
-      handleGetShopifyAccount(token)
-        .then((response) => {
-          console.log("Shopify account data:", response);
-          storeConnectStore({
-            storeUrl: response.account.shop,
-          });
-          completeConnectStore(true);
-        })
-        .catch((error) => {
-          console.error("Error fetching Shopify account data:", error);
-        });
+    console.log("connectStore.complete:", isConnected);
+    if (token && isConnected) {
+      const response = await handleGetShopifyAccount(token);
+      console.log("Shopify account data:", response);
+      storeConnectStore({
+        storeUrl: response.account.shop,
+      });
+      completeConnectStore(true);
     } else {
       reset();
     }
-  }, [token, connectStore.complete]);
+  }
 
-  useEffect(() => {
+  async function getStoreDetails(token: string, isConnected: boolean) {
     console.log("businessDetails.complete:", businessDetails.complete);
     console.log("token", token);
-    if (!connectStore.complete) return;
-    if (!token) return;
-    handleRetrieveStoreDetails(token).then((response) => {
-      console.log("Store details response:", response);
-      if (!response.businessDetails) {
-        console.error("No business details found");
-        completeBusinessDetails(false);
-        return;
-      }
-      const details = response?.businessDetails;
-      if (!details) {
-        console.error("No details found");
-        completeBusinessDetails(false);
-        return;
-      }
-      console.log("Retrieved store details:", details);
-      const {
-        companyName,
-        description,
-        website,
-        industry,
-        companyRole,
-        teamSize,
-        estimatedMonthlyBudget,
-        estimatedAnnualRevenue,
-      } = details;
-      console.log("Store Details Data:", details);
-      storeBusinessDetails({
-        storeName: companyName,
-        description,
-        storeUrl: website,
-        industry,
-        companyRole,
-        teamSize: teamSize ? teamSize : { min: 2, max: 5 },
-        adSpendBudget: estimatedMonthlyBudget?.amount,
-        annualRevenue: estimatedAnnualRevenue?.amount,
-      });
-
-      if (details.businessGoals) {
-        console.log("Business goals found:", details.businessGoals);
-        storeMarketingGoals({
-          brandAwareness: details.brandAwareness,
-          acquireNewCustomers: details?.acquireNewCustomers,
-          boostRepeatPurchases: details.businessGoals?.boostRepeatPurchases,
-          complete: true,
-        });
-      }
+    if (!isConnected || !token) {
+      return;
+    }
+    const response = await handleRetrieveStoreDetails(token);
+    console.log("Store details response:", response);
+    if (!response.businessDetails) {
+      console.error("No business details found");
+      completeBusinessDetails(false);
+      return;
+    }
+    const details = response?.businessDetails;
+    if (!details) {
+      console.error("No details found");
+      completeBusinessDetails(false);
+      return;
+    }
+    console.log("Retrieved store details:", details);
+    const {
+      companyName,
+      description,
+      website,
+      industry,
+      companyRole,
+      teamSize,
+      estimatedMonthlyBudget,
+      estimatedAnnualRevenue,
+    } = details;
+    console.log("Store Details Data:", details);
+    storeBusinessDetails({
+      storeName: companyName,
+      description,
+      storeUrl: website,
+      industry,
+      companyRole,
+      teamSize: teamSize ? teamSize : { min: 2, max: 5 },
+      adSpendBudget: estimatedMonthlyBudget?.amount,
+      annualRevenue: estimatedAnnualRevenue?.amount,
     });
-  }, [connectStore.complete, token]);
+
+    if (details.shippingLocations) {
+      console.log("Shipping details found:", details.shippingLocations);
+      storePreferredSalesLocation({
+        localShippingLocations:
+          details.shippingLocations.localShippingLocations.map(
+            (location: any) => location.shorthand
+          ),
+        internationalShippingLocations:
+          details.shippingLocations.internationalShippingLocations,
+        complete: true,
+      });
+    }
+
+    if (details.businessGoals) {
+      console.log("Business goals found:", details.businessGoals);
+      storeMarketingGoals({
+        brandAwareness: details.businessGoals.brandAwareness,
+        acquireNewCustomers: details.businessGoals.acquireNewCustomers,
+        boostRepeatPurchases: details.businessGoals.boostRepeatPurchases,
+        complete: true,
+      });
+    }
+  }
+  return {
+    loading,
+    getMe,
+    getShopifyAccount,
+    getStoreDetails,
+    setLoading,
+  };
 };
 
 export const useEmailLogin = (
@@ -144,17 +156,27 @@ export const useEmailLogin = (
     (state) => state.completeConnectStore
   );
   const login = useAuthStore((state) => state.login);
-  useInitialize();
+  const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
+    useInitialize();
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
-    onSuccess: (response: AxiosResponse<any, any>) => {
+    onSuccess: async (response: AxiosResponse<any, any>) => {
+      setLoading(true);
       if (response.status === 200 || response.status === 201) {
         const isShopifyAccountConnected =
           response.data?.user?.shopifyAccountConnected;
         completeConnectStore(isShopifyAccountConnected);
-        login(response.data?.access_token, response.data?.user);
-        router.push("/");
+        try {
+          const isConnected = await getMe(response.data?.access_token);
+          await getShopifyAccount(response.data?.access_token, isConnected);
+          await getStoreDetails(response.data?.access_token, isConnected);
+          login(response.data?.access_token, response.data?.user);
+          router.push("/");
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       }
+      setLoading(false);
     },
     onError: (error: any) => {
       let errorParsed;
@@ -176,6 +198,7 @@ export const useEmailLogin = (
 
   return {
     emailLoginMutation,
+    loading,
   };
 };
 
@@ -193,11 +216,13 @@ export const useGoogleLogin = (
 
   const login = useAuthStore((state) => state.login);
 
-  useInitialize();
+  const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
+    useInitialize();
 
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
-    onSuccess: (response: AxiosResponse<any, any>) => {
+    onSuccess: async (response: AxiosResponse<any, any>) => {
+      setLoading(true);
       console.log("Google login response:", response);
       if (response.status === 200 || response.status === 201) {
         if (response.data?.userCreated) {
@@ -210,11 +235,20 @@ export const useGoogleLogin = (
         } else {
           const isShopifyAccountConnected =
             response.data?.user?.shopifyAccountConnected;
-          login(response.data?.access_token, response.data?.user);
           completeConnectStore(isShopifyAccountConnected);
-          router.push("/");
+          try {
+            const isConnected = await getMe(response.data?.access_token);
+            await getShopifyAccount(response.data?.access_token, isConnected);
+            await getStoreDetails(response.data?.access_token, isConnected);
+            login(response.data?.access_token, response.data?.user);
+
+            router.push("/");
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
         }
       }
+      setLoading(false);
     },
     onError: () => {
       if (onSignupScreen) {
@@ -223,7 +257,7 @@ export const useGoogleLogin = (
     },
   });
 
-  return { googleLoginMutation };
+  return { googleLoginMutation, loading };
 };
 
 export const useResetPassword = (

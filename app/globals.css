@@ -17,6 +17,7 @@
 @theme {
   --color-background: var(--light);
   --color-background-2: var(--grey);
+
   --color-heading: var(--violet-normal);
   --spacing-navbar-height: 56px;
   --spacing-base-padding: 1.25rem;
@@ -34,9 +35,11 @@
   --tracking-800: -0.84px;
   --color-gray-light: #bfbfbf;
   --color-gray-dark: #737373;
+  --color-neutral-light: #595959;
   --color-purple-dark: #1d0b30;
   --color-purple-normal: #6800d7;
   --color-error-text: #be343b;
+  --text-headers: 1.75rem;
   --breakpoint-xs: 412px;
   --font-rubik: "Rubik", sans-serif;
 }
@@ -103,9 +106,14 @@ svg.button-loader circle {
   -webkit-background-clip: text; /* Required for Safari */
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
-button:not(:disabled):hover,
+/* button:not(:disabled):hover,
 a:not(:disabled):hover {
   cursor: pointer;
+} */
+
+button:disabled,
+a:disabled {
+  cursor: not-allowed;
 }
 
 button.gradient,
@@ -118,8 +126,68 @@ a.gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
 }
 
+button.gradient:not(:disabled)::before,
+a.gradient:not(:disabled)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6800d7 19.35%, #5e00c2 97.65%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+button.gradient:not(:disabled):hover::before,
+a.gradient:not(:disabled):hover::before {
+  opacity: 1;
+}
+
+button.gradient > *,
+a.gradient > * {
+  position: relative;
+  z-index: 1;
+}
+
+button.gradient:disabled,
+a.gradient:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
+
+/* For a more dynamic gradient animation, uncomment this:
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+button.gradient:not(:disabled):hover,
+a.gradient:not(:disabled):hover {
+  background: linear-gradient(135deg, #a755ff 0%, #6800d7 50%, #5e00c2 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+*/
+
 .bg-gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
+
+.gradient-border {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
 }
 
 button.gradient::after,
@@ -135,13 +203,7 @@ a.gradient::after {
 
 button.gradient:hover::after,
 a.gradient:hover::after {
-  opacity: 1;
-}
-
-button.gradient > *,
-a.gradient > * {
-  position: relative;
-  z-index: 1;
+  /* opacity: 1; */
 }
 
 button.secondary,
@@ -214,6 +276,12 @@ a.secondary:not(:disabled):hover {
 }
 .custom-shadow-profile {
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.custom-shadow-pricing-models {
+  box-shadow: rgba(69, 69, 69, 0.1) 0px 1px 2px 0px,
+    rgba(163, 163, 163, 0.15) 0px 2px 6px 2px;
+
+  /* box-shadow: 21px 8px 19px 0px rgba(0, 0, 0, 0.1); */
 }
 
 /* .custom-shadow-sidebar {
