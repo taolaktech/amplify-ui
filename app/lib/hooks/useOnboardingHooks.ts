@@ -357,6 +357,7 @@ export const useSubmitBusinessGoals = () => {
         complete: true,
       });
       console.log("Maketing Goals submitted successfully:", data);
+      setOnboardingCompleted(true);
       router.push("/setup?onboarding=success");
     },
     onError: (error: any) => {
