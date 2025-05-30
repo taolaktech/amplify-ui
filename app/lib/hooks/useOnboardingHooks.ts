@@ -238,7 +238,7 @@ export const useGetPlaces = () => {
   });
 
   const fetchPlaces = (input: string) => {
-    if (!token) return;
+    if (!token || input.trim().length < 2) return;
     getCitiesMutation.mutate({ input, token });
   };
   return {
