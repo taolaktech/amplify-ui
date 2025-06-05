@@ -3,6 +3,8 @@ import Button from "../Button";
 import { TickCircle } from "iconsax-react";
 import type { Cycle } from "./ModelHeader";
 export const plans: Plan[] = ["Free Plan", "Starter", "Grow", "Scale"];
+import { useRouter } from "next/navigation";
+import { billingCycles } from "@/app/lib/pricingPlans";
 export type Plan = "Free Plan" | "Starter" | "Grow" | "Scale";
 
 function PricingCard({
@@ -22,23 +24,39 @@ function PricingCard({
   features: string[];
   handlePlanChange: (plan: Plan) => void;
 }) {
-  const formattedPrice =
-    cycle === "quarterly"
-      ? price * 0.95
-      : cycle === "yearly"
-      ? price * 0.85
-      : price;
+  const router = useRouter();
+  const planDiscount =
+    billingCycles[cycle.toUpperCase() as keyof typeof billingCycles].discount;
+  const formattedPrice = price
+    ? price - (price * (planDiscount / 100) || 0)
+    : 0;
+
+  const handlePlanSelection = () => {
+    if (isCurrentPlan) return;
+    router.push(
+      `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
+    );
+  };
+  const changePlan = (plan: Plan) => {
+    if (isCurrentPlan) return;
+    handlePlanChange(plan);
+  };
+
   return (
     <div
-      className={`p-8 rounded-lg h-screen max-h-[567px] cursor-pointer ${
-        plan === planSelected ? "bg-[#F0E6FB]" : "bg-[#FBFAFC]"
+      className={`p-8 rounded-lg h-screen max-h-[567px] ${
+        isCurrentPlan
+          ? "bg-[#FBFAFC] cursor-not-allowed"
+          : plan === planSelected
+          ? "bg-[#F0E6FB] cursor-pointer"
+          : "bg-[#FBFAFC] cursor-pointer"
       }`}
-      onClick={() => handlePlanChange(plan)}
+      onClick={() => changePlan(plan)}
     >
       <div className="text-[#6800D7] text-xl font-medium">{plan}</div>
       <div className="mt-3 mb-6">
         <span className="font-bold text-3xl tracking-[-0.1px] num">
-          ${formattedPrice.toFixed(0)}
+          ${formattedPrice}
         </span>
         <span className="text-lg font-medium tracking-250">
           /{cycle.slice(0, -2)}
@@ -48,7 +66,7 @@ function PricingCard({
         {!isCurrentPlan ? (
           <Button
             height={52}
-            action={() => {}}
+            action={handlePlanSelection}
             secondary={planSelected !== plan}
             showShadow={isCurrentPlan ? false : true}
             text={isCurrentPlan ? "Current Plan" : `Choose Plan`}

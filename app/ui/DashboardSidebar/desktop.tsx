@@ -6,8 +6,8 @@ import DefaultButton from "../Button";
 import {
   Add,
   AddSquare,
-  ArrowDown2,
-  ArrowUp2,
+  // ArrowDown2,
+  // ArrowUp2,
   Building3,
   CalendarEdit,
   Data2,
@@ -95,9 +95,12 @@ export default function DesktopSideBar({
             />
           )}
           {!isSidebarOpen && (
-            <button className="flex items-center justify-center w-full">
+            <Link
+              href="/pricing?route=campaigns"
+              className="flex items-center cursor-pointer justify-center w-full"
+            >
               <AddSquare size="36" color="#333" />
-            </button>
+            </Link>
           )}
         </div>
         <div className={`flex-1 flex flex-col`}>
@@ -198,8 +201,8 @@ export default function DesktopSideBar({
                     </span>
                   )}
                 </span>
-                {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />}
-                {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />}
+                {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
+                {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
               </span>
               {isCompanyOpen && (
                 <span

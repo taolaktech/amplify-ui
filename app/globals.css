@@ -32,6 +32,8 @@
   --tracking-150: -0.28px;
   --tracking-200: -0.32px;
   --tracking-250: -0.36px;
+  --tracking-600: -0.54px;
+  --tracking-700: -0.72px;
   --tracking-800: -0.84px;
   --color-gray-light: #bfbfbf;
   --color-gray-dark: #737373;
@@ -45,18 +47,18 @@
 }
 
 * {
-  font-family: "Satoshi", sans-serif;
+  /* font-family: "Satoshi", sans-serif; */
 }
 
 body {
   background: var(--background);
   color: #333;
-  font-family: "Satoshi", sans-serif;
+  /* font-family: "Satoshi", sans-serif; */
   letter-spacing: var(--tracking-100);
 }
 
 .num {
-  /* font-family: var(--font-rubik), sans-serif; */
+  font-family: var(--font-rubik), sans-serif;
 }
 
 svg.button-loader {

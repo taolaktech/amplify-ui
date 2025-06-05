@@ -7,6 +7,7 @@ import NextSM from "@/public/next-sm.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
 import OnboadingSuccess from "./OnboadingSuccess";
 import useUIStore from "../lib/stores/uiStore";
+import ProgressBar from "./ProgressBar";
 
 function SetupSideBar() {
   const { connectStore, businessDetails, preferredSalesLocation } =
@@ -245,12 +246,7 @@ function SetupSideBar() {
             </div>
           </div>
         </div>
-        <div className="fixed top-[56px] left-0 h-[2px] z-10 right-0 w-full rounded-lg">
-          <div
-            className="bg-gradient h-[2px] rounded-lg"
-            style={{ width: `${(step / 4) * 100}%` }}
-          ></div>
-        </div>
+        <ProgressBar width={(step / 4) * 100} />
         <div className="px-5 mt-12 xl:hidden">
           <div className="flex items-center justify-between mb-3">
             <GoBack />

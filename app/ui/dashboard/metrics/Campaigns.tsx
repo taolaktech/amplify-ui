@@ -5,7 +5,8 @@ import {
   InfoCircle,
   CalendarRemove,
 } from "iconsax-react";
-import Button from "../../Button";
+// import Button from "../../Button";
+import DefaultLink from "../../DefaultLink";
 
 function Campaigns() {
   const campaigns = useMetricsStore((state) => state.campaigns);
@@ -47,13 +48,13 @@ function NoCampaigns() {
         </div>
       </div>
       <div>
-        <Button
+        <DefaultLink
           text="Setup your first Campaign"
           buttonSize="small"
           hasIconOrLoader
           icon={<ArrowCircleRight2 size="18" color="#ffffff" />}
           iconPosition="right"
-          action={() => {}}
+          href="/pricing"
         />
       </div>
     </div>

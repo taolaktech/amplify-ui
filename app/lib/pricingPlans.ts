@@ -48,3 +48,34 @@ const pricingPlans = [
 ];
 
 export default pricingPlans;
+
+export const billingCycles = {
+  MONTHLY: {
+    title: "Monthly",
+    value: "month",
+    statement: "Billed Every Month",
+    cycleDetails: "1 month",
+    billingDetails: "Monthly",
+    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_MONTHLY_DISCOUNT),
+  },
+  QUARTERLY: {
+    title: "Quarterly",
+    value: "quarter",
+    statement: "Billed Every 3 Months",
+    cycleDetails: "3 months",
+    billingDetails: `<span>Quarterly - <span class='num'>${Number(
+      process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT
+    )}%</span> Off</span>`,
+    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT),
+  },
+  YEARLY: {
+    title: "Yearly",
+    value: "year",
+    statement: "Billed Every Year",
+    cycleDetails: "12 months",
+    billingDetails: `<span>Yearly - <span class='num'>${Number(
+      process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT
+    )}%</span> Off</span>`,
+    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT),
+  },
+};

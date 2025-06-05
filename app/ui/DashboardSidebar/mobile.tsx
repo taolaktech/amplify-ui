@@ -4,8 +4,8 @@ import Image from "next/image";
 import DefaultButton from "../Button";
 import {
   Add,
-  ArrowDown2,
-  ArrowUp2,
+  // ArrowDown2,
+  // ArrowUp2,
   Building3,
   CalendarEdit,
   Data2,
@@ -196,8 +196,8 @@ export default function MobileSideBar({
                     Company
                   </span>
                 </span>
-                {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />}
-                {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />}
+                {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
+                {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
               </span>
               {isCompanyOpen && (
                 <span

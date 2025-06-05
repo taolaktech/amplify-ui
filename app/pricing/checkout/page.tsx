@@ -1,248 +1,189 @@
-// "use client";
+"use client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { billingCycles } from "@/app/lib/pricingPlans";
+import TickIcon from "@/public/tick-circle-gradient.svg";
+import TickIconSM from "@/public/tick-circle-xs.svg";
+import CheckoutForm from "@/app/ui/checkout/Form";
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "@/app/lib/stripe";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { TickCircle } from "iconsax-react";
+import Button from "@/app/ui/Button";
+import useUIStore from "@/app/lib/stores/uiStore";
 
-// import { useEffect, useState } from "react";
-// import { useSearchParams } from "next/navigation";
-// import { loadStripe } from "@stripe/stripe-js";
-// import {
-//   Elements,
-//   PaymentElement,
-//   useStripe,
-//   useElements,
-// } from "@stripe/react-stripe-js";
-// import pricingPlans from "@/app/lib/pricingPlans";
-// import type { Cycle } from "@/app/ui/pricing/ModelHeader";
-// import type { Appearance } from "@stripe/stripe-js";
+const plans = {
+  FREE_PLAN: 0,
+  STARTER_PLAN: Number(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE),
+  GROW_PLAN: Number(process.env.NEXT_PUBLIC_GROW_PLAN_PRICE),
+  SCALE_PLAN: Number(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE),
+};
 
 export default function CheckoutPage() {
-  return <div>Checkout</div>;
+  const searchParams = useSearchParams();
+  const subscriptionType = useAuthStore((state) => state.subscriptionType);
+  const setSubscriptionType = useAuthStore(
+    (state) => state.setSubscriptionType
+  );
+  const setSubscriptionSuccess = useUIStore(
+    (state) => state.actions.setSubscriptionSuccess
+  );
+  const router = useRouter();
+  const planId = searchParams.get("planId");
+  const billingCycle = searchParams.get("billingCycle");
+
+  const plan = plans[planId as keyof typeof plans];
+  console.log("planId", planId);
+
+  const billingCyclePlan =
+    billingCycles[billingCycle as keyof typeof billingCycles];
+  const price = plan
+    ? plan - (plan * (billingCyclePlan?.discount / 100) || 0)
+    : 0;
+
+  const oldPlan = plans[subscriptionType?.type as keyof typeof plans];
+  console.log("oldPlan", subscriptionType?.type);
+  const oldBillingCycle =
+    billingCycles[subscriptionType?.billingCycle as keyof typeof billingCycles];
+  const oldPrice = oldPlan - (oldPlan * (oldBillingCycle?.discount / 100) || 0);
+
+  const formattedPlan = planId
+    ? `${planId.toUpperCase()[0]}${planId
+        .toLowerCase()
+        .split("_")[0]
+        .slice(1)} Plan`
+    : "";
+
+  const options: {
+    mode: "payment";
+    amount: number;
+    currency: string;
+    appearance: Record<string, unknown>;
+  } = {
+    mode: "payment" as const,
+    amount: 30,
+    currency: "usd",
+
+    appearance: {
+      /*...*/
+    },
+  };
+
+  const handleSubscribe = () => {
+    setSubscriptionSuccess(true);
+    router.push("/pricing/checkout/success");
+  };
+
+  return (
+    <div className="lg:flex gap-1 min-h-[calc(100vh-56px)]">
+      <div className="lg:w-[60%] w-full p-5 lg:p-10 xl:p-18">
+        <div className="max-w-[585px] mx-auto">
+          <h1 className="text-heading lg:font-bold text-xl lg:text-2xl tracking-60 lg:tracking-700">
+            Upgrade to {formattedPlan}
+          </h1>
+          <p className="text-neutral-light text-sm lg:text-base">
+            Pay with Credit/Debit Card
+          </p>
+          <div className="my-15 h-[100px] flex gap-4 w-full">
+            <div className="flex-1 rounded-[12px] bg-[#FBFAFC] flex justify-between gap-3 items-center p-4 lg:py-5 lg:px-7">
+              <div>
+                <div
+                  className="text-xs lg:text-sm text-[#6800D7] lg:font-medium"
+                  dangerouslySetInnerHTML={{
+                    __html: oldBillingCycle?.billingDetails,
+                  }}
+                ></div>
+                <div className="mt-1">
+                  <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
+                    ${oldPrice}
+                  </span>
+                  <span className="text-sm lg:text-base">
+                    /{oldBillingCycle?.value}
+                  </span>
+                </div>
+              </div>
+              <div className="flex-shrink-0 flex items-center justify-end">
+                <span className="hidden md:inline-block">
+                  {/* <TickIcon width={24} height={24} />
+                   */}
+                  <TickCircle size="24" color="#DBD7DD" variant="Bold" />
+                </span>
+                <span className="md:hidden">
+                  <TickCircle size="16" color="#DBD7DD" variant="Bold" />
+                </span>
+              </div>
+            </div>
+            <div className="flex-1 rounded-[12px] p-4 lg:py-5 lg:px-7 bg-[#F0E6FB] border border-[#A755FF] flex justify-between gap-3 items-center">
+              <div>
+                <div
+                  className="text-xs lg:text-sm text-[#6800D7] lg:font-medium"
+                  dangerouslySetInnerHTML={{
+                    __html: billingCyclePlan.billingDetails,
+                  }}
+                ></div>
+                <div className="mt-1">
+                  <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
+                    ${price}
+                  </span>
+                  <span className="text-sm lg:text-base">
+                    /{billingCyclePlan.value}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0 flex items-center justify-end">
+                <span className="hidden md:inline-block">
+                  <TickIcon width={24} height={24} />
+                </span>
+                <span className="md:hidden">
+                  <TickIconSM width={20} height={20} />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div>
+            {/* <Elements stripe={stripePromise} options={options}>
+              <CheckoutForm amount={price} />
+            </Elements> */}
+
+            <div className="w-full md:max-w-[150px] mx-auto">
+              <Button
+                text="Subscribe now"
+                hasIconOrLoader
+                action={handleSubscribe}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-[40%] hidden p-18 min-w-[512px] lg:flex flex-col gap-6 bg-[#FBFAFC] max-w-[640px]">
+        <h2 className="font-bold text-2xl tracking-700 text-heading">
+          Order Summary
+        </h2>
+        <div>
+          <div className="flex justify-between gap-3">
+            <div className="text-lg tracking-600">Amplify {formattedPlan}</div>
+            <div className="text-heading font-medium text-sm num">${price}</div>
+          </div>
+          <div className="flex justify-between gap-3 mt-2">
+            <div className="text-xs">{billingCyclePlan.statement}</div>
+            <div className="text-heading font-medium text-sm">
+              {billingCyclePlan.cycleDetails}
+            </div>
+          </div>
+        </div>
+        <div className="bg-[#333] h-[0.25px] w-full"></div>
+        <div className="flex justify-between gap-3">
+          <div className="text-sm font-medium text-heading">Subtotal</div>
+          <div className="text-heading font-medium text-sm num">${price}</div>
+        </div>
+        <div className="bg-[#333] h-[0.25px] w-full"></div>
+        <div className="flex justify-between gap-3 rounded-[26px] bg-[#F3EFF6] py-6 px-8">
+          <div className="text-sm font-medium">Total Amount</div>
+          <div className="text-heading font-medium text-lg tracking-40 num">
+            ${price}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
-
-// // Initialize Stripe
-// const stripePromise = loadStripe(
-//   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-// );
-
-// function CheckoutForm({ amount }: { amount: number }) {
-//   const stripe = useStripe();
-//   const elements = useElements();
-//   const [error, setError] = useState<string | null>(null);
-//   const [processing, setProcessing] = useState(false);
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     if (!stripe || !elements) {
-//       return;
-//     }
-
-//     setProcessing(true);
-//     setError(null);
-
-//     const { error: submitError } = await elements.submit();
-//     if (submitError) {
-//       setError(submitError.message || "An error occurred");
-//       setProcessing(false);
-//       return;
-//     }
-
-//     // Here you would typically create a payment intent on your server
-//     // For demo purposes, we'll just show a success message
-//     const result = await stripe.confirmPayment({
-//       elements,
-//       confirmParams: {
-//         return_url: `${window.location.origin}/pricing/checkout/success`,
-//       },
-//     });
-
-//     if (result.error) {
-//       setError(result.error.message || "An error occurred");
-//     }
-//     setProcessing(false);
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit} className="space-y-6">
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">
-//           Card Information
-//         </label>
-//         <div className="mt-1">
-//           <PaymentElement />
-//         </div>
-//       </div>
-
-//       {error && <div className="text-red-500 text-sm">{error}</div>}
-
-//       <button
-//         type="submit"
-//         disabled={!stripe || processing}
-//         className="w-full bg-purple-600 text-white py-3 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-//       >
-//         {processing ? "Processing..." : `Pay $${amount.toFixed(2)}`}
-//       </button>
-//     </form>
-//   );
-// }
-
-// export default function CheckoutPage() {
-//   const searchParams = useSearchParams();
-//   const [selectedPlan, setSelectedPlan] = useState<
-//     (typeof pricingPlans)[0] | null
-//   >(null);
-//   const [billingCycle, setBillingCycle] = useState<Cycle>("monthly");
-//   const [clientSecret, setClientSecret] = useState<string>("");
-
-//   useEffect(() => {
-//     const planName = searchParams.get("plan");
-//     const cycle = searchParams.get("cycle") as Cycle;
-
-//     if (planName) {
-//       const plan = pricingPlans.find((p) => p.name === planName);
-//       if (plan) {
-//         setSelectedPlan(plan);
-//         // Create a payment intent when the plan is selected
-//         fetch("/api/create-payment-intent", {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             planName: plan.name,
-//             billingCycle: cycle || "monthly",
-//             price: calculatePrice(),
-//           }),
-//         })
-//           .then((res) => res.json())
-//           .then((data) => setClientSecret(data.clientSecret));
-//       }
-//     }
-
-//     if (cycle) {
-//       setBillingCycle(cycle);
-//     }
-//   }, [searchParams]);
-
-//   const calculatePrice = () => {
-//     if (!selectedPlan) return 0;
-//     const basePrice = selectedPlan.price;
-//     switch (billingCycle) {
-//       case "quarterly":
-//         return basePrice * 3 * 0.95; // 5% discount
-//       case "yearly":
-//         return basePrice * 12 * 0.85; // 15% discount
-//       default:
-//         return basePrice;
-//     }
-//   };
-
-//   if (!selectedPlan) {
-//     return (
-//       <div className="min-h-screen flex items-center justify-center">
-//         Loading...
-//       </div>
-//     );
-//   }
-
-//   const appearance: Appearance = {
-//     theme: "stripe",
-//     variables: {
-//       colorPrimary: "#6B21A8",
-//     },
-//   };
-
-//   const options = {
-//     clientSecret,
-//     appearance,
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-12">
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//           {/* Checkout Form */}
-//           <div className="bg-white rounded-lg shadow-sm p-6 lg:p-8">
-//             <h1 className="text-2xl font-bold text-gray-900 mb-6">Checkout</h1>
-
-//             <div className="space-y-6">
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700">
-//                   Email
-//                 </label>
-//                 <input
-//                   type="email"
-//                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-//                   placeholder="Enter your email"
-//                 />
-//               </div>
-
-//               {clientSecret && (
-//                 <Elements stripe={stripePromise} options={options}>
-//                   <CheckoutForm amount={calculatePrice()} />
-//                 </Elements>
-//               )}
-//             </div>
-//           </div>
-
-//           {/* Order Summary */}
-//           <div className="lg:sticky lg:top-6 h-fit">
-//             <div className="bg-white rounded-lg shadow-sm p-6 lg:p-8">
-//               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-//                 Order Summary
-//               </h2>
-
-//               <div className="space-y-4">
-//                 <div className="flex justify-between">
-//                   <span className="text-gray-600">Plan</span>
-//                   <span className="font-medium">{selectedPlan.name}</span>
-//                 </div>
-
-//                 <div className="flex justify-between">
-//                   <span className="text-gray-600">Billing Cycle</span>
-//                   <span className="font-medium capitalize">{billingCycle}</span>
-//                 </div>
-
-//                 <div className="pt-4 border-t border-gray-200">
-//                   <div className="flex justify-between">
-//                     <span className="text-gray-600">Subtotal</span>
-//                     <span className="font-medium">
-//                       ${calculatePrice().toFixed(2)}
-//                     </span>
-//                   </div>
-//                 </div>
-
-//                 <div className="bg-gray-50 p-4 rounded-md mt-6">
-//                   <h3 className="text-sm font-medium text-gray-900 mb-3">
-//                     What's included:
-//                   </h3>
-//                   <ul className="space-y-2">
-//                     {selectedPlan.features.map((feature, index) => (
-//                       <li key={index} className="flex items-start text-sm">
-//                         <svg
-//                           className="h-5 w-5 text-green-500 shrink-0"
-//                           fill="none"
-//                           viewBox="0 0 24 24"
-//                           stroke="currentColor"
-//                         >
-//                           <path
-//                             strokeLinecap="round"
-//                             strokeLinejoin="round"
-//                             strokeWidth={2}
-//                             d="M5 13l4 4L19 7"
-//                           />
-//                         </svg>
-//                         <span
-//                           className="ml-2 text-gray-600"
-//                           dangerouslySetInnerHTML={{ __html: feature }}
-//                         />
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
