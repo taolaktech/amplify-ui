@@ -7,5 +7,8 @@ export const useModal = (isOpen: boolean) => {
     } else {
       document.body.style.overflow = "auto";
     }
+    return () => {
+      document.body.style.overflow = "auto"; // Reset overflow when component unmounts
+    };
   }, [isOpen]);
 };

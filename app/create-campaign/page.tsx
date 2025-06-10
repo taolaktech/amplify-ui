@@ -8,6 +8,7 @@ import SalesLocationView from "../ui/SalesLocationView";
 import Button from "../ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
+import { useModal } from "../lib/hooks/useModal";
 export default function AdsLocationPage() {
   const {
     searchQuery,
@@ -26,6 +27,8 @@ export default function AdsLocationPage() {
 
   const [fetchingProgress, setFetchingProgress] = useState(50);
   const [isAutoFetching, setIsAutoFetching] = useState(false);
+
+  useModal(isAutoFetching);
   useEffect(() => {
     setSalesLocation(salesLocationFromStore);
   }, []);
@@ -42,11 +45,11 @@ export default function AdsLocationPage() {
     <div className="px-5 max-w-[705px] mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
       <div>
         <div>
-          <h1 className="text-2xl font-bold text-heading tracking-800">
+          <h1 className="text-xl tracking-40 md:text-2xl font-medium md:font-bold text-heading md:tracking-800">
             <span className="num">1. </span>
             <span>Where should your ads show?</span>
           </h1>
-          <p className="text-neutral-light tracking-40 text-sm">
+          <p className="text-neutral-light tracking-40 text-xs md:text-sm">
             Your ads will be displayed only to shopping audiences in the
             selected locations.
           </p>
@@ -78,10 +81,7 @@ export default function AdsLocationPage() {
         </div>
       </div>
       {isAutoFetching && (
-        <AutoFetchingProduct
-          closeClicked={() => setIsAutoFetching(false)}
-          fetchingProgress={fetchingProgress}
-        />
+        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
       )}
     </div>
   );

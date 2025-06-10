@@ -10,7 +10,13 @@ interface CreateCampaignState {
     products: any[];
     complete: boolean;
   };
-  actions: CreateCampaignActions;
+  supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
+}
+
+interface SupportedAdPlatforms {
+  facebook: boolean;
+  instagram: boolean;
+  google: boolean;
 }
 
 interface CreateCampaignActions {
@@ -19,48 +25,77 @@ interface CreateCampaignActions {
     products: any[];
     complete: boolean;
   }) => void;
+  toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
+  completeAdsPlatform: () => void;
   reset: () => void;
 }
 
-export const useCreateCampaignStore = create<CreateCampaignState>()(
+interface CreateCampaignStore extends CreateCampaignState {
+  actions: CreateCampaignActions;
+}
+
+const initialState: CreateCampaignState = {
+  adsShow: {
+    location: [],
+    complete: false,
+  },
+  productSelection: {
+    products: [],
+    complete: false,
+  },
+  supportedAdPlatforms: {
+    facebook: false,
+    instagram: false,
+    google: true,
+    complete: true,
+  },
+};
+
+export const useCreateCampaignStore = create<CreateCampaignStore>()(
   persist(
-    (set, get) => ({
-      adsShow: {
-        location: [],
-        complete: false,
-      },
-      productSelection: {
-        products: [],
-        complete: false,
-      },
+    (set) => ({
+      ...initialState,
       actions: {
         storeAdsShow: (adsShow) => {
-          set({ adsShow: { ...get().adsShow, ...adsShow } });
+          set((state) => ({
+            adsShow: { ...state.adsShow, ...adsShow },
+          }));
         },
         storeProductSelection: (productSelection) => {
-          set({
+          set((state) => ({
             productSelection: {
-              ...get().productSelection,
+              ...state.productSelection,
               ...productSelection,
             },
-          });
+          }));
+        },
+        toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => {
+          set((state) => ({
+            supportedAdPlatforms: {
+              ...state.supportedAdPlatforms,
+              [platform]: !state.supportedAdPlatforms[platform],
+            },
+          }));
+        },
+        completeAdsPlatform: () => {
+          set((state) => ({
+            supportedAdPlatforms: {
+              ...state.supportedAdPlatforms,
+              complete: true,
+            },
+          }));
         },
         reset: () => {
-          set({
-            adsShow: {
-              location: [],
-              complete: false,
-            },
-            productSelection: {
-              products: [],
-              complete: false,
-            },
-          });
+          set(initialState);
         },
       },
     }),
     {
       name: "create-campaign-storage",
+      partialize: (state) => ({
+        adsShow: state.adsShow,
+        productSelection: state.productSelection,
+      }),
     }
   )
 );
