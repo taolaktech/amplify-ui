@@ -7,7 +7,7 @@ import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
-import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
+import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaignTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 
