@@ -30,7 +30,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
     (state) => state.actions.setSubscriptionSuccess
   );
   const [brand, setBrand] = useState("unknown");
-
+  console.log("amount", amount);
   const handleChange = (event: any) => {
     setBrand(event.brand); // 'visa', 'mastercard', 'amex', 'unknown', etc.
   };
@@ -67,6 +67,8 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
       setLoading(false);
       return;
     }
+
+    console.log("token from form:", token);
 
     // 2. Get client secret from backend
     const res = await axios.post(

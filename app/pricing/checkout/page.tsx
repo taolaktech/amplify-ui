@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { billingCycles } from "@/app/lib/pricingPlans";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
@@ -8,8 +8,8 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
-import Button from "@/app/ui/Button";
-import useUIStore from "@/app/lib/stores/uiStore";
+// import Button from "@/app/ui/Button";
+// import useUIStore from "@/app/lib/stores/uiStore";
 
 const plans = {
   FREE_PLAN: 0,
@@ -21,15 +21,15 @@ const plans = {
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const subscriptionType = useAuthStore((state) => state.subscriptionType);
-  const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
-  );
-  const setSubscriptionSuccess = useUIStore(
-    (state) => state.actions.setSubscriptionSuccess
-  );
+  // const setSubscriptionType = useAuthStore(
+  //   (state) => state.setSubscriptionType
+  // );
+  // const setSubscriptionSuccess = useUIStore(
+  //   (state) => state.actions.setSubscriptionSuccess
+  // );
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
 
-  const router = useRouter();
+  // const router = useRouter();
   const planId = searchParams.get("planId");
   const billingCycle = searchParams.get("billingCycle");
 
@@ -55,25 +55,25 @@ export default function CheckoutPage() {
         .slice(1)} Plan`
     : "";
 
-  const options: {
-    mode: "payment";
-    amount: number;
-    currency: string;
-    appearance: Record<string, unknown>;
-  } = {
-    mode: "payment" as const,
-    amount: 30,
-    currency: "usd",
+  // const options: {
+  //   mode: "payment";
+  //   amount: number;
+  //   currency: string;
+  //   appearance: Record<string, unknown>;
+  // } = {
+  //   mode: "payment" as const,
+  //   amount: 30,
+  //   currency: "usd",
 
-    appearance: {
-      /*...*/
-    },
-  };
+  //   appearance: {
+  //     /*...*/
+  //   },
+  // };
 
-  const handleSubscribe = () => {
-    setSubscriptionSuccess(true);
-    router.push("/pricing/checkout/success");
-  };
+  // const handleSubscribe = () => {
+  //   setSubscriptionSuccess(true);
+  //   router.push("/pricing/checkout/success");
+  // };
 
   return (
     <div className="lg:flex gap-1 min-h-[calc(100vh-56px)]">
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
                 ></div>
                 <div className="mt-1">
                   <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
-                    ${oldPrice}
+                    ${Math.round(oldPrice)}
                   </span>
                   <span className="text-sm lg:text-base">
                     /{oldBillingCycle?.value}
@@ -124,7 +124,7 @@ export default function CheckoutPage() {
                 ></div>
                 <div className="mt-1">
                   <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
-                    ${price}
+                    ${Math.round(price)}
                   </span>
                   <span className="text-sm lg:text-base">
                     /{billingCyclePlan.value}
@@ -159,7 +159,9 @@ export default function CheckoutPage() {
         <div>
           <div className="flex justify-between gap-3">
             <div className="text-lg tracking-600">Amplify {formattedPlan}</div>
-            <div className="text-heading font-medium text-sm num">${price}</div>
+            <div className="text-heading font-medium text-sm num">
+              ${Math.round(price)}
+            </div>
           </div>
           <div className="flex justify-between gap-3 mt-2">
             <div className="text-xs">{billingCyclePlan.statement}</div>
@@ -171,13 +173,15 @@ export default function CheckoutPage() {
         <div className="bg-[#333] h-[0.25px] w-full"></div>
         <div className="flex justify-between gap-3">
           <div className="text-sm font-medium text-heading">Subtotal</div>
-          <div className="text-heading font-medium text-sm num">${price}</div>
+          <div className="text-heading font-medium text-sm num">
+            ${Math.round(price)}
+          </div>
         </div>
         <div className="bg-[#333] h-[0.25px] w-full"></div>
         <div className="flex justify-between gap-3 rounded-[26px] bg-[#F3EFF6] py-6 px-8">
           <div className="text-sm font-medium">Total Amount</div>
           <div className="text-heading font-medium text-lg tracking-40 num">
-            ${price}
+            ${Math.round(price)}
           </div>
         </div>
       </div>

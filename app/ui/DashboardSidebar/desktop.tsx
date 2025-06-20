@@ -13,7 +13,7 @@ import {
   Data2,
   HomeTrendUp,
   LogoutCurve,
-  Magicpen,
+  // Magicpen,
   MessageQuestion,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
@@ -49,6 +49,7 @@ export default function DesktopSideBar({
   toggleIsCompanyOpen,
 }: DesktopSideBarProps) {
   const router = useRouter();
+  console.log(isInsights);
   return (
     <>
       <div
@@ -129,7 +130,7 @@ export default function DesktopSideBar({
                 )}
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="/insights"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full ${
@@ -152,7 +153,7 @@ export default function DesktopSideBar({
                   </span>
                 )}
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 href="/campaigns"

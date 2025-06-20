@@ -12,7 +12,7 @@ import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 export default function Products() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-  const [products, setProducts] = useState(productsData);
+  const [products] = useState(productsData);
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
   );

@@ -25,7 +25,7 @@ export default function AdsLocationPage() {
   );
   const router = useRouter();
 
-  const [fetchingProgress, setFetchingProgress] = useState(50);
+  const [fetchingProgress] = useState(50);
   const [isAutoFetching, setIsAutoFetching] = useState(false);
 
   useModal(isAutoFetching);
@@ -42,7 +42,7 @@ export default function AdsLocationPage() {
     }, 2000);
   };
   return (
-    <div className="px-5 max-w-[705px] mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
+    <div className="px-5 max-w-[705px] pb-20 mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
       <div>
         <div>
           <h1 className="text-xl tracking-40 md:text-2xl font-medium md:font-bold text-heading md:tracking-800">

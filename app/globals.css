@@ -43,11 +43,11 @@
   --color-error-text: #be343b;
   --text-headers: 1.75rem;
   --breakpoint-xs: 412px;
-  --font-rubik: "Rubik", sans-serif;
+  /* --font-rubik: "Rubik", sans-serif; */
 }
 
 * {
-  /* font-family: "Satoshi", sans-serif; */
+  font-family: "Satoshi", sans-serif;
 }
 
 button {
@@ -70,7 +70,7 @@ button:disabled {
 body {
   background: var(--background);
   color: #333;
-  /* font-family: "Satoshi", sans-serif; */
+  font-family: "Satoshi", sans-serif;
   letter-spacing: var(--tracking-100);
 }
 
@@ -86,7 +86,7 @@ body {
 }
 
 .num {
-  font-family: var(--font-rubik), sans-serif;
+  /* font-family: var(--font-rubik), sans-serif; */
 }
 
 svg.button-loader {

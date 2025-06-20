@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { paths } from "../lib/utils";
 import useUIStore from "../lib/stores/uiStore";
-import Notification from "./Notification";
+// import Notification from "./Notification";
 import Profile from "./Profile";
 
 export default function Navbar() {
@@ -90,7 +90,7 @@ export default function Navbar() {
             <p className={`block text-xl tracking-40`}>{paths.get(pathname)}</p>
 
             <div className="flex items-center gap-3">
-              <Notification />
+              {/* <Notification /> */}
               <Profile />
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function Navbar() {
               <LogoSMIcon width={81} height={24} />
             </div>
             <div className="flex items-center gap-1">
-              <Notification />
+              {/* <Notification /> */}
               <Profile />
             </div>
           </div>

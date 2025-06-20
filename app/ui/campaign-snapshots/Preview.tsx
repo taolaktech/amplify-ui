@@ -11,7 +11,7 @@ const Preview = ({
 }) => {
   return (
     <div className="flex flex-wrap gap-4 justify-center items-center w-full">
-      {data.map((item, index) => (
+      {data.map((item) => (
         <div
           className="h-[300px] md:h-[500px] flex flex-col w-full lg:w-[calc(50%-16px)]"
           key={item.title}

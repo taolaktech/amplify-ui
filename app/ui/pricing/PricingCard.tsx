@@ -56,7 +56,7 @@ function PricingCard({
       <div className="text-[#6800D7] text-xl font-medium">{plan}</div>
       <div className="mt-3 mb-6">
         <span className="font-bold text-3xl tracking-[-0.1px] num">
-          ${formattedPrice}
+          ${Math.round(formattedPrice)}
         </span>
         <span className="text-lg font-medium tracking-250">
           /{cycle.slice(0, -2)}

@@ -11,7 +11,7 @@ import {
   Data2,
   HomeTrendUp,
   LogoutCurve,
-  Magicpen,
+  //  Magicpen,
   MessageQuestion,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
@@ -50,6 +50,7 @@ export default function MobileSideBar({
 }: MobileSideBarProps) {
   const router = useRouter();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  console.log(isInsights);
 
   useEffect(() => {
     const handleResize = () => {
@@ -133,7 +134,7 @@ export default function MobileSideBar({
                 </span>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="/insights"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
@@ -153,7 +154,7 @@ export default function MobileSideBar({
                   Insights
                 </span>
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 href="/campaigns"
