@@ -10,6 +10,7 @@ export default function Button({
   showShadow = false,
   loading,
   disabled,
+  gradientBorder = false,
   iconSize = 18,
   hasIconOrLoader,
   buttonSize = "medium",
@@ -20,6 +21,7 @@ export default function Button({
   secondary?: boolean;
   buttonSize?: "small" | "medium" | "large";
   height?: number;
+  gradientBorder?: boolean;
   disabled?: boolean;
   action?: () => void;
   showShadow?: boolean;
@@ -39,11 +41,16 @@ export default function Button({
     <button
       disabled={loading}
       onClick={handleOnClick}
-      className={`w-full ${showShadow ? "custom-shadow-btn" : ""} ${
+      className={`w-full bg-purple-600 
+        ${gradientBorder && secondary ? "gradient-border" : ""}  ${
         !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
-      } ${
-        loading || disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      } ${
+      } 
+        ${showShadow ? "custom-shadow-sm" : ""}
+        ${
+          loading || disabled
+            ? "opacity-50 cursor-not-allowed"
+            : "cursor-pointer"
+        } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl flex items-center justify-center gap-[6px] ${
         !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"

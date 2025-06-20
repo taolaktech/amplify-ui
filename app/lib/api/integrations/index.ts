@@ -1,5 +1,5 @@
 import axiosInstance from "./axios";
-import axios from "axios";
+// import axios from "axios";
 
 export enum IntegrationErrorCode {
   E_SHOPIFY_ACCOUNT_ALREADY_EXISTS = "E_SHOPIFY_ACCOUNT_ALREADY_EXISTS",
@@ -82,7 +82,12 @@ export const handlePostBusinessDetails = async (data: {
 
 export const postPreferredSalesLocation = async (data: {
   data: {
-    localShippingLocations: string[];
+    localShippingLocations: {
+      shorthand: string;
+      country: string;
+      city: string;
+      state: string;
+    }[];
     internationalShippingLocations: string[];
   };
   token: string;
@@ -120,14 +125,24 @@ export const postMarketingGoals = async (data: {
   return response.data;
 };
 
-export const handleGetPlacesAutocomplete = async (data: { input: string }) => {
-  console.log("data", data);
-  const response = await axios.get(
-    `https://maps.googleapis.com/maps/api/place/autocomplete/json
-  ?input=${data.input}
-  &types=(cities)
-  &components=country:us|country:ca
-  &key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+export const handleGetCities = async (data: {
+  input: string;
+  token: string;
+}) => {
+  if (!data.token) {
+    console.log("token:", data.token);
+    return;
+  }
+  const response = await axiosInstance.post(
+    "/business-details/cities",
+    {
+      input: data.input,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
   );
   return response.data;
 };

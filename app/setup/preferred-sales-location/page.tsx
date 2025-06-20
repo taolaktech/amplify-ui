@@ -1,27 +1,38 @@
 "use client";
 import DefaultButton from "@/app/ui/Button";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
-// import SelectInput from "@/app/ui/form/SelectInput";
-import { ArrowRight, CloseCircle } from "iconsax-react";
+import { ArrowRight } from "iconsax-react";
 import { useEffect, useState } from "react";
-// import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
 import PreferredIntlLocationSelectInput from "@/app/ui/form/PreferredIntlLocationSelectInput";
 import SalesLocationInput from "@/app/ui/form/SalesLocationInput";
 import { useSubmitPreferredLocation } from "@/app/lib/hooks/useOnboardingHooks";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
+import SalesLocationView from "@/app/ui/SalesLocationView";
+import useLocalSalesLocation from "@/app/lib/hooks/useLocalSalesLocation";
+
 function PreferredSalesLocation() {
   const [merchantInUsCanada, setMerchantInUsCanada] = useState(false);
-  const [salesLocation, setSalesLocation] = useState<string[]>([]);
   const [selectedIntLocation, setSelectedIntLocation] = useState<string[]>([]);
   const preferredSalesLocationFromStore = useSetupStore(
     (state) => state.preferredSalesLocation
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    salesLocation,
+    setSalesLocation,
+    toggleSalesLocation,
+    clearSalesLocation,
+  } = useLocalSalesLocation();
   const { handleSubmitPreferredLocation, submitPreferredLocationMutation } =
     useSubmitPreferredLocation();
 
   useEffect(() => {
     if (preferredSalesLocationFromStore.complete) {
+      console.log(
+        "preferredSalesLocationFromStore",
+        preferredSalesLocationFromStore
+      );
       setSalesLocation(preferredSalesLocationFromStore.localShippingLocations);
       setSelectedIntLocation(
         preferredSalesLocationFromStore.internationalShippingLocations
@@ -40,23 +51,6 @@ function PreferredSalesLocation() {
       setSelectedIntLocation((prev) => [...prev, location]);
     }
   };
-
-  const toggleSalesLocation = (location: string) => {
-    console.log("location", location);
-    const isSelected = salesLocation.includes(location);
-    if (isSelected) {
-      setSalesLocation((prev) => prev.filter((item) => item !== location));
-      setSearchQuery("");
-    } else {
-      setSalesLocation((prev) => [...prev, location]);
-    }
-  };
-
-  const clearSalesLocation = () => {
-    setSalesLocation([]);
-  };
-
-  // const { getPlaces, handleGetPlaces } = useGetPlaces(searchQuery);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -87,22 +81,10 @@ function PreferredSalesLocation() {
         />
       </div>
       <div className="min-h-[250px] mt-4">
-        <div className="py-4 flex items-start gap-3 flex-wrap">
-          {salesLocation.map((location) => (
-            <div
-              onClick={() => toggleSalesLocation(location)}
-              className="flex flex-shrink-0 items-center rounded-[24px] gap-2 py-4 px-3 cursor-pointer bg-[#F7F7F7]"
-              key={location}
-            >
-              <span className="text-sm text-heading font-medium">
-                {location}
-              </span>
-              <span className="flex-shrink-0">
-                <CloseCircle size={16} color="#333" />
-              </span>
-            </div>
-          ))}
-        </div>
+        <SalesLocationView
+          salesLocation={salesLocation}
+          toggleSalesLocation={toggleSalesLocation}
+        />
       </div>
 
       <div className="h-[120px]">

@@ -17,6 +17,7 @@
 @theme {
   --color-background: var(--light);
   --color-background-2: var(--grey);
+
   --color-heading: var(--violet-normal);
   --spacing-navbar-height: 56px;
   --spacing-base-padding: 1.25rem;
@@ -31,18 +32,39 @@
   --tracking-150: -0.28px;
   --tracking-200: -0.32px;
   --tracking-250: -0.36px;
+  --tracking-600: -0.54px;
+  --tracking-700: -0.72px;
   --tracking-800: -0.84px;
   --color-gray-light: #bfbfbf;
   --color-gray-dark: #737373;
+  --color-neutral-light: #595959;
   --color-purple-dark: #1d0b30;
   --color-purple-normal: #6800d7;
   --color-error-text: #be343b;
+  --text-headers: 1.75rem;
   --breakpoint-xs: 412px;
-  --font-rubik: "Rubik", sans-serif;
+  /* --font-rubik: "Rubik", sans-serif; */
 }
 
 * {
   font-family: "Satoshi", sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.ant-picker-now-btn {
+  /* background-color: #6800d7; */
+  color: #6800d7;
+}
+
+.ant-picker-now-btn:hover {
+  color: #6800d7;
 }
 
 body {
@@ -50,6 +72,17 @@ body {
   color: #333;
   font-family: "Satoshi", sans-serif;
   letter-spacing: var(--tracking-100);
+}
+
+.ant-picker-input > input {
+  /* font-family: var(--font-rubik), sans-serif; */
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: #333 !important;
+}
+.ant-picker-input > input::placeholder {
+  color: #737373 !important;
+  font-weight: 500 !important;
 }
 
 .num {
@@ -61,6 +94,53 @@ svg.button-loader {
   transform-origin: center;
   animation: rotate4 2s linear infinite;
 }
+
+/* HTML: <div class="loader"></div> */
+
+/* HTML: <div class="loader"></div> */
+/* .circle-loader {
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #a755ff;
+  --_m: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+  mask: var(--_m);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+  to {
+    transform: rotate(1turn);
+  }
+} */
+.circle-loader {
+  animation: l2 1s infinite linear;
+}
+@keyframes l2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* svg.circle-loader {
+  width: 139px;
+  height: 139px;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+}
+
+svg.circle-loader circle {
+  fill: none;
+  stroke: #a755ff;
+  stroke-width: 4;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
+} */
 
 svg.button-loader circle {
   fill: none;
@@ -103,9 +183,14 @@ svg.button-loader circle {
   -webkit-background-clip: text; /* Required for Safari */
   -webkit-text-fill-color: transparent; /* Makes text show background instead of solid color */
 }
-button:not(:disabled):hover,
+/* button:not(:disabled):hover,
 a:not(:disabled):hover {
   cursor: pointer;
+} */
+
+button:disabled,
+a:disabled {
+  cursor: not-allowed;
 }
 
 button.gradient,
@@ -118,8 +203,68 @@ a.gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
 }
 
+button.gradient:not(:disabled)::before,
+a.gradient:not(:disabled)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6800d7 19.35%, #5e00c2 97.65%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+button.gradient:not(:disabled):hover::before,
+a.gradient:not(:disabled):hover::before {
+  opacity: 1;
+}
+
+button.gradient > *,
+a.gradient > * {
+  position: relative;
+  z-index: 1;
+}
+
+button.gradient:disabled,
+a.gradient:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
+
+/* For a more dynamic gradient animation, uncomment this:
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+button.gradient:not(:disabled):hover,
+a.gradient:not(:disabled):hover {
+  background: linear-gradient(135deg, #a755ff 0%, #6800d7 50%, #5e00c2 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+*/
+
 .bg-gradient {
   background: linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%);
+}
+
+.gradient-border {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
 }
 
 button.gradient::after,
@@ -135,13 +280,7 @@ a.gradient::after {
 
 button.gradient:hover::after,
 a.gradient:hover::after {
-  opacity: 1;
-}
-
-button.gradient > *,
-a.gradient > * {
-  position: relative;
-  z-index: 1;
+  /* opacity: 1; */
 }
 
 button.secondary,
@@ -215,7 +354,53 @@ a.secondary:not(:disabled):hover {
 .custom-shadow-profile {
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
+.custom-shadow-pricing-models {
+  box-shadow: rgba(69, 69, 69, 0.1) 0px 1px 2px 0px,
+    rgba(163, 163, 163, 0.15) 0px 2px 6px 2px;
+
+  /* box-shadow: 21px 8px 19px 0px rgba(0, 0, 0, 0.1); */
+}
 
 /* .custom-shadow-sidebar {
   box-shadow: 10px 6px 20px 0px rgba(0, 0, 0, 0.05);
 } */
+
+.skeleton-image,
+.skeleton-title,
+.skeleton-description {
+  background-color: #ededed;
+  background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0) 60%
+    )
+    #ededed;
+  background-size: 200% 100%;
+  background-position-x: 180%;
+  animation: 1s skeleton ease-in-out infinite;
+}
+
+@keyframes skeleton {
+  to {
+    background-position-x: -20%;
+  }
+}
+
+.skeleton-title {
+  /* min-height: 1.6rem; */
+  border-radius: 4px;
+  animation-delay: 0.05s;
+}
+
+.skeleton-description {
+  /* min-height: 4rem; */
+  border-radius: 4px;
+  animation-delay: 0.06s;
+}
+
+.toggle {
+  box-shadow: 0px 0px 0px 0.645px rgba(0, 0, 0, 0.04),
+    0px 1.935px 5.161px 0px rgba(0, 0, 0, 0.15),
+    0px 1.935px 0.645px 0px rgba(0, 0, 0, 0.06);
+}

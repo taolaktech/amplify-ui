@@ -11,20 +11,14 @@ import DefaultButton from "../ui/Button";
 import { ArrowRight } from "iconsax-react";
 import ConnectStore from "../ui/modals/ConnectStore";
 import { useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
 
 function ConnectPage() {
   const [connectStoreModal, setConnectStoreModal] = useState(false);
-  // const router = useRouter();
-  // const connectStore = useSetupStore(
-  //   (state) => state.connectStore
-  // );
+
   const params = useSearchParams();
   const isLinkedStore = params.get("linked_store") === "true";
 
   const handleContinue = () => {
-    // if (connectStore.complete) router.push("/setup/business-details");
-    // else setConnectStoreModal(true);
     setConnectStoreModal(true);
   };
 
@@ -115,6 +109,7 @@ function ConnectPage() {
       {/* modal */}
       {connectStoreModal && (
         <ConnectStore
+          isOpen={connectStoreModal}
           closeModal={() => setConnectStoreModal(false)}
           isLinkedStore={isLinkedStore}
         />

@@ -1,3 +1,4 @@
+import {heroui} from '@heroui/theme';
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -12,9 +13,10 @@ const config: Config = {
       },
     },
   },
+  plugins: [heroui()],
   content: [
-    // your paths here
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "// your paths here\r\n    \"./src/**/*.{js,ts,jsx,tsx}\"",
+    "./node_modules/@heroui/theme/dist/components/(date-picker|button|ripple|spinner|calendar|date-input|form|popover).js"
   ],
 };
 

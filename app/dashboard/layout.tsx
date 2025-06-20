@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import DashboardSideBar from "../ui/DashboardSideBar";
+import DashboardSideBar from "../ui/DashboardSidebar";
 import DashboardChildren from "../ui/dashboard/DashboardChildren";
 
 export const metadata: Metadata = {
