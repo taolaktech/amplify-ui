@@ -28,8 +28,8 @@ function CircleLoader() {
             y2="68.1748"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#A755FF" />
-            <stop offset="1" stop-color="#6800D7" />
+            <stop stopColor="#A755FF" />
+            <stop offset="1" stopColor="#6800D7" />
           </linearGradient>
         </defs>
       </svg>

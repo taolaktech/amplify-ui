@@ -11,12 +11,21 @@ interface CreateCampaignState {
     complete: boolean;
   };
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
+  campaignSnapshots: CampaignSnapshots & { complete: boolean };
+}
+
+interface CampaignSnapshots {
+  campaignType: string;
+  brandColor: string;
+  accentColor: string;
+  campaignStartDate: string;
+  campaignEndDate: string;
 }
 
 interface SupportedAdPlatforms {
-  facebook: boolean;
-  instagram: boolean;
-  google: boolean;
+  Facebook: boolean;
+  Instagram: boolean;
+  Google: boolean;
 }
 
 interface CreateCampaignActions {
@@ -27,6 +36,8 @@ interface CreateCampaignActions {
   }) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   completeAdsPlatform: () => void;
+  storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
+  completeCampaignSnapshots: () => void;
   reset: () => void;
 }
 
@@ -44,10 +55,18 @@ const initialState: CreateCampaignState = {
     complete: false,
   },
   supportedAdPlatforms: {
-    facebook: false,
-    instagram: false,
-    google: true,
+    Facebook: false,
+    Instagram: false,
+    Google: true,
     complete: true,
+  },
+  campaignSnapshots: {
+    campaignType: "",
+    brandColor: "",
+    accentColor: "",
+    campaignStartDate: "",
+    campaignEndDate: "",
+    complete: false,
   },
 };
 
@@ -85,6 +104,22 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             },
           }));
         },
+        storeCampaignSnapshots: (campaignSnapshots) => {
+          set((state) => ({
+            campaignSnapshots: {
+              ...state.campaignSnapshots,
+              ...campaignSnapshots,
+            },
+          }));
+        },
+        completeCampaignSnapshots: () => {
+          set((state) => ({
+            campaignSnapshots: {
+              ...state.campaignSnapshots,
+              complete: true,
+            },
+          }));
+        },
         reset: () => {
           set(initialState);
         },
@@ -95,6 +130,7 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
       partialize: (state) => ({
         adsShow: state.adsShow,
         productSelection: state.productSelection,
+        campaignSnapshots: state.campaignSnapshots,
       }),
     }
   )

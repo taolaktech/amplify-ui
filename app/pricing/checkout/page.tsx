@@ -5,7 +5,7 @@ import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
 import CheckoutForm from "@/app/ui/checkout/Form";
 import { Elements } from "@stripe/react-stripe-js";
-import { stripePromise } from "@/app/lib/stripe";
+import { loadStripe } from "@stripe/stripe-js";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
 import Button from "@/app/ui/Button";
@@ -27,6 +27,8 @@ export default function CheckoutPage() {
   const setSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
   );
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
+
   const router = useRouter();
   const planId = searchParams.get("planId");
   const billingCycle = searchParams.get("billingCycle");
@@ -144,14 +146,9 @@ export default function CheckoutPage() {
             {/* <Elements stripe={stripePromise} options={options}>
               <CheckoutForm amount={price} />
             </Elements> */}
-
-            <div className="w-full md:max-w-[150px] mx-auto">
-              <Button
-                text="Subscribe now"
-                hasIconOrLoader
-                action={handleSubscribe}
-              />
-            </div>
+            <Elements stripe={stripePromise}>
+              <CheckoutForm amount={price} />
+            </Elements>
           </div>
         </div>
       </div>

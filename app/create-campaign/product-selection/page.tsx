@@ -15,7 +15,7 @@ function ProductSelection() {
     }
   }, []);
   return (
-    <div className="mt-6">
+    <div className="mt-6 pb-10">
       <div className="lg:flex-row flex-col flex gap-4 lg:items-center lg:justify-between">
         <div>
           <h1 className="text-xl tracking-40 font-medium md:text-2xl md:font-bold text-heading md:tracking-800">

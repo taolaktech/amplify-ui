@@ -1,8 +1,7 @@
-import { ArrowDown2 } from "iconsax-react";
+import { ArrowDown2, MagicStar } from "iconsax-react";
 import { useEffect, useState, useRef } from "react";
 import CheckIcon from "@/public/custom-check.svg";
-
-const SelectInput = ({
+const CampaignTypeInput = ({
   options,
   setSelected,
   placeholder = "Select an option",
@@ -12,7 +11,10 @@ const SelectInput = ({
   error,
   setError,
 }: {
-  options: string[];
+  options: {
+    label: string;
+    recommended: boolean;
+  }[];
   label: string;
   placeholder?: string;
   setSelected:
@@ -24,17 +26,17 @@ const SelectInput = ({
   setError: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState<"top" | "bottom">(
-    "bottom"
-  );
   const selectRef = useRef<HTMLDivElement>(null);
 
-  const handleSelect = (option: string) => {
-    setSelected(option);
+  const handleSelect = (option: { label: string; recommended: boolean }) => {
+    console.log(option);
+    setSelected(option.label);
     setIsOpen(false);
     setError(false);
+    setTimeout(() => setIsOpen(false), 0);
   };
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -48,20 +50,6 @@ const SelectInput = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    if (isOpen && selectRef.current) {
-      const rect = selectRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const spaceAbove = rect.top;
-
-      if (spaceBelow < 300 && spaceAbove > spaceBelow) {
-        setDropdownPosition("top");
-      } else {
-        setDropdownPosition("bottom");
-      }
-    }
-  }, [isOpen]);
 
   return (
     <div className="w-full">
@@ -86,19 +74,21 @@ const SelectInput = ({
         </p>
         <ArrowDown2 size={16} color="#292D32" />
         {isOpen && (
-          <div
-            className={`absolute left-0 right-0 z-10 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto ${
-              dropdownPosition === "top" ? "bottom-full mb-2" : "top-full mt-2"
-            }`}
-          >
+          <div className="absolute left-0 right-0 top-[48px] z-10 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto">
             {options.map((option) => (
               <div
-                key={option}
-                onClick={() => handleSelect(option)}
-                className={`p-3 relative hover:bg-[#FBFAFC] text-[#333] cursor-pointer`}
+                key={option.label}
+                onClick={handleSelect.bind(null, option)}
+                className={`p-3 relative hover:bg-[#FBFAFC] text-sm text-[#595959] cursor-pointer`}
               >
-                <span>{option}</span>
-                {selected === option && (
+                <span>{option.label}</span>
+                {option.recommended && (
+                  <span className="bg-[#EAF7EF] ml-3 py-1 inline-flex items-center gap-1 px-[8px] text-[9px] font-medium text-[#27AE60] rounded-full">
+                    <MagicStar size={6} color="#27AE60" variant="Bulk" />
+                    <span className="text-[#27AE60]">Recommended</span>
+                  </span>
+                )}
+                {selected === option.label && (
                   <span className="absolute right-3 top-[50%] -translate-y-[50%]">
                     <CheckIcon width={16} height={16} fill="#6800D7" />
                   </span>
@@ -113,4 +103,4 @@ const SelectInput = ({
   );
 };
 
-export default SelectInput;
+export default CampaignTypeInput;

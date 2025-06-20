@@ -50,11 +50,39 @@
   /* font-family: "Satoshi", sans-serif; */
 }
 
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.ant-picker-now-btn {
+  /* background-color: #6800d7; */
+  color: #6800d7;
+}
+
+.ant-picker-now-btn:hover {
+  color: #6800d7;
+}
+
 body {
   background: var(--background);
   color: #333;
   /* font-family: "Satoshi", sans-serif; */
   letter-spacing: var(--tracking-100);
+}
+
+.ant-picker-input > input {
+  /* font-family: var(--font-rubik), sans-serif; */
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: #333 !important;
+}
+.ant-picker-input > input::placeholder {
+  color: #737373 !important;
+  font-weight: 500 !important;
 }
 
 .num {

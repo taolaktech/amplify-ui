@@ -15,8 +15,24 @@ const SupportedAdPlatforms = () => {
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useModal(isLoading);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener
+    window.addEventListener("resize", checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -25,9 +41,9 @@ const SupportedAdPlatforms = () => {
   }, []);
 
   const canProceed =
-    supportedAdPlatforms.google ||
-    supportedAdPlatforms.instagram ||
-    supportedAdPlatforms.facebook;
+    supportedAdPlatforms.Google ||
+    supportedAdPlatforms.Instagram ||
+    supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
     setIsLoading(true);
@@ -56,18 +72,17 @@ const SupportedAdPlatforms = () => {
       </div>
       <div className="mt-16 flex flex-col lg:flex-row max-w-[700px] mx-auto lg:max-w-full gap-2 lg:gap-6 pb-9">
         <div className="flex-1 relative w-full">
-          <div className="flex w-full items-center h-[215px] sm:h-[300px] lg:h-[430px] justify-center bg-[#ECECEC] rounded-3xl">
-            <div className="relative w-full h-full max-w-[289px] max-h-[314px] mx-auto">
+          <div className="flex w-full items-center  justify-center  rounded-3xl">
+            <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={"/google-ads-platform.webp"}
+                src={isMobile ? "/google_post_sm.webp" : "/google_post_lg.webp"}
                 alt="google ads platform"
                 layout="fill"
                 objectFit="cover"
                 loading="eager"
                 priority
-                sizes="(max-width: 767px) 0px, 100vw"
-                className={`rounded-3xl duration-300 transition-all ${
-                  supportedAdPlatforms.google ? "" : "grayscale opacity-70"
+                className={`duration-300 transition-all rounded-3xl ${
+                  supportedAdPlatforms.Google ? "" : "grayscale opacity-70"
                 }`}
                 blurDataURL={googleAdImgBlur}
                 placeholder="blur"
@@ -81,28 +96,27 @@ const SupportedAdPlatforms = () => {
               height={18}
               width={100}
               className={`rounded-3xl duration-300 transition-all ${
-                supportedAdPlatforms.google ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Google ? "" : "grayscale opacity-60"
               }`}
             />
             <Toggle
-              on={supportedAdPlatforms.google}
-              toggle={() => actions.toggleAdsPlatform("google")}
+              on={supportedAdPlatforms.Google}
+              toggle={() => actions.toggleAdsPlatform("Google")}
             />
           </div>
         </div>
         <div className="flex-1 relative w-full">
-          <div className="flex w-full items-center h-[215px] sm:h-[300px] lg:h-[430px] justify-center bg-[#ECECEC] rounded-3xl">
-            <div className="relative w-full h-full max-w-[289px] max-h-[314px] mx-auto">
+          <div className="flex w-full items-center  justify-center  rounded-3xl">
+            <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={"/google-ads-platform.webp"}
-                alt="google ads platform"
+                src={isMobile ? "/ig_post_sm.webp" : "/ig_post_lg.webp"}
+                alt="instagram ads platform"
                 layout="fill"
                 objectFit="cover"
                 loading="eager"
                 priority
-                sizes="(max-width: 767px) 0px, 100vw"
-                className={`rounded-3xl duration-300 transition-all ${
-                  supportedAdPlatforms.instagram ? "" : "grayscale opacity-70"
+                className={`duration-300 transition-all rounded-3xl ${
+                  supportedAdPlatforms.Instagram ? "" : "grayscale opacity-70"
                 }`}
                 blurDataURL={googleAdImgBlur}
                 placeholder="blur"
@@ -114,31 +128,32 @@ const SupportedAdPlatforms = () => {
               src="/instagram-custom-logo.png"
               alt="Instagram Custom Logo"
               className={`duration-300 transition-all ${
-                supportedAdPlatforms.instagram ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Instagram ? "" : "grayscale opacity-60"
               }`}
               height={18}
               width={100}
             />
             <Toggle
-              on={supportedAdPlatforms.instagram}
-              toggle={() => actions.toggleAdsPlatform("instagram")}
+              on={supportedAdPlatforms.Instagram}
+              toggle={() => actions.toggleAdsPlatform("Instagram")}
             />
           </div>
         </div>
         <div className="flex-1 relative w-full">
-          <div className="flex w-full items-center h-[215px] sm:h-[300px] lg:h-[430px] justify-center bg-[#ECECEC] rounded-3xl">
-            <div className="relative w-full h-full max-w-[289px] max-h-[314px] mx-auto">
+          <div className="flex w-full items-center  justify-center  rounded-3xl">
+            <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={"/google-ads-platform.webp"}
-                alt="google ads platform"
+                src={
+                  isMobile ? "/facebook_post_sm.webp" : "/facebook_post_lg.webp"
+                }
+                alt="facebook ads platform"
                 layout="fill"
                 objectFit="cover"
                 loading="eager"
                 priority
                 className={`duration-300 transition-all rounded-3xl ${
-                  supportedAdPlatforms.facebook ? "" : "grayscale opacity-70"
+                  supportedAdPlatforms.Facebook ? "" : "grayscale opacity-70"
                 }`}
-                sizes="(max-width: 767px) 0px, 100vw"
                 blurDataURL={googleAdImgBlur}
                 placeholder="blur"
               />
@@ -151,12 +166,12 @@ const SupportedAdPlatforms = () => {
               height={18}
               width={100}
               className={`rounded-3xl ${
-                supportedAdPlatforms.facebook ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Facebook ? "" : "grayscale opacity-60"
               }`}
             />
             <Toggle
-              on={supportedAdPlatforms.facebook}
-              toggle={() => actions.toggleAdsPlatform("facebook")}
+              on={supportedAdPlatforms.Facebook}
+              toggle={() => actions.toggleAdsPlatform("Facebook")}
             />
           </div>
         </div>
