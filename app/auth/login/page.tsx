@@ -32,8 +32,12 @@ export default function Login() {
   });
 
   const email = watch("email");
-  const { emailLoginMutation } = useEmailLogin(setErrorMsg, email, setError);
-  const { googleLoginMutation } = useGoogleLogin();
+  const { emailLoginMutation, loading: emailLoading } = useEmailLogin(
+    setErrorMsg,
+    email,
+    setError
+  );
+  const { googleLoginMutation, loading: googleLoading } = useGoogleLogin();
 
   const handleEmailLoginSubmit = (data: typeof defaultFormValues) => {
     emailLoginMutation.mutate(data);
@@ -116,7 +120,7 @@ export default function Login() {
               <Button
                 text="Proceed"
                 action={handleLoginButtonPressed}
-                loading={emailLoginMutation.isPending}
+                loading={emailLoginMutation.isPending || emailLoading}
                 hasIconOrLoader
               />
             </div>
@@ -128,7 +132,7 @@ export default function Login() {
               icon={<GoogleIcon width={17} height={16} />}
               secondary
               action={googleLoginMutation.mutate}
-              loading={googleLoginMutation.isPending}
+              loading={googleLoginMutation.isPending || googleLoading}
               hasIconOrLoader
             />
 

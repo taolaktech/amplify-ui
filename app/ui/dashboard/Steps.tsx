@@ -18,10 +18,11 @@ export default function Steps() {
   useEffect(() => {
     if (marketingGoals.complete) {
       setStep(4);
+      setLink("/setup/marketing-goals");
       setStepText("Upload Brand Kit");
     } else if (preferredSalesLocation.complete) {
       setStep(3);
-      setLink("/setup/marketing-goal");
+      setLink("/setup/marketing-goals");
       setStepText("Set Marketing Goal");
     } else if (businessDetails.complete) {
       setStep(2);
@@ -161,7 +162,7 @@ export default function Steps() {
                 <TickCircle
                   size={24}
                   color="#ffffff"
-                  variant={step >= 4 ? "Bold" : "Linear"}
+                  variant={step >= 5 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1 text-sm">
                   <div className={`text-white flex items-start gap-1`}>

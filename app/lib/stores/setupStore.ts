@@ -16,12 +16,11 @@ interface BusinessDetails {
   complete?: boolean;
 }
 
-
 interface PreferredSalesLocation {
   localShippingLocations: string[];
-  internationalShippingLocations:  string[];
+  internationalShippingLocations: string[];
   complete: boolean;
-};
+}
 
 interface MarketingGoals {
   brandAwareness: boolean;
@@ -29,7 +28,6 @@ interface MarketingGoals {
   boostRepeatPurchases: boolean;
   complete: boolean;
 }
-
 
 const defaultBusinessDetails: BusinessDetails = {
   storeName: "",
@@ -43,7 +41,7 @@ const defaultBusinessDetails: BusinessDetails = {
   },
   adSpendBudget: 0,
   annualRevenue: 0,
-  complete:false,
+  complete: false,
 };
 
 const defaultPreferredSalesLocation = {
@@ -52,12 +50,12 @@ const defaultPreferredSalesLocation = {
   complete: false,
 };
 
-const defaultMarketingGoals =  {
+const defaultMarketingGoals = {
   brandAwareness: false,
   acquireNewCustomers: false,
   boostRepeatPurchases: false,
   complete: false,
-}
+};
 
 interface SetupState {
   connectStore: {
@@ -75,7 +73,9 @@ interface SetupActions {
   reset: () => void;
   storeBusinessDetails: (businessDetails: BusinessDetails) => void;
   completeBusinessDetails: (complete: boolean) => void;
-  storePreferredSalesLocation: (preferredSalesLocation: PreferredSalesLocation) => void;
+  storePreferredSalesLocation: (
+    preferredSalesLocation: PreferredSalesLocation
+  ) => void;
   completePreferredSalesLocation: (complete: boolean) => void;
   storeMarketingGoals: (marketingGoals: MarketingGoals) => void;
   completeMarketingGoals: (complete: boolean) => void;
@@ -113,6 +113,8 @@ export const useSetupStore = create<SetupStore>()(
           },
         });
         set({ businessDetails: defaultBusinessDetails });
+        set({ preferredSalesLocation: defaultPreferredSalesLocation });
+        set({ marketingGoals: defaultMarketingGoals });
       },
 
       storeBusinessDetails: (businessDetails) => {
@@ -129,17 +131,29 @@ export const useSetupStore = create<SetupStore>()(
       },
       storePreferredSalesLocation: (preferredSalesLocation) => {
         if (get().businessDetails.complete) {
-          set({ preferredSalesLocation: { ...get().preferredSalesLocation, ...preferredSalesLocation } });
+          set({
+            preferredSalesLocation: {
+              ...get().preferredSalesLocation,
+              ...preferredSalesLocation,
+            },
+          });
         }
       },
       completePreferredSalesLocation: (complete) => {
         if (get().businessDetails.complete) {
-          set({ preferredSalesLocation: { ...get().preferredSalesLocation, complete } });
+          set({
+            preferredSalesLocation: {
+              ...get().preferredSalesLocation,
+              complete,
+            },
+          });
         }
       },
       storeMarketingGoals: (marketingGoals) => {
         if (get().preferredSalesLocation.complete) {
-          set({ marketingGoals: { ...get().marketingGoals, ...marketingGoals } });
+          set({
+            marketingGoals: { ...get().marketingGoals, ...marketingGoals },
+          });
         }
       },
       completeMarketingGoals: (complete) => {

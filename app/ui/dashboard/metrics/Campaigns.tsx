@@ -5,7 +5,8 @@ import {
   InfoCircle,
   CalendarRemove,
 } from "iconsax-react";
-import Button from "../../Button";
+// import Button from "../../Button";
+import DefaultLink from "../../DefaultLink";
 
 function Campaigns() {
   const campaigns = useMetricsStore((state) => state.campaigns);
@@ -47,13 +48,13 @@ function NoCampaigns() {
         </div>
       </div>
       <div>
-        <Button
+        <DefaultLink
           text="Setup your first Campaign"
           buttonSize="small"
           hasIconOrLoader
           icon={<ArrowCircleRight2 size="18" color="#ffffff" />}
           iconPosition="right"
-          action={() => {}}
+          href="/pricing"
         />
       </div>
     </div>
@@ -67,7 +68,7 @@ function MetricsPoint({
 }) {
   const metricsPoints = useMetricsStore((state) => state.metricsPoints);
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 ">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 xl:gap-3">
       {metricsPoints.map((metric) => (
         <div
           className={`

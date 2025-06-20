@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { CloseCircle, SearchNormal } from "iconsax-react";
+import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
+import { useDebouncedCallback } from "use-debounce";
 
 const SalesLocationInput = ({
   toggleSalesLocation,
@@ -23,40 +25,35 @@ const SalesLocationInput = ({
   const [isOpen, setIsOpen] = useState(false); // State to manage the dropdown visibility
   const selectRef = useRef<HTMLDivElement>(null); // Ref to the select input container
   const [searchedLocation, setSearchedLocation] = useState<string[]>([]);
-  const [locationOptions] = useState<string[]>([
-    "New York City, NY",
-    "Los Angeles, CA",
-    "Chicago, IL",
-    "Houston, TX",
-    "Phoenix, AZ",
-    "Philadelphia, PA",
-    "San Antonio, TX",
-    "San Diego, CA",
-    "Dallas, TX",
-  ]);
+
+  const { handleGetPlaces, citiesData } = useGetPlaces();
+
+  // Debounce callback
+  const debounced = useDebouncedCallback((value) => {
+    handleGetPlaces(value);
+  }, 1000);
 
   const handleSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    console.log("value", value);
+    debounced(value);
   };
 
   useEffect(() => {
-    if (searchQuery.length > 0) {
-      const filteredLocations = locationOptions.filter((location) =>
-        location.toLowerCase().includes(searchQuery.toLowerCase())
+    if (searchQuery.length > 0 && citiesData?.length) {
+      let filteredLocations2 = citiesData?.filter(
+        (location) => !salesLocation.includes(location.description)
       );
-      const filteredLocations2 = filteredLocations.filter(
-        (location) => salesLocation.includes(location) === false
-      );
+      filteredLocations2 = filteredLocations2?.map((item) => item.description);
+      console.log("searchedLocation", filteredLocations2);
+      if (!filteredLocations2) return;
       setSearchedLocation(filteredLocations2);
       setIsOpen(true);
     } else {
       setSearchedLocation([]);
       setIsOpen(false);
     }
-  }, [searchQuery, salesLocation]);
+  }, [searchQuery, citiesData, salesLocation]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -136,9 +133,9 @@ const SelectionModal = ({
   };
   return (
     <>
-      {locations.map((location) => (
+      {locations.map((location, index) => (
         <div
-          key={location}
+          key={index}
           className="px-4 py-3 flex justify-between cursor-pointer items-center"
           onClick={(e) => handleSelectLocation(e, location)}
         >

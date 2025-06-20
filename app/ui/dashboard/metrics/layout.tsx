@@ -38,8 +38,8 @@ export default function MetricsLayout({}) {
             }`}
           >
             <Image
-              src="/google_ads.svg"
-              width={15}
+              src="/google_ads-icon.svg"
+              width={17}
               height={17}
               alt="Google Ads"
             />
@@ -52,9 +52,9 @@ export default function MetricsLayout({}) {
             }`}
           >
             <Image
-              src="/instagram.svg"
-              width={16}
-              height={16}
+              src="/instagram_logo.svg"
+              width={17}
+              height={17}
               alt="Instagram"
             />
             <span>Instagram</span>
@@ -65,11 +65,16 @@ export default function MetricsLayout({}) {
               filterFacebook ? "bg-[#F3EFF6] rounded-lg" : ""
             }`}
           >
-            <Image src="/facebook.svg" width={17} height={17} alt="Instagram" />
+            <Image
+              src="/facebook_logo.svg"
+              width={17}
+              height={17}
+              alt="Instagram"
+            />
             <span>Facebook</span>
           </button>
         </div>
-        <TimelineFilter/>
+        <TimelineFilter />
       </div>
     </div>
   );

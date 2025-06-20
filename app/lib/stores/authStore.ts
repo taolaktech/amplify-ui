@@ -1,10 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type SubscriptionType =
+  | "FREE_PLAN"
+  | "STARTER_PLAN"
+  | "GROW_PLAN"
+  | "SCALE_PLAN";
+export type BillingCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
 interface AuthState {
   token: string | null;
   isAuth: boolean;
   rememberMe: boolean;
+  subscriptionType: {
+    type: SubscriptionType;
+    billingCycle: BillingCycle;
+  };
   user: User | null;
 }
 
@@ -22,10 +32,15 @@ interface ProfileIcon {
   initials: string;
   color: string;
 }
+
 interface AuthActions {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
+  setSubscriptionType: (subscriptionType: {
+    type: SubscriptionType;
+    billingCycle: BillingCycle;
+  }) => void;
   getUser: () => User | null;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
@@ -45,9 +60,16 @@ export const useAuthStore = create<AuthStore>()(
         phone: "",
         photoUrl: "",
       },
+      subscriptionType: {
+        type: "FREE_PLAN",
+        billingCycle: "MONTHLY",
+      },
       rememberMe: false,
       login: (token, user) => {
         set({ token, isAuth: true, user });
+      },
+      setSubscriptionType: (subscriptionType) => {
+        set({ subscriptionType });
       },
       logout: () => {
         localStorage.clear();

@@ -1,30 +1,30 @@
 import { useAuthStore } from "../lib/stores/authStore";
 import Image from "next/image";
 import { generateAvatar } from "../lib/utils";
-import { useEffect, useState, useRef } from "react";
-import { Edit } from "iconsax-react";
-import Link from "next/link";
+import { useRef } from "react";
+// import { Edit } from "iconsax-react";
+// import Link from "next/link";
 export default function Profile() {
   const user = useAuthStore((state) => state.user);
   const nameIcon = generateAvatar(user?.name ?? "User Unknown");
   const selectRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       selectRef.current &&
+  //       !selectRef.current.contains(event.target as Node)
+  //     ) {
+  //       setIsOpen(false);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => document.removeEventListener("mousedown", handleClickOutside);
+  // }, []);
 
   const toggleProfile = () => {
-    setIsOpen((prev) => !prev);
+    // setIsOpen((prev) => !prev);
   };
 
   return (
@@ -82,7 +82,7 @@ export default function Profile() {
           <p className={`text-xs text-gradient`}>standard user</p>
         </div>
       </div>
-      {isOpen && (
+      {/* {isOpen && (
         <div className="absolute top-10 right-0 bg-white custom-shadow-profile w-[267px] py-4 px-6 rounded-xl">
           <div className="flex items-center flex-col justify-center h-[216px] gap-2 cursor-pointer">
             <div className="relative">
@@ -161,7 +161,7 @@ export default function Profile() {
             </li>
           </ul>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
