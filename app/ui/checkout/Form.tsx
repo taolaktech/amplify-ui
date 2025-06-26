@@ -198,7 +198,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
           <input
             type="text"
             placeholder="John Doe"
-            className="w-full border focus:outline-0 font-medium  num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem] text-sm"
+            className="w-full border focus:outline-0 font-medium  num rounded-lg placeholder:text-[#737373] placeholder:font-medium  border-[#C2BFC5] flex flex-col justify-center p-[0.8rem] text-sm"
           />
         </div>
         <div>
