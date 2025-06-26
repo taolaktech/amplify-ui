@@ -22,7 +22,6 @@ export default function CreateCampaignLayout({
           fontWeightStrong: 600,
           fontFamily: "Inter",
           colorText: "#000",
-          fontWeight: 400,
           borderRadius: 8,
         },
         components: {

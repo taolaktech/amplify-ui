@@ -11,6 +11,7 @@ const SelectInput = ({
   large,
   error,
   setError,
+  height,
 }: {
   options: string[];
   label: string;
@@ -21,6 +22,7 @@ const SelectInput = ({
   selected?: string | null;
   large?: boolean;
   error?: string;
+  height?: number;
   setError: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,6 +79,7 @@ const SelectInput = ({
             ? "border-[#A755FF]"
             : "border-input-border"
         } rounded-lg text-sm border-[1.2px]`}
+        style={{ height: height ? `${height}px` : "auto" }}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <p

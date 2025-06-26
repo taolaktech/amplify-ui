@@ -30,6 +30,7 @@
     "lodash": "^4.17.21",
     "motion": "^12.6.3",
     "next": "15.2.4",
+    "range-slider-input": "^2.4.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.55.0",

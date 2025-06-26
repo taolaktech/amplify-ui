@@ -5,7 +5,7 @@ import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
 import CheckoutForm from "@/app/ui/checkout/Form";
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
 // import Button from "@/app/ui/Button";
@@ -55,21 +55,44 @@ export default function CheckoutPage() {
         .slice(1)} Plan`
     : "";
 
-  // const options: {
-  //   mode: "payment";
-  //   amount: number;
-  //   currency: string;
-  //   appearance: Record<string, unknown>;
-  // } = {
-  //   mode: "payment" as const,
-  //   amount: 30,
-  //   currency: "usd",
-
-  //   appearance: {
-  //     /*...*/
-  //   },
-  // };
-
+  const options: StripeElementsOptions = {
+    fonts: [
+      {
+        family: "Satoshi",
+        src: "url('/fonts/Satoshi-Regular.woff')",
+        weight: "400",
+      },
+    ],
+    appearance: {
+      theme: "flat",
+      variables: {
+        fontFamily: "Satoshi, sans-serif", // Use Satoshi font
+        colorBackground: "#ffffff", // Set a background color
+        colorText: "#000000", // Text color
+      },
+      rules: {
+        ".Input": {
+          backgroundColor: "#ffffff", // Override transparent background
+          border: "1px solid #d1d5db", // Override border: none
+          fontFamily: "Satoshi, sans-serif", // Ensure font applies
+          fontSize: "16px",
+          lineHeight: "1.5em", // Override 1.2em
+          padding: "8px", // Override padding: 0
+          margin: "4px 0", // Override margin: 0
+        },
+        ".Label": {
+          fontFamily: "Satoshi, sans-serif",
+          fontSize: "14px",
+          color: "#000000",
+        },
+        ".Error": {
+          fontFamily: '"Satoshi", sans-serif',
+          fontSize: "14px",
+          color: "#dc2626",
+        },
+      },
+    },
+  };
   // const handleSubscribe = () => {
   //   setSubscriptionSuccess(true);
   //   router.push("/pricing/checkout/success");
@@ -143,12 +166,13 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div>
-            {/* <Elements stripe={stripePromise} options={options}>
-              <CheckoutForm amount={price} />
-            </Elements> */}
-            <Elements stripe={stripePromise}>
+            <Elements stripe={stripePromise} options={options}>
               <CheckoutForm amount={price} />
             </Elements>
+            {/* 
+            <CheckoutProvider stripe={stripePromise}>
+              <CheckoutForm amount={price} />
+            </CheckoutProvider> */}
           </div>
         </div>
       </div>

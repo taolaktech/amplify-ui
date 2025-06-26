@@ -10,6 +10,7 @@ import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
+import { useRouter } from "next/navigation";
 
 const productTypes = [
   {
@@ -42,7 +43,7 @@ export default function CampaignSnapshotsPage() {
   const { productSelection, supportedAdPlatforms } = useCreateCampaignStore(
     (state) => state
   );
-
+  const router = useRouter();
   const adPlatforms = Object.keys(supportedAdPlatforms)
     .filter(
       (platform) =>
@@ -71,6 +72,7 @@ export default function CampaignSnapshotsPage() {
 
   const handleProceed = () => {
     console.log("proceed");
+    router.push("/create-campaign/fund-campaign");
   };
 
   const products = productSelection.products;
@@ -107,7 +109,7 @@ export default function CampaignSnapshotsPage() {
                 <span className="num">4. </span>
                 <span>Campaign Snapshots</span>
               </h1>
-              <p className="text-neutral-light tracking-40 text-xs md:text-sm my-2 md:my-0">
+              <p className="mt-[0.38rem] text-neutral-light tracking-40 text-xs md:text-sm my-2 md:my-0">
                 Here's a view of how your brand will be showcased across
                 multiple ad platforms.
               </p>

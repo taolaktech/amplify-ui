@@ -113,7 +113,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
         {/* Card Number */}
         <div>
           <label className="block mb-1 text-xs ">Card Number</label>
-          <div className="w-full relative border num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
+          <div className="w-full relative num ">
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
               <Image
                 src={brandIconMap[brand]}
@@ -126,11 +126,12 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
               options={{
                 style: {
                   base: {
+                    fontFamily: "Satoshi, sans-serif",
                     fontSize: "14px",
                     color: "#32325d",
                     "::placeholder": {
                       color: "#737373",
-                      fontFamily: "inherit",
+                      fontFamily: "Satoshi, sans-serif",
                       fontStyle: "normal",
                       fontWeight: "400",
                     },
@@ -147,21 +148,21 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
         <div className="flex space-x-4">
           <div className="w-1/2">
             <label className="block mb-1 text-xs ">Expiry Date</label>
-            <div className="w-full border num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
+            <div className="w-full num ">
               <CardExpiryElement
                 options={{
                   style: {
                     base: {
+                      fontFamily: "Satoshi, sans-serif",
                       fontSize: "14px",
                       color: "#333",
                       "::placeholder": {
                         color: "#737373",
-                        fontFamily: "inherit",
+                        fontFamily: "Satoshi, sans-serif",
                         fontStyle: "normal",
                         fontWeight: "400",
                       },
                     },
-
                     // invalid: { color: "#fa755a" },
                   },
                 }}
@@ -170,17 +171,17 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
           </div>
           <div className="w-1/2">
             <label className="block mb-1 text-xs ">CVC</label>
-            <div className="w-full border num  rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
+            <div className="w-full num ">
               <CardCvcElement
                 options={{
                   style: {
                     base: {
+                      fontFamily: "Satoshi, sans-serif",
                       fontSize: "14px",
                       color: "#333",
-
                       "::placeholder": {
                         color: "#737373",
-                        fontFamily: "inherit",
+                        fontFamily: "Satoshi, sans-serif",
                         fontStyle: "normal",
                         fontWeight: "400",
                       },
@@ -197,7 +198,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
           <input
             type="text"
             placeholder="John Doe"
-            className="w-full border focus:outline-0 font-medium  num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.7rem] text-sm"
+            className="w-full border focus:outline-0 font-medium  num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem] text-sm"
           />
         </div>
         <div>
