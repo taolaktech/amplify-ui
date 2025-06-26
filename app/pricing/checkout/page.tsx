@@ -59,8 +59,8 @@ export default function CheckoutPage() {
     fonts: [
       {
         family: "Satoshi",
-        src: "url('/fonts/Satoshi-Regular.woff')",
-        weight: "400",
+        src: "url('https://raw.githubusercontent.com/taolaktech/amplify-ui/AMP-33-dev-create-campaign/public/fonts/Satoshi-Medium.woff')",
+        weight: "500",
       },
     ],
     appearance: {
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
         ".Error": {
           fontFamily: '"Satoshi", sans-serif',
           fontSize: "14px",
-          color: "#dc2626",
+          color: "#000",
         },
       },
     },

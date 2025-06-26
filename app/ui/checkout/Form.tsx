@@ -128,7 +128,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
                   base: {
                     fontFamily: "Satoshi, sans-serif",
                     fontSize: "14px",
-                    color: "#32325d",
+                    color: "#000",
                     "::placeholder": {
                       color: "#737373",
                       fontFamily: "Satoshi, sans-serif",
@@ -155,7 +155,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
                     base: {
                       fontFamily: "Satoshi, sans-serif",
                       fontSize: "14px",
-                      color: "#333",
+                      color: "#000",
                       "::placeholder": {
                         color: "#737373",
                         fontFamily: "Satoshi, sans-serif",
@@ -178,7 +178,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
                     base: {
                       fontFamily: "Satoshi, sans-serif",
                       fontSize: "14px",
-                      color: "#333",
+                      color: "#000",
                       "::placeholder": {
                         color: "#737373",
                         fontFamily: "Satoshi, sans-serif",

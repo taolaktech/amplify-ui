@@ -47,7 +47,7 @@
 }
 
 * {
-  /* font-family: "Satoshi", sans-serif; */
+  font-family: "Satoshi", sans-serif;
 }
 
 button {
@@ -414,7 +414,7 @@ a.secondary:not(:disabled):hover {
   font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: #000;
 }
 .ElementsApp .InputElement {
   font-family: "Inter", Arial, Helvetica, sans-serif !important;

@@ -33,7 +33,9 @@ const SelectInput = ({
 
   const handleSelect = (option: string) => {
     setSelected(option);
-    setIsOpen(false);
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 100);
     setError(false);
   };
 
