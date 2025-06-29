@@ -8,6 +8,8 @@ const SelectInput = ({
   placeholder = "Select an option",
   selected,
   label,
+  background,
+  borderless,
   large,
   error,
   setError,
@@ -20,6 +22,8 @@ const SelectInput = ({
     | React.Dispatch<React.SetStateAction<string | null>>
     | ((value: string) => void);
   selected?: string | null;
+  background?: string;
+  borderless?: boolean;
   large?: boolean;
   error?: string;
   height?: number;
@@ -29,6 +33,7 @@ const SelectInput = ({
   const [dropdownPosition, setDropdownPosition] = useState<"top" | "bottom">(
     "bottom"
   );
+  const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
   const selectRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (option: string) => {
@@ -38,6 +43,25 @@ const SelectInput = ({
     }, 100);
     setError(false);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.match(/[a-zA-Z]/)) {
+        setFilteredOptions(
+          options.filter((option) =>
+            option.toLowerCase().startsWith(e.key.toLowerCase())
+          )
+        );
+      } else {
+        setFilteredOptions(options);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      setFilteredOptions(options);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,11 +78,12 @@ const SelectInput = ({
   }, []);
 
   useEffect(() => {
+    setFilteredOptions(options);
+
     if (isOpen && selectRef.current) {
       const rect = selectRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
-
       if (spaceBelow < 300 && spaceAbove > spaceBelow) {
         setDropdownPosition("top");
       } else {
@@ -69,10 +94,10 @@ const SelectInput = ({
 
   return (
     <div className="w-full">
-      <p className="text-xs tracking-tight leading-4 block">{label}</p>
+      <p className="text-xs tracking-tight block">{label}</p>
       <div
         ref={selectRef}
-        className={`cursor-pointer relative px-4 mt-2 w-full py-3 flex items-center justify-between ${
+        className={`cursor-pointer relative px-4 mt-2 w-full flex items-center justify-between ${
           large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
         } placeholder:text-heading text-heading font-medium ${
           error
@@ -80,8 +105,11 @@ const SelectInput = ({
             : isOpen
             ? "border-[#A755FF]"
             : "border-input-border"
-        } rounded-lg text-sm border-[1.2px]`}
-        style={{ height: height ? `${height}px` : "auto" }}
+        } rounded-lg text-sm ${borderless ? "border-none" : "border-[1.2px]"}`}
+        style={{
+          height: height ? `${height}px` : undefined,
+          backgroundColor: background,
+        }}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <p
@@ -89,14 +117,14 @@ const SelectInput = ({
         >
           {selected || placeholder}
         </p>
-        <ArrowDown2 size={16} color="#292D32" />
+        <ArrowDown2 size={14} color="#292D32" />
         {isOpen && (
           <div
             className={`absolute left-0 right-0 z-10 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto ${
               dropdownPosition === "top" ? "bottom-full mb-2" : "top-full mt-2"
             }`}
           >
-            {options.map((option) => (
+            {filteredOptions.map((option) => (
               <div
                 key={option}
                 onClick={() => handleSelect(option)}

@@ -70,7 +70,7 @@ export default function Button({
       >
         {text}
       </span>
-      {hasIconOrLoader && !right && (
+      {hasIconOrLoader && !icon && (
         <span style={{ width: iconSize }}>
           {loading && right && <ButtonLoader secondary={secondary} />}
         </span>

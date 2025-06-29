@@ -92,7 +92,7 @@ export default function FundCampaignPage() {
           </p>
         </div>
       </div>
-      <div className="flex gap-8 mt-10">
+      <div className="flex gap-12 mt-10">
         <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%]">
           <div className="py-4 px-5 bg-[#FEF5EA] flex items-center gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
             <span className="flex items-center justify-center w-[32px] h-[32px] bg-[#FDE0BD] rounded-full">
@@ -148,17 +148,21 @@ export default function FundCampaignPage() {
                 </span>
               </span>
             </div>
-            <div className="range w-full mt-6">
+            <div className="range w-full mt-6 mb-6 flex items-center justify-between gap-2 text-xs">
+              <div className="text-xs font-medium">$50</div>
               <div id="range-slider"></div>
+              <div className="text-xs font-medium">$500</div>
             </div>
           </div>
         </div>
         <div className="w-[50%]">
           <div className="flex items-center justify-between w-full">
-            <span>Select Payment Options</span>
+            <span className="text-sm">Select Payment Options</span>
             <button className="px-4 py-2 bg-[#FBFAFC] rounded-xl flex items-center gap-2">
               <Add size="17" color="#6800D7" />
-              <span className="text-[#6800D7]">Add Credit/Debit Card</span>
+              <span className="text-[#6800D7] text-sm">
+                Add Credit/Debit Card
+              </span>
             </button>
           </div>
         </div>

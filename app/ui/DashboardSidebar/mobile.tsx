@@ -75,7 +75,7 @@ export default function MobileSideBar({
         } top-0 fixed h-screen flex flex-col z-20 transition-all duration-500`}
       >
         <div className={`flex items-center justify-between h-[81px] py-7`}>
-          <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <Image
               src={"/dashboard-logo.svg"}
               alt="logo"
@@ -83,7 +83,7 @@ export default function MobileSideBar({
               height={32}
             />
             <span className={`font-medium text-xl inline-block`}>My Store</span>
-          </div>
+          </Link>
           <button
             onClick={handleToggleSidebar}
             className={`flex bg-[#F3EFF6] rounded-full w-[28px] h-[28px] justify-center items-center`}

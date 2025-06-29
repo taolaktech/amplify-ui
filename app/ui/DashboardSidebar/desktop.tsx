@@ -17,9 +17,10 @@ import {
   MessageQuestion,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
-import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
+// import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Feedback from "../Feedback";
 
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
@@ -62,7 +63,7 @@ export default function DesktopSideBar({
             isSidebarOpen ? "justify-between" : "justify-center"
           } h-[81px] py-7`}
         >
-          <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <DashboardLogoIcon width={32} height={32} />
             <span
               className={`font-medium text-xl ${
@@ -71,7 +72,7 @@ export default function DesktopSideBar({
             >
               My Store
             </span>
-          </div>
+          </Link>
           {/* {isSidebarOpen && ( */}
           <button
             onClick={handleToggleSidebar}
@@ -179,33 +180,37 @@ export default function DesktopSideBar({
               </Link>
             </li>
             <li onClick={toggleIsCompanyOpen}>
-              <span
-                // href="/company"
-                className={`flex items-center justify-between rounded-xl ${
-                  isSidebarOpen ? "px-4" : "justify-center"
-                } hover:bg-[#fdfcfd] gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                  isCompany ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <span>
-                    {!isCompany && <Building3 size="24" color="#BFBFBF" />}
-                    {isCompany && <HomeTrendUpGrad width="24" height="24" />}
-                  </span>
-                  {isSidebarOpen && (
-                    <span
-                      className={`text-sm font-medium ${
-                        isCompany ? "text-heading" : "text-gray-dark"
-                      }`}
-                    >
-                      Company
+              <Link href="/dashboard/company" className="w-full">
+                <span
+                  // href="/company"
+                  className={`flex items-center justify-between rounded-xl ${
+                    isSidebarOpen ? "px-4" : "justify-center"
+                  }  gap-2 w-full px-4 h-[48px] cursor-pointer ${
+                    isCompany
+                      ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                      : "hover:bg-[#fdfcfd]"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>
+                      {!isCompany && <Building3 size="24" color="#BFBFBF" />}
+                      {isCompany && <HomeTrendUpGrad width="24" height="24" />}
                     </span>
-                  )}
+                    {isSidebarOpen && (
+                      <span
+                        className={`text-sm font-medium ${
+                          isCompany ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Company
+                      </span>
+                    )}
+                  </span>
+                  {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
+                  {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
                 </span>
-                {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
-                {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
-              </span>
-              {isCompanyOpen && (
+              </Link>
+              {/* {isCompanyOpen && (
                 <span
                   className={`flex flex-col gap-1 px-5 transition-all duration-300`}
                   style={{
@@ -214,7 +219,7 @@ export default function DesktopSideBar({
                 >
                   <DashboardCompanyLinks />
                 </span>
-              )}
+              )} */}
             </li>
             <li>
               <Link
@@ -241,7 +246,7 @@ export default function DesktopSideBar({
                 )}
               </Link>
             </li>
-            <li className="">
+            {/* <li className="">
               <Link
                 href="/support"
                 className={`flex items-center rounded-xl
@@ -265,11 +270,12 @@ export default function DesktopSideBar({
                   </span>
                 )}
               </Link>
-            </li>
+            </li> */}
           </ul>
           <div
-            className={`xl:max-h-[250px] flex-1 pb-10 lg:py-5 flex flex-col justify-end `}
+            className={`flex-1 pb-10 lg:py-5 flex gap-3 flex-col justify-end `}
           >
+            <Feedback isSidebarOpen={isSidebarOpen} />
             <button
               onClick={handleLogout}
               className={`h-[48px] w-full flex items-center gap-2 rounded-xl hover:bg-[#Fdfcfd] ${

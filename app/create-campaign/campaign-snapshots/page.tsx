@@ -7,7 +7,7 @@ import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
-import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaignTypeInput";
+import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
@@ -135,7 +135,7 @@ export default function CampaignSnapshotsPage() {
             <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
               <img
                 src={RegenerateIcon.src}
-                alt="Regenerate"
+                alt="Generate"
                 width={20}
                 height={20}
               />

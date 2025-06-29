@@ -146,3 +146,21 @@ export const handleGetCities = async (data: {
   );
   return response.data;
 };
+
+export const getProducts = async (data: {
+  token: string;
+  first: number;
+  after?: string;
+}) => {
+  const response = await axiosInstance.get("/shopify/products", {
+    params: {
+      first: data.first,
+      after: data.after || null,
+    },
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
+  console.log("response", response.data);
+  return response.data;
+};

@@ -411,17 +411,17 @@ a.secondary:not(:disabled):hover {
 }
 
 .InputElement {
-  font-family: "Inter", sans-serif;
+  /* font-family: "Inter", sans-serif; */
   font-size: 14px;
   font-weight: 500;
   color: #000;
 }
 .ElementsApp .InputElement {
-  font-family: "Inter", Arial, Helvetica, sans-serif !important;
+  /* font-family: "Inter", Arial, Helvetica, sans-serif !important; */
 }
 
 .ElementsApp input {
-  font-family: "Inter", sans-serif !important;
+  /* font-family: "Inter", sans-serif !important; */
 }
 
 .StripeElement {

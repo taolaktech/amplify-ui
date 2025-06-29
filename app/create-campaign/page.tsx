@@ -9,6 +9,7 @@ import Button from "../ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
 import { useModal } from "../lib/hooks/useModal";
+import { useGetShopifyProducts } from "../lib/hooks/shopify";
 export default function AdsLocationPage() {
   const {
     searchQuery,
@@ -19,27 +20,21 @@ export default function AdsLocationPage() {
     clearSalesLocation,
   } = useLocalSalesLocation();
 
-  const actions = useCreateCampaignStore((state) => state.actions);
   const salesLocationFromStore = useCreateCampaignStore(
     (state) => state.adsShow.location
   );
-  const router = useRouter();
 
   const [fetchingProgress] = useState(50);
-  const [isAutoFetching, setIsAutoFetching] = useState(false);
+  // const [isAutoFetching, setIsAutoFetching] = useState(false);
+  const { fetchProducts, loading, error } = useGetShopifyProducts();
 
-  useModal(isAutoFetching);
+  useModal(loading);
   useEffect(() => {
     setSalesLocation(salesLocationFromStore);
   }, []);
 
   const handleProceed = () => {
-    setIsAutoFetching(true);
-    setTimeout(() => {
-      setIsAutoFetching(false);
-      actions.storeAdsShow({ complete: true, location: salesLocation });
-      router.push("/create-campaign/product-selection");
-    }, 2000);
+    fetchProducts({ location: salesLocation }, true);
   };
   return (
     <div className="px-5 max-w-[705px] pb-20 mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
@@ -80,9 +75,7 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {isAutoFetching && (
-        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
-      )}
+      {loading && <AutoFetchingProduct fetchingProgress={fetchingProgress} />}
     </div>
   );
 }

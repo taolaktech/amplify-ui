@@ -2,7 +2,7 @@
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import SelectProducts from "@/app/ui/select-products";
 import { useRouter } from "next/navigation";
-import { SearchNormal } from "iconsax-react";
+// import { SearchNormal } from "iconsax-react";
 import React, { useEffect } from "react";
 
 function ProductSelection() {
@@ -27,7 +27,7 @@ function ProductSelection() {
             you’d like to promote.
           </p>
         </div>
-        <div className="relative max-w-[362px]">
+        {/* <div className="relative max-w-[362px]">
           <input
             type="text"
             placeholder="Search products"
@@ -36,7 +36,7 @@ function ProductSelection() {
           <span className="absolute left-3 top-1/2 -translate-y-1/2">
             <SearchNormal size={16} color="#B6B3B9" />
           </span>
-        </div>
+        </div> */}
       </div>
       <div className="mt-10">
         <SelectProducts />

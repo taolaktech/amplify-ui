@@ -7,6 +7,7 @@ export const passwordPattern =
 export const paths = new Map<string, string>();
 
 paths.set("/dashboard", "Dashboard");
+paths.set("/dashboard/company", "Company");
 
 export const generateAvatar = (name: string) => {
   const avatar = createAvatar(initials, {
