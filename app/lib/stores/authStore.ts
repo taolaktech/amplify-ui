@@ -10,6 +10,7 @@ export type BillingCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
 interface AuthState {
   token: string | null;
   isAuth: boolean;
+  hasHydrated: boolean;
   rememberMe: boolean;
   subscriptionType: {
     type: SubscriptionType;
@@ -42,6 +43,7 @@ interface AuthActions {
     billingCycle: BillingCycle;
   }) => void;
   getUser: () => User | null;
+  setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
 }
@@ -60,6 +62,7 @@ export const useAuthStore = create<AuthStore>()(
         phone: "",
         photoUrl: "",
       },
+      hasHydrated: false,
       subscriptionType: {
         type: "FREE_PLAN",
         billingCycle: "MONTHLY",
@@ -83,9 +86,28 @@ export const useAuthStore = create<AuthStore>()(
         set({ user });
       },
       getUser: () => get().user,
+      setHasHydrated: (state) => {
+        console.log("setHasHydrated", state);
+        set({ hasHydrated: state });
+      },
     }),
     {
       name: "auth-storage",
+      onRehydrateStorage: () => {
+        console.log("onRehydrateStorage");
+        // ✅ hydration begins (optional)
+        return (state, error) => {
+          if (error) {
+            console.log("an error happened during hydration", error);
+          } else {
+            console.log("hydration finished");
+            state?.setHasHydrated(true);
+          }
+        };
+      },
+      // ✅ fallback: call immediately if there's no persisted state
+      skipHydration: false, // keep this false
+      version: 1,
     }
   )
 );

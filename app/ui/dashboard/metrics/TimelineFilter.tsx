@@ -3,6 +3,7 @@ import useMetricsStore, {
   Timeline,
 } from "@/app/lib/stores/metricsStore";
 import { ArrowDown2 } from "iconsax-react";
+import CheckIcon from "@/public/custom-check.svg";
 import { useState, useRef, useEffect } from "react";
 
 function TimelineFilter() {
@@ -38,7 +39,7 @@ function TimelineFilter() {
   return (
     <div className="relative">
       <div
-        className="flex w-[120px] h-[42px] border border-[#C2BFC5] py-2 px-3 rounded-[8px] items-center cursor-pointer justify-between"
+        className="flex w-[120px] h-[42px] border border-[#C2BFC5] py-2 px-3 rounded-md items-center cursor-pointer justify-between"
         onClick={toggleOpen}
       >
         <span className="text-xs text-[#737373]">{timeline.name}</span>
@@ -48,17 +49,26 @@ function TimelineFilter() {
         {isOpen && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute -left-10 top-[48px] z-10 bg-white max-h-[336px] min-w-[180px] rounded-lg w-full custom-shadow-select overflow-y-auto"
+            className="absolute -left-[150px] top-[48px] z-10 bg-white max-h-[336px] min-w-[280px] rounded-lg w-full custom-shadow-select overflow-y-auto"
           >
-            {timelineOptions.map((timeline) => (
+            {timelineOptions.map((time) => (
               <div
-                key={timeline}
-                className="px-4 py-3 flex justify-between cursor-pointer items-center hover:bg-[#F3EFF6] transition-all duration-200"
-                onClick={(e) => handleSelect(e, timeline)}
+                key={time}
+                className="px-4 py-4 flex justify-between  cursor-pointer items-center hover:bg-[#F3EFF6] transition-all duration-200"
+                onClick={(e) => handleSelect(e, time)}
               >
-                <p className="text-xs text-black max-w-[75%] truncate">
-                  {timeline}
+                <p
+                  className={`text-sm font-medium ${
+                    timeline.name == time ? "text-[#222]" : "text-[#737373]"
+                  } max-w-[75%] truncate`}
+                >
+                  {time}
                 </p>
+                {timeline.name === time && (
+                  <span className="">
+                    <CheckIcon width={16} height={16} fill="#6800D7" />
+                  </span>
+                )}
               </div>
             ))}
           </div>

@@ -105,7 +105,7 @@ export default function DesktopSideBar({
             </Link>
           )}
         </div>
-        <div className={`flex-1 flex flex-col`}>
+        <div className={`flex-1 flex flex-col overflow-y-auto`}>
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
@@ -157,7 +157,7 @@ export default function DesktopSideBar({
             </li> */}
             <li>
               <Link
-                href="/campaigns"
+                href="/dashboard/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${

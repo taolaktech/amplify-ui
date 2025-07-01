@@ -32,6 +32,7 @@ const notSelectedImprovementIcon = {
 
 const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
   const [starRating, setStarRating] = useState(0);
+  const [hoverStarRating, setHoverStarRating] = useState(0);
   const [isBouncing, setIsBouncing] = useState(false);
   const [selectedImprovement, setSelectedImprovement] = useState<string[]>([]);
 
@@ -41,6 +42,13 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
     setTimeout(() => {
       setIsBouncing(false);
     }, 1000);
+  };
+
+  const handleStar = (rating: number) => {
+    if (hoverStarRating) {
+      return hoverStarRating >= rating;
+    }
+    return starRating >= rating;
   };
 
   const handleImprovementClick = (improvement: string) => {
@@ -78,11 +86,18 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
           <div className="text-sm text-[#737373] tracking-150">
             Are you satisfied with the service?
           </div>
-          <div className="flex items-center gap-2 my-7">
+          <div
+            className={`inline-flex items-center hover:opacity-80 transition-opacity duration-300 gap-2 my-7`}
+          >
             {[1, 2, 3, 4, 5].map((star) => (
-              <button key={star} onClick={() => handleStarClick(star)}>
+              <button
+                key={star}
+                onClick={() => handleStarClick(star)}
+                onMouseEnter={() => setHoverStarRating(star)}
+                onMouseLeave={() => setHoverStarRating(0)}
+              >
                 <FontAwesomeIcon
-                  icon={starRating >= star ? faStarSolid : faStar}
+                  icon={handleStar(star) ? faStarSolid : faStar}
                   bounce={isBouncing}
                   style={{
                     color: "#FA9B0C",

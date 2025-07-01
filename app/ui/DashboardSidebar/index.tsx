@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useUIStore from "@/app/lib/stores/uiStore";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
@@ -25,6 +25,16 @@ export default function DashboardSideBar() {
     isIntegrations,
   } = useDashboardPath();
 
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 1280);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const toggleIsCompanyOpen = () => {
     setIsCompanyOpen((prev) => !prev);
   };
@@ -42,32 +52,36 @@ export default function DashboardSideBar() {
 
   return (
     <>
-      <DesktopSideBar
-        isSidebarOpen={isSidebarOpen}
-        handleToggleSidebar={handleToggleSidebar}
-        handleLogout={handleLogout}
-        isDashboard={isDashboard}
-        isInsights={isInsights}
-        isCampaigns={isCampaigns}
-        isCompany={isCompany}
-        isSupport={isSupport}
-        isIntegrations={isIntegrations}
-        isCompanyOpen={isCompanyOpen}
-        toggleIsCompanyOpen={toggleIsCompanyOpen}
-      />
-      <MobileSideBar
-        isSidebarOpen={isSidebarOpen}
-        handleToggleSidebar={handleToggleSidebar}
-        handleLogout={handleLogout}
-        isDashboard={isDashboard}
-        isInsights={isInsights}
-        isCampaigns={isCampaigns}
-        isCompany={isCompany}
-        isSupport={isSupport}
-        isIntegrations={isIntegrations}
-        isCompanyOpen={isCompanyOpen}
-        toggleIsCompanyOpen={toggleIsCompanyOpen}
-      />
+      {!isSmallScreen && (
+        <DesktopSideBar
+          isSidebarOpen={isSidebarOpen}
+          handleToggleSidebar={handleToggleSidebar}
+          handleLogout={handleLogout}
+          isDashboard={isDashboard}
+          isInsights={isInsights}
+          isCampaigns={isCampaigns}
+          isCompany={isCompany}
+          isSupport={isSupport}
+          isIntegrations={isIntegrations}
+          isCompanyOpen={isCompanyOpen}
+          toggleIsCompanyOpen={toggleIsCompanyOpen}
+        />
+      )}
+      {isSmallScreen && (
+        <MobileSideBar
+          isSidebarOpen={isSidebarOpen}
+          handleToggleSidebar={handleToggleSidebar}
+          handleLogout={handleLogout}
+          isDashboard={isDashboard}
+          isInsights={isInsights}
+          isCampaigns={isCampaigns}
+          isCompany={isCompany}
+          isSupport={isSupport}
+          isIntegrations={isIntegrations}
+          isCompanyOpen={isCompanyOpen}
+          toggleIsCompanyOpen={toggleIsCompanyOpen}
+        />
+      )}
     </>
   );
 }

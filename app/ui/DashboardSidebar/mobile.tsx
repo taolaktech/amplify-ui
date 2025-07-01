@@ -12,7 +12,7 @@ import {
   HomeTrendUp,
   LogoutCurve,
   //  Magicpen,
-  MessageQuestion,
+  // MessageQuestion,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
@@ -43,24 +43,13 @@ export default function MobileSideBar({
   isInsights,
   isCampaigns,
   isCompany,
-  isSupport,
+  // isSupport,
   isIntegrations,
   isCompanyOpen,
   toggleIsCompanyOpen,
 }: MobileSideBarProps) {
   const router = useRouter();
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-  console.log(isInsights);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 1280);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  useModal(isSidebarOpen && isSmallScreen);
-
+  useModal(isSidebarOpen);
   return (
     <div className="xl:hidden">
       <div
@@ -103,7 +92,7 @@ export default function MobileSideBar({
             icon={<Add size="24" color="#ffffff" />}
           />
         </div>
-        <div className={`flex-1 flex flex-col`}>
+        <div className={`flex-1 flex flex-col overflow-y-auto`}>
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
@@ -157,7 +146,7 @@ export default function MobileSideBar({
             </li> */}
             <li>
               <Link
-                href="/campaigns"
+                href="/dashboard/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
                   isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -232,7 +221,7 @@ export default function MobileSideBar({
                 </span>
               </Link>
             </li>
-            <li className="">
+            {/* <li className="">
               <Link
                 href="/support"
                 className={`flex items-center gap-2 rounded-xl px-4 
@@ -252,7 +241,7 @@ export default function MobileSideBar({
                   Support
                 </span>
               </Link>
-            </li>
+            </li> */}
           </ul>
           <div
             className={`xl:max-h-[250px] flex-1 pb-20 px-4 lg:py-5 flex flex-col justify-end `}

@@ -49,6 +49,24 @@ const pricingPlans = [
 
 export default pricingPlans;
 
+export const priceId = {
+  STARTER: {
+    MONTHLY: "price_1RJOIF4K0EUJXpsuXoWVsLvI",
+    QUARTERLY: "price_1RJOsq4K0EUJXpsut6AGoSqQ",
+    YEARLY: "price_1RJOvK4K0EUJXpsu9JjKZk5q",
+  },
+  GROW: {
+    MONTHLY: "price_1RJORI4K0EUJXpsuA3Uc1yff",
+    QUARTERLY: "price_1RJOzX4K0EUJXpsuhbvXdRFy",
+    YEARLY: "price_1RJP0t4K0EUJXpsuGrlrCi0Z",
+  },
+  SCALE: {
+    MONTHLY: "price_1RJOWj4K0EUJXpsuQ3rqPxEU",
+    QUARTERLY: "price_1RJP4F4K0EUJXpsupXziADUr",
+    YEARLY: "price_1RJP5L4K0EUJXpsuP0J14AlF",
+  },
+};
+
 export const billingCycles = {
   MONTHLY: {
     title: "Monthly",
