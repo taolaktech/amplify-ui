@@ -5,13 +5,24 @@ import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "@/app/lib/stripe";
 import { options } from "@/app/lib/stripe";
 import SelectArrow from "../SelectArrow";
-import { useGetCustomerPaymentMethods } from "@/app/lib/hooks/stripe";
+import {
+  useGetCustomerPaymentMethods,
+  useSubscribeToPlan,
+} from "@/app/lib/hooks/stripe";
 import CustomerCards from "./CustomerCards";
+import StripeInfo from "./StripeInfo";
+import Skeleton from "../Skeleton";
+import Button from "../Button";
 
-export default function Checkout() {
+export default function Checkout({
+  isAddCardPage,
+}: {
+  isAddCardPage: boolean;
+}) {
   const [isAddCard, setIsAddCard] = useState(false);
-  const [showStripeInfo] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
+
+  const { handleSubscribe, isPending } = useSubscribeToPlan();
 
   const { data: customerPaymentMethods, isLoading } =
     useGetCustomerPaymentMethods();
@@ -21,8 +32,33 @@ export default function Checkout() {
     }
   }, [customerPaymentMethods]);
 
+  useEffect(() => {
+    if (isPending) {
+      setIsAddCard(false);
+      return;
+    }
+    if (
+      !customerPaymentMethods?.data ||
+      customerPaymentMethods?.data?.length === 0
+    ) {
+      setIsAddCard(true);
+    } else {
+      setIsAddCard(false);
+    }
+  }, [customerPaymentMethods, isAddCardPage, isPending]);
+
   console.log("customerPaymentMethods", customerPaymentMethods?.data);
   console.log("isLoading", isLoading);
+
+  if (isLoading) {
+    return <Skeleton width="100%" height="330px" borderRadius="10px" />;
+  }
+
+  const putInContainer =
+    isAddCardPage || customerPaymentMethods?.data?.length > 0;
+
+  const showStripeInfo =
+    !putInContainer || !isAddCard || (!isAddCard && !isAddCardPage);
   return (
     <div className="relative">
       <div className="mb-2">
@@ -33,32 +69,40 @@ export default function Checkout() {
           isLoading={isLoading}
         />
       </div>
-      <div className="border border-[#BFBFBF] px-6 py-4 rounded-xl">
-        <div
-          className="flex items-center justify-between cursor-pointer"
-          onClick={() => setIsAddCard(!isAddCard)}
-        >
-          <div className=" flex gap-4 items-center flex-shrink-0">
-            <div className="flex items-center justify-center w-[48px] h-[48px] md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
-              <CardAdd size={24} color="#333" />
+      <div
+        className={`${
+          putInContainer ? "border border-[#BFBFBF] px-6 py-4 rounded-xl" : ""
+        }`}
+      >
+        {putInContainer && (
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setIsAddCard(!isAddCard)}
+          >
+            <div className=" flex gap-4 items-center flex-shrink-0">
+              <div className="flex items-center justify-center w-[48px] h-[48px] md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
+                <CardAdd size={24} color="#333" />
+              </div>
+              <div className="flex flex-col">
+                <span className="tracking-250 text-sm md:text-basefont-medium">
+                  Add Credit/Debit Card
+                </span>
+                {isAddCard && (
+                  <span className="text-xs">Enter Card Details</span>
+                )}
+                {!isAddCard && (
+                  <span className="text-xs">Verve, Visa, Mastercard</span>
+                )}
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="tracking-250 text-sm md:text-basefont-medium">
-                Add Credit/Debit Card
-              </span>
-              {isAddCard && <span className="text-xs">Enter Card Details</span>}
-              {!isAddCard && (
-                <span className="text-xs">Verve, Visa, Mastercard</span>
-              )}
-            </div>
+            <span className="hidden md:block">
+              <SelectArrow size={24} isOpen={isAddCard} />
+            </span>
+            <span className="block md:hidden">
+              <SelectArrow size={16} isOpen={isAddCard} />
+            </span>
           </div>
-          <span className="hidden md:block">
-            <SelectArrow size={24} isOpen={isAddCard} />
-          </span>
-          <span className="block md:hidden">
-            <SelectArrow size={16} isOpen={isAddCard} />
-          </span>
-        </div>
+        )}
         <div
           className={`${
             isAddCard
@@ -69,10 +113,27 @@ export default function Checkout() {
           } transition-all duration-300 ease-in-out`}
         >
           <Elements stripe={stripePromise} options={options}>
-            <CheckoutForm amount={1000} showStripeInfo={showStripeInfo} />
+            <CheckoutForm amount={1000} isAddCardPage={isAddCardPage} />
           </Elements>
         </div>
       </div>
+      {!putInContainer ||
+        (!isAddCard && (
+          <div className="w-full md:max-w-[150px] mx-auto mt-9">
+            <Button
+              text={isAddCardPage ? "Add card" : "Subscribe now"}
+              hasIconOrLoader
+              action={() =>
+                handleSubscribe({
+                  price: selectedPaymentMethod,
+                  paymentMethodId: selectedPaymentMethod,
+                })
+              }
+              height={48}
+            />
+          </div>
+        ))}
+      <div className="mt-4">{showStripeInfo && <StripeInfo />}</div>
     </div>
   );
 }

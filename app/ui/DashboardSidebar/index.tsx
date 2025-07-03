@@ -27,11 +27,15 @@ export default function DashboardSideBar() {
   } = useDashboardPath();
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  console.log("isSidebarOpen", isSidebarOpen);
 
   useEffect(() => {
+    console.log("useEffect");
     const handleResize = () => {
+      console.log("handleResize");
       setIsSmallScreen(window.innerWidth < 1280);
     };
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -41,7 +45,7 @@ export default function DashboardSideBar() {
   };
 
   const handleToggleSidebar = () => {
-    setIsCompanyOpen(false);
+    // setIsCompanyOpen(false);
     toggleSidebar();
   };
 

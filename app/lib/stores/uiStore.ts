@@ -28,8 +28,10 @@ const useUIStore = create<UIStore>((set) => ({
     setProducts: (key: string, products: any[]) =>
       set((state) => ({ products: { ...state.products, [key]: products } })),
     setSidebarOpen: (open) => set({ isSidebarOpen: open }),
-    toggleSidebar: () =>
-      set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+    toggleSidebar: () => {
+      console.log("toggleSidebar");
+      set((state) => ({ isSidebarOpen: !state.isSidebarOpen }));
+    },
     setOnboardingCompleted: (completed) =>
       set({ isOnboardingCompleted: completed }),
     setSubscriptionSuccess: (success) =>

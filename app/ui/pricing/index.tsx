@@ -69,6 +69,7 @@ export default function Pricing({
             key={index}
             plan={plan.name as Plan}
             price={plan.price}
+            isDashboard={isDashboard}
             features={plan.features}
             isCurrentPlan={currentPlanDetails.name === plan.name}
             planSelected={selectedPlan}

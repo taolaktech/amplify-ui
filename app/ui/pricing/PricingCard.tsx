@@ -12,6 +12,7 @@ function PricingCard({
   planSelected,
   isCurrentPlan = false,
   cycle,
+  isDashboard,
   price,
   features,
   handlePlanChange,
@@ -21,6 +22,7 @@ function PricingCard({
   isCurrentPlan?: boolean;
   planSelected: Plan;
   cycle: Cycle;
+  isDashboard?: boolean;
   features: string[];
   handlePlanChange: (plan: Plan) => void;
 }) {
@@ -32,12 +34,23 @@ function PricingCard({
     : 0;
 
   const handlePlanSelection = () => {
+    console.log("handlePlanSelection", plan);
+    if (!isDashboard && planSelected === "Free Plan") {
+      router.push("/create-Campaign");
+      return;
+    }
     if (isCurrentPlan) return;
     router.push(
       `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
     );
   };
   const changePlan = (plan: Plan) => {
+    console.log("changePlan", plan);
+    if (!isDashboard && plan === "Free Plan") {
+      console.log("pushing to create-campaign");
+      router.push("/create-campaign");
+      return;
+    }
     if (isCurrentPlan) return;
     handlePlanChange(plan);
   };
@@ -46,7 +59,9 @@ function PricingCard({
     <div
       className={`p-8 rounded-lg h-screen max-h-[567px] ${
         isCurrentPlan
-          ? "bg-[#FBFAFC] cursor-not-allowed"
+          ? `bg-[#FBFAFC] ${
+              isDashboard ? "cursor-not-allowed" : "cursor-pointer"
+            }`
           : plan === planSelected
           ? "bg-[#F0E6FB] cursor-pointer"
           : "bg-[#FBFAFC] cursor-pointer"
@@ -73,7 +88,10 @@ function PricingCard({
             gradientBorder={isCurrentPlan ? false : true}
           />
         ) : (
-          <div className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center">
+          <div
+            className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
+            onClick={handlePlanSelection}
+          >
             Current Plan
           </div>
         )}

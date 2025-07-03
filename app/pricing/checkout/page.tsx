@@ -23,6 +23,8 @@ export default function CheckoutPage() {
   const planId = searchParams.get("planId");
   const billingCycle = searchParams.get("billingCycle");
 
+  const isAddCardPage = searchParams.get("isAddCardPage");
+
   const plan = plans[planId as keyof typeof plans];
   console.log("planId", planId);
 
@@ -46,7 +48,7 @@ export default function CheckoutPage() {
     : "";
 
   return (
-    <div className="lg:flex gap-1 min-h-[calc(100vh-56px)]">
+    <div className="lg:flex gap-1 min-h-[calc(100vh-56px)] overflow-hidden">
       <div className="lg:w-[60%] w-full p-5 lg:p-10 xl:p-18">
         <div className="max-w-[585px] mx-auto">
           <h1 className="text-heading lg:font-bold text-xl lg:text-2xl tracking-60 lg:tracking-700">
@@ -113,11 +115,11 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div>
-            <Checkout />
+            <Checkout isAddCardPage={isAddCardPage === "TRUE"} />
           </div>
         </div>
       </div>
-      <div className="w-[40%] hidden p-18 min-w-[512px] lg:flex flex-col gap-6 bg-[#FBFAFC] max-w-[640px]">
+      <div className="w-[40%] hidden p-18 min-w-[512px] lg:flex flex-col gap-6 bg-[#FBFAFC] max-w-[640px] h">
         <h2 className="font-bold text-2xl tracking-700 text-heading">
           Order Summary
         </h2>

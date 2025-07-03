@@ -9,7 +9,6 @@ import {
 import { useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
-import StripeLogo from "@/public/Stripe.svg";
 import axios from "axios";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 // import useUIStore from "@/app/lib/stores/uiStore";
@@ -17,6 +16,7 @@ import Image from "next/image";
 import { countries } from "countries-list";
 import { priceId } from "@/app/lib/pricingPlans";
 import Skeleton from "../Skeleton";
+import { subscribeToPlan } from "@/app/lib/api/wallet";
 
 const countryOptions = Object.values(countries).map(
   (country) => country.name
@@ -25,9 +25,10 @@ const countryOptions = Object.values(countries).map(
 interface CheckoutFormProps {
   amount: number;
   showStripeInfo?: boolean;
+  isAddCardPage?: boolean;
 }
 
-const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
+const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [stripeLoading, setStripeLoading] = useState(true);
@@ -127,19 +128,14 @@ const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
       const { clientSecret } = res.data.data;
 
       // 4. Create subscription
-      const subscriptionRes = await axios.post(
-        "https://dev-wallet.useamplify.ai/stripe/subscriptions/subscribe",
-        {
-          priceId: price,
+      let subscriptionRes;
+      if (isAddCardPage) {
+        subscriptionRes = await subscribeToPlan({
+          token: token || "",
+          price: price,
           paymentMethodId: paymentMethod.id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        });
+      }
 
       console.log("subscriptionRes", subscriptionRes);
 
@@ -291,7 +287,7 @@ const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
 
           <div className="w-full md:max-w-[150px] mx-auto mt-9">
             <Button
-              text="Subscribe now"
+              text={isAddCardPage ? "Add card" : "Subscribe now"}
               hasIconOrLoader
               action={() => handleSubmit(new Event("submit") as any)}
               // action={test}
@@ -306,28 +302,6 @@ const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
             </div>
           )}
         </form>
-
-        {showStripeInfo && (
-          <>
-            <div className="text-xs text-[#595959]  text-center max-w-[450px] mx-auto my-9">
-              By confirming your subscription, you allow Amplify to charge you
-              for future payments in accordance with their terms. You can always
-              cancel your subscription.
-            </div>
-
-            <div className=" text-xs gap-1  text-[#737373]  text-center items-center flex justify-center">
-              Powered by
-              <a
-                href="https://stripe.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-              >
-                <StripeLogo />
-              </a>
-            </div>
-          </>
-        )}
       </div>
     </>
   );

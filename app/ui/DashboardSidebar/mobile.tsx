@@ -54,7 +54,10 @@ export default function MobileSideBar({
   toggleIsCompanyOpen,
 }: MobileSideBarProps) {
   const router = useRouter();
-  useModal(isSidebarOpen);
+  // useModal(isSidebarOpen);
+  console.log("isSidebarOpen from mobile", isSidebarOpen);
+
+  console.log("isSidebarOpen from mobile", isSidebarOpen);
   return (
     <div className="xl:hidden">
       <div

@@ -24,6 +24,8 @@ interface User {
   name: string;
   phone: string;
   photoUrl: string;
+  type: string;
+  subscriptionType: string;
   paymentStatus?: string;
   hasActiveSubscription?: boolean;
   shopifyAccountConnected?: boolean;
@@ -61,6 +63,8 @@ export const useAuthStore = create<AuthStore>()(
         email: "",
         phone: "",
         photoUrl: "",
+        type: "",
+        subscriptionType: "",
       },
       hasHydrated: false,
       subscriptionType: {

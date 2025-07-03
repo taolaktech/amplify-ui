@@ -7,7 +7,6 @@ export default function DashboardChildren({
   children: React.ReactNode;
 }) {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
-
   return (
     <div
       className={` ${
