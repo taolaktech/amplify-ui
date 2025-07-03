@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import axiosInstanceBase from "./axios";
 // import axios from "axios";
 
 export enum IntegrationErrorCode {
@@ -25,7 +25,7 @@ export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;
 }) => {
-  const response = await axiosInstance.post(
+  const response = await axiosInstanceBase.post(
     "/shopify/auth/url",
     { shop: data.shop },
     {
@@ -38,7 +38,7 @@ export const handleShopifyAuth = async (data: {
 };
 
 export const handleRetrieveStoreDetails = async (token: string) => {
-  const response = await axiosInstance.get("/business-details", {
+  const response = await axiosInstanceBase.get("/business-details", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -47,7 +47,7 @@ export const handleRetrieveStoreDetails = async (token: string) => {
 };
 
 export const handleGetMe = async (token: string) => {
-  const response = await axiosInstance.get("/auth/me", {
+  const response = await axiosInstanceBase.get("/auth/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -56,7 +56,7 @@ export const handleGetMe = async (token: string) => {
 };
 
 export const handleGetShopifyAccount = async (token: string) => {
-  const response = await axiosInstance.get("/shopify/connected-account", {
+  const response = await axiosInstanceBase.get("/shopify/connected-account", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -68,7 +68,7 @@ export const handlePostBusinessDetails = async (data: {
   businessDetails: BusinessDetails;
   token: string;
 }) => {
-  const response = await axiosInstance.post(
+  const response = await axiosInstanceBase.post(
     "/business-details",
     data.businessDetails,
     {
@@ -93,7 +93,7 @@ export const postPreferredSalesLocation = async (data: {
   token: string;
 }) => {
   console.log("data", data);
-  const response = await axiosInstance.post(
+  const response = await axiosInstanceBase.post(
     "/business-details/set-shipping-locations",
     data.data,
     {
@@ -113,7 +113,7 @@ export const postMarketingGoals = async (data: {
   };
   token: string;
 }) => {
-  const response = await axiosInstance.post(
+  const response = await axiosInstanceBase.post(
     "/business-details/set-goals",
     data.data,
     {
@@ -133,7 +133,7 @@ export const handleGetCities = async (data: {
     console.log("token:", data.token);
     return;
   }
-  const response = await axiosInstance.post(
+  const response = await axiosInstanceBase.post(
     "/business-details/cities",
     {
       input: data.input,
@@ -152,7 +152,7 @@ export const getProducts = async (data: {
   first: number;
   after?: string;
 }) => {
-  const response = await axiosInstance.get("/shopify/products", {
+  const response = await axiosInstanceBase.get("/shopify/products", {
     params: {
       first: data.first,
       after: data.after || null,

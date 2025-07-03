@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 import XCloseIcon from "@/public/x-close.svg";
 import { useEffect, useState } from "react";
+import Feedback from "../Feedback";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -246,6 +247,8 @@ export default function MobileSideBar({
           <div
             className={`xl:max-h-[250px] flex-1 pb-20 px-4 lg:py-5 flex flex-col justify-end `}
           >
+            <Feedback isSidebarOpen={isSidebarOpen} />
+
             <button
               onClick={handleLogout}
               className={`h-[48px] w-full flex items-center gap-2 rounded-xl 

@@ -6,7 +6,7 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
 import StripeLogo from "@/public/Stripe.svg";
@@ -15,6 +15,8 @@ import { useAuthStore } from "@/app/lib/stores/authStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import Image from "next/image";
 import { countries } from "countries-list";
+import { priceId } from "@/app/lib/pricingPlans";
+import Skeleton from "../Skeleton";
 
 const countryOptions = Object.values(countries).map(
   (country) => country.name
@@ -22,16 +24,26 @@ const countryOptions = Object.values(countries).map(
 
 interface CheckoutFormProps {
   amount: number;
+  showStripeInfo?: boolean;
 }
 
-const CheckoutForm = ({ amount }: CheckoutFormProps) => {
+const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [stripeLoading, setStripeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const params = useSearchParams();
+  const planId = params.get("planId")?.split("_")[0];
+  const billingCycle = params.get("billingCycle");
+  const price =
+    priceId[planId as "STARTER" | "GROW" | "SCALE"][
+      billingCycle as "MONTHLY" | "QUARTERLY" | "YEARLY"
+    ];
+  console.log("price", price);
   const router = useRouter();
   const [country, setCountry] = useState<string>("");
+  const [fullName, setFullName] = useState<string>("");
   const setSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
   );
@@ -58,53 +70,98 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
     event.preventDefault();
     setLoading(true);
 
-    console.log("token", token);
-
-    if (!stripe || !elements) return;
-
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement) return;
-
-    // 1. Create PaymentMethod
-    const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardNumberElement,
-      billing_details: {
-        name: "Test User",
-      },
-    });
-
-    if (pmError) {
-      setMessage(pmError.message || "An error occurred");
-      setLoading(false);
-      return;
-    }
-
-    console.log("token from form:", token);
-
-    // 2. Get client secret from backend
-    const res = await axios.post(
-      "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+    //1. Create customer
+    try {
+      const customerRes = await axios.post(
+        "https://dev-wallet.useamplify.ai/stripe/customers/create",
+        {
+          metadata: { name: fullName, country: country },
         },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("customerRes", customerRes);
+
+      if (!stripe || !elements) return;
+
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) return;
+
+      // 2. Create PaymentMethod
+      const { paymentMethod, error: pmError } =
+        await stripe.createPaymentMethod({
+          type: "card",
+          card: cardNumberElement, // ✅ This includes expiry and CVC
+          billing_details: {
+            name: fullName,
+          },
+        });
+
+      if (pmError) {
+        setMessage(pmError.message || "An error occurred");
+        setLoading(false);
+        return;
       }
-    );
 
-    const { clientSecret } = res.data;
+      console.log("token from form:", token);
 
-    // 3. Confirm the payment
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: paymentMethod.id,
-    });
+      // 3. Get client secret from backend
+      const res = await axios.post(
+        "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (result.error) {
-      setMessage(result.error.message || "Payment failed");
-    } else if (result.paymentIntent.status === "succeeded") {
-      router.push("/pricing/checkout/success");
+      console.log("res", res);
+
+      const { clientSecret } = res.data.data;
+
+      // 4. Create subscription
+      const subscriptionRes = await axios.post(
+        "https://dev-wallet.useamplify.ai/stripe/subscriptions/subscribe",
+        {
+          priceId: price,
+          paymentMethodId: paymentMethod.id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("subscriptionRes", subscriptionRes);
+
+      // 5. Confirm the setup-intent
+      const result = await stripe.confirmSetup({
+        clientSecret: clientSecret,
+        confirmParams: {
+          payment_method: paymentMethod.id,
+          return_url:
+            "https://dev-wallet.useamplify.ai/pricing/checkout/success",
+        },
+      });
+
+      if (result.error) {
+        setMessage(result.error.message || "Payment failed");
+        // router.push("/pricing/checkout/failed");
+      }
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+      // router.push("/pricing/checkout/failed");
+      return;
     }
 
     setLoading(false);
@@ -116,7 +173,7 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
   };
 
   if (stripeLoading) {
-    return null;
+    return <Skeleton width="100%" height="330px" borderRadius="10px" />;
   }
 
   return (
@@ -215,6 +272,8 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
             <input
               type="text"
               placeholder="John Doe"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full border focus:outline-0 font-medium  num rounded-lg placeholder:text-[#737373] placeholder:font-medium  border-[#C2BFC5] flex flex-col justify-center p-[0.8rem] text-sm"
             />
           </div>
@@ -230,20 +289,12 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
             />
           </div>
 
-          {/* Submit */}
-          {/* <button
-          type="submit"
-          disabled={!stripe || loading}
-          className="gradient text-white px-4 py-2 rounded disabled:opacity-50 w-full"
-        >
-          {loading ? "Processing..." : "Pay"}
-        </button> */}
           <div className="w-full md:max-w-[150px] mx-auto mt-9">
             <Button
               text="Subscribe now"
               hasIconOrLoader
-              // action={() => handleSubmit(new Event("submit") as any)}
-              action={test}
+              action={() => handleSubmit(new Event("submit") as any)}
+              // action={test}
               disabled={!stripe || loading}
               height={48}
             />
@@ -256,23 +307,27 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
           )}
         </form>
 
-        <div className="text-xs text-[#595959]  text-center max-w-[450px] mx-auto my-9">
-          By confirming your subscription, you allow Amplify to charge you for
-          future payments in accordance with their terms. You can always cancel
-          your subscription.
-        </div>
+        {showStripeInfo && (
+          <>
+            <div className="text-xs text-[#595959]  text-center max-w-[450px] mx-auto my-9">
+              By confirming your subscription, you allow Amplify to charge you
+              for future payments in accordance with their terms. You can always
+              cancel your subscription.
+            </div>
 
-        <div className=" text-xs gap-1  text-[#737373]  text-center items-center flex justify-center">
-          Powered by
-          <a
-            href="https://stripe.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-          >
-            <StripeLogo />
-          </a>
-        </div>
+            <div className=" text-xs gap-1  text-[#737373]  text-center items-center flex justify-center">
+              Powered by
+              <a
+                href="https://stripe.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+              >
+                <StripeLogo />
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

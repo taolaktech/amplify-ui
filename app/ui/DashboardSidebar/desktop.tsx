@@ -55,12 +55,12 @@ export default function DesktopSideBar({
     <>
       <div
         className={`hidden xl:flex custom-shadow-sidebar bg-white ${
-          isSidebarOpen ? "w-[279px] px-8" : "w-[91px] px-5"
-        } top-0 fixed h-screen flex-col z-20 `}
+          isSidebarOpen ? "w-[279px]" : "w-[91px] "
+        } top-0 fixed h-screen flex-col z-20 pb-5`}
       >
         <div
           className={`flex items-center ${
-            isSidebarOpen ? "justify-between" : "justify-center"
+            isSidebarOpen ? "justify-between px-8" : "justify-center px-5"
           } h-[81px] py-7`}
         >
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export default function DesktopSideBar({
           </button>
         </div>
 
-        <div className="my-7 h-[48px]">
+        <div className={`my-7 h-[48px] ${isSidebarOpen ? "px-8" : "px-5"}`}>
           {isSidebarOpen && (
             <DefaultButton
               text="Create Campaign"
@@ -105,7 +105,11 @@ export default function DesktopSideBar({
             </Link>
           )}
         </div>
-        <div className={`flex-1 flex flex-col overflow-y-auto`}>
+        <div
+          className={`flex-1 flex flex-col overflow-y-auto ${
+            isSidebarOpen ? "px-8" : "px-5"
+          }`}
+        >
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link

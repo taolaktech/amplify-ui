@@ -120,7 +120,7 @@ const SelectInput = ({
         <ArrowDown2 size={14} color="#292D32" />
         {isOpen && (
           <div
-            className={`absolute left-0 right-0 z-10 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto ${
+            className={`absolute left-0 right-0 z-50 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto ${
               dropdownPosition === "top" ? "bottom-full mb-2" : "top-full mt-2"
             }`}
           >

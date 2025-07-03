@@ -3,13 +3,10 @@ import { useSearchParams } from "next/navigation";
 import { billingCycles } from "@/app/lib/pricingPlans";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
-import CheckoutForm from "@/app/ui/checkout/Form";
-import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
-// import Button from "@/app/ui/Button";
-// import useUIStore from "@/app/lib/stores/uiStore";
+import Checkout from "@/app/ui/checkout";
 
 const plans = {
   FREE_PLAN: 0,
@@ -21,13 +18,6 @@ const plans = {
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const subscriptionType = useAuthStore((state) => state.subscriptionType);
-  // const setSubscriptionType = useAuthStore(
-  //   (state) => state.setSubscriptionType
-  // );
-  // const setSubscriptionSuccess = useUIStore(
-  //   (state) => state.actions.setSubscriptionSuccess
-  // );
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
 
   // const router = useRouter();
   const planId = searchParams.get("planId");
@@ -55,49 +45,6 @@ export default function CheckoutPage() {
         .slice(1)} Plan`
     : "";
 
-  const options: StripeElementsOptions = {
-    fonts: [
-      {
-        family: "Satoshi",
-        src: "url('https://raw.githubusercontent.com/taolaktech/amplify-ui/AMP-33-dev-create-campaign/public/fonts/Satoshi-Medium.woff')",
-        weight: "500",
-      },
-    ],
-    appearance: {
-      theme: "flat",
-      variables: {
-        fontFamily: "Satoshi, sans-serif", // Use Satoshi font
-        colorBackground: "#ffffff", // Set a background color
-        colorText: "#000000", // Text color
-      },
-      rules: {
-        ".Input": {
-          backgroundColor: "#ffffff", // Override transparent background
-          border: "1px solid #d1d5db", // Override border: none
-          fontFamily: "Satoshi, sans-serif", // Ensure font applies
-          fontSize: "16px",
-          lineHeight: "1.5em", // Override 1.2em
-          padding: "8px", // Override padding: 0
-          margin: "4px 0", // Override margin: 0
-        },
-        ".Label": {
-          fontFamily: "Satoshi, sans-serif",
-          fontSize: "14px",
-          color: "#000000",
-        },
-        ".Error": {
-          fontFamily: '"Satoshi", sans-serif',
-          fontSize: "14px",
-          color: "#000",
-        },
-      },
-    },
-  };
-  // const handleSubscribe = () => {
-  //   setSubscriptionSuccess(true);
-  //   router.push("/pricing/checkout/success");
-  // };
-
   return (
     <div className="lg:flex gap-1 min-h-[calc(100vh-56px)]">
       <div className="lg:w-[60%] w-full p-5 lg:p-10 xl:p-18">
@@ -108,7 +55,7 @@ export default function CheckoutPage() {
           <p className="text-neutral-light text-sm lg:text-base">
             Pay with Credit/Debit Card
           </p>
-          <div className="my-15 h-[100px] flex gap-4 w-full">
+          <div className="my-15 h-[78px] md:h-[100px] flex gap-4 w-full">
             <div className="flex-1 rounded-[12px] bg-[#FBFAFC] flex justify-between gap-3 items-center p-4 lg:py-5 lg:px-7">
               <div>
                 <div
@@ -166,13 +113,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div>
-            <Elements stripe={stripePromise} options={options}>
-              <CheckoutForm amount={price} />
-            </Elements>
-            {/* 
-            <CheckoutProvider stripe={stripePromise}>
-              <CheckoutForm amount={price} />
-            </CheckoutProvider> */}
+            <Checkout />
           </div>
         </div>
       </div>
