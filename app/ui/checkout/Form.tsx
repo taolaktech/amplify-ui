@@ -6,13 +6,13 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
 import StripeLogo from "@/public/Stripe.svg";
 import axios from "axios";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import useUIStore from "@/app/lib/stores/uiStore";
+// import useUIStore from "@/app/lib/stores/uiStore";
 import Image from "next/image";
 import { countries } from "countries-list";
 import { priceId } from "@/app/lib/pricingPlans";
@@ -41,12 +41,12 @@ const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
       billingCycle as "MONTHLY" | "QUARTERLY" | "YEARLY"
     ];
   console.log("price", price);
-  const router = useRouter();
+  // const router = useRouter();
   const [country, setCountry] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
-  const setSubscriptionSuccess = useUIStore(
-    (state) => state.actions.setSubscriptionSuccess
-  );
+  // const setSubscriptionSuccess = useUIStore(
+  //   (state) => state.actions.setSubscriptionSuccess
+  // );
   const [brand, setBrand] = useState("unknown");
   console.log("amount", amount);
   const handleChange = (event: any) => {
@@ -167,10 +167,10 @@ const CheckoutForm = ({ amount, showStripeInfo = true }: CheckoutFormProps) => {
     setLoading(false);
   };
 
-  const test = () => {
-    setSubscriptionSuccess(true);
-    router.push("/pricing/checkout/success");
-  };
+  // const test = () => {
+  //   setSubscriptionSuccess(true);
+  //   router.push("/pricing/checkout/success");
+  // };
 
   if (stripeLoading) {
     return <Skeleton width="100%" height="330px" borderRadius="10px" />;

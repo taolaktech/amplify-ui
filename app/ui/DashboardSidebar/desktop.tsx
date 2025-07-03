@@ -10,18 +10,19 @@ import {
   // ArrowUp2,
   Building3,
   CalendarEdit,
-  Data2,
+  // Data2,
   HomeTrendUp,
   LogoutCurve,
   // Magicpen,
-  MessageQuestion,
+  // MessageQuestion,
+  Setting2,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 // import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Feedback from "../Feedback";
-
+import SettingsIcon from "@/public/setting-2.svg";
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -31,7 +32,7 @@ type DesktopSideBarProps = {
   isCampaigns: boolean;
   isCompany: boolean;
   isSupport: boolean;
-  isIntegrations: boolean;
+  isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
 };
@@ -44,9 +45,9 @@ export default function DesktopSideBar({
   isInsights,
   isCampaigns,
   isCompany,
-  isSupport,
-  isIntegrations,
-  isCompanyOpen,
+  // isSupport,
+  isSettings,
+  // isCompanyOpen,
   toggleIsCompanyOpen,
 }: DesktopSideBarProps) {
   const router = useRouter();
@@ -227,25 +228,25 @@ export default function DesktopSideBar({
             </li>
             <li>
               <Link
-                href="/integrations"
+                href="/dashboard/settings"
                 className={`flex items-center rounded-xl
                 ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } hover:bg-[#fdfcfd] gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                  isIntegrations ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isIntegrations && <Data2 size="24" color="#BFBFBF" />}
-                  {isIntegrations && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                  {isSettings && <SettingsIcon width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isIntegrations ? "text-heading" : "text-gray-dark"
+                      isSettings ? "text-heading" : "text-gray-dark"
                     }`}
                   >
-                    Integrations
+                    Settings
                   </span>
                 )}
               </Link>

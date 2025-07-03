@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { billingCycles } from "@/app/lib/pricingPlans";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
-import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
+// import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
 import Checkout from "@/app/ui/checkout";

@@ -2,15 +2,17 @@
 
 import Image from "next/image";
 import DefaultButton from "../Button";
+import SettingsIcon from "@/public/setting-2.svg";
 import {
   Add,
   // ArrowDown2,
   // ArrowUp2,
   Building3,
   CalendarEdit,
-  Data2,
+  // Data2,
   HomeTrendUp,
   LogoutCurve,
+  Setting2,
   //  Magicpen,
   // MessageQuestion,
 } from "iconsax-react";
@@ -20,7 +22,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 import XCloseIcon from "@/public/x-close.svg";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
@@ -32,6 +34,7 @@ type MobileSideBarProps = {
   isCompany: boolean;
   isSupport: boolean;
   isIntegrations: boolean;
+  isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
 };
@@ -41,11 +44,12 @@ export default function MobileSideBar({
   handleToggleSidebar,
   handleLogout,
   isDashboard,
-  isInsights,
+  // isInsights,
   isCampaigns,
   isCompany,
   // isSupport,
-  isIntegrations,
+  // isIntegrations,
+  isSettings,
   isCompanyOpen,
   toggleIsCompanyOpen,
 }: MobileSideBarProps) {
@@ -203,22 +207,22 @@ export default function MobileSideBar({
             </li>
             <li>
               <Link
-                href="/integrations"
+                href="/dashboard/settings"
                 className={`flex items-center gap-2 rounded-xl px-4 
                 h-[48px] cursor-pointer ${
-                  isIntegrations ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isIntegrations && <Data2 size="24" color="#BFBFBF" />}
-                  {isIntegrations && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                  {isSettings && <SettingsIcon width="24" height="24" />}
                 </span>
                 <span
                   className={`text-sm font-medium ${
-                    isIntegrations ? "text-heading" : "text-gray-dark"
+                    isSettings ? "text-heading" : "text-gray-dark"
                   }`}
                 >
-                  Integrations
+                  Settings
                 </span>
               </Link>
             </li>

@@ -22,6 +22,7 @@ export default function DashboardSideBar() {
     isCampaigns,
     isCompany,
     isSupport,
+    isSettings,
     isIntegrations,
   } = useDashboardPath();
 
@@ -62,7 +63,8 @@ export default function DashboardSideBar() {
           isCampaigns={isCampaigns}
           isCompany={isCompany}
           isSupport={isSupport}
-          isIntegrations={isIntegrations}
+          isSettings={isSettings}
+          // isIntegrations={isIntegrations}
           isCompanyOpen={isCompanyOpen}
           toggleIsCompanyOpen={toggleIsCompanyOpen}
         />
@@ -77,6 +79,7 @@ export default function DashboardSideBar() {
           isCampaigns={isCampaigns}
           isCompany={isCompany}
           isSupport={isSupport}
+          isSettings={isSettings}
           isIntegrations={isIntegrations}
           isCompanyOpen={isCompanyOpen}
           toggleIsCompanyOpen={toggleIsCompanyOpen}

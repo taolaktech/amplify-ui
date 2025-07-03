@@ -1,21 +1,39 @@
 import { CardAdd } from "iconsax-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CheckoutForm from "./Form";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "@/app/lib/stripe";
 import { options } from "@/app/lib/stripe";
 import SelectArrow from "../SelectArrow";
 import { useGetCustomerPaymentMethods } from "@/app/lib/hooks/stripe";
+import CustomerCards from "./CustomerCards";
 
 export default function Checkout() {
   const [isAddCard, setIsAddCard] = useState(false);
-  const [showStripeInfo, setShowStripeInfo] = useState(false);
+  const [showStripeInfo] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
 
-  const { data: customerPaymentMethods } = useGetCustomerPaymentMethods();
+  const { data: customerPaymentMethods, isLoading } =
+    useGetCustomerPaymentMethods();
+  useEffect(() => {
+    if (customerPaymentMethods?.data?.length > 0) {
+      setSelectedPaymentMethod(customerPaymentMethods.data[0]?.id);
+    }
+  }, [customerPaymentMethods]);
+
   console.log("customerPaymentMethods", customerPaymentMethods?.data);
+  console.log("isLoading", isLoading);
   return (
-    <div className="overflow-auto relative">
-      <div className="border border-[#BFBFBF] px-6 py-4 overflow-auto rounded-xl">
+    <div className="relative">
+      <div className="mb-2">
+        <CustomerCards
+          customerPaymentMethods={customerPaymentMethods}
+          selectedPaymentMethod={selectedPaymentMethod}
+          setSelectedPaymentMethod={setSelectedPaymentMethod}
+          isLoading={isLoading}
+        />
+      </div>
+      <div className="border border-[#BFBFBF] px-6 py-4 rounded-xl">
         <div
           className="flex items-center justify-between cursor-pointer"
           onClick={() => setIsAddCard(!isAddCard)}
