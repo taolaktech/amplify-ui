@@ -9,6 +9,8 @@ type InputProps = {
   error?: string;
   placeholder?: string;
   visibility?: boolean;
+  background?: string;
+  borderless?: boolean;
   showErrorMessage?: boolean;
   showPasswordErrorMessage?: boolean;
 } & React.InputHTMLAttributes<HTMLInputElement>; // so you can pass other props like {...register()}
@@ -24,6 +26,8 @@ const URLInput = React.forwardRef<HTMLInputElement, InputProps>(
       large,
       error,
       showErrorMessage,
+      background,
+      borderless,
       ...props
     },
     ref
@@ -52,7 +56,10 @@ const URLInput = React.forwardRef<HTMLInputElement, InputProps>(
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input-border focus:border-[#A755FF] "
-            } rounded-lg text-sm focus:outline-0 border-[1.2px] `}
+            } rounded-lg text-sm focus:outline-0 ${
+              borderless ? "border-none" : "border-[1.2px]"
+            } `}
+            style={{ backgroundColor: background }}
             {...props}
           />
         </div>

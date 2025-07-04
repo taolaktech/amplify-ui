@@ -21,6 +21,7 @@ import { FieldErrors } from "react-hook-form";
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
   // console.log("token", token);
+  console.log("useInitialize");
   const [loading, setLoading] = useState(false);
   const reset = useSetupStore((state) => state.reset);
   const { businessDetails } = useSetupStore((state) => state);

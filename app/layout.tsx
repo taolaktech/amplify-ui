@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ClientLayoutWrapper from "./lib/components/ClientLayoutWrapper";
 import { inter, rubik } from "./ui/fonts";
+import Toast from "./ui/Toast";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -41,6 +42,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased ${inter.className} ${rubik.variable}`}>
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+        <Toast />
       </body>
     </html>
   );

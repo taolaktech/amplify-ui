@@ -8,6 +8,7 @@ export const useDashboardPath = () => {
   const isCampaigns = pathname.includes("/dashboard/campaigns");
   const isCompany = pathname.includes("/dashboard/company");
   const isSupport = pathname.includes("/dashboard/support");
+  const isSettings = pathname.includes("/dashboard/settings");
   const isIntegrations = pathname.includes("/dashboard/integrations");
 
   return {
@@ -16,6 +17,7 @@ export const useDashboardPath = () => {
     isCampaigns,
     isCompany,
     isSupport,
+    isSettings,
     isIntegrations,
   };
 };

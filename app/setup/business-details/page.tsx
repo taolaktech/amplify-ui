@@ -4,76 +4,29 @@ import Input from "@/app/ui/form/Input";
 import SelectInput from "@/app/ui/form/SelectInput";
 import TextArea from "@/app/ui/form/TextArea";
 import URLInput from "@/app/ui/form/URLInput";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ArrowRight } from "iconsax-react";
-import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useForm } from "react-hook-form";
-import { useSubmitBusinessDetails } from "@/app/lib/hooks/useOnboardingHooks";
-
-const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
-const teamSizeValue = [
-  { min: 1, max: 1 },
-  { min: 2, max: 5 },
-  { min: 6, max: 10 },
-  { min: 11, max: 15 },
-  { min: 16, max: 1000 },
-];
+import { useBusinessDetails } from "@/app/lib/hooks/useBusinessDetails";
+import { teamSize } from "@/app/lib/hooks/useBusinessDetails";
 
 export default function BusinessDetails() {
-  const defaultBusinessDetails = useSetupStore(
-    (state) => state.businessDetails
-  );
-  const [productCategory, setProductCategory] = useState<string | null>(null);
-  const [productCategoryError, setProductCategoryError] = useState(false);
-  const [companyRole, setCompanyRole] = useState<string | null>(null);
-  const [companyRoleError, setCompanyRoleError] = useState(false);
-  const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
   const {
     register,
-    handleSubmit,
     formState: { errors },
-  } = useForm({
-    defaultValues: defaultBusinessDetails,
-    mode: "onSubmit",
-    reValidateMode: "onBlur",
-  });
+    setProductCategoryError,
+    setCompanyRoleError,
+    productCategory,
+    productCategoryError,
+    companyRole,
+    companyRoleError,
+    teamSizeSelected,
+    setProductCategory,
+    setCompanyRole,
+    setTeamSizeSelected,
+    handleAction,
+    submitBusinessDetailsMutation,
+  } = useBusinessDetails();
 
-  const { handleSubmitBusinessDetails, submitBusinessDetailsMutation } =
-    useSubmitBusinessDetails();
-
-  useEffect(() => {
-    if (defaultBusinessDetails.industry)
-      setProductCategory(defaultBusinessDetails.industry);
-    if (defaultBusinessDetails.companyRole)
-      setCompanyRole(defaultBusinessDetails.companyRole);
-    const teamSizeIndex = teamSizeValue.findIndex(
-      (size) => size.min === defaultBusinessDetails.teamSize.min
-    );
-    setTeamSizeSelected(teamSizeIndex !== -1 ? teamSizeIndex : 1);
-  }, [defaultBusinessDetails]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, []);
-
-  const handleAction = () => {
-    if (!productCategory) setProductCategoryError(true);
-    else setProductCategoryError(false);
-    if (!companyRole) setCompanyRoleError(true);
-    else setCompanyRoleError(false);
-    handleSubmit(handleNext)(); // Notice the additional ()
-  };
-
-  const handleNext = (data: typeof defaultBusinessDetails) => {
-    console.log("data", data);
-    const businessDetails = {
-      ...data,
-      industry: productCategory ?? "",
-      companyRole: companyRole ?? "",
-      teamSize: teamSizeValue[teamSizeSelected as number],
-    };
-    handleSubmitBusinessDetails(businessDetails);
-  };
   return (
     <div>
       <h1 className="text-xl w-full md:text-[1.75rem] text-heading font-medium md:font-bold md:mb-1 tracking-[-0.4px] md:tracking-heading">
