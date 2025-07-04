@@ -6,13 +6,15 @@ import rangeSlider from "range-slider-input";
 import Button from "@/app/ui/Button";
 
 import "range-slider-input/dist/style.css";
+import Checkout from "@/app/ui/checkout";
 
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
+  const [rightSideOpen, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderFuncRef = useRef<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-
+  console.log("rightSideOpen", rightSideOpen);
   // Update slider when amount changes (e.g., via contentEditable)
   useEffect(() => {
     if (sliderFuncRef.current && !isEditing) {
@@ -93,7 +95,7 @@ export default function FundCampaignPage() {
         </div>
       </div>
       <div className="flex gap-12 mt-10">
-        <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%]">
+        <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%] max-h-[417px]">
           <div className="py-4 px-5 bg-[#FEF5EA] flex items-center gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
             <span className="flex items-center justify-center w-[32px] h-[32px] bg-[#FDE0BD] rounded-full">
               <NoteRemove size="17" color="#C67B22" />
@@ -157,17 +159,24 @@ export default function FundCampaignPage() {
         </div>
         <div className="w-[50%]">
           <div className="flex items-center justify-between w-full">
-            <span className="text-sm">Select Payment Options</span>
+            <span className="text-sm tracking-60 text-[#595959]">
+              Select Payment Options
+            </span>
             <button className="px-4 py-2 bg-[#FBFAFC] rounded-xl flex items-center gap-2">
               <Add size="17" color="#6800D7" />
-              <span className="text-[#6800D7] text-sm">
+              <span className="text-[#6800D7] text-sm tracking-100">
                 Add Credit/Debit Card
               </span>
             </button>
           </div>
+          <div>
+            <Checkout isAddCardPage setRightSideOpen={setRightSideOpen} />
+          </div>
         </div>
       </div>
-      <div className="mt-5 md:mt-20 sm:max-w-[200px] mx-auto">
+      <div
+        className={`flex flex-col transition-all duration-300 ease-in-out justify-end sm:max-w-[200px] mx-auto h-[160px]`}
+      >
         <Button
           text="Proceed"
           action={handleProceed}

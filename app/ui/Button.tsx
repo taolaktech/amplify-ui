@@ -5,6 +5,7 @@ export default function Button({
   icon,
   iconPosition,
   secondary,
+  tertiary,
   height,
   action = () => {},
   showShadow = false,
@@ -19,6 +20,7 @@ export default function Button({
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   secondary?: boolean;
+  tertiary?: boolean;
   buttonSize?: "small" | "medium" | "large";
   height?: number;
   gradientBorder?: boolean;
@@ -43,7 +45,11 @@ export default function Button({
       onClick={handleOnClick}
       className={`w-full bg-purple-600 
         ${gradientBorder && secondary ? "gradient-border" : ""}  ${
-        !secondary ? "gradient" : "secondary active:bg-[#fbfafc]"
+        !secondary && !tertiary
+          ? "gradient"
+          : tertiary
+          ? "tertiary"
+          : "secondary active:bg-[#fbfafc]"
       } 
         ${showShadow ? "custom-shadow-sm" : ""}
         ${
@@ -65,7 +71,11 @@ export default function Button({
       )}
       <span
         className={`text-sm text-center tracking-100 whitespace-nowrap ${
-          secondary ? "text-purple-dark" : "text-white"
+          secondary
+            ? "text-purple-dark"
+            : tertiary
+            ? "text-black"
+            : "text-white"
         }`}
       >
         {text}

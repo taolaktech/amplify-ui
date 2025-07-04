@@ -20,7 +20,7 @@ import {
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 // import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Feedback from "../Feedback";
 import SettingsIcon from "@/public/setting-2.svg";
 type DesktopSideBarProps = {
@@ -35,6 +35,7 @@ type DesktopSideBarProps = {
   isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
+  handleCreateCampaign: () => void;
 };
 
 export default function DesktopSideBar({
@@ -47,10 +48,11 @@ export default function DesktopSideBar({
   isCompany,
   // isSupport,
   isSettings,
+  handleCreateCampaign,
   // isCompanyOpen,
   toggleIsCompanyOpen,
 }: DesktopSideBarProps) {
-  const router = useRouter();
+  // const router = useRouter();
   console.log(isInsights);
   return (
     <>
@@ -91,19 +93,19 @@ export default function DesktopSideBar({
               text="Create Campaign"
               height={48}
               showShadow
-              action={() => router.push("/pricing?route=campaigns")}
+              action={handleCreateCampaign}
               hasIconOrLoader
               iconSize={24}
               icon={<Add size="24" color="#ffffff" />}
             />
           )}
           {!isSidebarOpen && (
-            <Link
-              href="/pricing?route=campaigns"
+            <button
+              onClick={handleCreateCampaign}
               className="flex items-center cursor-pointer justify-center w-full"
             >
               <AddSquare size="36" color="#333" />
-            </Link>
+            </button>
           )}
         </div>
         <div

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import pricingPlans from "../../lib/pricingPlans";
+import pricingPlans, { planIdToName } from "../../lib/pricingPlans";
 import ModelHeader, { type Cycle } from "./ModelHeader";
 import PricingCard, { Plan, plans } from "./PricingCard";
+import { useGetCurrentSubscriptionPlan } from "@/app/lib/hooks/stripe";
 
 export default function Pricing({
   isDashboard = false,
@@ -11,25 +12,30 @@ export default function Pricing({
   isDashboard?: boolean;
 }) {
   const [billingCycle, setBillingCycle] = useState<Cycle>("monthly");
-  const [selectedPlan, setSelectedPlan] = useState<Plan>("Free Plan");
-  const [currentPlanDetails] = useState<{
-    name: Plan;
-    cycle: Cycle;
-  }>({
-    name: "Free Plan",
-    cycle: "monthly" as Cycle,
-  });
+  const [selectedPlan, setSelectedPlan] = useState<Plan>("Free");
+  const { data: currentPlanDetails } = useGetCurrentSubscriptionPlan();
+  const currentPlanId = currentPlanDetails?.data?.activeStripePriceId;
+  const currentPlan = currentPlanId
+    ? planIdToName[currentPlanId as keyof typeof planIdToName]
+    : {
+        name: "Free",
+        cycle: "monthly" as Cycle,
+      };
+
+  console.log("currentPlan from pricing", currentPlan);
 
   console.log("isDashboard", isDashboard);
 
   // const { route } = useParams();
 
   useEffect(() => {
-    setBillingCycle(currentPlanDetails.cycle);
+    // setBillingCycle(currentPlanDetails.cycle);
     setSelectedPlan(
-      plans.filter((plan) => plan !== currentPlanDetails.name)[0]
+      plans.filter(
+        (plan) => plan.toLowerCase() !== currentPlan?.name.toLowerCase()
+      )[1]
     );
-  }, []);
+  }, [currentPlan?.name]);
 
   const handleBillingCycleChange = (cycle: Cycle) => {
     setBillingCycle(cycle);
@@ -71,7 +77,9 @@ export default function Pricing({
             price={plan.price}
             isDashboard={isDashboard}
             features={plan.features}
-            isCurrentPlan={currentPlanDetails.name === plan.name}
+            isCurrentPlan={
+              currentPlan?.name.toLowerCase() === plan?.name.toLowerCase()
+            }
             planSelected={selectedPlan}
             cycle={billingCycle}
             handlePlanChange={handlePlanChange}

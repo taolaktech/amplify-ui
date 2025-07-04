@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useDashboardPath } from "@/app/lib/hooks/useDashboardPath";
 import DesktopSideBar from "./desktop";
 import MobileSideBar from "./mobile";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function DashboardSideBar() {
   const logout = useAuthStore((state) => state.logout);
@@ -29,6 +30,10 @@ export default function DashboardSideBar() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   console.log("isSidebarOpen", isSidebarOpen);
 
+  const marketingGoals = useSetupStore((state) => state.marketingGoals);
+
+  const setToast = useToastStore((state) => state.setToast);
+
   useEffect(() => {
     console.log("useEffect");
     const handleResize = () => {
@@ -47,6 +52,19 @@ export default function DashboardSideBar() {
   const handleToggleSidebar = () => {
     // setIsCompanyOpen(false);
     toggleSidebar();
+  };
+
+  const handleCreateCampaign = () => {
+    if (marketingGoals.complete) {
+      router.push("/pricing?route=campaigns");
+      return;
+    }
+    setToast({
+      title: "👋 Let's Get You Set Up First",
+      message:
+        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
+      type: "warning",
+    });
   };
 
   const handleLogout = () => {
@@ -69,6 +87,7 @@ export default function DashboardSideBar() {
           isSupport={isSupport}
           isSettings={isSettings}
           // isIntegrations={isIntegrations}
+          handleCreateCampaign={handleCreateCampaign}
           isCompanyOpen={isCompanyOpen}
           toggleIsCompanyOpen={toggleIsCompanyOpen}
         />
@@ -85,6 +104,7 @@ export default function DashboardSideBar() {
           isSupport={isSupport}
           isSettings={isSettings}
           isIntegrations={isIntegrations}
+          handleCreateCampaign={handleCreateCampaign}
           isCompanyOpen={isCompanyOpen}
           toggleIsCompanyOpen={toggleIsCompanyOpen}
         />

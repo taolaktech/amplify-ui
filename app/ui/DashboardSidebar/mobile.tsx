@@ -19,7 +19,7 @@ import {
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 import XCloseIcon from "@/public/x-close.svg";
 // import { useEffect, useState } from "react";
@@ -37,6 +37,7 @@ type MobileSideBarProps = {
   isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
+  handleCreateCampaign: () => void;
 };
 
 export default function MobileSideBar({
@@ -49,12 +50,13 @@ export default function MobileSideBar({
   isCompany,
   // isSupport,
   // isIntegrations,
+  handleCreateCampaign,
   isSettings,
   isCompanyOpen,
   toggleIsCompanyOpen,
 }: MobileSideBarProps) {
-  const router = useRouter();
-  // useModal(isSidebarOpen);
+  // const router = useRouter();
+  useModal(isSidebarOpen);
   console.log("isSidebarOpen from mobile", isSidebarOpen);
 
   console.log("isSidebarOpen from mobile", isSidebarOpen);
@@ -94,7 +96,7 @@ export default function MobileSideBar({
             text="Create Campaign"
             height={48}
             showShadow
-            action={() => router.push("/pricing?route=campaigns")}
+            action={handleCreateCampaign}
             hasIconOrLoader
             iconSize={24}
             icon={<Add size="24" color="#ffffff" />}

@@ -6,17 +6,18 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
 import axios from "axios";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-// import useUIStore from "@/app/lib/stores/uiStore";
+import useUIStore from "@/app/lib/stores/uiStore";
 import Image from "next/image";
 import { countries } from "countries-list";
 import { priceId } from "@/app/lib/pricingPlans";
 import Skeleton from "../Skeleton";
-import { subscribeToPlan } from "@/app/lib/api/wallet";
+import { subscribeToPlan, upgradePlan } from "@/app/lib/api/wallet";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 const countryOptions = Object.values(countries).map(
   (country) => country.name
@@ -26,32 +27,44 @@ interface CheckoutFormProps {
   amount: number;
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;
+  isUpgrade?: boolean;
 }
 
-const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
+const CheckoutForm = ({
+  amount,
+  isAddCardPage = false,
+  isUpgrade = false,
+}: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [stripeLoading, setStripeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  console.log("message", message);
   const params = useSearchParams();
   const planId = params.get("planId")?.split("_")[0];
   const billingCycle = params.get("billingCycle");
   const price =
-    priceId[planId as "STARTER" | "GROW" | "SCALE"][
-      billingCycle as "MONTHLY" | "QUARTERLY" | "YEARLY"
-    ];
+    priceId && planId && billingCycle
+      ? priceId[planId as "STARTER" | "GROW" | "SCALE"]
+      : 0;
   console.log("price", price);
-  // const router = useRouter();
+  const router = useRouter();
   const [country, setCountry] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
-  // const setSubscriptionSuccess = useUIStore(
-  //   (state) => state.actions.setSubscriptionSuccess
-  // );
+  const [expiryElement, setExpiryElement] = useState(false);
+  const [numberElement, setNumberElement] = useState(false);
+  const [cvcElement, setCvcElement] = useState(false);
+  const setToast = useToastStore((state) => state.setToast);
+  const setSubscriptionSuccess = useUIStore(
+    (state) => state.actions.setSubscriptionSuccess
+  );
   const [brand, setBrand] = useState("unknown");
   console.log("amount", amount);
   const handleChange = (event: any) => {
-    setBrand(event.brand); // 'visa', 'mastercard', 'amex', 'unknown', etc.
+    setBrand(event.brand);
+    setNumberElement(event.complete);
+    // 'visa', 'mastercard', 'amex', 'unknown', etc.
   };
 
   useEffect(() => {
@@ -71,12 +84,45 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
     event.preventDefault();
     setLoading(true);
 
+    if (!stripe || !elements) return;
+
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    if (!cardNumberElement) {
+      setToast({
+        title: "Billing Details Required",
+        message: "Please fill in your card details to continue.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!numberElement || !expiryElement || !cvcElement) {
+      setToast({
+        title: "Invalid Card Details",
+        message: "Please fill in your card details to continue.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!fullName.trim() || !country.trim()) {
+      setToast({
+        title: "Billing Details Required",
+        message: "Please fill in your cardholder name and country to continue.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
+
     //1. Create customer
     try {
       const customerRes = await axios.post(
         "https://dev-wallet.useamplify.ai/stripe/customers/create",
         {
-          metadata: { name: fullName, country: country },
+          metadata: { cardHolderName: fullName, country: country },
         },
         {
           headers: {
@@ -87,11 +133,6 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
       );
 
       console.log("customerRes", customerRes);
-
-      if (!stripe || !elements) return;
-
-      const cardNumberElement = elements.getElement(CardNumberElement);
-      if (!cardNumberElement) return;
 
       // 2. Create PaymentMethod
       const { paymentMethod, error: pmError } =
@@ -105,6 +146,12 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
 
       if (pmError) {
         setMessage(pmError.message || "An error occurred");
+        setToast({
+          title: "Something Went Wrong",
+          message:
+            "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+          type: "error",
+        });
         setLoading(false);
         return;
       }
@@ -125,36 +172,74 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
 
       console.log("res", res);
 
-      const { clientSecret } = res.data.data;
+      // const { clientSecret } = res.data.data;
 
       // 4. Create subscription
       let subscriptionRes;
-      if (isAddCardPage) {
+      if (isAddCardPage && !isUpgrade && price) {
         subscriptionRes = await subscribeToPlan({
           token: token || "",
-          price: price,
+          price: price.toString(),
           paymentMethodId: paymentMethod.id,
+        });
+      } else if (isUpgrade && price && isAddCardPage) {
+        subscriptionRes = await upgradePlan({
+          token: token || "",
+          newPriceId: price.toString(),
         });
       }
 
       console.log("subscriptionRes", subscriptionRes);
 
-      // 5. Confirm the setup-intent
-      const result = await stripe.confirmSetup({
-        clientSecret: clientSecret,
-        confirmParams: {
-          payment_method: paymentMethod.id,
-          return_url:
-            "https://dev-wallet.useamplify.ai/pricing/checkout/success",
-        },
-      });
+      // const confirmParams: any = {
+      //   payment_method: paymentMethod.id,
+      //   return_url: "http://localhost:3000/pricing/checkout/success",
+      //   // redirect: "if_required",
+      // };
 
-      if (result.error) {
-        setMessage(result.error.message || "Payment failed");
-        // router.push("/pricing/checkout/failed");
+      if (!isAddCardPage) {
+        setSubscriptionSuccess(true);
+        router.push("/pricing/checkout/success");
+      } else {
+        setToast({
+          title: "Card Added Successfully",
+          message:
+            "You’re all set! Your payment method has been saved and ready for your next campaign",
+          type: "success",
+        });
       }
+
+      // if (!isAddCardPage) {
+      //   confirmParams.return_url =
+      //     "http://localhost:3000/pricing/checkout/success";
+      // }
+
+      // 5. Confirm the setup-intent
+      // const result = await stripe.confirmSetup({
+      //   clientSecret: clientSecret,
+      //   confirmParams,
+      // });
+
+      // if (result.error) {
+      //   setMessage(result.error.message || "Payment failed");
+      //   setToast({
+      //     title: "Something Went Wrong",
+      //     message:
+      //       "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+      //     type: "error",
+      //   });
+      //   return;
+      //   // router.push("/pricing/checkout/failed");
+      // }
+      // router.push("/pricing/checkout/success");
     } catch (error) {
       console.log("error", error);
+      setToast({
+        title: "Something Went Wrong",
+        message:
+          "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+        type: "error",
+      });
       setLoading(false);
       // router.push("/pricing/checkout/failed");
       return;
@@ -209,7 +294,7 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
                     // invalid: { color: "#fa755a" },
                   },
                 }}
-                onChange={handleChange}
+                onChange={(e) => handleChange(e)}
               />
             </div>
           </div>
@@ -220,6 +305,9 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
               <label className="block mb-1 text-xs ">Expiry Date</label>
               <div className="w-full num ">
                 <CardExpiryElement
+                  onChange={(e) => {
+                    setExpiryElement(e.complete);
+                  }}
                   options={{
                     style: {
                       base: {
@@ -259,6 +347,9 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
                       // invalid: { color: "#fa755a" },
                     },
                   }}
+                  onChange={(e) => {
+                    setCvcElement(e.complete);
+                  }}
                 />
               </div>
             </div>
@@ -285,22 +376,34 @@ const CheckoutForm = ({ amount, isAddCardPage = false }: CheckoutFormProps) => {
             />
           </div>
 
-          <div className="w-full md:max-w-[150px] mx-auto mt-9">
+          <div
+            className={`w-full ${
+              isAddCardPage ? "w-full" : "md:max-w-[150px]"
+            } mx-auto mt-9`}
+          >
             <Button
-              text={isAddCardPage ? "Add card" : "Subscribe now"}
+              text={
+                isAddCardPage
+                  ? "Add card"
+                  : isUpgrade
+                  ? "Upgrade now"
+                  : "Subscribe now"
+              }
               hasIconOrLoader
               action={() => handleSubmit(new Event("submit") as any)}
               // action={test}
+              loading={loading}
+              tertiary={isAddCardPage}
               disabled={!stripe || loading}
               height={48}
             />
           </div>
 
-          {message && (
+          {/* {message && (
             <div className="mt-4 text-sm text-center text-red-600">
               {message}
             </div>
-          )}
+          )} */}
         </form>
       </div>
     </>

@@ -2,10 +2,10 @@ import Button from "../Button";
 // import CircleCheckGradient from "@/public/circle-check-gradient.svg";
 import { TickCircle } from "iconsax-react";
 import type { Cycle } from "./ModelHeader";
-export const plans: Plan[] = ["Free Plan", "Starter", "Grow", "Scale"];
+export const plans: Plan[] = ["Free", "Starter", "Grow", "Scale"];
 import { useRouter } from "next/navigation";
 import { billingCycles } from "@/app/lib/pricingPlans";
-export type Plan = "Free Plan" | "Starter" | "Grow" | "Scale";
+export type Plan = "Free" | "Starter" | "Grow" | "Scale";
 
 function PricingCard({
   plan,
@@ -35,23 +35,23 @@ function PricingCard({
 
   const handlePlanSelection = () => {
     console.log("handlePlanSelection", plan);
-    if (!isDashboard && planSelected === "Free Plan") {
+    if (isCurrentPlan) {
       router.push("/create-Campaign");
       return;
     }
-    if (isCurrentPlan) return;
+    // if (isCurrentPlan) return;
     router.push(
       `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
     );
   };
   const changePlan = (plan: Plan) => {
     console.log("changePlan", plan);
-    if (!isDashboard && plan === "Free Plan") {
+    if (isCurrentPlan) {
       console.log("pushing to create-campaign");
       router.push("/create-campaign");
       return;
     }
-    if (isCurrentPlan) return;
+    // if (isCurrentPlan) return;
     handlePlanChange(plan);
   };
 

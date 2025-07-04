@@ -2,13 +2,13 @@
 
 import {
   CalendarRemove,
-  CloseCircle,
   CloseSquare,
   InfoCircle,
   Magicpen,
   TickCircle,
 } from "iconsax-react";
 import { useToastStore } from "../lib/stores/toastStore";
+import { useEffect } from "react";
 
 export default function Toast() {
   const { toast, closeToast, active } = useToastStore((state) => state);
@@ -51,9 +51,17 @@ export default function Toast() {
       break;
   }
 
+  useEffect(() => {
+    if (active) {
+      setTimeout(() => {
+        closeToast();
+      }, 5000);
+    }
+  }, [active]);
+
   return (
     <div
-      className={`p-4 rounded-xl fixed z-50 top-5 transition-all duration-300 ease-in-out ${
+      className={`p-4 rounded-xl flex justify-between items-start gap-3 fixed z-50 top-5 transition-all duration-500 ease-in-out ${
         active ? "right-[24px]" : "-right-full"
       } border w-[356px] md:w-[436px]`}
       style={{ backgroundColor: bgColor, borderColor: borderColor }}
@@ -69,14 +77,14 @@ export default function Toast() {
               {toast?.title}
             </p>
           </div>
-          <button onClick={closeToast}>
-            <CloseSquare size="32" color="#1F2937" variant="Outline" />
-          </button>
         </div>
         <p className="text-sm  pl-2" style={{}}>
           {toast?.message}
         </p>
       </div>
+      <button onClick={closeToast}>
+        <CloseSquare size="32" color="#1F2937" variant="Outline" />
+      </button>
     </div>
   );
 }

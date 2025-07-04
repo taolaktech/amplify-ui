@@ -15,13 +15,13 @@ export const getCustomerPaymentMethods = async (token: string) => {
 
 export const createCustomer = async (
   token: string,
-  fullName: string,
+  cardHolderName: string,
   country: string
 ) => {
   const response = await axiosInstance.post(
     "/stripe/customers/create",
     {
-      metadata: { name: fullName, country: country },
+      metadata: { name: cardHolderName, country: country },
     },
     {
       headers: {
@@ -52,5 +52,37 @@ export const subscribeToPlan = async (data: {
       },
     }
   );
+  return response.data;
+};
+
+export const upgradePlan = async (data: {
+  newPriceId: string;
+  token: string;
+}) => {
+  const { token, newPriceId } = data;
+  const response = await axiosInstance.put(
+    "/stripe/subscriptions/change-plan",
+    {
+      newPriceId,
+      prorationBehavior: "create_prorations",
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const getCurrentSubscriptionPlan = async (token: string) => {
+  const response = await axiosInstance.get("/stripe/subscriptions/current", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("response from current subscription plan", response);
   return response.data;
 };

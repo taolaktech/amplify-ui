@@ -139,7 +139,7 @@ export default function CampaignSnapshotsPage() {
                 width={20}
                 height={20}
               />
-              <span className="text-sm font-medium">Regenerate</span>
+              <span className="text-sm font-medium">Generate</span>
             </button>
           </div>
         </div>

@@ -1,12 +1,14 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { billingCycles } from "@/app/lib/pricingPlans";
+import { billingCycles, planIdToName } from "@/app/lib/pricingPlans";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
+import { capitalize } from "lodash";
 // import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
-import { useAuthStore } from "@/app/lib/stores/authStore";
+// import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
 import Checkout from "@/app/ui/checkout";
+import { useGetCurrentSubscriptionPlan } from "@/app/lib/hooks/stripe";
 
 const plans = {
   FREE_PLAN: 0,
@@ -17,7 +19,11 @@ const plans = {
 
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
-  const subscriptionType = useAuthStore((state) => state.subscriptionType);
+  // const subscriptionType = useAuthStore((state) => state.subscriptionType);
+
+  const { data: currentPlanDetails } = useGetCurrentSubscriptionPlan();
+  const currentPlanId = currentPlanDetails?.data?.activeStripePriceId;
+  console.log("currentPlanDetails", currentPlanId);
 
   // const router = useRouter();
   const planId = searchParams.get("planId");
@@ -34,11 +40,16 @@ export default function CheckoutPage() {
     ? plan - (plan * (billingCyclePlan?.discount / 100) || 0)
     : 0;
 
-  const oldPlan = plans[subscriptionType?.type as keyof typeof plans];
-  console.log("oldPlan", subscriptionType?.type);
-  const oldBillingCycle =
-    billingCycles[subscriptionType?.billingCycle as keyof typeof billingCycles];
-  const oldPrice = oldPlan - (oldPlan * (oldBillingCycle?.discount / 100) || 0);
+  const oldPlan = currentPlanId
+    ? planIdToName[currentPlanId as keyof typeof planIdToName]
+    : {
+        name: "FREE",
+        cycle: "MONTHLY",
+        price: 0,
+      };
+
+  const oldBillingCycle = oldPlan?.cycle;
+  const oldPrice = oldPlan?.price;
 
   const formattedPlan = planId
     ? `${planId.toUpperCase()[0]}${planId
@@ -63,15 +74,15 @@ export default function CheckoutPage() {
                 <div
                   className="text-xs lg:text-sm text-[#6800D7] lg:font-medium"
                   dangerouslySetInnerHTML={{
-                    __html: oldBillingCycle?.billingDetails,
+                    __html: capitalize(oldBillingCycle ?? ""),
                   }}
                 ></div>
                 <div className="mt-1">
                   <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
-                    ${Math.round(oldPrice)}
+                    ${Math.round(oldPrice ?? 0)}
                   </span>
                   <span className="text-sm lg:text-base">
-                    /{oldBillingCycle?.value}
+                    /{oldBillingCycle?.slice(0, -2)?.toLowerCase() ?? ""}
                   </span>
                 </div>
               </div>
@@ -115,7 +126,10 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div>
-            <Checkout isAddCardPage={isAddCardPage === "TRUE"} />
+            <Checkout
+              isAddCardPage={isAddCardPage === "TRUE"}
+              isUpgrade={!!currentPlanId}
+            />
           </div>
         </div>
       </div>

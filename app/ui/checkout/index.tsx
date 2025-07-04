@@ -8,21 +8,29 @@ import SelectArrow from "../SelectArrow";
 import {
   useGetCustomerPaymentMethods,
   useSubscribeToPlan,
+  useUpgradePlan,
 } from "@/app/lib/hooks/stripe";
 import CustomerCards from "./CustomerCards";
 import StripeInfo from "./StripeInfo";
 import Skeleton from "../Skeleton";
 import Button from "../Button";
+import { priceId } from "@/app/lib/pricingPlans";
+import { useSearchParams } from "next/navigation";
 
 export default function Checkout({
   isAddCardPage,
+  setRightSideOpen,
+  isUpgrade,
 }: {
   isAddCardPage: boolean;
+  setRightSideOpen?: (open: boolean) => void;
+  isUpgrade?: boolean;
 }) {
   const [isAddCard, setIsAddCard] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
-
+  console.log("is Upgrade", isUpgrade);
   const { handleSubscribe, isPending } = useSubscribeToPlan();
+  const { handleUpgrade, isPending: isUpgradePending } = useUpgradePlan();
 
   const { data: customerPaymentMethods, isLoading } =
     useGetCustomerPaymentMethods();
@@ -42,10 +50,25 @@ export default function Checkout({
       customerPaymentMethods?.data?.length === 0
     ) {
       setIsAddCard(true);
+      setRightSideOpen?.(true);
     } else {
       setIsAddCard(false);
+      setRightSideOpen?.(false);
     }
   }, [customerPaymentMethods, isAddCardPage, isPending]);
+
+  const params = useSearchParams();
+  const planId = params.get("planId")?.split("_")[0];
+  const billingCycle = params.get("billingCycle");
+
+  const price =
+    priceId && planId && billingCycle
+      ? priceId[planId as "STARTER" | "GROW" | "SCALE"]?.[
+          billingCycle as "MONTHLY" | "QUARTERLY" | "YEARLY"
+        ]
+      : 0;
+
+  console.log("price", price);
 
   console.log("customerPaymentMethods", customerPaymentMethods?.data);
   console.log("isLoading", isLoading);
@@ -54,11 +77,28 @@ export default function Checkout({
     return <Skeleton width="100%" height="330px" borderRadius="10px" />;
   }
 
+  const toggleRightSide = () => {
+    setIsAddCard(!isAddCard);
+    setRightSideOpen?.(!isAddCard);
+  };
+
   const putInContainer =
     isAddCardPage || customerPaymentMethods?.data?.length > 0;
 
-  const showStripeInfo =
-    !putInContainer || !isAddCard || (!isAddCard && !isAddCardPage);
+  const handleSubscribeOrUpgrade = (price: string, paymentMethodId: string) => {
+    if (isUpgrade) {
+      handleUpgrade({
+        newPriceId: price,
+      });
+    } else {
+      handleSubscribe({
+        price: price,
+        paymentMethodId: paymentMethodId,
+      });
+    }
+  };
+
+  const showStripeInfo = !putInContainer && !isAddCard && !isAddCardPage;
   return (
     <div className="relative">
       <div className="mb-2">
@@ -77,7 +117,7 @@ export default function Checkout({
         {putInContainer && (
           <div
             className="flex items-center justify-between cursor-pointer"
-            onClick={() => setIsAddCard(!isAddCard)}
+            onClick={toggleRightSide}
           >
             <div className=" flex gap-4 items-center flex-shrink-0">
               <div className="flex items-center justify-center w-[48px] h-[48px] md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
@@ -106,34 +146,45 @@ export default function Checkout({
         <div
           className={`${
             isAddCard
-              ? `mt-6 z-50 relative ${
-                  showStripeInfo ? "h-[570px]" : "h-[420px]"
-                } opacity-100`
+              ? `mt-6 z-50 relative ${"h-[420px]"} opacity-100`
               : "h-0 opacity-0"
-          } transition-all duration-300 ease-in-out`}
+          } transition-all overflow-hidden duration-300 ease-in-out`}
         >
           <Elements stripe={stripePromise} options={options}>
-            <CheckoutForm amount={1000} isAddCardPage={isAddCardPage} />
+            <CheckoutForm
+              amount={1000}
+              isAddCardPage={isAddCardPage}
+              isUpgrade={isUpgrade}
+            />
           </Elements>
         </div>
       </div>
       {!putInContainer ||
-        (!isAddCard && (
+        (!isAddCard && !isAddCardPage && (
           <div className="w-full md:max-w-[150px] mx-auto mt-9">
             <Button
-              text={isAddCardPage ? "Add card" : "Subscribe now"}
+              text={
+                isAddCardPage
+                  ? "Add card"
+                  : isUpgrade
+                  ? "Upgrade now"
+                  : "Subscribe now"
+              }
               hasIconOrLoader
               action={() =>
-                handleSubscribe({
-                  price: selectedPaymentMethod,
-                  paymentMethodId: selectedPaymentMethod,
-                })
+                handleSubscribeOrUpgrade(
+                  price.toString(),
+                  selectedPaymentMethod
+                )
               }
+              loading={isPending || isUpgradePending}
               height={48}
             />
           </div>
         ))}
-      <div className="mt-4">{showStripeInfo && <StripeInfo />}</div>
+      <div className="mt-4">
+        {showStripeInfo && !isPending && <StripeInfo />}
+      </div>
     </div>
   );
 }
