@@ -46,7 +46,7 @@ const Preview = ({
             </p>
             <div className="flex gap-2 items-center">
               <button className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]">
-                <ArrowForward size={16} color="#000" />
+                <ArrowForward size={16} color="#000" className="-mt-[2px]" />
                 <span className="text-sm"> Undo</span>
               </button>
               <button className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]">

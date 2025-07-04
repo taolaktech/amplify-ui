@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useStripe,
   useElements,
@@ -6,34 +6,72 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
-import StripeLogo from "@/public/Stripe.svg";
 import axios from "axios";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import Image from "next/image";
+import { countries } from "countries-list";
+import { priceId } from "@/app/lib/pricingPlans";
+import Skeleton from "../Skeleton";
+import { subscribeToPlan, upgradePlan } from "@/app/lib/api/wallet";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+
+const countryOptions = Object.values(countries).map(
+  (country) => country.name
+) as string[];
 
 interface CheckoutFormProps {
   amount: number;
+  showStripeInfo?: boolean;
+  isAddCardPage?: boolean;
+  isUpgrade?: boolean;
 }
 
-const CheckoutForm = ({ amount }: CheckoutFormProps) => {
+const CheckoutForm = ({
+  amount,
+  isAddCardPage = false,
+  isUpgrade = false,
+}: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
+  const [stripeLoading, setStripeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  console.log("message", message);
+  const params = useSearchParams();
+  const planId = params.get("planId")?.split("_")[0];
+  const billingCycle = params.get("billingCycle");
+  const price =
+    priceId && planId && billingCycle
+      ? priceId[planId as "STARTER" | "GROW" | "SCALE"]
+      : 0;
+  console.log("price", price);
   const router = useRouter();
   const [country, setCountry] = useState<string>("");
+  const [fullName, setFullName] = useState<string>("");
+  const [expiryElement, setExpiryElement] = useState(false);
+  const [numberElement, setNumberElement] = useState(false);
+  const [cvcElement, setCvcElement] = useState(false);
+  const setToast = useToastStore((state) => state.setToast);
   const setSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
   );
   const [brand, setBrand] = useState("unknown");
   console.log("amount", amount);
   const handleChange = (event: any) => {
-    setBrand(event.brand); // 'visa', 'mastercard', 'amex', 'unknown', etc.
+    setBrand(event.brand);
+    setNumberElement(event.complete);
+    // 'visa', 'mastercard', 'amex', 'unknown', etc.
   };
+
+  useEffect(() => {
+    if (stripe && elements) {
+      setStripeLoading(false);
+    }
+  }, [stripe, elements]);
 
   const brandIconMap: Record<string, string> = {
     visa: "/visa.svg",
@@ -46,214 +84,329 @@ const CheckoutForm = ({ amount }: CheckoutFormProps) => {
     event.preventDefault();
     setLoading(true);
 
-    console.log("token", token);
-
     if (!stripe || !elements) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement) return;
-
-    // 1. Create PaymentMethod
-    const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardNumberElement,
-      billing_details: {
-        name: "Test User",
-      },
-    });
-
-    if (pmError) {
-      setMessage(pmError.message || "An error occurred");
+    if (!cardNumberElement) {
+      setToast({
+        title: "Billing Details Required",
+        message: "Please fill in your card details to continue.",
+        type: "error",
+      });
       setLoading(false);
       return;
     }
 
-    console.log("token from form:", token);
+    if (!numberElement || !expiryElement || !cvcElement) {
+      setToast({
+        title: "Invalid Card Details",
+        message: "Please fill in your card details to continue.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
 
-    // 2. Get client secret from backend
-    const res = await axios.post(
-      "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+    if (!fullName.trim() || !country.trim()) {
+      setToast({
+        title: "Billing Details Required",
+        message: "Please fill in your cardholder name and country to continue.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
+
+    //1. Create customer
+    try {
+      const customerRes = await axios.post(
+        "https://dev-wallet.useamplify.ai/stripe/customers/create",
+        {
+          metadata: { cardHolderName: fullName, country: country },
         },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("customerRes", customerRes);
+
+      // 2. Create PaymentMethod
+      const { paymentMethod, error: pmError } =
+        await stripe.createPaymentMethod({
+          type: "card",
+          card: cardNumberElement, // ✅ This includes expiry and CVC
+          billing_details: {
+            name: fullName,
+          },
+        });
+
+      if (pmError) {
+        setMessage(pmError.message || "An error occurred");
+        setToast({
+          title: "Something Went Wrong",
+          message:
+            "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+          type: "error",
+        });
+        setLoading(false);
+        return;
       }
-    );
 
-    const { clientSecret } = res.data;
+      console.log("token from form:", token);
 
-    // 3. Confirm the payment
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: paymentMethod.id,
-    });
+      // 3. Get client secret from backend
+      const res = await axios.post(
+        "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (result.error) {
-      setMessage(result.error.message || "Payment failed");
-    } else if (result.paymentIntent.status === "succeeded") {
-      router.push("/pricing/checkout/success");
+      console.log("res", res);
+
+      // const { clientSecret } = res.data.data;
+
+      // 4. Create subscription
+      let subscriptionRes;
+      if (isAddCardPage && !isUpgrade && price) {
+        subscriptionRes = await subscribeToPlan({
+          token: token || "",
+          price: price.toString(),
+          paymentMethodId: paymentMethod.id,
+        });
+      } else if (isUpgrade && price && isAddCardPage) {
+        subscriptionRes = await upgradePlan({
+          token: token || "",
+          newPriceId: price.toString(),
+        });
+      }
+
+      console.log("subscriptionRes", subscriptionRes);
+
+      // const confirmParams: any = {
+      //   payment_method: paymentMethod.id,
+      //   return_url: "http://localhost:3000/pricing/checkout/success",
+      //   // redirect: "if_required",
+      // };
+
+      if (!isAddCardPage) {
+        setSubscriptionSuccess(true);
+        router.push("/pricing/checkout/success");
+      } else {
+        setToast({
+          title: "Card Added Successfully",
+          message:
+            "You’re all set! Your payment method has been saved and ready for your next campaign",
+          type: "success",
+        });
+      }
+
+      // if (!isAddCardPage) {
+      //   confirmParams.return_url =
+      //     "http://localhost:3000/pricing/checkout/success";
+      // }
+
+      // 5. Confirm the setup-intent
+      // const result = await stripe.confirmSetup({
+      //   clientSecret: clientSecret,
+      //   confirmParams,
+      // });
+
+      // if (result.error) {
+      //   setMessage(result.error.message || "Payment failed");
+      //   setToast({
+      //     title: "Something Went Wrong",
+      //     message:
+      //       "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+      //     type: "error",
+      //   });
+      //   return;
+      //   // router.push("/pricing/checkout/failed");
+      // }
+      // router.push("/pricing/checkout/success");
+    } catch (error) {
+      console.log("error", error);
+      setToast({
+        title: "Something Went Wrong",
+        message:
+          "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+        type: "error",
+      });
+      setLoading(false);
+      // router.push("/pricing/checkout/failed");
+      return;
     }
 
     setLoading(false);
   };
 
-  const test = () => {
-    setSubscriptionSuccess(true);
-    router.push("/pricing/checkout/success");
-  };
+  // const test = () => {
+  //   setSubscriptionSuccess(true);
+  //   router.push("/pricing/checkout/success");
+  // };
+
+  if (stripeLoading) {
+    return <Skeleton width="100%" height="330px" borderRadius="10px" />;
+  }
 
   return (
-    <div>
-      <form
-        autoComplete="off"
-        onSubmit={handleSubmit}
-        className="w-full space-y-4"
-      >
-        {/* Card Number */}
-        <div>
-          <label className="block mb-1 text-xs ">Card Number</label>
-          <div className="w-full relative border num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <Image
-                src={brandIconMap[brand]}
-                alt={brand}
-                width={24}
-                height={16}
+    <>
+      <div>
+        <form
+          autoComplete="off"
+          onSubmit={handleSubmit}
+          className="w-full space-y-4"
+        >
+          {/* Card Number */}
+          <div>
+            <label className="block mb-1 text-xs ">Card Number</label>
+            <div className="w-full relative num ">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <Image
+                  src={brandIconMap[brand]}
+                  alt={brand}
+                  width={24}
+                  height={16}
+                />
+              </div>
+              <CardNumberElement
+                options={{
+                  style: {
+                    base: {
+                      fontFamily: "Satoshi, sans-serif",
+                      fontSize: "14px",
+                      color: "#000",
+                      "::placeholder": {
+                        color: "#737373",
+                        fontFamily: "Satoshi, sans-serif",
+                        fontStyle: "normal",
+                        fontWeight: "400",
+                      },
+                    },
+                    // invalid: { color: "#fa755a" },
+                  },
+                }}
+                onChange={(e) => handleChange(e)}
               />
             </div>
-            <CardNumberElement
-              options={{
-                style: {
-                  base: {
-                    fontSize: "14px",
-                    color: "#32325d",
-                    "::placeholder": {
-                      color: "#737373",
-                      fontFamily: "inherit",
-                      fontStyle: "normal",
-                      fontWeight: "400",
+          </div>
+
+          {/* Expiry and CVC Side-by-Side */}
+          <div className="flex space-x-4">
+            <div className="w-1/2">
+              <label className="block mb-1 text-xs ">Expiry Date</label>
+              <div className="w-full num ">
+                <CardExpiryElement
+                  onChange={(e) => {
+                    setExpiryElement(e.complete);
+                  }}
+                  options={{
+                    style: {
+                      base: {
+                        fontFamily: "Satoshi, sans-serif",
+                        fontSize: "14px",
+                        color: "#000",
+                        "::placeholder": {
+                          color: "#737373",
+                          fontFamily: "Satoshi, sans-serif",
+                          fontStyle: "normal",
+                          fontWeight: "400",
+                        },
+                      },
+                      // invalid: { color: "#fa755a" },
                     },
-                  },
-                  // invalid: { color: "#fa755a" },
-                },
-              }}
-              onChange={handleChange}
+                  }}
+                />
+              </div>
+            </div>
+            <div className="w-1/2">
+              <label className="block mb-1 text-xs ">CVC</label>
+              <div className="w-full num ">
+                <CardCvcElement
+                  options={{
+                    style: {
+                      base: {
+                        fontFamily: "Satoshi, sans-serif",
+                        fontSize: "14px",
+                        color: "#000",
+                        "::placeholder": {
+                          color: "#737373",
+                          fontFamily: "Satoshi, sans-serif",
+                          fontStyle: "normal",
+                          fontWeight: "400",
+                        },
+                      },
+                      // invalid: { color: "#fa755a" },
+                    },
+                  }}
+                  onChange={(e) => {
+                    setCvcElement(e.complete);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block mb-1 text-xs ">Cardholder Name</label>
+            <input
+              type="text"
+              placeholder="John Doe"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full border focus:outline-0 font-medium  num rounded-lg placeholder:text-[#737373] placeholder:font-medium  border-[#C2BFC5] flex flex-col justify-center p-[0.8rem] text-sm"
             />
           </div>
-        </div>
-
-        {/* Expiry and CVC Side-by-Side */}
-        <div className="flex space-x-4">
-          <div className="w-1/2">
-            <label className="block mb-1 text-xs ">Expiry Date</label>
-            <div className="w-full border num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
-              <CardExpiryElement
-                options={{
-                  style: {
-                    base: {
-                      fontSize: "14px",
-                      color: "#333",
-                      "::placeholder": {
-                        color: "#737373",
-                        fontFamily: "inherit",
-                        fontStyle: "normal",
-                        fontWeight: "400",
-                      },
-                    },
-
-                    // invalid: { color: "#fa755a" },
-                  },
-                }}
-              />
-            </div>
+          <div>
+            <SelectInput
+              options={countryOptions}
+              placeholder="Select Country"
+              setSelected={setCountry}
+              selected={country}
+              setError={() => {}}
+              label="Country"
+              large
+            />
           </div>
-          <div className="w-1/2">
-            <label className="block mb-1 text-xs ">CVC</label>
-            <div className="w-full border num  rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.8rem]">
-              <CardCvcElement
-                options={{
-                  style: {
-                    base: {
-                      fontSize: "14px",
-                      color: "#333",
 
-                      "::placeholder": {
-                        color: "#737373",
-                        fontFamily: "inherit",
-                        fontStyle: "normal",
-                        fontWeight: "400",
-                      },
-                    },
-                    // invalid: { color: "#fa755a" },
-                  },
-                }}
-              />
-            </div>
+          <div
+            className={`w-full ${
+              isAddCardPage ? "w-full" : "md:max-w-[150px]"
+            } mx-auto mt-9`}
+          >
+            <Button
+              text={
+                isAddCardPage
+                  ? "Add card"
+                  : isUpgrade
+                  ? "Upgrade now"
+                  : "Subscribe now"
+              }
+              hasIconOrLoader
+              action={() => handleSubmit(new Event("submit") as any)}
+              // action={test}
+              loading={loading}
+              tertiary={isAddCardPage}
+              disabled={!stripe || loading}
+              height={48}
+            />
           </div>
-        </div>
-        <div>
-          <label className="block mb-1 text-xs ">Cardholder Name</label>
-          <input
-            type="text"
-            placeholder="John Doe"
-            className="w-full border focus:outline-0 font-medium  num rounded-lg border-[#C2BFC5] flex flex-col justify-center p-[0.7rem] text-sm"
-          />
-        </div>
-        <div>
-          <SelectInput
-            options={["United States", "Canada", "United Kingdom", "Australia"]}
-            placeholder="Select Country"
-            setSelected={setCountry}
-            selected={country}
-            setError={() => {}}
-            label="Country"
-            large
-          />
-        </div>
 
-        {/* Submit */}
-        {/* <button
-          type="submit"
-          disabled={!stripe || loading}
-          className="gradient text-white px-4 py-2 rounded disabled:opacity-50 w-full"
-        >
-          {loading ? "Processing..." : "Pay"}
-        </button> */}
-        <div className="w-full md:max-w-[150px] mx-auto mt-9">
-          <Button
-            text="Subscribe now"
-            hasIconOrLoader
-            // action={() => handleSubmit(new Event("submit") as any)}
-            action={test}
-            disabled={!stripe || loading}
-            height={48}
-          />
-        </div>
-
-        {message && (
-          <div className="mt-4 text-sm text-center text-red-600">{message}</div>
-        )}
-      </form>
-
-      <div className="text-xs text-[#595959]  text-center max-w-[450px] mx-auto my-9">
-        By confirming your subscription, you allow Amplify to charge you for
-        future payments in accordance with their terms. You can always cancel
-        your subscription.
+          {/* {message && (
+            <div className="mt-4 text-sm text-center text-red-600">
+              {message}
+            </div>
+          )} */}
+        </form>
       </div>
-
-      <div className=" text-xs gap-1  text-[#737373]  text-center items-center flex justify-center">
-        Powered by
-        <a
-          href="https://stripe.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-        >
-          <StripeLogo />
-        </a>
-      </div>
-    </div>
+    </>
   );
 };
 

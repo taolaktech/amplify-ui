@@ -24,7 +24,10 @@ export default function CreateCampaign({
   }, []);
 
   useEffect(() => {
-    if (
+    if (pathname.includes("fund-campaign")) {
+      setStep(5);
+      setBackText("Campaign Snapshots");
+    } else if (
       supportedAdPlatforms.complete &&
       pathname.includes("campaign-snapshots")
     ) {

@@ -7,8 +7,11 @@ import AutoFetchingProduct from "../ui/AutoFetchingProduct";
 import SalesLocationView from "../ui/SalesLocationView";
 import Button from "../ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useModal } from "../lib/hooks/useModal";
+import { useGetShopifyProducts } from "../lib/hooks/shopify";
+import { useSetupStore } from "../lib/stores/setupStore";
+import { useToastStore } from "../lib/stores/toastStore";
 export default function AdsLocationPage() {
   const {
     searchQuery,
@@ -18,28 +21,45 @@ export default function AdsLocationPage() {
     toggleSalesLocation,
     clearSalesLocation,
   } = useLocalSalesLocation();
-
-  const actions = useCreateCampaignStore((state) => state.actions);
+  const defaultPreferredSalesLocation = useSetupStore(
+    (state) => state.preferredSalesLocation
+  );
+  const marketingGoals = useSetupStore((state) => state.marketingGoals);
   const salesLocationFromStore = useCreateCampaignStore(
     (state) => state.adsShow.location
   );
-  const router = useRouter();
+
+  useEffect(() => {
+    if (salesLocationFromStore.length === 0 || !salesLocationFromStore) {
+      setSalesLocation(
+        defaultPreferredSalesLocation?.localShippingLocations || []
+      );
+    }
+  }, [
+    defaultPreferredSalesLocation?.localShippingLocations,
+    salesLocationFromStore,
+  ]);
 
   const [fetchingProgress] = useState(50);
-  const [isAutoFetching, setIsAutoFetching] = useState(false);
-
-  useModal(isAutoFetching);
+  // const [isAutoFetching, setIsAutoFetching] = useState(false);
+  const { fetchProducts, loading } = useGetShopifyProducts();
+  const setToast = useToastStore((state) => state.setToast);
+  useModal(loading);
   useEffect(() => {
     setSalesLocation(salesLocationFromStore);
   }, []);
 
   const handleProceed = () => {
-    setIsAutoFetching(true);
-    setTimeout(() => {
-      setIsAutoFetching(false);
-      actions.storeAdsShow({ complete: true, location: salesLocation });
-      router.push("/create-campaign/product-selection");
-    }, 2000);
+    if (marketingGoals.complete) {
+      fetchProducts({ location: salesLocation }, true);
+      return;
+    }
+    setToast({
+      title: "👋 Let's Get You Set Up First",
+      message:
+        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
+      type: "warning",
+    });
   };
   return (
     <div className="px-5 max-w-[705px] pb-20 mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
@@ -80,9 +100,7 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {isAutoFetching && (
-        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
-      )}
+      {loading && <AutoFetchingProduct fetchingProgress={fetchingProgress} />}
     </div>
   );
 }

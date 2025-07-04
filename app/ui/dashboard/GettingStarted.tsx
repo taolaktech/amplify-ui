@@ -19,7 +19,13 @@ function GettingStarted() {
         </p>
         <p className="text-sm lg:text-base">Let's get you setup</p>
       </div>
-      {!cancelNotification && (
+      <div
+        className={`${
+          cancelNotification
+            ? "h-0 opacity-0"
+            : "h-[112px] sm:h-[84px] lg:h-[108px] opacity-100"
+        } transition-all duration-300`}
+      >
         <div className="bg-[#FEF5EA] p-5 lg:p-7 rounded-2xl flex flex-row w-full items-center justify-between gap-3 lg:gap-0">
           <div className="flex w-full gap-3 lg:gap-4 items-start lg:items-center">
             <span className="w-[44px] h-[44px] flex-shrink-0 bg-[#FDE0BD] flex items-center justify-center rounded-full">
@@ -35,14 +41,11 @@ function GettingStarted() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setCancelNotification(true)}
-            className=""
-          >
+          <button onClick={() => setCancelNotification(true)} className="">
             <CloseCircle size={24} color="#333" />
           </button>
         </div>
-      )}
+      </div>
       <div className="h-[390px] lg:h-[326px] flex gap-2 overflow-hidden">
         <div className="bg-gradient relative w-full rounded-3xl ">
           <Steps />

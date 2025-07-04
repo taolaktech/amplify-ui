@@ -5,11 +5,29 @@ import {
   InfoCircle,
   CalendarRemove,
 } from "iconsax-react";
-// import Button from "../../Button";
-import DefaultLink from "../../DefaultLink";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import { useRouter } from "next/navigation";
+import Button from "../../Button";
 
 function Campaigns() {
   const campaigns = useMetricsStore((state) => state.campaigns);
+  const marketingGoals = useSetupStore((state) => state.marketingGoals);
+  const setToast = useToastStore((state) => state.setToast);
+  const router = useRouter();
+
+  const handleCreateCampaign = () => {
+    if (marketingGoals.complete) {
+      router.push("/pricing");
+      return;
+    }
+    setToast({
+      title: "👋 Let's Get You Set Up First",
+      message:
+        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
+      type: "warning",
+    });
+  };
 
   return (
     <div>
@@ -21,7 +39,9 @@ function Campaigns() {
             : ""
         }`}
       >
-        {!campaigns && <NoCampaigns />}
+        {!campaigns && (
+          <NoCampaigns handleCreateCampaign={handleCreateCampaign} />
+        )}
       </div>
     </div>
   );
@@ -29,7 +49,11 @@ function Campaigns() {
 
 export default Campaigns;
 
-function NoCampaigns() {
+function NoCampaigns({
+  handleCreateCampaign,
+}: {
+  handleCreateCampaign: () => void;
+}) {
   return (
     <div className="flex-1 flex flex-col gap-6 items-center justify-center h-full ">
       <span className="hidden lg:block">
@@ -48,13 +72,13 @@ function NoCampaigns() {
         </div>
       </div>
       <div>
-        <DefaultLink
+        <Button
           text="Setup your first Campaign"
           buttonSize="small"
           hasIconOrLoader
           icon={<ArrowCircleRight2 size="18" color="#ffffff" />}
           iconPosition="right"
-          href="/pricing"
+          action={handleCreateCampaign}
         />
       </div>
     </div>

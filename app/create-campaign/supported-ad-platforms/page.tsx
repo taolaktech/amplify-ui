@@ -64,7 +64,7 @@ const SupportedAdPlatforms = () => {
             <span className="num">3. </span>
             <span>Supported Ad Platforms</span>
           </h1>
-          <p className="text-neutral-light tracking-40 text-xs md:text-sm">
+          <p className="mt-[0.38rem] text-neutral-light tracking-40 text-xs md:text-sm">
             Your ads will be placed on these channels. Upgrade your subscription
             to add more channels and get even better results from your marketing
           </p>

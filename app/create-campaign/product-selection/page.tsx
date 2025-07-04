@@ -2,7 +2,7 @@
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import SelectProducts from "@/app/ui/select-products";
 import { useRouter } from "next/navigation";
-import { SearchNormal } from "iconsax-react";
+// import { SearchNormal } from "iconsax-react";
 import React, { useEffect } from "react";
 
 function ProductSelection() {
@@ -22,12 +22,12 @@ function ProductSelection() {
             <span className="num">2. </span>
             <span>Select Products for Your Campaign</span>
           </h1>
-          <p className="text-neutral-light tracking-40 text-xs md:text-sm">
+          <p className="mt-[0.38rem] text-neutral-light tracking-40 text-xs md:text-sm">
             Amplify AI has fetched your products from Shopify. Select the ones
             you’d like to promote.
           </p>
         </div>
-        <div className="relative max-w-[362px]">
+        {/* <div className="relative max-w-[362px]">
           <input
             type="text"
             placeholder="Search products"
@@ -36,7 +36,7 @@ function ProductSelection() {
           <span className="absolute left-3 top-1/2 -translate-y-1/2">
             <SearchNormal size={16} color="#B6B3B9" />
           </span>
-        </div>
+        </div> */}
       </div>
       <div className="mt-10">
         <SelectProducts />

@@ -10,17 +10,19 @@ import {
   // ArrowUp2,
   Building3,
   CalendarEdit,
-  Data2,
+  // Data2,
   HomeTrendUp,
   LogoutCurve,
   // Magicpen,
-  MessageQuestion,
+  // MessageQuestion,
+  Setting2,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
-import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
+// import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
+// import { useRouter } from "next/navigation";
+import Feedback from "../Feedback";
+import SettingsIcon from "@/public/setting-2.svg";
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -30,9 +32,10 @@ type DesktopSideBarProps = {
   isCampaigns: boolean;
   isCompany: boolean;
   isSupport: boolean;
-  isIntegrations: boolean;
+  isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
+  handleCreateCampaign: () => void;
 };
 
 export default function DesktopSideBar({
@@ -43,26 +46,27 @@ export default function DesktopSideBar({
   isInsights,
   isCampaigns,
   isCompany,
-  isSupport,
-  isIntegrations,
-  isCompanyOpen,
+  // isSupport,
+  isSettings,
+  handleCreateCampaign,
+  // isCompanyOpen,
   toggleIsCompanyOpen,
 }: DesktopSideBarProps) {
-  const router = useRouter();
+  // const router = useRouter();
   console.log(isInsights);
   return (
     <>
       <div
         className={`hidden xl:flex custom-shadow-sidebar bg-white ${
-          isSidebarOpen ? "w-[279px] px-8" : "w-[91px] px-5"
-        } top-0 fixed h-screen flex-col z-20 `}
+          isSidebarOpen ? "w-[279px]" : "w-[91px] "
+        } top-0 fixed h-screen flex-col z-20 pb-5`}
       >
         <div
           className={`flex items-center ${
-            isSidebarOpen ? "justify-between" : "justify-center"
+            isSidebarOpen ? "justify-between px-8" : "justify-center px-5"
           } h-[81px] py-7`}
         >
-          <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <DashboardLogoIcon width={32} height={32} />
             <span
               className={`font-medium text-xl ${
@@ -71,7 +75,7 @@ export default function DesktopSideBar({
             >
               My Store
             </span>
-          </div>
+          </Link>
           {/* {isSidebarOpen && ( */}
           <button
             onClick={handleToggleSidebar}
@@ -83,28 +87,32 @@ export default function DesktopSideBar({
           </button>
         </div>
 
-        <div className="my-7 h-[48px]">
+        <div className={`my-7 h-[48px] ${isSidebarOpen ? "px-8" : "px-5"}`}>
           {isSidebarOpen && (
             <DefaultButton
               text="Create Campaign"
               height={48}
               showShadow
-              action={() => router.push("/pricing?route=campaigns")}
+              action={handleCreateCampaign}
               hasIconOrLoader
               iconSize={24}
               icon={<Add size="24" color="#ffffff" />}
             />
           )}
           {!isSidebarOpen && (
-            <Link
-              href="/pricing?route=campaigns"
+            <button
+              onClick={handleCreateCampaign}
               className="flex items-center cursor-pointer justify-center w-full"
             >
               <AddSquare size="36" color="#333" />
-            </Link>
+            </button>
           )}
         </div>
-        <div className={`flex-1 flex flex-col`}>
+        <div
+          className={`flex-1 flex flex-col overflow-y-auto ${
+            isSidebarOpen ? "px-8" : "px-5"
+          }`}
+        >
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
@@ -156,7 +164,7 @@ export default function DesktopSideBar({
             </li> */}
             <li>
               <Link
-                href="/campaigns"
+                href="/dashboard/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
@@ -179,33 +187,37 @@ export default function DesktopSideBar({
               </Link>
             </li>
             <li onClick={toggleIsCompanyOpen}>
-              <span
-                // href="/company"
-                className={`flex items-center justify-between rounded-xl ${
-                  isSidebarOpen ? "px-4" : "justify-center"
-                } hover:bg-[#fdfcfd] gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                  isCompany ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <span>
-                    {!isCompany && <Building3 size="24" color="#BFBFBF" />}
-                    {isCompany && <HomeTrendUpGrad width="24" height="24" />}
-                  </span>
-                  {isSidebarOpen && (
-                    <span
-                      className={`text-sm font-medium ${
-                        isCompany ? "text-heading" : "text-gray-dark"
-                      }`}
-                    >
-                      Company
+              <Link href="/dashboard/company" className="w-full">
+                <span
+                  // href="/company"
+                  className={`flex items-center justify-between rounded-xl ${
+                    isSidebarOpen ? "px-4" : "justify-center"
+                  }  gap-2 w-full px-4 h-[48px] cursor-pointer ${
+                    isCompany
+                      ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                      : "hover:bg-[#fdfcfd]"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>
+                      {!isCompany && <Building3 size="24" color="#BFBFBF" />}
+                      {isCompany && <HomeTrendUpGrad width="24" height="24" />}
                     </span>
-                  )}
+                    {isSidebarOpen && (
+                      <span
+                        className={`text-sm font-medium ${
+                          isCompany ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Company
+                      </span>
+                    )}
+                  </span>
+                  {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
+                  {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
                 </span>
-                {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
-                {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
-              </span>
-              {isCompanyOpen && (
+              </Link>
+              {/* {isCompanyOpen && (
                 <span
                   className={`flex flex-col gap-1 px-5 transition-all duration-300`}
                   style={{
@@ -214,34 +226,34 @@ export default function DesktopSideBar({
                 >
                   <DashboardCompanyLinks />
                 </span>
-              )}
+              )} */}
             </li>
             <li>
               <Link
-                href="/integrations"
+                href="/dashboard/settings"
                 className={`flex items-center rounded-xl
                 ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } hover:bg-[#fdfcfd] gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                  isIntegrations ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isIntegrations && <Data2 size="24" color="#BFBFBF" />}
-                  {isIntegrations && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                  {isSettings && <SettingsIcon width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isIntegrations ? "text-heading" : "text-gray-dark"
+                      isSettings ? "text-heading" : "text-gray-dark"
                     }`}
                   >
-                    Integrations
+                    Settings
                   </span>
                 )}
               </Link>
             </li>
-            <li className="">
+            {/* <li className="">
               <Link
                 href="/support"
                 className={`flex items-center rounded-xl
@@ -265,11 +277,12 @@ export default function DesktopSideBar({
                   </span>
                 )}
               </Link>
-            </li>
+            </li> */}
           </ul>
           <div
-            className={`xl:max-h-[250px] flex-1 pb-10 lg:py-5 flex flex-col justify-end `}
+            className={`flex-1 pb-10 lg:py-5 flex gap-3 flex-col justify-end `}
           >
+            <Feedback isSidebarOpen={isSidebarOpen} />
             <button
               onClick={handleLogout}
               className={`h-[48px] w-full flex items-center gap-2 rounded-xl hover:bg-[#Fdfcfd] ${

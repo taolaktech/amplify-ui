@@ -79,7 +79,9 @@ export default function Profile() {
           <p className={`text-sm font-medium text-[#333] leading-[17px]`}>
             {user?.name || "User Unknown"}
           </p>
-          <p className={`text-xs text-gradient`}>standard user</p>
+          {/* {user?.type && ( */}
+          <p className={`text-xs text-gradient`}>{user?.type ?? "Free User"}</p>
+          {/* )} */}
         </div>
       </div>
       {/* {isOpen && (

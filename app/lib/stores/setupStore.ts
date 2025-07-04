@@ -6,6 +6,8 @@ interface BusinessDetails {
   description: string;
   storeUrl: string;
   industry: string;
+  contactEmail?: string;
+  contactPhone?: string;
   companyRole: string;
   teamSize: {
     min: number;
@@ -34,6 +36,8 @@ const defaultBusinessDetails: BusinessDetails = {
   description: "",
   storeUrl: "",
   industry: "",
+  contactEmail: "",
+  contactPhone: "",
   companyRole: "",
   teamSize: {
     min: 1,

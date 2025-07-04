@@ -1,6 +1,6 @@
 const pricingPlans = [
   {
-    name: "Free Plan",
+    name: "Free",
     price: 0,
     features: [
       "Shopify Integration",
@@ -48,6 +48,78 @@ const pricingPlans = [
 ];
 
 export default pricingPlans;
+
+export const priceId = {
+  FREE: {
+    MONTHLY: "price_1RJOC84K0EUJXpsuHnFOBtZf",
+    QUARTERLY: "price_1RJOC84K0EUJXpsuHnFOBtZf",
+    YEARLY: "price_1RJOC84K0EUJXpsuHnFOBtZf",
+  },
+  STARTER: {
+    MONTHLY: "price_1RJOIF4K0EUJXpsuXoWVsLvI",
+    QUARTERLY: "price_1RJOsq4K0EUJXpsut6AGoSqQ",
+    YEARLY: "price_1RJOvK4K0EUJXpsu9JjKZk5q",
+  },
+  GROW: {
+    MONTHLY: "price_1RJORI4K0EUJXpsuA3Uc1yff",
+    QUARTERLY: "price_1RJOzX4K0EUJXpsuhbvXdRFy",
+    YEARLY: "price_1RJP0t4K0EUJXpsuGrlrCi0Z",
+  },
+  SCALE: {
+    MONTHLY: "price_1RJOWj4K0EUJXpsuQ3rqPxEU",
+    QUARTERLY: "price_1RJP4F4K0EUJXpsupXziADUr",
+    YEARLY: "price_1RJP5L4K0EUJXpsuP0J14AlF",
+  },
+};
+
+export const planIdToName = {
+  price_1RJOIF4K0EUJXpsuXoWVsLvI: {
+    name: "STARTER",
+    cycle: "MONTHLY",
+    price: 35,
+  },
+  price_1RJOsq4K0EUJXpsut6AGoSqQ: {
+    name: "STARTER",
+    cycle: "QUARTERLY",
+    price: 33,
+  },
+  price_1RJOvK4K0EUJXpsu9JjKZk5q: {
+    name: "STARTER",
+    cycle: "YEARLY",
+    price: 30,
+  },
+  price_1RJORI4K0EUJXpsuA3Uc1yff: {
+    name: "GROW",
+    cycle: "MONTHLY",
+    price: 99,
+  },
+  price_1RJOzX4K0EUJXpsuhbvXdRFy: {
+    name: "GROW",
+    cycle: "QUARTERLY",
+    price: 94,
+  },
+  price_1RJP0t4K0EUJXpsuGrlrCi0Z: {
+    name: "GROW",
+    cycle: "YEARLY",
+    price: 84,
+  },
+
+  price_1RJOWj4K0EUJXpsuQ3rqPxEU: {
+    name: "SCALE",
+    cycle: "MONTHLY",
+    price: 199,
+  },
+  price_1RJP4F4K0EUJXpsupXziADUr: {
+    name: "SCALE",
+    cycle: "QUARTERLY",
+    price: 189,
+  },
+  price_1RJP5L4K0EUJXpsuP0J14AlF: {
+    name: "SCALE",
+    cycle: "YEARLY",
+    price: 169,
+  },
+};
 
 export const billingCycles = {
   MONTHLY: {

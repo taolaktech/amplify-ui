@@ -11,6 +11,8 @@ type InputProps = {
   setValue?: (value: string) => void;
   error?: string;
   placeholder?: string;
+  background?: string;
+  borderless?: boolean;
   visibility?: boolean;
   showErrorMessage?: boolean;
   showPasswordErrorMessage?: boolean;
@@ -28,6 +30,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       large,
       error,
       showErrorMessage,
+      background,
+      borderless,
       showPasswordErrorMessage,
       ...props
     },
@@ -62,14 +66,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={currentType}
             id={name}
             name={name}
+            style={{ backgroundColor: background }}
             placeholder={placeholder}
-            className={`px-4 mt-2 block w-full py-3 ${
+            className={`px-4 mt-2 block w-full ${
               large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
             }  placeholder:text-gray-dark text-purple-dark font-medium ${
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input-border focus:border-[#A755FF] "
-            } rounded-lg text-sm focus:outline-0 border-[1.2px] `}
+            } rounded-lg text-sm focus:outline-0 ${
+              borderless ? "border-none" : "border-[1.2px]"
+            } `}
             {...props}
           />
           {isPassword && (

@@ -2,25 +2,28 @@
 
 import Image from "next/image";
 import DefaultButton from "../Button";
+import SettingsIcon from "@/public/setting-2.svg";
 import {
   Add,
   // ArrowDown2,
   // ArrowUp2,
   Building3,
   CalendarEdit,
-  Data2,
+  // Data2,
   HomeTrendUp,
   LogoutCurve,
+  Setting2,
   //  Magicpen,
-  MessageQuestion,
+  // MessageQuestion,
 } from "iconsax-react";
 import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 import XCloseIcon from "@/public/x-close.svg";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import Feedback from "../Feedback";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -31,8 +34,10 @@ type MobileSideBarProps = {
   isCompany: boolean;
   isSupport: boolean;
   isIntegrations: boolean;
+  isSettings: boolean;
   isCompanyOpen: boolean;
   toggleIsCompanyOpen: () => void;
+  handleCreateCampaign: () => void;
 };
 
 export default function MobileSideBar({
@@ -40,27 +45,21 @@ export default function MobileSideBar({
   handleToggleSidebar,
   handleLogout,
   isDashboard,
-  isInsights,
+  // isInsights,
   isCampaigns,
   isCompany,
-  isSupport,
-  isIntegrations,
+  // isSupport,
+  // isIntegrations,
+  handleCreateCampaign,
+  isSettings,
   isCompanyOpen,
   toggleIsCompanyOpen,
 }: MobileSideBarProps) {
-  const router = useRouter();
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-  console.log(isInsights);
+  // const router = useRouter();
+  useModal(isSidebarOpen);
+  console.log("isSidebarOpen from mobile", isSidebarOpen);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 1280);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  useModal(isSidebarOpen && isSmallScreen);
-
+  console.log("isSidebarOpen from mobile", isSidebarOpen);
   return (
     <div className="xl:hidden">
       <div
@@ -75,7 +74,7 @@ export default function MobileSideBar({
         } top-0 fixed h-screen flex flex-col z-20 transition-all duration-500`}
       >
         <div className={`flex items-center justify-between h-[81px] py-7`}>
-          <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <Image
               src={"/dashboard-logo.svg"}
               alt="logo"
@@ -83,7 +82,7 @@ export default function MobileSideBar({
               height={32}
             />
             <span className={`font-medium text-xl inline-block`}>My Store</span>
-          </div>
+          </Link>
           <button
             onClick={handleToggleSidebar}
             className={`flex bg-[#F3EFF6] rounded-full w-[28px] h-[28px] justify-center items-center`}
@@ -97,13 +96,13 @@ export default function MobileSideBar({
             text="Create Campaign"
             height={48}
             showShadow
-            action={() => router.push("/pricing?route=campaigns")}
+            action={handleCreateCampaign}
             hasIconOrLoader
             iconSize={24}
             icon={<Add size="24" color="#ffffff" />}
           />
         </div>
-        <div className={`flex-1 flex flex-col`}>
+        <div className={`flex-1 flex flex-col overflow-y-auto`}>
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
@@ -157,7 +156,7 @@ export default function MobileSideBar({
             </li> */}
             <li>
               <Link
-                href="/campaigns"
+                href="/dashboard/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
                   isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -213,26 +212,26 @@ export default function MobileSideBar({
             </li>
             <li>
               <Link
-                href="/integrations"
+                href="/dashboard/settings"
                 className={`flex items-center gap-2 rounded-xl px-4 
                 h-[48px] cursor-pointer ${
-                  isIntegrations ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isIntegrations && <Data2 size="24" color="#BFBFBF" />}
-                  {isIntegrations && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                  {isSettings && <SettingsIcon width="24" height="24" />}
                 </span>
                 <span
                   className={`text-sm font-medium ${
-                    isIntegrations ? "text-heading" : "text-gray-dark"
+                    isSettings ? "text-heading" : "text-gray-dark"
                   }`}
                 >
-                  Integrations
+                  Settings
                 </span>
               </Link>
             </li>
-            <li className="">
+            {/* <li className="">
               <Link
                 href="/support"
                 className={`flex items-center gap-2 rounded-xl px-4 
@@ -252,11 +251,13 @@ export default function MobileSideBar({
                   Support
                 </span>
               </Link>
-            </li>
+            </li> */}
           </ul>
           <div
             className={`xl:max-h-[250px] flex-1 pb-20 px-4 lg:py-5 flex flex-col justify-end `}
           >
+            <Feedback isSidebarOpen={isSidebarOpen} />
+
             <button
               onClick={handleLogout}
               className={`h-[48px] w-full flex items-center gap-2 rounded-xl 

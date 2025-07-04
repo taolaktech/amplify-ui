@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useUIStore from "@/app/lib/stores/uiStore";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useDashboardPath } from "@/app/lib/hooks/useDashboardPath";
 import DesktopSideBar from "./desktop";
 import MobileSideBar from "./mobile";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function DashboardSideBar() {
   const logout = useAuthStore((state) => state.logout);
@@ -22,16 +23,48 @@ export default function DashboardSideBar() {
     isCampaigns,
     isCompany,
     isSupport,
+    isSettings,
     isIntegrations,
   } = useDashboardPath();
+
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  console.log("isSidebarOpen", isSidebarOpen);
+
+  const marketingGoals = useSetupStore((state) => state.marketingGoals);
+
+  const setToast = useToastStore((state) => state.setToast);
+
+  useEffect(() => {
+    console.log("useEffect");
+    const handleResize = () => {
+      console.log("handleResize");
+      setIsSmallScreen(window.innerWidth < 1280);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleIsCompanyOpen = () => {
     setIsCompanyOpen((prev) => !prev);
   };
 
   const handleToggleSidebar = () => {
-    setIsCompanyOpen(false);
+    // setIsCompanyOpen(false);
     toggleSidebar();
+  };
+
+  const handleCreateCampaign = () => {
+    if (marketingGoals.complete) {
+      router.push("/pricing?route=campaigns");
+      return;
+    }
+    setToast({
+      title: "👋 Let's Get You Set Up First",
+      message:
+        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
+      type: "warning",
+    });
   };
 
   const handleLogout = () => {
@@ -42,32 +75,40 @@ export default function DashboardSideBar() {
 
   return (
     <>
-      <DesktopSideBar
-        isSidebarOpen={isSidebarOpen}
-        handleToggleSidebar={handleToggleSidebar}
-        handleLogout={handleLogout}
-        isDashboard={isDashboard}
-        isInsights={isInsights}
-        isCampaigns={isCampaigns}
-        isCompany={isCompany}
-        isSupport={isSupport}
-        isIntegrations={isIntegrations}
-        isCompanyOpen={isCompanyOpen}
-        toggleIsCompanyOpen={toggleIsCompanyOpen}
-      />
-      <MobileSideBar
-        isSidebarOpen={isSidebarOpen}
-        handleToggleSidebar={handleToggleSidebar}
-        handleLogout={handleLogout}
-        isDashboard={isDashboard}
-        isInsights={isInsights}
-        isCampaigns={isCampaigns}
-        isCompany={isCompany}
-        isSupport={isSupport}
-        isIntegrations={isIntegrations}
-        isCompanyOpen={isCompanyOpen}
-        toggleIsCompanyOpen={toggleIsCompanyOpen}
-      />
+      {!isSmallScreen && (
+        <DesktopSideBar
+          isSidebarOpen={isSidebarOpen}
+          handleToggleSidebar={handleToggleSidebar}
+          handleLogout={handleLogout}
+          isDashboard={isDashboard}
+          isInsights={isInsights}
+          isCampaigns={isCampaigns}
+          isCompany={isCompany}
+          isSupport={isSupport}
+          isSettings={isSettings}
+          // isIntegrations={isIntegrations}
+          handleCreateCampaign={handleCreateCampaign}
+          isCompanyOpen={isCompanyOpen}
+          toggleIsCompanyOpen={toggleIsCompanyOpen}
+        />
+      )}
+      {isSmallScreen && (
+        <MobileSideBar
+          isSidebarOpen={isSidebarOpen}
+          handleToggleSidebar={handleToggleSidebar}
+          handleLogout={handleLogout}
+          isDashboard={isDashboard}
+          isInsights={isInsights}
+          isCampaigns={isCampaigns}
+          isCompany={isCompany}
+          isSupport={isSupport}
+          isSettings={isSettings}
+          isIntegrations={isIntegrations}
+          handleCreateCampaign={handleCreateCampaign}
+          isCompanyOpen={isCompanyOpen}
+          toggleIsCompanyOpen={toggleIsCompanyOpen}
+        />
+      )}
     </>
   );
 }
