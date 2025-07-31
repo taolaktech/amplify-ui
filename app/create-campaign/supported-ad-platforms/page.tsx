@@ -1,5 +1,4 @@
 "use client";
-import { googleAdImgBlur } from "@/app/lib/blurHash";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -36,7 +35,7 @@ const SupportedAdPlatforms = () => {
 
   useEffect(() => {
     if (!productSelection.complete) {
-      router.push("/create-campaign/product-selection");
+      router.push("/create-campaign/");
     }
   }, []);
 
@@ -84,7 +83,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Google ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/google_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -118,7 +117,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Instagram ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/ig_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -154,7 +153,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Facebook ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/facebook_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>

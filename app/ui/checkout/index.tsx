@@ -21,10 +21,12 @@ export default function Checkout({
   isAddCardPage,
   setRightSideOpen,
   isUpgrade,
+  isDowngrade = false,
 }: {
   isAddCardPage: boolean;
   setRightSideOpen?: (open: boolean) => void;
   isUpgrade?: boolean;
+  isDowngrade?: boolean;
 }) {
   const [isAddCard, setIsAddCard] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
@@ -167,7 +169,7 @@ export default function Checkout({
                 isAddCardPage
                   ? "Add card"
                   : isUpgrade
-                  ? "Upgrade now"
+                  ? `${isDowngrade ? "Downgrade" : "Upgrade"} now`
                   : "Subscribe now"
               }
               hasIconOrLoader

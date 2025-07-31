@@ -30,6 +30,7 @@ export const handleGoogleLogin = async () => {
 
 import { FirebaseError } from "firebase/app";
 import { AxiosError } from "axios";
+import { ImprovementCategory } from "@/type";
 
 export const handleEmailLogin: (data: {
   email: string;
@@ -141,4 +142,19 @@ export const checkEmailExists = async (email: string) => {
   const response = await axios.get(`/auth/does-user-exist/${email}`);
 
   return response;
+};
+
+export const postFeedBack = async (data: {
+  rating: number;
+  improvementCategory: ImprovementCategory;
+  feedbackNote: string;
+  token: string;
+}) => {
+  const response = await axios.post("/feedback", data, {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
+
+  return response.data;
 };

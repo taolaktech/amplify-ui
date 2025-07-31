@@ -27,7 +27,7 @@ const SelectInput = ({
   large?: boolean;
   error?: string;
   height?: number;
-  setError: React.Dispatch<React.SetStateAction<boolean>>;
+  setError?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<"top" | "bottom">(
@@ -41,7 +41,7 @@ const SelectInput = ({
     setTimeout(() => {
       setIsOpen(false);
     }, 100);
-    setError(false);
+    setError?.(false);
   };
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const SelectInput = ({
         !selectRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-        setError(false);
+        setError?.(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);

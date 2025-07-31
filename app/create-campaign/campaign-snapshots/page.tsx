@@ -1,10 +1,11 @@
 "use client";
 import { ArrowCircleRight2, ArrowDown2 } from "iconsax-react";
 import MagicStarIcon from "@/public/magic-star.png";
+import { capitalize } from "lodash";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
@@ -40,10 +41,21 @@ const productTypes = [
 ];
 
 export default function CampaignSnapshotsPage() {
-  const { productSelection, supportedAdPlatforms } = useCreateCampaignStore(
-    (state) => state
+  const {
+    productSelection,
+    supportedAdPlatforms,
+    instagramSettings,
+    facebookSettings,
+    googleSettings,
+  } = useCreateCampaignStore((state) => state);
+
+  const actions = useCreateCampaignStore((state) => state.actions);
+
+  const [highlightedProduct, setHighlightedProduct] = useState<any>(
+    productSelection.products[0] || null
   );
   const router = useRouter();
+
   const adPlatforms = Object.keys(supportedAdPlatforms)
     .filter(
       (platform) =>
@@ -53,8 +65,18 @@ export default function CampaignSnapshotsPage() {
     .map((platform) => ({
       title: platform as "Instagram" | "Facebook" | "Google",
       image: `/${platform.toLowerCase()}_logo.svg`,
-    }));
-
+      settings: {
+        ...(platform === "Instagram"
+          ? instagramSettings
+          : platform === "Facebook"
+          ? facebookSettings
+          : googleSettings),
+      },
+    }))
+    .sort((a, b) => {
+      const order = { Google: 0, Instagram: 1, Facebook: 2 };
+      return order[a.title] - order[b.title];
+    });
   const [campaignDetails, setCampaignDetails] = useState({
     campaignType: "",
     campaignName: "",
@@ -72,30 +94,74 @@ export default function CampaignSnapshotsPage() {
 
   const handleProceed = () => {
     console.log("proceed");
+    actions.storeCampaignSnapshots({
+      campaignType: campaignDetails.campaignType,
+      brandColor: campaignDetails.brandColor,
+      accentColor: campaignDetails.accentColor,
+      campaignStartDate: new Date(
+        campaignDetails.campaignStartDate
+      ).toISOString(),
+      campaignEndDate: new Date(campaignDetails.campaignEndDate).toISOString(),
+    });
+    actions.completeCampaignSnapshots();
     router.push("/create-campaign/fund-campaign");
   };
 
+  useEffect(() => {
+    if (!productSelection.complete) {
+      router.push("/create-campaign/");
+    }
+  }, []);
+
+  const handleSetHighlightedProduct = (product: any) => {
+    setHighlightedProduct(product);
+  };
   const products = productSelection.products;
   return (
-    <div className="flex gap-6 mt-6 pb-12">
+    <div className="flex items-start gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[115px] flex flex-col gap-8 items-center px-3 py-4 bg-[#FBFAFC] rounded-3xl max-h-[503px]">
-          <div className="flex items-center gap-2">
+        <div className="w-[224px] flex flex-col gap-6  p-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+          <div className="flex justify-between gap-2">
             <span className="text-sm font-medium">Products</span>
             <span>
-              <ArrowDown2 size={14} color="#000" />
+              <ArrowDown2 size={12} color="#000" />
             </span>
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col w-full gap-5 flex-1 overflow-y-auto">
             {products.map((product) => (
-              <div key={product.id}>
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  width={80}
-                  height={40}
-                  className="rounded-lg h-[60px] object-cover object-center"
-                />
+              <div
+                key={product.node.id}
+                className={`w-full flex-shrink-0 items-center flex gap-2 p-4 cursor-pointer
+                   ${
+                     highlightedProduct?.node.id === product.node.id
+                       ? "border-[0.25px] border-[#A75fff] rounded-[24px] bg-[#F3EFF6]"
+                       : ""
+                   }
+                  `}
+                onClick={() => handleSetHighlightedProduct(product)}
+              >
+                <div className="flex-shrink-0">
+                  <img
+                    src={product.node.media.edges[0].node.preview.image.url}
+                    alt={product.node.handle}
+                    width={48}
+                    height={48}
+                    className="rounded-[14px] h-[48px] w-[48px] object-cover object-center"
+                  />
+                </div>
+                <div
+                  className={`text-xs tracking-100 ${
+                    highlightedProduct?.node.id === product.node.id
+                      ? "font-bold"
+                      : ""
+                  }`}
+                >
+                  {capitalize(
+                    product.node.handle.length < 25
+                      ? product.node.handle
+                      : product.node.handle.slice(0, 20) + "..."
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -176,9 +242,9 @@ export default function CampaignSnapshotsPage() {
           }
         />
         <div className="mt-10">
-          <Preview data={adPlatforms} />
+          <Preview adPlatforms={adPlatforms} />
         </div>
-        <div className="mt-5 md:mt-12 sm:max-w-[200px] mx-auto">
+        <div className="mt-5 md:mt-20 sm:max-w-[200px] mx-auto">
           <Button
             text="Proceed"
             action={handleProceed}

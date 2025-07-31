@@ -1,10 +1,11 @@
 import ChartIcon from "@/public/chart.svg";
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
-import DefaultButton from "../Button";
+// import DefaultButton from "../Button";
 import { CloseCircle, Notification } from "iconsax-react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import Steps from "./Steps";
 import { useState } from "react";
+import DefaultLink from "../DefaultLink";
 
 function GettingStarted() {
   const user = useAuthStore((state) => state.user);
@@ -69,7 +70,11 @@ function GettingStarted() {
             </p>
           </div>
           <div className="max-w-[130px] mt-auto">
-            <DefaultButton secondary text="Start Campaign" showShadow />
+            <DefaultLink
+              secondary
+              text="Start Campaign"
+              href="/create-campaign"
+            />
           </div>
         </div>
       </div>

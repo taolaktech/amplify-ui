@@ -2,10 +2,12 @@ import { useAuthStore } from "../lib/stores/authStore";
 import Image from "next/image";
 import { generateAvatar } from "../lib/utils";
 import { useRef } from "react";
+import { capitalize } from "lodash";
 // import { Edit } from "iconsax-react";
 // import Link from "next/link";
 export default function Profile() {
   const user = useAuthStore((state) => state.user);
+  const subscriptionType = useAuthStore((state) => state.subscriptionType);
   const nameIcon = generateAvatar(user?.name ?? "User Unknown");
   const selectRef = useRef<HTMLDivElement>(null);
   // const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +25,8 @@ export default function Profile() {
   //   return () => document.removeEventListener("mousedown", handleClickOutside);
   // }, []);
 
+  console.log("user type", subscriptionType);
+
   const toggleProfile = () => {
     // setIsOpen((prev) => !prev);
   };
@@ -36,8 +40,8 @@ export default function Profile() {
         <div className="hidden md:block">
           {user?.photoUrl ? (
             <Image
-              width={35}
-              height={35}
+              width={32}
+              height={32}
               src={user.photoUrl}
               alt="Profile"
               className="rounded-full"
@@ -45,8 +49,8 @@ export default function Profile() {
           ) : (
             <span>
               <Image
-                width={35}
-                height={35}
+                width={32}
+                height={32}
                 src={nameIcon.toDataUri()}
                 alt="Profile"
                 className="rounded-full"
@@ -57,8 +61,8 @@ export default function Profile() {
         <div className="block md:hidden">
           {user?.photoUrl ? (
             <Image
-              width={24}
-              height={24}
+              width={32}
+              height={32}
               src={user.photoUrl}
               alt="Profile"
               className="rounded-full"
@@ -66,8 +70,8 @@ export default function Profile() {
           ) : (
             <span>
               <Image
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 src={nameIcon.toDataUri()}
                 alt="Profile"
                 className="rounded-full"
@@ -80,7 +84,9 @@ export default function Profile() {
             {user?.name || "User Unknown"}
           </p>
           {/* {user?.type && ( */}
-          <p className={`text-xs text-gradient`}>{user?.type ?? "Free User"}</p>
+          <p className={`text-xs text-gradient`}>
+            {capitalize(subscriptionType?.name ?? "Free")} User
+          </p>
           {/* )} */}
         </div>
       </div>
