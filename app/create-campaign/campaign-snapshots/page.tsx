@@ -1,7 +1,6 @@
 "use client";
 import { ArrowCircleRight2, ArrowDown2 } from "iconsax-react";
 import MagicStarIcon from "@/public/magic-star.png";
-import { capitalize } from "lodash";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
@@ -49,34 +48,63 @@ export default function CampaignSnapshotsPage() {
     googleSettings,
   } = useCreateCampaignStore((state) => state);
 
+  const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
+
   const actions = useCreateCampaignStore((state) => state.actions);
 
   const [highlightedProduct, setHighlightedProduct] = useState<any>(
     productSelection.products[0] || null
   );
+
+  const [creatives, setCreatives] = useState<any | null>({
+    Google: [
+      {
+        title: "Amplify Creatives",
+        subText: "Generating Creatives for you",
+      },
+    ],
+  });
   const router = useRouter();
 
-  const adPlatforms = Object.keys(supportedAdPlatforms)
-    .filter(
-      (platform) =>
-        platform !== "complete" &&
-        supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
-    )
-    .map((platform) => ({
-      title: platform as "Instagram" | "Facebook" | "Google",
-      image: `/${platform.toLowerCase()}_logo.svg`,
-      settings: {
-        ...(platform === "Instagram"
-          ? instagramSettings
-          : platform === "Facebook"
-          ? facebookSettings
-          : googleSettings),
-      },
-    }))
-    .sort((a, b) => {
-      const order = { Google: 0, Instagram: 1, Facebook: 2 };
-      return order[a.title] - order[b.title];
-    });
+  // const adPlatforms: {
+  //   title: "Instagram" | "Facebook" | "Google";
+  //   image: string;
+  //   settings: any;
+  //   creatives: any[];
+  // }[];
+
+  useEffect(() => {
+    const resultAdPlatforms = Object.keys(supportedAdPlatforms)
+      .filter(
+        (platform) =>
+          platform !== "complete" &&
+          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
+      )
+      .map((platform) => ({
+        title: platform as "Instagram" | "Facebook" | "Google",
+        image: `/${platform.toLowerCase()}_logo.svg`,
+        settings: {
+          ...(platform === "Instagram"
+            ? instagramSettings
+            : platform === "Facebook"
+            ? facebookSettings
+            : googleSettings),
+        },
+        creatives: creatives[platform],
+      }))
+      .sort((a, b) => {
+        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        return order[a.title] - order[b.title];
+      });
+    setAdPlatforms(resultAdPlatforms);
+  }, [
+    supportedAdPlatforms,
+    instagramSettings,
+    facebookSettings,
+    googleSettings,
+    creatives,
+  ]);
+
   const [campaignDetails, setCampaignDetails] = useState({
     campaignType: "",
     campaignName: "",
@@ -113,6 +141,8 @@ export default function CampaignSnapshotsPage() {
     }
   }, []);
 
+  const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
+
   const handleSetHighlightedProduct = (product: any) => {
     setHighlightedProduct(product);
   };
@@ -135,7 +165,7 @@ export default function CampaignSnapshotsPage() {
                    ${
                      highlightedProduct?.node.id === product.node.id
                        ? "border-[0.25px] border-[#A75fff] rounded-[24px] bg-[#F3EFF6]"
-                       : ""
+                       : "border-[0.25px] border-[#FBFAFC]"
                    }
                   `}
                 onClick={() => handleSetHighlightedProduct(product)}
@@ -153,14 +183,12 @@ export default function CampaignSnapshotsPage() {
                   className={`text-xs tracking-100 ${
                     highlightedProduct?.node.id === product.node.id
                       ? "font-bold"
-                      : ""
+                      : "fonr-medium"
                   }`}
                 >
-                  {capitalize(
-                    product.node.handle.length < 25
-                      ? product.node.handle
-                      : product.node.handle.slice(0, 20) + "..."
-                  )}
+                  {product.node.title.length < 25
+                    ? product.node.title
+                    : product.node.title.slice(0, 20) + "..."}
                 </div>
               </div>
             ))}
@@ -182,17 +210,19 @@ export default function CampaignSnapshotsPage() {
             </div>
           </div>
           <div className="flex gap-2 md:gap-3">
-            <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-              {/* <MagicStarIcon />
-               */}
-              <img
-                src={MagicStarIcon.src}
-                alt="Magic Star"
-                width={20}
-                height={20}
-              />
-              <span className="text-sm font-medium">Mix</span>
-            </button>
+            {!isOnlyGoogle && (
+              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
+                {/* <MagicStarIcon />
+                 */}
+                <img
+                  src={MagicStarIcon.src}
+                  alt="Magic Star"
+                  width={20}
+                  height={20}
+                />
+                <span className="text-sm font-medium">Mix</span>
+              </button>
+            )}
             <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
               <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
               <span className="text-sm font-medium">Undo</span>
@@ -225,13 +255,16 @@ export default function CampaignSnapshotsPage() {
               />
             </div>
           </div>
-          <BrandColors
-            brandColor={campaignDetails.brandColor}
-            accentColor={campaignDetails.accentColor}
-            setBrandColor={(key: "brandColor" | "accentColor", value: string) =>
-              handleCampaignDetails(key, value)
-            }
-          />
+          {!isOnlyGoogle && (
+            <BrandColors
+              brandColor={campaignDetails.brandColor}
+              accentColor={campaignDetails.accentColor}
+              setBrandColor={(
+                key: "brandColor" | "accentColor",
+                value: string
+              ) => handleCampaignDetails(key, value)}
+            />
+          )}
         </div>
         <DateSelection
           setStartDate={(date: Date) =>

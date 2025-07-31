@@ -53,6 +53,8 @@ export default function ReviewPage() {
           : platform === "Facebook"
           ? facebookSettings
           : googleSettings),
+
+        creatives: [],
       },
     }))
     .sort((a, b) => {

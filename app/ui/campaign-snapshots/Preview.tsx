@@ -4,6 +4,7 @@ import { Magicpen } from "iconsax-react";
 import GradientCheckbox from "../form/GradientCheckbox2";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { SocialSettingsKey } from "@/app/lib/stores/createCampaignStore";
+import GoogleCreatives from "../creatives/Google";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -11,7 +12,12 @@ const Preview = ({
   adPlatforms,
   isReview,
 }: {
-  adPlatforms: { title: PreviewTitle; image: string; settings: any }[];
+  adPlatforms: {
+    title: PreviewTitle;
+    image: string;
+    settings: any;
+    creatives: any[];
+  }[];
   isReview?: boolean;
 }) => {
   const settings: { label: string; key: SocialSettingsKey }[] = [
@@ -108,7 +114,22 @@ const Preview = ({
               </div>
             )}
           </div>
-          <div className={`bg-[#f1f1f1] rounded-3xl flex-1 mt-5 `}></div>
+          <div
+            className={`bg-[#f1f1f1] rounded-3xl flex-1 items-center justify-center flex mt-5 `}
+          >
+            {item.title === "Google" && (
+              <div>
+                {item.creatives.map((creatives) => (
+                  <div key={creatives.id}>
+                    <GoogleCreatives
+                      title={creatives.title}
+                      subText={creatives.subText}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       ))}
     </div>

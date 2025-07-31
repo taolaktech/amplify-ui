@@ -17,16 +17,16 @@ function Campaigns() {
   const router = useRouter();
 
   const handleCreateCampaign = () => {
-    if (marketingGoals.complete) {
-      router.push("/pricing");
-      return;
-    }
-    setToast({
-      title: "👋 Let's Get You Set Up First",
-      message:
-        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
-      type: "warning",
-    });
+    // if (marketingGoals.complete) {
+    router.push("/pricing");
+    // return;
+    // }
+    // setToast({
+    //   title: "👋 Let's Get You Set Up First",
+    //   message:
+    //     "You need to complete onboarding before launching your first campaign. It only takes a minute!",
+    //   type: "warning",
+    // });
   };
 
   return (

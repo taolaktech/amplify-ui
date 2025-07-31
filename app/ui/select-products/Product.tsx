@@ -1,6 +1,5 @@
 import React from "react";
 import CheckBox from "./CheckBox";
-import { capitalize } from "lodash";
 
 const Product = ({
   productNode,
@@ -15,7 +14,7 @@ const Product = ({
 }) => {
   return (
     <div
-      className={`flex gap-3 justify-between items-center w-full ${
+      className={`flex gap-3 justify-between cursor-pointer items-center w-full ${
         checked ? "bg-[#F3EFF6]" : ""
       }  ${
         isReview
@@ -51,11 +50,11 @@ const Product = ({
           }`}
         >
           <div
-            className={`text-ellipsis overflow-hidden whitespace-nowrap ${
+            className={`text-ellipsis overflow-hidden  ${
               isReview ? "text-sm" : "font-medium text-sm sm:text-base"
             } tracking-100`}
           >
-            {capitalize(productNode.handle)}
+            {productNode.title}
           </div>
           <div
             className={`${

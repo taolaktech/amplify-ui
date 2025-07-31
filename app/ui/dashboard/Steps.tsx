@@ -17,22 +17,22 @@ export default function Steps() {
   } = useSetupStore();
 
   useEffect(() => {
-    if (marketingGoals.complete) {
-      setStep(4);
-      setLink("/setup/marketing-goals");
-      setStepText("Upload Brand Kit");
-    } else if (preferredSalesLocation.complete) {
-      setStep(3);
-      setLink("/setup/marketing-goals");
-      setStepText("Set Marketing Goal");
-    } else if (businessDetails.complete) {
-      setStep(2);
-      setLink("/setup/preferred-sales-location");
-      setStepText("Select Preferred Sales Location");
-    } else if (connectStore.complete) {
+    // if (marketingGoals.complete) {
+    //   setStep(4);
+    //   setLink("/setup/marketing-goals");
+    //   setStepText("Upload Brand Kit");
+    // } else if (preferredSalesLocation.complete) {
+    //   setStep(3);
+    //   setLink("/setup/marketing-goals");
+    //   setStepText("Set Marketing Goal");
+    // } else if (businessDetails.complete) {
+    //   setStep(2);
+    //   setLink("/setup/preferred-sales-location");
+    //   setStepText("Select Preferred Sales Location");
+    if (connectStore.complete) {
       setStep(1);
-      setLink("/setup/business-details");
-      setStepText("Add Business Details");
+      // setLink("/setup/business-details");
+      setStepText("Connect Facebook Account");
     } else {
       setLink("/setup");
       setStep(0);
@@ -142,7 +142,7 @@ export default function Steps() {
               </div>
             </div>
             {/* Step 4 */}
-            <div className=" w-full">
+            {/* <div className=" w-full">
               <div className="flex items-center">
                 <TickCircle
                   size={24}
@@ -158,7 +158,7 @@ export default function Steps() {
               <div className="w-[24px] flex justify-center py-1">
                 <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
               </div>
-            </div>
+            </div> */}
             {/* Step 4 */}
             <div className=" w-full">
               <div className="flex items-center">

@@ -118,8 +118,8 @@ export default function FundCampaignPage() {
       </div>
       <div className="flex gap-12 mt-10">
         <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%] max-h-[417px]">
-          <div className="py-4 px-5 bg-[#FEF5EA] flex items-center gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
-            <span className="flex items-start justify-center w-[32px] h-[32px] bg-[#FDE0BD] rounded-full">
+          <div className="py-4 px-5 bg-[#FEF5EA] flex-shrink-0 flex items-start gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
+            <span className="flex items-center justify-center w-[32px] h-[32px] flex-shrink-0 bg-[#FDE0BD] rounded-full">
               <NoteRemove size="17" color="#C67B22" />
             </span>
             <span className="text-sm font-medium tracking-150">
