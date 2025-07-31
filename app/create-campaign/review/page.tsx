@@ -53,9 +53,8 @@ export default function ReviewPage() {
           : platform === "Facebook"
           ? facebookSettings
           : googleSettings),
-
-        creatives: [],
       },
+      creatives: [{ title: platform }],
     }))
     .sort((a, b) => {
       const order = { Google: 0, Instagram: 1, Facebook: 2 };
