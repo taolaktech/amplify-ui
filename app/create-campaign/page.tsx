@@ -25,7 +25,6 @@ export default function AdsLocationPage() {
     (state) => state.preferredSalesLocation
   );
   const storeUrl = useSetupStore((state) => state.connectStore?.storeUrl);
-  // const marketingGoals = useSetupStore((state) => state.marketingGoals);
   const salesLocationFromStore = useCreateCampaignStore(
     (state) => state.adsShow.location
   );
@@ -43,21 +42,28 @@ export default function AdsLocationPage() {
     salesLocationFromStore,
   ]);
 
-  const [fetchingProgress] = useState(50);
+  const [fetchingProgress, setFetchingProgress] = useState(20);
   // const [isAutoFetching, setIsAutoFetching] = useState(false);
   const { fetchProducts, loading } = useGetShopifyProducts();
   const setToast = useToastStore((state) => state.setToast);
+  const [isDoneLoading, setIsDoneLoading] = useState(true);
+
   const router = useRouter();
-  useModal(loading);
+  useModal(isDoneLoading);
   useEffect(() => {
     setSalesLocation(salesLocationFromStore);
   }, []);
 
   const handleProceed = async () => {
-    // if (marketingGoals.complete) {
+    setIsDoneLoading(false);
     if (storeUrl) {
       console.log("storeUrl", storeUrl);
-      await fetchProducts({ location: salesLocation }, true);
+      await fetchProducts({ location: salesLocation }, true, false);
+      setFetchingProgress(100);
+      setTimeout(() => {
+        setIsDoneLoading(true);
+        router.push("/create-campaign/product-selection");
+      }, 1500);
       return;
     }
     setToast({
@@ -67,8 +73,9 @@ export default function AdsLocationPage() {
       type: "warning",
     });
     setTimeout(() => {
+      setIsDoneLoading(true);
       router.push("/settings/integrations");
-    }, 1000);
+    }, 1500);
     return;
   };
   return (
@@ -110,7 +117,9 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {loading && <AutoFetchingProduct fetchingProgress={fetchingProgress} />}
+      {!isDoneLoading && (
+        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
+      )}
     </div>
   );
 }

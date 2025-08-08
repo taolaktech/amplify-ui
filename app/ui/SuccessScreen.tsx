@@ -3,6 +3,7 @@
 import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/Button";
 import CompletionBackground from "@/app/ui/CompletionBackground";
+import { useEffect, useState } from "react";
 
 export default function SuccessScreen({
   headingText,
@@ -23,6 +24,20 @@ export default function SuccessScreen({
   secondaryButtonWidth?: number;
   primaryButtonWidth?: number;
 }) {
+  const [isMediumScreen, setIsMediumScreen] = useState(false);
+
+  // Detect screen size changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    setIsMediumScreen(mediaQuery.matches);
+
+    const handleResize = (e: MediaQueryListEvent) => {
+      setIsMediumScreen(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleResize);
+    return () => mediaQuery.removeEventListener("change", handleResize);
+  }, []);
   return (
     <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
       {/* <div className="flex justify-center bg-white h-[calc(100vh-56px)] items-start md:min-h-[800px]"> */}
@@ -45,8 +60,11 @@ export default function SuccessScreen({
               <div className="mt-16 w-full flex flex-col-reverse md:flex-row md:justify-center gap-3">
                 {secondaryActionText && secondaryAction && (
                   <div
-                    className="!w-full"
-                    style={{ width: secondaryButtonWidth }}
+                    style={{
+                      width: !isMediumScreen
+                        ? "100%"
+                        : `${secondaryButtonWidth}px`,
+                    }}
                   >
                     <Button
                       secondary
@@ -57,8 +75,11 @@ export default function SuccessScreen({
                 )}
                 {primaryActionText && primaryAction && (
                   <div
-                    className="!w-full"
-                    style={{ width: primaryButtonWidth }}
+                    style={{
+                      width: !isMediumScreen
+                        ? "100%"
+                        : `${primaryButtonWidth}px`,
+                    }}
                   >
                     <Button text={primaryActionText} action={primaryAction} />
                   </div>

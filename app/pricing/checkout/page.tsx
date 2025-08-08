@@ -65,7 +65,7 @@ export default function CheckoutPage() {
       <div className="lg:w-[60%] w-full p-5 lg:p-10 xl:p-18">
         <div className="max-w-[585px] mx-auto">
           <h1 className="text-heading lg:font-bold text-xl lg:text-2xl tracking-60 lg:tracking-700">
-            {isDowngrade ? "Downgrade" : "Upgrade"} to {formattedPlan}
+            ${isDowngrade ? "Downgrade" : "Upgrade"} to {formattedPlan}
           </h1>
           <p className="text-neutral-light text-sm lg:text-base">
             Pay with Credit/Debit Card

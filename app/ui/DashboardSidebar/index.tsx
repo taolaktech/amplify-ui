@@ -8,10 +8,12 @@ import { useRouter } from "next/navigation";
 import { useDashboardPath } from "@/app/lib/hooks/useDashboardPath";
 import DesktopSideBar from "./desktop";
 import MobileSideBar from "./mobile";
+import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
 // import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function DashboardSideBar() {
   const logout = useAuthStore((state) => state.logout);
+  const { navigateToCreateCampaign } = useCampaignsActions();
   const reset = useSetupStore((state) => state.reset);
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const { toggleSidebar } = useUIStore((state) => state.actions);
@@ -58,21 +60,12 @@ export default function DashboardSideBar() {
   };
 
   const handleToggleSidebar = () => {
-    // setIsCompanyOpen(false);
     toggleSidebar();
   };
 
   const handleCreateCampaign = () => {
-    // if (marketingGoals.complete) {
-    router.push("/pricing?route=campaigns");
+    navigateToCreateCampaign();
     return;
-    // }
-    // setToast({
-    //   title: "👋 Let's Get You Set Up First",
-    //   message:
-    //     "You need to complete onboarding before launching your first campaign. It only takes a minute!",
-    //   type: "warning",
-    // });
   };
 
   const handleLogout = () => {

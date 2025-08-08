@@ -7,7 +7,6 @@ import {
   handleGoogleLogin,
   handleResetPassword,
 } from "../api/base";
-
 import {
   handleGetShopifyAccount,
   handleRetrieveStoreDetails,
@@ -18,23 +17,15 @@ import { useRouter } from "next/navigation";
 import { AuthErrorCode } from "../api/errorcodes";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FieldErrors } from "react-hook-form";
-import { getCurrentSubscriptionPlan } from "../api/wallet";
-import { planIdToName } from "../pricingPlans";
-import { Cycle } from "@/app/ui/pricing/ModelHeader";
-import { useIntegrationStore } from "../stores/integrationStore";
+import useGetCampaigns from "./campaigns";
 
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
   // console.log("token", token);
-
   console.log("useInitialize");
   const [loading, setLoading] = useState(false);
   const reset = useSetupStore((state) => state.reset);
   const { businessDetails } = useSetupStore((state) => state);
-
-  const setShopifyStoreConnected = useIntegrationStore(
-    (state) => state.actions.setShopifyStoreConnected
-  );
   const {
     storeBusinessDetails,
     completeConnectStore,
@@ -45,9 +36,6 @@ export const useInitialize = () => {
     storeMarketingGoals,
     storePreferredSalesLocation,
   } = useSetupStore((state) => state);
-  const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
-  );
 
   async function getMe(token: string) {
     // tun this to async
@@ -63,18 +51,6 @@ export const useInitialize = () => {
       completePreferredSalesLocation(
         response.onboarding?.isShippingDetailsSet || false
       );
-      const data = await getCurrentSubscriptionPlan(token || "");
-      const currentPlanId = data?.data?.activeStripePriceId;
-
-      const currentPlan = currentPlanId
-        ? planIdToName[currentPlanId as keyof typeof planIdToName]
-        : {
-            name: "Free",
-            cycle: "monthly" as Cycle,
-          };
-
-      if (currentPlan) setSubscriptionType(currentPlan);
-
       return true;
     }
     return false;
@@ -97,7 +73,6 @@ export const useInitialize = () => {
       storeConnectStore({
         storeUrl: response.account.shop,
       });
-      setShopifyStoreConnected(true);
       completeConnectStore(true);
     } else {
       reset();
@@ -112,12 +87,12 @@ export const useInitialize = () => {
     }
     const response = await handleRetrieveStoreDetails(token);
     console.log("Store details response:", response);
-    if (!response.business) {
+    if (!response.business || !response.business.shopifyAccounts.length) {
       console.error("No business details found");
       completeBusinessDetails(false);
       return;
     }
-    const details = response?.business;
+    const details = response?.business.shopifyAccounts[0];
     if (!details) {
       console.error("No details found");
       completeBusinessDetails(false);
@@ -159,11 +134,11 @@ export const useInitialize = () => {
       });
     } else {
       console.warn("No shipping details found");
-      // storePreferredSalesLocation({
-      //   localShippingLocations: [],
-      //   internationalShippingLocations: [],
-      //   complete: false,
-      // });
+      storePreferredSalesLocation({
+        localShippingLocations: [],
+        internationalShippingLocations: [],
+        complete: false,
+      });
     }
 
     if (details.businessGoals) {
@@ -208,6 +183,8 @@ export const useEmailLogin = (
   const login = useAuthStore((state) => state.login);
   const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
     useInitialize();
+  const { fetchCampaigns } = useGetCampaigns();
+
   const emailLoginMutation = useMutation({
     mutationFn: handleEmailLogin,
     onSuccess: async (response: AxiosResponse<any, any>) => {
@@ -220,6 +197,7 @@ export const useEmailLogin = (
           const isConnected = await getMe(response.data?.access_token);
           await getShopifyAccount(response.data?.access_token, isConnected);
           await getStoreDetails(response.data?.access_token, isConnected);
+          await fetchCampaigns(response.data?.access_token);
           login(response.data?.access_token, response.data?.user);
           router.push("/");
         } catch (error) {
@@ -269,6 +247,8 @@ export const useGoogleLogin = (
   const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
     useInitialize();
 
+  const { fetchCampaigns } = useGetCampaigns();
+
   const googleLoginMutation = useMutation({
     mutationFn: handleGoogleLogin,
     onSuccess: async (response: AxiosResponse<any, any>) => {
@@ -290,6 +270,7 @@ export const useGoogleLogin = (
             const isConnected = await getMe(response.data?.access_token);
             await getShopifyAccount(response.data?.access_token, isConnected);
             await getStoreDetails(response.data?.access_token, isConnected);
+            await fetchCampaigns(response.data?.access_token);
             login(response.data?.access_token, response.data?.user);
 
             router.push("/");

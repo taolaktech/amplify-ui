@@ -96,7 +96,7 @@ export const useRetrieveStoreDetails = () => {
   // });
 
   const retrieveStoreDetails = async () => {
-    if (!token || !shouldFetchData) return;
+    if (!token) return;
     else {
       try {
         setIsLoading(true);

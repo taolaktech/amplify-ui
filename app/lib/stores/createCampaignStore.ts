@@ -57,6 +57,7 @@ interface CreateCampaignActions {
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
   completeCampaignSnapshots: () => void;
+  getLocationCountries: () => string[];
   toggleInstagramSettings: (setting: SocialSettingsKey) => void;
   toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
@@ -113,13 +114,24 @@ const initialState: CreateCampaignState = {
 
 export const useCreateCampaignStore = create<CreateCampaignStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       actions: {
         storeAdsShow: (adsShow) => {
           set((state) => ({
             adsShow: { ...state.adsShow, ...adsShow },
           }));
+        },
+        getLocationCountries: () => {
+          const countries: string[] = [];
+          const locations = get().adsShow.location;
+          locations.forEach((location) => {
+            const country = location.trim().split(",")[2]?.trim();
+            if (!countries.includes(country)) {
+              countries.push(country);
+            }
+          });
+          return countries;
         },
         toggleInstagramSettings: (setting: SocialSettingsKey) => {
           set((state) => ({
@@ -195,6 +207,21 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
       }),
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Error rehydrating campaign store", error);
+          return;
+        }
+
+        if (state) {
+          // Mutate the state object directly
+          state.adsShow.complete = false;
+          state.productSelection.complete = false;
+          state.fundCampaign.complete = false;
+          state.campaignSnapshots.complete = false;
+          state.supportedAdPlatforms.complete = false;
+        }
+      },
     }
   )
 );

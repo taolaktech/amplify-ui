@@ -20,19 +20,23 @@ export const useGetShopifyProducts = () => {
     data: {
       first?: number;
       after?: string;
+      before?: string;
       location?: string[];
       page?: number;
+      currentPage?: number;
     },
-    isAdShow: boolean
+    isAdShow: boolean,
+    shouldRoute: boolean = true
   ) => {
+    // const isAhead: boolean = data.page > data.currentPage;
     setLoading(true);
     console.log("token");
     try {
       console.log("data", token);
       const response = await getProducts({
         token: token || "",
-        first: 10,
         after: data.after,
+        before: data.before,
       });
       console.log("response", response);
       const products = response.products;
@@ -77,7 +81,7 @@ export const useGetShopifyProducts = () => {
           complete: true,
           location: data.location || [],
         });
-        router.push("/create-campaign/product-selection");
+        if (shouldRoute) router.push("/create-campaign/product-selection");
       }
     } catch (error: any) {
       setError(error);

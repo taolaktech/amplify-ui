@@ -4,12 +4,13 @@ import { ArrowCircleRight2 } from "iconsax-react";
 import Button from "../Button";
 import { useEffect, useState } from "react";
 import ProductSelected from "./ProductSelected";
+import NoProductIcon from "@/public/bag-cross.svg";
 // import { products as productsData } from "./products";
 import Product from "./Product";
 import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import useUIStore from "@/app/lib/stores/uiStore";
-import Pagination from "../Pagination";
+import Pagination from "./Pagination";
 import { useGetShopifyProducts } from "@/app/lib/hooks/shopify";
 
 export default function Products() {
@@ -18,15 +19,19 @@ export default function Products() {
   const {
     products,
     productCount,
-    // startCursor,
-    // endCursor,
-    // hasNextPage,
-    // hasPreviousPage,
+    startCursor,
+    endCursor,
+    hasNextPage,
+    hasPreviousPage,
     currentPage,
   } = useUIStore((state) => state);
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
   );
+  console.log("startCursor", startCursor);
+  console.log("endCursor", endCursor);
+  console.log("hasNextPage", hasNextPage);
+  console.log("hasPreviousPage", hasPreviousPage);
 
   const { fetchProducts } = useGetShopifyProducts();
   const [pageCount, setPageCount] = useState(1);
@@ -37,6 +42,8 @@ export default function Products() {
   const router = useRouter();
 
   console.log("products", products);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (productSelection.complete) {
@@ -62,6 +69,7 @@ export default function Products() {
   };
 
   const toggleChecked = (id: number) => {
+    if (!products || !products.length) return;
     const product = products.find((p) => p.node.id === id);
     setSelectedProducts((prev) => {
       if (prev.find((p) => p.node.id === id)) {
@@ -71,25 +79,41 @@ export default function Products() {
     });
   };
 
+  if (!products || !products.length) {
+    return (
+      <div className="flex flex-col min-h-[calc(100vh-320px)] justify-center items-center ">
+        <div className="flex flex-col gap-2 max-w-[420px] items-center justify-center">
+          <NoProductIcon width={72} height={72} />
+          <p className="text-[#000] text-xl text-center mt-3 font-semibold">
+            No Products
+          </p>
+          <p className="text-sm text-[#737373] text-center">
+            No product in your store
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-320px)] justify-between">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {/* {Array.from({ length: 8 }).map((_, index) => (
           <Loader key={index} />
         ))} */}
-        {products.map((product) => (
+        {products?.map((product) => (
           <Product
-            key={product.node.id}
-            productNode={product.node}
+            key={product?.node.id}
+            productNode={product?.node}
             checked={selectedProducts.find(
-              (p) => p.node.id === product.node.id
+              (p) => p?.node.id === product?.node.id
             )}
             toggleChecked={toggleChecked}
           />
         ))}
         {/* <CircleLoader /> */}
       </div>
-      <div>
+      <div className="mt-6">
         <div className="flex justify-center md:justify-between items-center">
           <div className=" hidden md:block max-w-[270px] h-[38px]">
             {selectedProducts.length > 0 && (
@@ -101,11 +125,12 @@ export default function Products() {
               />
             )}
           </div>
-          <Pagination
+          {/* <Pagination
             pageCount={pageCount}
             setCurrentPage={handlePageClick}
             currentPage={currentPage}
-          />
+          /> */}
+          <Pagination />
         </div>
         <div className="mt-6 md:mt-7 sm:max-w-[200px] mx-auto">
           <Button

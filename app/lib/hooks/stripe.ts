@@ -11,11 +11,11 @@ import { Cycle } from "@/app/ui/pricing/ModelHeader";
 
 export const useGetCustomerPaymentMethods = () => {
   const token = useAuthStore((state) => state.token);
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["customer-payment-methods"],
     queryFn: () => getCustomerPaymentMethods(token || ""),
   });
-  return { data, isLoading, error };
+  return { data, isLoading, error, refetch, isRefetching };
 };
 
 export const useSubscribeToPlan = () => {

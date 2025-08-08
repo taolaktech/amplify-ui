@@ -47,8 +47,8 @@ function GettingStarted() {
           </button>
         </div>
       </div>
-      <div className="h-[390px] lg:h-[326px] flex gap-2 overflow-hidden">
-        <div className="bg-gradient relative w-full rounded-3xl ">
+      <div className="h-[390px] lg:h-[326px] flex gap-2  ">
+        <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
           <Steps />
           <div className="absolute top-0 right-0 translate-x-[25%] -translate-y-[35%] bg-[rgba(255,255,255,0.05)] h-[305px] w-[305px] md:h-[610px] md:w-[610px] flex items-center justify-center rounded-full">
             <div className="bg-[rgba(255,255,255,0.05)] h-[237px] w-[237px] md:h-[474px] md:w-[474px] flex items-center justify-center rounded-full">

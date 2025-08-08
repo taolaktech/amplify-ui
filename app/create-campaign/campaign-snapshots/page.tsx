@@ -11,6 +11,8 @@ import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
+import Product from "@/app/ui/campaign-snapshots/Product";
+import useCreativesStore from "@/app/lib/stores/creativesStore";
 
 const productTypes = [
   {
@@ -47,7 +49,8 @@ export default function CampaignSnapshotsPage() {
     facebookSettings,
     googleSettings,
   } = useCreateCampaignStore((state) => state);
-
+  const { canUndo } = useCreativesStore((state) => state.actions);
+  const { Google } = useCreativesStore((state) => state);
   const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
 
   const actions = useCreateCampaignStore((state) => state.actions);
@@ -56,14 +59,9 @@ export default function CampaignSnapshotsPage() {
     productSelection.products[0] || null
   );
 
-  const [creatives, setCreatives] = useState<any | null>({
-    Google: [
-      {
-        title: "Amplify Creatives",
-        subText: "Generating Creatives for you",
-      },
-    ],
-  });
+  // const [creatives, setCreatives] = useState<any | null>({
+
+  // });
   const router = useRouter();
 
   // const adPlatforms: {
@@ -90,7 +88,7 @@ export default function CampaignSnapshotsPage() {
             ? facebookSettings
             : googleSettings),
         },
-        creatives: creatives[platform],
+        creatives: platform === "Google" ? Google?.["1"] : [],
       }))
       .sort((a, b) => {
         const order = { Google: 0, Instagram: 1, Facebook: 2 };
@@ -102,7 +100,7 @@ export default function CampaignSnapshotsPage() {
     instagramSettings,
     facebookSettings,
     googleSettings,
-    creatives,
+    Google,
   ]);
 
   const [campaignDetails, setCampaignDetails] = useState({
@@ -136,7 +134,7 @@ export default function CampaignSnapshotsPage() {
   };
 
   useEffect(() => {
-    if (!productSelection.complete) {
+    if (!supportedAdPlatforms.complete) {
       router.push("/create-campaign/");
     }
   }, []);
@@ -150,52 +148,26 @@ export default function CampaignSnapshotsPage() {
   return (
     <div className="flex items-start gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[224px] flex flex-col gap-6  p-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
-          <div className="flex justify-between gap-2">
+        <div className="w-[224px] sticky top-20 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+          <div className="flex justify-between gap-2 px-3">
             <span className="text-sm font-medium">Products</span>
             <span>
               <ArrowDown2 size={12} color="#000" />
             </span>
           </div>
-          <div className="flex flex-col w-full gap-5 flex-1 overflow-y-auto">
+          <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
             {products.map((product) => (
-              <div
+              <Product
+                product={product}
                 key={product.node.id}
-                className={`w-full flex-shrink-0 items-center flex gap-2 p-4 cursor-pointer
-                   ${
-                     highlightedProduct?.node.id === product.node.id
-                       ? "border-[0.25px] border-[#A75fff] rounded-[24px] bg-[#F3EFF6]"
-                       : "border-[0.25px] border-[#FBFAFC]"
-                   }
-                  `}
-                onClick={() => handleSetHighlightedProduct(product)}
-              >
-                <div className="flex-shrink-0">
-                  <img
-                    src={product.node.media.edges[0].node.preview.image.url}
-                    alt={product.node.handle}
-                    width={48}
-                    height={48}
-                    className="rounded-[14px] h-[48px] w-[48px] object-cover object-center"
-                  />
-                </div>
-                <div
-                  className={`text-xs tracking-100 ${
-                    highlightedProduct?.node.id === product.node.id
-                      ? "font-bold"
-                      : "fonr-medium"
-                  }`}
-                >
-                  {product.node.title.length < 25
-                    ? product.node.title
-                    : product.node.title.slice(0, 20) + "..."}
-                </div>
-              </div>
+                highlightedProduct={highlightedProduct}
+                handleSetHighlightedProduct={handleSetHighlightedProduct}
+              />
             ))}
           </div>
         </div>
       )}
-      <div className="flex-1">
+      <div className="w-[calc(100%-224px)]">
         <div className="flex flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>
@@ -223,10 +195,12 @@ export default function CampaignSnapshotsPage() {
                 <span className="text-sm font-medium">Mix</span>
               </button>
             )}
-            <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
-              <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
-              <span className="text-sm font-medium">Undo</span>
-            </button>
+            {canUndo(highlightedProduct?.node?.id) && (
+              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
+                <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+                <span className="text-sm font-medium">Undo</span>
+              </button>
+            )}
 
             <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
               <img

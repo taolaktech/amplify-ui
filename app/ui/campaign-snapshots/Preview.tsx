@@ -5,6 +5,8 @@ import GradientCheckbox from "../form/GradientCheckbox2";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { SocialSettingsKey } from "@/app/lib/stores/createCampaignStore";
 import GoogleCreatives from "../creatives/Google";
+import CarouselArrow from "../CarouselArrow";
+import { useRef } from "react";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -16,7 +18,7 @@ const Preview = ({
     title: PreviewTitle;
     image: string;
     settings: any;
-    creatives: any[];
+    creatives?: any[];
   }[];
   isReview?: boolean;
 }) => {
@@ -114,22 +116,7 @@ const Preview = ({
               </div>
             )}
           </div>
-          <div
-            className={`bg-[#f1f1f1] rounded-3xl flex-1 items-center justify-center flex mt-5 `}
-          >
-            {item.title === "Google" && (
-              <div>
-                {item.creatives.map((creatives) => (
-                  <div key={creatives.id}>
-                    <GoogleCreatives
-                      title={creatives.title}
-                      subText={creatives.subText}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <PreviewContainer item={item} />
         </div>
       ))}
     </div>
@@ -137,3 +124,43 @@ const Preview = ({
 };
 
 export default Preview;
+
+const PreviewContainer = ({ item }: { item: any }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const width = 350;
+
+  const scrollBy = (offset: number) => {
+    console.log("called");
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
+  return (
+    <div className="bg-[#f1f1f1] relative rounded-3xl mt-5 overflow-hidden">
+      {/* Carousel arrows */}
+      <div className="absolute top-0 z-[1] w-full">
+        <CarouselArrow title={item.title} scrollBy={scrollBy} />
+      </div>
+
+      {item.title === "Google" && (
+        <div
+          ref={containerRef}
+          className="flex overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
+        >
+          {item.creatives.map((creatives, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 w-[350px]" // or any width you want
+            >
+              <GoogleCreatives
+                headline={creatives.description}
+                description={creatives.description}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

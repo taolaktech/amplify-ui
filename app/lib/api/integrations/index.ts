@@ -149,13 +149,15 @@ export const handleGetCities = async (data: {
 
 export const getProducts = async (data: {
   token: string;
-  first: number;
+  last?: number;
   after?: string;
+  before?: string;
 }) => {
   const response = await axiosInstanceBase.get("/shopify/products", {
     params: {
-      first: data.first,
-      after: data.after || null,
+      ...(!data.after && !data.before ? { first: 12 } : {}),
+      ...(data.after && !data.before ? { after: data.after, first: 12 } : {}),
+      ...(data.before && !data.after ? { before: data.before, last: 12 } : {}),
     },
     headers: {
       Authorization: `Bearer ${data.token}`,
