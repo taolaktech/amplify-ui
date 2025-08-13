@@ -23,7 +23,7 @@ const countryOptions = Object.values(countries).map(
   (country) => country.name
 ) as string[];
 
-interface CheckoutFormProps {
+type CheckoutFormProps = {
   amount: number;
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;

@@ -32,7 +32,7 @@ export enum CampaignPlatforms {
   GOOGLE = "Google",
 }
 
-interface CampaignsStore {
+type CampaignsStore = {
   page: number;
   status: CampaignStatus | null;
   type: CampaignType | null;

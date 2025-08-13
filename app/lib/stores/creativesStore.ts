@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface CreativesStore {
+type CreativesStore = {
   Google: Record<string, any[]> | null;
   Instagram: Record<string, any[]> | null;
   Facebook: Record<string, any[]> | null;

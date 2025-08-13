@@ -8,7 +8,7 @@ export type SubscriptionType =
   | "GROW_PLAN"
   | "SCALE_PLAN";
 export type BillingCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
-interface AuthState {
+type AuthState = {
   token: string | null;
   loginDate: Date | null;
   isAuth: boolean;
@@ -28,7 +28,7 @@ interface AuthState {
   user: User | null;
 }
 
-interface User {
+type User = {
   email: string;
   name: string;
   phone: string;
@@ -40,12 +40,12 @@ interface User {
   shopifyAccountConnected?: boolean;
 }
 
-interface ProfileIcon {
+type ProfileIcon = {
   initials: string;
   color: string;
 }
 
-interface AuthActions {
+type AuthActions = {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
@@ -67,7 +67,7 @@ interface AuthActions {
   getProfileIcon?: () => string | ProfileIcon;
 }
 
-export interface AuthStore extends AuthState, AuthActions {}
+export type AuthStore = AuthState & AuthActions;
 
 export const useAuthStore = create<AuthStore>()(
   // devtools(
@@ -133,7 +133,7 @@ export const useAuthStore = create<AuthStore>()(
 );
 // );
 
-export interface CreateUserStore {
+export type CreateUserStore = {
   email: string;
   profile: CreateProfileState | null;
   retryError: boolean;
@@ -142,13 +142,13 @@ export interface CreateUserStore {
   actions: CreateUserActions;
 }
 
-export interface CreateProfileState {
+export type CreateProfileState = {
   firstName: string;
   lastName: string;
   password: string;
 }
 
-interface CreateUserActions {
+type CreateUserActions = {
   storeEmail: (email: string) => void;
   storeProfile: (profile: CreateProfileState) => void;
   storeRetryError: (hasError: boolean) => void;

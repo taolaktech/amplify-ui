@@ -4,7 +4,7 @@ import SecondaryBrandExample from "@/public/brand-secondary-logo-example.svg";
 import { ArrowForward, CloseCircle, GalleryImport } from "iconsax-react";
 import { useRef } from "react";
 
-interface LogoProps {
+type LogoProps = {
   primaryLogoPreview: string | null;
   primaryLogoHandleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   primaryLogoReset: () => void;

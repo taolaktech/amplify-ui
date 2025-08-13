@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface UIStore {
+type UIStore = {
   products: any[];
   productCount: number;
   startCursor: string;

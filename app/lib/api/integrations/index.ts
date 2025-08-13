@@ -7,7 +7,7 @@ export enum IntegrationErrorCode {
   SHOPIFY_ACCOUNT_NOT_FOUND = "E_SHOPIFY_ACCOUNT_NOT_FOUND",
 }
 
-export interface BusinessDetails {
+export type BusinessDetails = {
   companyName: string;
   description: string;
   website: string;

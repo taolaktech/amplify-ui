@@ -38,7 +38,7 @@ type MetricsPoints = {
   rate: "increase" | "decrease" | "stable";
 };
 
-interface MetricsStore {
+type MetricsStore = {
   campaignsStarted: boolean;
   timeline: TimelineFilterOptions;
   customTimeline: TimelineDate | null;

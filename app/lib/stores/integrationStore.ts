@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface IntegrationState {
+type IntegrationState = {
   shopifyStore: boolean;
   google: boolean;
   instagram: boolean;
   facebook: boolean;
 }
 
-interface IntegrationActions {
+type IntegrationActions = {
   toggleShopifyStore: () => void;
   setShopifyStoreConnected: (value: boolean) => void;
   toggleGoogle: () => void;
@@ -16,7 +16,7 @@ interface IntegrationActions {
   toggleFacebook: () => void;
 }
 
-interface IntegrationStore extends IntegrationState {
+type IntegrationStore = IntegrationState & {
   actions: IntegrationActions;
 }
 

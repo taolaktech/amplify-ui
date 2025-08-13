@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface BusinessDetails {
+type BusinessDetails = {
   storeName: string;
   description: string;
   storeUrl: string;
@@ -18,13 +18,13 @@ interface BusinessDetails {
   complete?: boolean;
 }
 
-interface PreferredSalesLocation {
+type PreferredSalesLocation = {
   localShippingLocations: string[];
   internationalShippingLocations: string[];
   complete: boolean;
 }
 
-interface MarketingGoals {
+type MarketingGoals = {
   brandAwareness: boolean;
   acquireNewCustomers: boolean;
   boostRepeatPurchases: boolean;
@@ -61,7 +61,7 @@ const defaultMarketingGoals = {
   complete: false,
 };
 
-interface SetupState {
+type SetupState = {
   connectStore: {
     storeUrl: string;
     complete: boolean;
@@ -71,7 +71,7 @@ interface SetupState {
   marketingGoals: MarketingGoals;
 }
 
-interface SetupActions {
+type SetupActions = {
   storeConnectStore: (connectStore: { storeUrl: string }) => void;
   completeConnectStore: (complete: boolean) => void;
   reset: () => void;
@@ -85,7 +85,7 @@ interface SetupActions {
   completeMarketingGoals: (complete: boolean) => void;
 }
 
-export interface SetupStore extends SetupState, SetupActions {}
+export type SetupStore = SetupState & SetupActions;
 
 export const useSetupStore = create<SetupStore>()(
   persist(

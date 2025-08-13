@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface CreateCampaignState {
+type CreateCampaignState = {
   adsShow: {
     location: string[];
     complete: boolean;
@@ -21,7 +21,7 @@ interface CreateCampaignState {
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
 }
 
-interface CampaignSnapshots {
+type CampaignSnapshots =  {
   campaignType: string;
   brandColor: string;
   accentColor: string;
@@ -29,21 +29,21 @@ interface CampaignSnapshots {
   campaignEndDate: string;
 }
 
-interface SupportedAdPlatforms {
+type SupportedAdPlatforms = {
   Facebook: boolean;
   Instagram: boolean;
   Google: boolean;
 }
 
-interface InstagramSettings extends Record<SocialSettingsKey, boolean> {}
+type InstagramSettings = Record<SocialSettingsKey, boolean>;
 
-interface FacebookSettings extends Record<SocialSettingsKey, boolean> {}
+type FacebookSettings = Record<SocialSettingsKey, boolean>;
 
-interface GoogleSettings {
+type GoogleSettings = {
   staticPost: boolean;
 }
 
-interface CreateCampaignActions {
+type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
   storeProductSelection: (productSelection: {
     products: any[];
@@ -63,9 +63,9 @@ interface CreateCampaignActions {
   reset: () => void;
 }
 
-interface CreateCampaignStore extends CreateCampaignState {
+type CreateCampaignStore = CreateCampaignState & {
   actions: CreateCampaignActions;
-}
+};
 
 export type SocialSettingsKey = "staticPost" | "carouselPost" | "storyPost";
 
