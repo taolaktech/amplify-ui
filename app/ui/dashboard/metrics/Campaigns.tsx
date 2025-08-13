@@ -5,28 +5,21 @@ import {
   InfoCircle,
   CalendarRemove,
 } from "iconsax-react";
-import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useToastStore } from "@/app/lib/stores/toastStore";
-import { useRouter } from "next/navigation";
+// import { useSetupStore } from "@/app/lib/stores/setupStore";
+// import { useToastStore } from "@/app/lib/stores/toastStore";
+// import { useRouter } from "next/navigation";
 import Button from "../../Button";
+import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
 
 function Campaigns() {
   const campaigns = useMetricsStore((state) => state.campaigns);
-  const marketingGoals = useSetupStore((state) => state.marketingGoals);
-  const setToast = useToastStore((state) => state.setToast);
-  const router = useRouter();
+  const { navigateToCreateCampaign } = useCampaignsActions();
+  // const marketingGoals = useSetupStore((state) => state.marketingGoals);
+  // const setToast = useToastStore((state) => state.setToast);
+  // const router = useRouter();
 
   const handleCreateCampaign = () => {
-    if (marketingGoals.complete) {
-      router.push("/pricing");
-      return;
-    }
-    setToast({
-      title: "👋 Let's Get You Set Up First",
-      message:
-        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
-      type: "warning",
-    });
+    navigateToCreateCampaign();
   };
 
   return (

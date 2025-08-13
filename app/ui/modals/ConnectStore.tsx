@@ -18,7 +18,7 @@ function ConnectStore({
   isOpen,
 }: {
   closeModal: () => void;
-  isLinkedStore: boolean;
+  isLinkedStore?: boolean;
   isOpen: boolean;
 }) {
   const completeConnectStore = useSetupStore(

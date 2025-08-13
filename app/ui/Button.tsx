@@ -3,7 +3,7 @@ import ButtonLoader from "./loaders/ButtonLoader";
 export default function Button({
   text,
   icon,
-  iconPosition,
+  iconPosition = "left",
   secondary,
   tertiary,
   height,

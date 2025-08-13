@@ -8,6 +8,9 @@ import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
 import { faStar } from "@fortawesome/free-regular-svg-icons";
 import { Star1, InfoCircle, LampOn, EmojiSad } from "iconsax-react";
 import Button from "./Button";
+import { usePostFeedBack } from "../lib/hooks";
+import { useToastStore } from "../lib/stores/toastStore";
+import { ImprovementCategory } from "@/type";
 
 const improvement = [
   "General Experience",
@@ -15,6 +18,12 @@ const improvement = [
   "Feature Request",
   "Something Felt Off",
 ];
+const improvementCategory: Record<string, ImprovementCategory> = {
+  "General Experience": "GENERAL_EXPERIENCE",
+  "Report a Bug": "REPORT_BUG",
+  "Feature Request": "FEATURE_REQUEST",
+  "Something Felt Off": "SOMETHING_FELT_OFF",
+};
 
 const improvementIcon = {
   "General Experience": <Star1 size={12} color="#000" />,
@@ -34,8 +43,14 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
   const [starRating, setStarRating] = useState(0);
   const [hoverStarRating, setHoverStarRating] = useState(0);
   const [isBouncing, setIsBouncing] = useState(false);
-  const [selectedImprovement, setSelectedImprovement] = useState<string[]>([]);
+  const [selectedImprovement, setSelectedImprovement] = useState<string | null>(
+    null
+  );
+  const setToast = useToastStore((state) => state.setToast);
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [feedbackNoteError, setFeedbackNoteError] = useState(false);
 
+  const { handlePostFeedBack, isPending } = usePostFeedBack(handleClose);
   const handleStarClick = (rating: number) => {
     setStarRating(rating);
     setIsBouncing(true);
@@ -52,13 +67,31 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
   };
 
   const handleImprovementClick = (improvement: string) => {
-    if (selectedImprovement.includes(improvement)) {
-      setSelectedImprovement((prev) =>
-        prev.filter((item) => item !== improvement)
-      );
-    } else {
-      setSelectedImprovement((prev) => [...prev, improvement]);
+    setSelectedImprovement(improvement);
+  };
+
+  const handleSubmit = () => {
+    setFeedbackNoteError(false);
+    if (feedbackNote.length < 10) {
+      setFeedbackNoteError(true);
+      return;
     }
+    if (!selectedImprovement) {
+      setToast({
+        title: "Could not submit feedback",
+        message: "Please select an improvement category",
+        type: "info",
+      });
+      return;
+    }
+    handlePostFeedBack({
+      rating: starRating,
+      improvementCategory:
+        improvementCategory[
+          selectedImprovement as keyof typeof improvementCategory
+        ],
+      feedbackNote: feedbackNote,
+    });
   };
 
   return (
@@ -70,8 +103,8 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
 
       <div
         className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
-    h-[90vh] w-[90vw] max-w-[558px] max-h-[600px]  sm:max-h-[720px] 
-    z-30 rounded-3xl flex flex-col py-3
+    h-[90vh] w-[90vw] max-w-[558px] max-h-[620px]  sm:max-h-[720px] 
+    z-30 rounded-3xl flex flex-col pt-3
     "
       >
         <div className="flex flex-col flex-1 my-3 overflow-y-auto px-6">
@@ -118,20 +151,20 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
                   <div
                     key={item}
                     className={` rounded-full px-4 py-2 cursor-pointer flex items-center gap-2 ${
-                      selectedImprovement.includes(item)
+                      selectedImprovement === item
                         ? "bg-[#F3EFF6]"
                         : "bg-[#F8F8F8]"
                     }`}
                     onClick={() => handleImprovementClick(item)}
                   >
-                    {selectedImprovement.includes(item)
+                    {selectedImprovement === item
                       ? improvementIcon[item as keyof typeof improvementIcon]
                       : notSelectedImprovementIcon[
                           item as keyof typeof notSelectedImprovementIcon
                         ]}
                     <span
                       className={` ${
-                        selectedImprovement.includes(item)
+                        selectedImprovement === item
                           ? "opacity-100"
                           : "opacity-80"
                       } text-xs text-[#000] font-medium`}
@@ -148,15 +181,24 @@ const FeedbackModal = ({ handleClose }: { handleClose: () => void }) => {
                 rows={5}
                 className="w-full resize-none text-heading focus:outline-0 font-medium tracking-150 bg-[rgba(230,230,230,0.25)] rounded-lg p-3 text-sm"
                 placeholder="Write your note here"
+                value={feedbackNote}
+                onChange={(e) => setFeedbackNote(e.target.value)}
+                onFocus={() => setFeedbackNoteError(false)}
               />
+              {feedbackNoteError && (
+                <p className="text-error-text text-xs mt-2">
+                  Please enter a valid message
+                </p>
+              )}
             </div>
-            <div className="sm:max-w-[205px] mx-auto my-4 md:my-10">
+            <div className="sm:max-w-[219px] mx-auto my-4 md:my-10">
               <Button
                 text="Submit Feedback"
                 height={49}
-                action={() => {}}
+                action={handleSubmit}
+                loading={isPending}
                 hasIconOrLoader
-                buttonSize="large"
+                // buttonSize="large"
               />
             </div>
           </div>
@@ -174,6 +216,12 @@ export default function Feedback({
   const [isOpen, setIsOpen] = useState(false);
 
   useModal(isOpen);
+  const handleOpen = () => {
+    setIsOpen(true);
+    // if (isSmallScreen) {
+    //   setIsSidebarOpen(false);
+    // }
+  };
 
   const handleClose = () => {
     console.log("close");
@@ -188,7 +236,7 @@ export default function Feedback({
         className={`cursor-pointer ${
           isSidebarOpen ? "p-6" : "flex items-center justify-center py-2"
         } rounded-xl bg-[#FBFAFC]`}
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
       >
         <LikeIcon width={32} height={32} />
         {isSidebarOpen && (

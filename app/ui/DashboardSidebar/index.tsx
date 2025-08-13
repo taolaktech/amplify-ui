@@ -8,36 +8,45 @@ import { useRouter } from "next/navigation";
 import { useDashboardPath } from "@/app/lib/hooks/useDashboardPath";
 import DesktopSideBar from "./desktop";
 import MobileSideBar from "./mobile";
-import { useToastStore } from "@/app/lib/stores/toastStore";
+import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
+// import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function DashboardSideBar() {
   const logout = useAuthStore((state) => state.logout);
+  const { navigateToCreateCampaign } = useCampaignsActions();
   const reset = useSetupStore((state) => state.reset);
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const { toggleSidebar } = useUIStore((state) => state.actions);
-  const [isCompanyOpen, setIsCompanyOpen] = useState(false);
   const router = useRouter();
   const {
     isDashboard,
     isInsights,
     isCampaigns,
     isCompany,
+    isBrandAssets,
     isSupport,
     isSettings,
+    isPricing,
     isIntegrations,
+    isDashboardRoot,
+    isStoreDetails,
   } = useDashboardPath();
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  console.log("isSidebarOpen", isSidebarOpen);
+  const [isSettingTabOpen, setIsSettingTabOpen] = useState(false);
+  const [isCompanyTabOpen, setIsCompanyTabOpen] = useState(false);
 
-  const marketingGoals = useSetupStore((state) => state.marketingGoals);
+  // const marketingGoals = useSetupStore((state) => state.marketingGoals);
 
-  const setToast = useToastStore((state) => state.setToast);
+  const toggleIsSettingTab = () => {
+    setIsSettingTabOpen((prev) => !prev);
+    setIsCompanyTabOpen(false);
+  };
+
+  // const setToast = useToastStore((state) => state.setToast);
 
   useEffect(() => {
-    console.log("useEffect");
     const handleResize = () => {
-      console.log("handleResize");
       setIsSmallScreen(window.innerWidth < 1280);
     };
     handleResize();
@@ -46,25 +55,17 @@ export default function DashboardSideBar() {
   }, []);
 
   const toggleIsCompanyOpen = () => {
-    setIsCompanyOpen((prev) => !prev);
+    setIsCompanyTabOpen((prev) => !prev);
+    setIsSettingTabOpen(false);
   };
 
   const handleToggleSidebar = () => {
-    // setIsCompanyOpen(false);
     toggleSidebar();
   };
 
   const handleCreateCampaign = () => {
-    if (marketingGoals.complete) {
-      router.push("/pricing?route=campaigns");
-      return;
-    }
-    setToast({
-      title: "👋 Let's Get You Set Up First",
-      message:
-        "You need to complete onboarding before launching your first campaign. It only takes a minute!",
-      type: "warning",
-    });
+    navigateToCreateCampaign();
+    return;
   };
 
   const handleLogout = () => {
@@ -80,33 +81,43 @@ export default function DashboardSideBar() {
           isSidebarOpen={isSidebarOpen}
           handleToggleSidebar={handleToggleSidebar}
           handleLogout={handleLogout}
-          isDashboard={isDashboard}
+          isDashboard={isDashboard || isDashboardRoot}
           isInsights={isInsights}
           isCampaigns={isCampaigns}
           isCompany={isCompany}
           isSupport={isSupport}
+          isPricing={isPricing}
+          isStoreDetails={isStoreDetails}
+          isBrandAssets={isBrandAssets}
+          isIntegrations={isIntegrations}
           isSettings={isSettings}
-          // isIntegrations={isIntegrations}
+          toggleIsSettingTabOpen={toggleIsSettingTab}
+          isSettingTabOpen={isSettingTabOpen}
+          toggleIsCompanyTabOpen={toggleIsCompanyOpen}
+          isCompanyTabOpen={isCompanyTabOpen}
           handleCreateCampaign={handleCreateCampaign}
-          isCompanyOpen={isCompanyOpen}
-          toggleIsCompanyOpen={toggleIsCompanyOpen}
         />
       )}
       {isSmallScreen && (
         <MobileSideBar
           isSidebarOpen={isSidebarOpen}
+          isStoreDetails={isStoreDetails}
           handleToggleSidebar={handleToggleSidebar}
           handleLogout={handleLogout}
-          isDashboard={isDashboard}
+          isDashboard={isDashboard || isDashboardRoot}
           isInsights={isInsights}
           isCampaigns={isCampaigns}
+          isSettingTabOpen={isSettingTabOpen}
+          toggleIsSettingTabOpen={toggleIsSettingTab}
           isCompany={isCompany}
           isSupport={isSupport}
           isSettings={isSettings}
+          isPricing={isPricing}
+          isBrandAssets={isBrandAssets}
           isIntegrations={isIntegrations}
+          isCompanyTabOpen={isCompanyTabOpen}
+          toggleIsCompanyTabOpen={toggleIsCompanyOpen}
           handleCreateCampaign={handleCreateCampaign}
-          isCompanyOpen={isCompanyOpen}
-          toggleIsCompanyOpen={toggleIsCompanyOpen}
         />
       )}
     </>

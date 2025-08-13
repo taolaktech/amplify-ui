@@ -1,4 +1,4 @@
-import { Inter, Rubik } from "next/font/google";
+import { Inter, Roboto, Rubik } from "next/font/google";
 export const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -6,6 +6,12 @@ export const inter = Inter({
 });
 
 export const rubik = Rubik({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-rubik",
+});
+
+export const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-rubik",

@@ -38,7 +38,7 @@ export const handleShopifyAuth = async (data: {
 };
 
 export const handleRetrieveStoreDetails = async (token: string) => {
-  const response = await axiosInstanceBase.get("/business-details", {
+  const response = await axiosInstanceBase.get("/business", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -69,7 +69,7 @@ export const handlePostBusinessDetails = async (data: {
   token: string;
 }) => {
   const response = await axiosInstanceBase.post(
-    "/business-details",
+    "/business",
     data.businessDetails,
     {
       headers: {
@@ -94,7 +94,7 @@ export const postPreferredSalesLocation = async (data: {
 }) => {
   console.log("data", data);
   const response = await axiosInstanceBase.post(
-    "/business-details/set-shipping-locations",
+    "/business/set-shipping-locations",
     data.data,
     {
       headers: {
@@ -114,7 +114,7 @@ export const postMarketingGoals = async (data: {
   token: string;
 }) => {
   const response = await axiosInstanceBase.post(
-    "/business-details/set-goals",
+    "/business/set-goals",
     data.data,
     {
       headers: {
@@ -134,7 +134,7 @@ export const handleGetCities = async (data: {
     return;
   }
   const response = await axiosInstanceBase.post(
-    "/business-details/cities",
+    "/business/cities",
     {
       input: data.input,
     },
@@ -149,18 +149,21 @@ export const handleGetCities = async (data: {
 
 export const getProducts = async (data: {
   token: string;
-  first: number;
+  last?: number;
   after?: string;
+  before?: string;
 }) => {
   const response = await axiosInstanceBase.get("/shopify/products", {
     params: {
-      first: data.first,
-      after: data.after || null,
+      ...(!data.after && !data.before ? { first: 12 } : {}),
+      ...(data.after && !data.before ? { after: data.after, first: 12 } : {}),
+      ...(data.before && !data.after ? { before: data.before, last: 12 } : {}),
     },
     headers: {
       Authorization: `Bearer ${data.token}`,
     },
   });
+  console.log("token", data.token);
   console.log("response", response.data);
   return response.data;
 };

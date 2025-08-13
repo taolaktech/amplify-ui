@@ -13,21 +13,29 @@ export default function AuthBlock({
   const isAuth = useAuthStore((state) => state.isAuth); // Make sure your store supports loading state
   const pathname = usePathname();
   const router = useRouter();
+  const loginDate = useAuthStore((state) => state.loginDate);
+  const rememberMe = useAuthStore((state) => state.rememberMe);
+  const logout = useAuthStore((state) => state.logout);
 
   const [isMounted, setIsMounted] = useState(false);
 
   const checkIsPublicRoute = () => {
     return PUBLIC_ROUTES.some(
-      (route) =>
-        pathname === route ||
-        pathname.startsWith(`${route}/`) ||
-        pathname === "" ||
-        pathname === "/"
+      (route) => pathname === route || pathname.startsWith(`${route}/`)
     );
   };
 
   useEffect(() => {
     setIsMounted(true);
+    console.log("loginDate", loginDate);
+    if (!rememberMe && loginDate) {
+      const loginDateObj = new Date(loginDate);
+      const timeDiff = Date.now() - loginDateObj?.getTime();
+      if (timeDiff < 24 * 60 * 60 * 1000) {
+        logout();
+        return;
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -41,7 +49,7 @@ export default function AuthBlock({
     if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
     } else if (isPublicRoute && isAuth && !validated) {
-      router.replace("/dashboard"); // Redirect to dashboard if already authenticated
+      router.replace("/"); // Redirect to dashboard if already authenticated
     }
   }, [isMounted, isAuth, pathname, router]);
 

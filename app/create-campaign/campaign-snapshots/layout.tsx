@@ -1,12 +1,11 @@
 import { Metadata } from "next";
-// import '@ant-design/v5-patch-for-react-19';
 
 export const metadata: Metadata = {
-  title: "Amplify - Settings",
-  description: "Settings",
+  title: "Amplify - Campaign Snapshots",
+  description: "Campaign Snapshots",
 };
 
-export default function SettingsLayout({
+export default function CampaignSnapshotsLayout({
   children,
 }: {
   children: React.ReactNode;

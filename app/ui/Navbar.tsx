@@ -10,6 +10,7 @@ import { paths } from "../lib/utils";
 import useUIStore from "../lib/stores/uiStore";
 // import Notification from "./Notification";
 import Profile from "./Profile";
+import { useDashboardPath } from "../lib/hooks/useDashboardPath";
 
 export default function Navbar() {
   const isAuth = useAuthStore((state) => state.isAuth);
@@ -19,7 +20,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname().trim().replace(/\/$/, "");
 
-  const isDashboard = pathname.includes("/dashboard");
+  const { isInDashboard } = useDashboardPath();
   const isPricing = pathname.includes("/pricing");
 
   const alternateNavbarColor = isPricing;
@@ -45,13 +46,13 @@ export default function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-15 ${
-        showShadow && !isDashboard
+        showShadow && !isInDashboard
           ? "md:shadow-sm"
           : showShadow
           ? "shadow-sm md:shadow-none"
           : ""
       } ${
-        isDashboard
+        isInDashboard
           ? "custom-shadow-navbar justify-center h-[64px] xl:h-[81px]"
           : "h-navbar-height"
       } w-full flex items-center 
@@ -59,7 +60,7 @@ export default function Navbar() {
          !alternateNavbarColor ? "md:bg-white" : "md:bg-[#FBFAFC]"
        }`}
     >
-      {(!isDashboard || !isAuth) && (
+      {(!isInDashboard || !isAuth) && (
         <div
           className="max-w-[1512px] mx-auto w-full items-center"
           style={
@@ -68,19 +69,16 @@ export default function Navbar() {
             }
           }
         >
-          <Link
-            href={isAuth ? "/dashboard" : "/"}
-            className="hidden md:inline-block"
-          >
+          <Link href={isAuth ? "/" : "/"} className="hidden md:inline-block">
             <LogoIcon width={109} height={32} />
           </Link>
-          <Link href={isAuth ? "/dashboard" : "/"} className="md:hidden">
+          <Link href={isAuth ? "/" : "/"} className="md:hidden">
             <LogoSMIcon width={81} height={24} />
           </Link>
         </div>
       )}
       {/* dashboard list items */}
-      {isDashboard && isAuth && (
+      {isInDashboard && isAuth && (
         <>
           <div
             className={`${

@@ -21,10 +21,12 @@ export default function Checkout({
   isAddCardPage,
   setRightSideOpen,
   isUpgrade,
+  isDowngrade = false,
 }: {
   isAddCardPage: boolean;
   setRightSideOpen?: (open: boolean) => void;
   isUpgrade?: boolean;
+  isDowngrade?: boolean;
 }) {
   const [isAddCard, setIsAddCard] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
@@ -32,8 +34,12 @@ export default function Checkout({
   const { handleSubscribe, isPending } = useSubscribeToPlan();
   const { handleUpgrade, isPending: isUpgradePending } = useUpgradePlan();
 
-  const { data: customerPaymentMethods, isLoading } =
-    useGetCustomerPaymentMethods();
+  const {
+    data: customerPaymentMethods,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useGetCustomerPaymentMethods();
   useEffect(() => {
     if (customerPaymentMethods?.data?.length > 0) {
       setSelectedPaymentMethod(customerPaymentMethods.data[0]?.id);
@@ -148,7 +154,7 @@ export default function Checkout({
             isAddCard
               ? `mt-6 z-50 relative ${"h-[420px]"} opacity-100`
               : "h-0 opacity-0"
-          } transition-all overflow-hidden duration-300 ease-in-out`}
+          } transition-all duration-300 ease-in-out`}
         >
           <Elements stripe={stripePromise} options={options}>
             <CheckoutForm
@@ -167,7 +173,7 @@ export default function Checkout({
                 isAddCardPage
                   ? "Add card"
                   : isUpgrade
-                  ? "Upgrade now"
+                  ? `${isDowngrade ? "Downgrade" : "Upgrade"} now`
                   : "Subscribe now"
               }
               hasIconOrLoader

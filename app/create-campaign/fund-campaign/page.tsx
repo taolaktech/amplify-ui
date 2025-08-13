@@ -7,20 +7,36 @@ import Button from "@/app/ui/Button";
 
 import "range-slider-input/dist/style.css";
 import Checkout from "@/app/ui/checkout";
+import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+import { useRouter } from "next/navigation";
 
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
+  const actions = useCreateCampaignStore((state) => state.actions);
   const [rightSideOpen, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderFuncRef = useRef<any>(null);
+  const campaignSnapshots = useCreateCampaignStore(
+    (state) => state.campaignSnapshots
+  );
   const [isEditing, setIsEditing] = useState(false);
   console.log("rightSideOpen", rightSideOpen);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!campaignSnapshots.complete) {
+      router.push("/create-campaign/");
+    }
+  }, []);
+
   // Update slider when amount changes (e.g., via contentEditable)
   useEffect(() => {
     if (sliderFuncRef.current && !isEditing) {
       if (Number(amount) > 500) {
-        setAmount(500);
-        sliderFuncRef.current.value([0, 500]);
+        // setAmount(500);
+        setAmount(amount);
+        // sliderFuncRef.current.value([0, 500]);
       } else if (Number(amount) < 50) {
         setAmount(50);
         sliderFuncRef.current.value([0, 50]);
@@ -68,15 +84,21 @@ export default function FundCampaignPage() {
     };
   }, []);
 
-  const handleProceed = () => {};
+  const handleProceed = () => {
+    if (amount < 50) {
+      return;
+    }
+    actions.storeFundCampaign({
+      amount,
+      complete: true,
+    });
+    router.push("/create-campaign/review");
+  };
 
   const handleAmount = () => {
     if (amount < 50) {
       setAmount(50);
       return 50;
-    } else if (amount > 500) {
-      setAmount(500);
-      return 500;
     }
     return amount;
   };
@@ -96,18 +118,18 @@ export default function FundCampaignPage() {
       </div>
       <div className="flex gap-12 mt-10">
         <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%] max-h-[417px]">
-          <div className="py-4 px-5 bg-[#FEF5EA] flex items-center gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
-            <span className="flex items-center justify-center w-[32px] h-[32px] bg-[#FDE0BD] rounded-full">
+          <div className="py-4 px-5 bg-[#FEF5EA] flex-shrink-0 flex items-start gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
+            <span className="flex items-center justify-center w-[32px] h-[32px] flex-shrink-0 bg-[#FDE0BD] rounded-full">
               <NoteRemove size="17" color="#C67B22" />
             </span>
             <span className="text-sm font-medium tracking-150">
-              The minimum budget based on the number of selected product is $50
+              The minimum budget based on your campaign settings is $50. Your
+              campaign ad spend of $150 has the opportunity to achieve a return
+              on ad spend (ROAS) of at least 3.5x
             </span>
           </div>
           <div className="max-w-[425px] mx-auto mt-12">
-            <span className="text-sm font-medium tracking-150">
-              Amount to Fund:
-            </span>
+            <span className="text-sm font-medium tracking-150">Ad Spend:</span>
             <div className="bg-[rgba(230,230,230,0.25)] h-[153px] w-full rounded-xl flex items-center justify-center mt-4 border-[0.5px] border-[#E9E7EB]">
               <span className="text-4xl flex items-center gap-1 font-extrabold tracking-[-1.8px] max-w-[80%]">
                 <span className="text-xl text-[#BFBFBF]">$</span>
@@ -131,7 +153,7 @@ export default function FundCampaignPage() {
                       return;
                     } else if (!/^\d$/.test(e.key)) {
                       e.preventDefault();
-                    } else if (e.currentTarget?.innerText?.length > 3) {
+                    } else if (e.currentTarget?.innerText?.length > 7) {
                       console.log("here");
                       e.preventDefault();
                     }
@@ -140,9 +162,10 @@ export default function FundCampaignPage() {
                     setIsEditing(false);
                     e.currentTarget.style.cursor = "default";
                     const val = e.currentTarget.textContent?.trim();
-                    const newAmount = Math.max(50, Number(val || 50)); // Enforce minimum $50
-                    setAmount(newAmount);
-                    e.currentTarget.textContent = `${newAmount}`; // Reset span content
+                    console.log("val:", val);
+                    // const newAmount = Math.max(50, Number(val || 500)); // Enforce minimum $50
+                    setAmount(Number(val));
+                    e.currentTarget.textContent = `${Number(val)}`; // Reset span content
                   }}
                   suppressContentEditableWarning={true}
                 >

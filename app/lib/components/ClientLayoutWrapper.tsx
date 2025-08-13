@@ -10,18 +10,27 @@ import SplashScreen from "@/app/ui/loaders/SplashScreen";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import useRefreshInitialize from "../hooks/useRefreshInitialize";
+import { useDashboardPath } from "../hooks/useDashboardPath";
+import DashboardSideBar from "@/app/ui/DashboardSidebar";
+import DashboardChildren from "@/app/ui/dashboard/DashboardChildren";
 
 const queryClient = new QueryClient();
 const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
-const INACTIVITY_LIMIT_D = 20 * 24 * 60 * 60 * 1000; // 20 days
+// const INACTIVITY_LIMIT_D = 20 * 24 * 60 * 60 * 1000; // 20 days
 
 export default function ClientLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { logout, isAuth, rememberMe } = useAuthStore();
+  const { logout, isAuth } = useAuthStore();
   const router = useRouter();
+  const { allPaths } = useDashboardPath();
+
+  const inDashboard = allPaths.some((path) => path);
+
+  console.log("inDashboard: ", inDashboard);
+
   useRefreshInitialize();
   const onIdle = () => {
     if (isAuth) {
@@ -30,7 +39,7 @@ export default function ClientLayoutWrapper({
     }
   };
   useIdleTimer({
-    timeout: rememberMe ? INACTIVITY_LIMIT_D : INACTIVITY_LIMIT,
+    timeout: INACTIVITY_LIMIT,
     onIdle,
     debounce: 500,
   });
@@ -46,7 +55,16 @@ export default function ClientLayoutWrapper({
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <AuthBlock>
-        <div>{children}</div>
+        {inDashboard && isAuth ? (
+          <div className="flex flex-col xl:flex-row xl:max-w-full">
+            {/* Sidebar */}
+            <DashboardSideBar />
+            {/* Main Content */}
+            <DashboardChildren>{children}</DashboardChildren>
+          </div>
+        ) : (
+          <div>{children}</div>
+        )}
       </AuthBlock>
       <SplashScreen />
     </QueryClientProvider>

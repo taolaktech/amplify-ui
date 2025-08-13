@@ -14,17 +14,20 @@ export default function CreateCampaign({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { adsShow, actions, productSelection, supportedAdPlatforms } =
+  const { adsShow, productSelection, supportedAdPlatforms } =
     useCreateCampaignStore((state) => state);
   const [step, setStep] = useState(1);
   const [backText, setBackText] = useState("");
 
   useEffect(() => {
-    actions.reset();
+    // actions.reset();
   }, []);
 
   useEffect(() => {
-    if (pathname.includes("fund-campaign")) {
+    if (pathname.includes("review")) {
+      setStep(6);
+      setBackText("Fund Campaign");
+    } else if (pathname.includes("fund-campaign")) {
       setStep(5);
       setBackText("Campaign Snapshots");
     } else if (
@@ -76,7 +79,7 @@ export default function CreateCampaign({
         </>
         <button
           className="flex py-2 px-2 items-center gap-2 cursor-pointer"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/")}
         >
           <XCloseIcon width={24} height={24} className="hidden md:block" />
           <XCloseIconSM width={16} height={16} className="block md:hidden" />

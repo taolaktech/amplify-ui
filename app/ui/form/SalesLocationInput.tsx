@@ -97,7 +97,7 @@ const SalesLocationInput = ({
           )}
         </div>
 
-        {isOpen && (
+        {isOpen && searchedLocation.length > 0 && (
           <div
             onClick={(e) => e.stopPropagation()}
             className="absolute max-w-[387px] left-0 right-0 top-[48px] z-10 bg-white max-h-[336px] rounded-lg w-full custom-shadow-select overflow-y-auto"

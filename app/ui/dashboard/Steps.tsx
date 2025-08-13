@@ -1,13 +1,14 @@
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import { TickCircle } from "iconsax-react";
-import RightArrowIcon from "@/public/arrow-right-gradient.svg";
+// import RightArrowIcon from "@/public/arrow-right-gradient.svg";
 import { useEffect, useState } from "react";
-import Button from "../DefaultLink";
+// import Button from "../DefaultLink";
 
 export default function Steps() {
   const [step, setStep] = useState(3);
   const [stepText, setStepText] = useState("Getting Started");
   const [link, setLink] = useState("/setup");
+  console.log(link);
   const {
     connectStore,
     businessDetails,
@@ -16,22 +17,22 @@ export default function Steps() {
   } = useSetupStore();
 
   useEffect(() => {
-    if (marketingGoals.complete) {
-      setStep(4);
-      setLink("/setup/marketing-goals");
-      setStepText("Upload Brand Kit");
-    } else if (preferredSalesLocation.complete) {
-      setStep(3);
-      setLink("/setup/marketing-goals");
-      setStepText("Set Marketing Goal");
-    } else if (businessDetails.complete) {
-      setStep(2);
-      setLink("/setup/preferred-sales-location");
-      setStepText("Select Preferred Sales Location");
-    } else if (connectStore.complete) {
+    // if (marketingGoals.complete) {
+    //   setStep(4);
+    //   setLink("/setup/marketing-goals");
+    //   setStepText("Upload Brand Kit");
+    // } else if (preferredSalesLocation.complete) {
+    //   setStep(3);
+    //   setLink("/setup/marketing-goals");
+    //   setStepText("Set Marketing Goal");
+    // } else if (businessDetails.complete) {
+    //   setStep(2);
+    //   setLink("/setup/preferred-sales-location");
+    //   setStepText("Select Preferred Sales Location");
+    if (connectStore.complete) {
       setStep(1);
-      setLink("/setup/business-details");
-      setStepText("Add Business Details");
+      // setLink("/setup/business-details");
+      setStepText("Connect Facebook Account");
     } else {
       setLink("/setup");
       setStep(0);
@@ -77,7 +78,7 @@ export default function Steps() {
               </svg>
               <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
                 <span className="text-center text-sm text-base text-white num">
-                  {step}/5
+                  {step}/4
                 </span>
               </div>
             </div>
@@ -113,7 +114,7 @@ export default function Steps() {
                 />
                 <div className="ml-1">
                   <div className={`text-white text-sm`}>
-                    Add Business Details
+                    Connect Your Facebook Account
                   </div>
                 </div>
               </div>
@@ -132,7 +133,7 @@ export default function Steps() {
                 />
                 <div className="ml-1">
                   <div className={`text-white text-sm`}>
-                    Select Preferred Sales Location
+                    Connect Your Instagram Account
                   </div>
                 </div>
               </div>
@@ -141,7 +142,7 @@ export default function Steps() {
               </div>
             </div>
             {/* Step 4 */}
-            <div className=" w-full">
+            {/* <div className=" w-full">
               <div className="flex items-center">
                 <TickCircle
                   size={24}
@@ -149,13 +150,15 @@ export default function Steps() {
                   variant={step >= 4 ? "Bold" : "Linear"}
                 />
                 <div className="ml-1">
-                  <div className={`text-white text-sm`}>Set Marketing Goal</div>
+                  <div className={`text-white text-sm`}>
+                    Connect Your Google Account
+                  </div>
                 </div>
               </div>
               <div className="w-[24px] flex justify-center py-1">
                 <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
               </div>
-            </div>
+            </div> */}
             {/* Step 4 */}
             <div className=" w-full">
               <div className="flex items-center">
@@ -175,7 +178,7 @@ export default function Steps() {
           </div>
         </div>
       </div>
-      <div className="w-[167px] ml-auto lg:ml-0 mt-auto lg:mt-0 z-2">
+      {/* <div className="w-[167px] ml-auto lg:ml-0 mt-auto lg:mt-0 z-2">
         <Button
           text="Complete Setup"
           secondary
@@ -185,7 +188,7 @@ export default function Steps() {
           href={link}
           icon={<RightArrowIcon width="16" height="16" />}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -10,6 +10,13 @@ interface CreateCampaignState {
     products: any[];
     complete: boolean;
   };
+  fundCampaign: {
+    amount: number;
+    complete: boolean;
+  };
+  instagramSettings: InstagramSettings;
+  facebookSettings: FacebookSettings;
+  googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
 }
@@ -28,22 +35,39 @@ interface SupportedAdPlatforms {
   Google: boolean;
 }
 
+interface InstagramSettings extends Record<SocialSettingsKey, boolean> {}
+
+interface FacebookSettings extends Record<SocialSettingsKey, boolean> {}
+
+interface GoogleSettings {
+  staticPost: boolean;
+}
+
 interface CreateCampaignActions {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
   storeProductSelection: (productSelection: {
     products: any[];
     complete: boolean;
   }) => void;
+  storeFundCampaign: (fundCampaign: {
+    amount: number;
+    complete: boolean;
+  }) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
   completeCampaignSnapshots: () => void;
+  getLocationCountries: () => string[];
+  toggleInstagramSettings: (setting: SocialSettingsKey) => void;
+  toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
 }
 
 interface CreateCampaignStore extends CreateCampaignState {
   actions: CreateCampaignActions;
 }
+
+export type SocialSettingsKey = "staticPost" | "carouselPost" | "storyPost";
 
 const initialState: CreateCampaignState = {
   adsShow: {
@@ -60,6 +84,11 @@ const initialState: CreateCampaignState = {
     Google: true,
     complete: true,
   },
+
+  fundCampaign: {
+    amount: 40,
+    complete: false,
+  },
   campaignSnapshots: {
     campaignType: "",
     brandColor: "",
@@ -68,16 +97,62 @@ const initialState: CreateCampaignState = {
     campaignEndDate: "",
     complete: false,
   },
+  instagramSettings: {
+    staticPost: true,
+    carouselPost: true,
+    storyPost: true,
+  },
+  facebookSettings: {
+    staticPost: true,
+    carouselPost: true,
+    storyPost: true,
+  },
+  googleSettings: {
+    staticPost: true,
+  },
 };
 
 export const useCreateCampaignStore = create<CreateCampaignStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       actions: {
         storeAdsShow: (adsShow) => {
           set((state) => ({
             adsShow: { ...state.adsShow, ...adsShow },
+          }));
+        },
+        getLocationCountries: () => {
+          const countries: string[] = [];
+          const locations = get().adsShow.location;
+          locations.forEach((location) => {
+            const country = location.trim().split(",")[2]?.trim();
+            if (!countries.includes(country)) {
+              countries.push(country);
+            }
+          });
+          return countries;
+        },
+        toggleInstagramSettings: (setting: SocialSettingsKey) => {
+          set((state) => ({
+            instagramSettings: {
+              ...state.instagramSettings,
+              [setting]: !state.instagramSettings[setting],
+            },
+          }));
+        },
+        toggleFacebookSettings: (setting: keyof FacebookSettings) => {
+          set((state) => ({
+            facebookSettings: {
+              ...state.facebookSettings,
+              [setting]: !state.facebookSettings[setting],
+            },
+          }));
+        },
+
+        storeFundCampaign: (fundCampaign) => {
+          set((state) => ({
+            fundCampaign: { ...state.fundCampaign, ...fundCampaign },
           }));
         },
         storeProductSelection: (productSelection) => {
@@ -132,6 +207,21 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
       }),
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Error rehydrating campaign store", error);
+          return;
+        }
+
+        if (state) {
+          // Mutate the state object directly
+          state.adsShow.complete = false;
+          state.productSelection.complete = false;
+          state.fundCampaign.complete = false;
+          state.campaignSnapshots.complete = false;
+          state.supportedAdPlatforms.complete = false;
+        }
+      },
     }
   )
 );
