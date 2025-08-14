@@ -26,7 +26,7 @@ export default function Pricing({
     // setBillingCycle(currentPlanDetails.cycle);
     if (plans && currentPlan2) {
       const index = plans.findIndex(
-        (plan) => plan.toLowerCase() === currentPlan2?.name.toLowerCase()
+        (plan) => plan?.toLowerCase() === currentPlan2?.name?.toLowerCase()
       );
       if (index == 1) setSelectedPlan(plans[2]);
       else setSelectedPlan(plans[1]);
@@ -80,8 +80,8 @@ export default function Pricing({
             isDashboard={isDashboard}
             features={plan.features}
             isCurrentPlan={
-              currentPlan2?.name.toLowerCase() === plan?.name.toLowerCase() &&
-              currentPlan2?.cycle.toLowerCase() === billingCycle.toLowerCase()
+              currentPlan2?.name?.toLowerCase() === plan?.name.toLowerCase() &&
+              currentPlan2?.cycle?.toLowerCase() === billingCycle?.toLowerCase()
             }
             planSelected={selectedPlan}
             cycle={billingCycle}

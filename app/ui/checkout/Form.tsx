@@ -172,17 +172,20 @@ const CheckoutForm = ({
 
       console.log("res", res);
 
-      // const { clientSecret } = res.data.data;
+      const { clientSecret } = res.data.data;
+
 
       // 4. Create subscription
       let subscriptionRes;
-      if (isAddCardPage && !isUpgrade && price) {
+   
+
+      if (!isAddCardPage && !isUpgrade && price) {
         subscriptionRes = await subscribeToPlan({
           token: token || "",
           price: price.toString(),
           paymentMethodId: paymentMethod.id,
         });
-      } else if (isUpgrade && price && isAddCardPage) {
+      } else if (isUpgrade && price && !isAddCardPage) {
         subscriptionRes = await upgradePlan({
           token: token || "",
           newPriceId: price.toString(),
@@ -197,17 +200,53 @@ const CheckoutForm = ({
       //   // redirect: "if_required",
       // };
 
-      if (!isAddCardPage) {
-        setSubscriptionSuccess(true);
-        router.push("/pricing/checkout/success");
-      } else {
-        setToast({
-          title: "Card Added Successfully",
-          message:
-            "You’re all set! Your payment method has been saved and ready for your next campaign",
-          type: "success",
-        });
-      }
+      //  const result:any = null
+
+      stripe.confirmCardSetup(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
+         billing_details: {
+            name: fullName,
+          },
+        },
+      })
+      .then(function(result) {
+        console.log("result from setup", result);
+
+        if (result.setupIntent?.status === 'succeeded'){
+           if (!isAddCardPage) {
+              setSubscriptionSuccess(true);
+              router.push("/pricing/checkout/success");
+              return;
+            }
+           setToast({
+            title: "Card Added Successfully",
+            message:
+              "You’re all set! Your payment method has been saved and ready for your next campaign",
+            type: "success",
+          });
+        }
+        else {
+            //  setMessage(result.error.message || "Payment failed");
+          setToast({
+           title: "Something Went Wrong",
+            message:
+             "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+           type: "error",
+         });
+
+        }
+      });
+
+      //  console.log("cardresult", result);
+     
+      // } else {
+      //   if (result.error) {
+     
+      //   return;
+      //   // router.push("/pricing/checkout/failed");
+      // }
+      //   
 
       // if (!isAddCardPage) {
       //   confirmParams.return_url =
@@ -215,22 +254,10 @@ const CheckoutForm = ({
       // }
 
       // 5. Confirm the setup-intent
-      // const result = await stripe.confirmSetup({
-      //   clientSecret: clientSecret,
-      //   confirmParams,
-      // });
+     
+    
 
-      // if (result.error) {
-      //   setMessage(result.error.message || "Payment failed");
-      //   setToast({
-      //     title: "Something Went Wrong",
-      //     message:
-      //       "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
-      //     type: "error",
-      //   });
-      //   return;
-      //   // router.push("/pricing/checkout/failed");
-      // }
+      
       // router.push("/pricing/checkout/success");
     } catch (error) {
       console.log("error", error);

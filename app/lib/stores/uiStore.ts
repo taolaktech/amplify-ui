@@ -1,8 +1,11 @@
+import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 
 type UIStore = {
-  products: any[];
+  products: ShopifyProduct[];
   productCount: number;
+  totalProgressStep: number;
+  currentProgressStep: number;
   startCursor: string;
   endCursor: string;
   currentPage: number;
@@ -22,6 +25,7 @@ type UIStore = {
       currentPage: number
     ) => void;
     setSidebarOpen: (open: boolean) => void;
+    setProgressStep: (current: number, total?: number) => void;
     toggleSidebar: () => void;
     setOnboardingCompleted: (completed: boolean) => void;
     setSubscriptionSuccess: (success: boolean) => void;
@@ -38,6 +42,8 @@ const useUIStore = create<UIStore>((set) => ({
   productCount: 0,
   currentPage: 1,
   startCursor: "",
+  totalProgressStep: 6,
+  currentProgressStep: 1,
   endCursor: "",
   hasNextPage: false,
   hasPreviousPage: false,
@@ -63,6 +69,8 @@ const useUIStore = create<UIStore>((set) => ({
         hasPreviousPage: hasPreviousPage,
         currentPage: currentPage,
       })),
+      setProgressStep: (current, total = 6) =>
+        set({ currentProgressStep: current, totalProgressStep: total }),
     setSidebarOpen: (open) => set({ isSidebarOpen: open }),
     toggleSidebar: () => {
       console.log("toggleSidebar");

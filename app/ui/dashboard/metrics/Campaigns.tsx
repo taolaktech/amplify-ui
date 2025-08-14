@@ -42,7 +42,7 @@ function Campaigns() {
 
 export default Campaigns;
 
-function NoCampaigns({
+export function NoCampaigns({
   handleCreateCampaign,
 }: {
   handleCreateCampaign: () => void;

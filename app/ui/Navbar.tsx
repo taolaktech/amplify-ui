@@ -11,10 +11,11 @@ import useUIStore from "../lib/stores/uiStore";
 // import Notification from "./Notification";
 import Profile from "./Profile";
 import { useDashboardPath } from "../lib/hooks/useDashboardPath";
+import ProgressBar from "./ProgressBar";
 
 export default function Navbar() {
   const isAuth = useAuthStore((state) => state.isAuth);
-  const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+  const {isSidebarOpen, totalProgressStep, currentProgressStep} = useUIStore((state) => state);
   const toggleSidebar = useUIStore((state) => state.actions.toggleSidebar);
   const [showShadow, setShowShadow] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -22,6 +23,10 @@ export default function Navbar() {
 
   const { isInDashboard } = useDashboardPath();
   const isPricing = pathname.includes("/pricing");
+  const isCreateCampaign = pathname.includes("/create-campaign");
+  const isSetup = pathname.includes("/setup");
+
+  const showProgressBar = isCreateCampaign || isSetup;
 
   const alternateNavbarColor = isPricing;
 
@@ -44,16 +49,19 @@ export default function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav
-      className={`sticky top-0 z-15 ${
-        showShadow && !isInDashboard
+    <nav className={`sticky top-0 z-15
+    ${showShadow && !isInDashboard
           ? "md:shadow-sm"
           : showShadow
           ? "shadow-sm md:shadow-none"
           : ""
-      } ${
+      }
+      ${isInDashboard ? "custom-shadow-navbar" : ""}
+    `}>
+    <div
+      className={`${
         isInDashboard
-          ? "custom-shadow-navbar justify-center h-[64px] xl:h-[81px]"
+          ? "justify-center h-[64px] xl:h-[81px]"
           : "h-navbar-height"
       } w-full flex items-center 
        container-base-container px-5 py-3 bg-[#FBFAFC] ${
@@ -107,6 +115,8 @@ export default function Navbar() {
           </div>
         </>
       )}
+    </div>
+      {showProgressBar && <ProgressBar width={(currentProgressStep / totalProgressStep) * 100} />}
     </nav>
   );
 }

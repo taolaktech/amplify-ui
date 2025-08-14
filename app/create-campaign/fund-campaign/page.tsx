@@ -116,8 +116,8 @@ export default function FundCampaignPage() {
           </p>
         </div>
       </div>
-      <div className="flex gap-12 mt-10">
-        <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl w-[50%] max-h-[417px]">
+      <div className="lg:flex gap-12 mt-10">
+        <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl lg:w-[50%] max-h-[417px]">
           <div className="py-4 px-5 bg-[#FEF5EA] flex-shrink-0 flex items-start gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
             <span className="flex items-center justify-center w-[32px] h-[32px] flex-shrink-0 bg-[#FDE0BD] rounded-full">
               <NoteRemove size="17" color="#C67B22" />
@@ -128,7 +128,7 @@ export default function FundCampaignPage() {
               on ad spend (ROAS) of at least 3.5x
             </span>
           </div>
-          <div className="max-w-[425px] mx-auto mt-12">
+          <div className="lg:max-w-[425px] mx-auto mt-12">
             <span className="text-sm font-medium tracking-150">Ad Spend:</span>
             <div className="bg-[rgba(230,230,230,0.25)] h-[153px] w-full rounded-xl flex items-center justify-center mt-4 border-[0.5px] border-[#E9E7EB]">
               <span className="text-4xl flex items-center gap-1 font-extrabold tracking-[-1.8px] max-w-[80%]">
@@ -180,7 +180,7 @@ export default function FundCampaignPage() {
             </div>
           </div>
         </div>
-        <div className="w-[50%]">
+        <div className="lg:w-[50%] mt-20 lg:mt-0">
           <div className="flex items-center justify-between w-full">
             <span className="text-sm tracking-60 text-[#595959]">
               Select Payment Options

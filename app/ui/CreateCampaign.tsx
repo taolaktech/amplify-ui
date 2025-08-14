@@ -6,6 +6,7 @@ import XCloseIconSM from "@/public/x-close.svg";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
+import useUIStore from "../lib/stores/uiStore";
 
 export default function CreateCampaign({
   children,
@@ -14,39 +15,43 @@ export default function CreateCampaign({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { currentProgressStep, totalProgressStep } = useUIStore((state) => state);
+  const setProgressStep = useUIStore((state) => state.actions.setProgressStep);
   const { adsShow, productSelection, supportedAdPlatforms } =
     useCreateCampaignStore((state) => state);
-  const [step, setStep] = useState(1);
+  // const [step, setStep] = useState(1);
   const [backText, setBackText] = useState("");
 
   useEffect(() => {
     // actions.reset();
+    setProgressStep(1, 6);
+
   }, []);
 
   useEffect(() => {
     if (pathname.includes("review")) {
-      setStep(6);
+      setProgressStep(6, 6);
       setBackText("Fund Campaign");
     } else if (pathname.includes("fund-campaign")) {
-      setStep(5);
+      setProgressStep(5, 6);
       setBackText("Campaign Snapshots");
     } else if (
       supportedAdPlatforms.complete &&
       pathname.includes("campaign-snapshots")
     ) {
-      setStep(4);
+      setProgressStep(4, 6);
       setBackText("Supported Ad Platforms");
     } else if (
       productSelection.complete &&
       pathname.includes("supported-ad-platforms")
     ) {
-      setStep(3);
+      setProgressStep(3, 6);
       setBackText("Select Products");
     } else if (adsShow.complete && pathname.includes("product-selection")) {
-      setStep(2);
+      setProgressStep(2, 6);
       setBackText("Create Campaign");
     } else {
-      setStep(1);
+      setProgressStep(1, 6);
       setBackText("");
     }
   }, [adsShow.complete, productSelection.complete, pathname]);
@@ -57,14 +62,14 @@ export default function CreateCampaign({
 
   return (
     <div>
-      <ProgressBar width={(step / 6) * 100} />
+      {/* <ProgressBar width={(step / 6) * 100} /> */}
       <div
         className={`flex items-center h-[40px] mt-6 ${
-          step > 1 ? "justify-between" : "justify-end"
+          currentProgressStep > 1 ? "justify-between" : "justify-end"
         }`}
       >
         <>
-          {step > 1 && (
+          {currentProgressStep > 1 && (
             <button
               className="flex items-center cursor-pointer gap-2"
               onClick={handleBack}

@@ -17,6 +17,7 @@ function SetupSideBar() {
     (state) => state.isOnboardingCompleted
   );
   const [step, setStep] = useState(1);
+  const { setProgressStep } = useUIStore((state) => state.actions);
   const [stepText, setStepText] = useState("Connect your Store");
   const [lineProgress, setLineProgress] = useState(0);
   const router = useRouter();
@@ -29,6 +30,7 @@ function SetupSideBar() {
   console.log("isOnboardingCompleted", isCompleted);
 
   useEffect(() => {
+
     return () => {
       setOnboardingCompleted(false);
     };
@@ -36,6 +38,7 @@ function SetupSideBar() {
 
   useEffect(() => {
     let step = 1;
+
     let lineProgress = 0;
     if (preferredSalesLocation && pathname === "/setup/marketing-goals") {
       lineProgress = 100;
@@ -66,7 +69,7 @@ function SetupSideBar() {
       setStepText("Connect your Store");
     }
     setLineProgress(lineProgress);
-    setStep(step);
+    setProgressStep(step, 4);
   }, [connectStore, businessDetails, preferredSalesLocation, pathname]);
 
   return (
@@ -246,7 +249,7 @@ function SetupSideBar() {
             </div>
           </div>
         </div>
-        <ProgressBar width={(step / 4) * 100} />
+        {/* <ProgressBar width={(step / 4) * 100} /> */}
         <div className="px-5 mt-12 xl:hidden">
           <div className="flex items-center justify-between mb-3">
             <GoBack />

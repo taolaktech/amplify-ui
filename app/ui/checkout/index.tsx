@@ -153,7 +153,7 @@ export default function Checkout({
           className={`${
             isAddCard
               ? `mt-6 z-50 relative ${"h-[420px]"} opacity-100`
-              : "h-0 opacity-0"
+              : "h-0 opacity-0 overflow-hidden"
           } transition-all duration-300 ease-in-out`}
         >
           <Elements stripe={stripePromise} options={options}>

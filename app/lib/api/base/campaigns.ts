@@ -20,15 +20,14 @@ export default async function getCampaigns(data: {
   platforms?: CampaignPlatforms;
 }) {
   const { token, page, sortBy, type, status, platforms } = data;
-
   const response = await instance.get("/campaign", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
     params: {
-      ...(page !== undefined && { page }),
+      page: 1,
       perPage: 10,
-      ...(sortBy && { sortBy }),
+      sortBy: sortBy || "createdAt:desc",
       ...(type && { type }),
       ...(status && { status }),
       ...(platforms && { platforms }),

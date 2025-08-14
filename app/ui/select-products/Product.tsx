@@ -35,7 +35,7 @@ const Product = ({
       }`}
       onClick={() => toggleChecked(productNode?.id)}
     >
-      <div className="flex gap-3 ">
+      <div className="flex w-full gap-3 ">
         <div
           className={`${
             isReview
@@ -97,10 +97,10 @@ const Product = ({
             ${productNode?.priceRangeV2?.minVariantPrice?.amount}
           </div>
         </div>
-        <div className="flex items-center md:hidden pr-1">
+        </div>
+        <div className="flex items-center  md:hidden pr-1">
           <CheckBox checked={checked} />
         </div>
-      </div>
     </div>
   );
 };

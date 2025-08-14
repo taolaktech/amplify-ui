@@ -86,7 +86,11 @@ export const useAuthStore = create<AuthStore>()(
       loginDate: null,
 
       hasHydrated: false,
-      subscriptionType: null,
+      subscriptionType: {
+        name: 'Free',
+        cycle: 'monthly',
+        // price: 0
+      },
       rememberMe: false,
       login: (token, user) => {
         set({ token, isAuth: true, user, loginDate: new Date() });

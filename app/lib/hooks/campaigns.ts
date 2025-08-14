@@ -49,7 +49,7 @@ export const useCampaignsActions = () => {
 
   const navigateToCreateCampaign = () => {
     if (
-      subscriptionType?.name.toLowerCase() === "free" &&
+      (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
       (!data || data.length === 0)
     ) {
       router.push("/pricing");
