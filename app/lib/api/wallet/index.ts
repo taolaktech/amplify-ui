@@ -86,3 +86,34 @@ export const getCurrentSubscriptionPlan = async (token: string) => {
   console.log("response from current subscription plan", response);
   return response.data;
 };
+
+export const setDefaultPaymentMethod = async (data: {
+  token: string;
+  paymentMethodId: string;
+}) => {
+  const response = await axiosInstance.put(
+    `/stripe/customers/payment-methods/set-default`,
+    { paymentMethodId: data.paymentMethodId }, // <-- this is the request body
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const removePaymentMethod = async (data: {
+  token: string;
+  paymentMethodId: string;
+}) => {
+  const response = await axiosInstance.delete(
+    `/stripe/customers/payment-methods/${data.paymentMethodId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};

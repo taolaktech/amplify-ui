@@ -13,6 +13,7 @@ import useCreativesStore from "@/app/lib/stores/creativesStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
+import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
 
 const countries = {
   usa: "United States",
@@ -275,14 +276,37 @@ export default function ReviewPage() {
             </Link>
           </div>
 
-          <div className="py-8 border-b-[0.5px] border-[#BFBFBF]">
-            <div>
+          <div className="py-8 flex items-center gap-12 border-b-[0.5px] border-[#BFBFBF]">
+            <div className="flex flex-col gap-1 h-[60px]">
               <p className="text-[#595959] text-sm tracking-200">
                 Amount Funded
               </p>
               <p className="text-[#555456] font-medium tracking-250">
                 ${fundCampaign.amount || "0"}
               </p>
+            </div>
+            <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
+              <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
+                <Image
+                  src={
+                    brandIconMap[
+                      fundCampaign.cardDetails?.cardBrand.toLowerCase() ||
+                        "unknown"
+                    ]
+                  }
+                  alt={fundCampaign.cardDetails?.cardBrand || ""}
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <div className="flex flex-col gap-1 justify-between">
+                <div className="text-[#595959] text-sm tracking-200">
+                  Credit Card
+                </div>
+                <div className="font-medium tracking-250 leading-tight text-sm ">
+                  **** **** **** {fundCampaign.cardDetails?.last4Numbers}
+                </div>
+              </div>
             </div>
           </div>
         </section>

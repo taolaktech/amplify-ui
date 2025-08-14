@@ -1,6 +1,8 @@
 import {
   getCurrentSubscriptionPlan,
   getCustomerPaymentMethods,
+  removePaymentMethod,
+  setDefaultPaymentMethod,
   subscribeToPlan,
   upgradePlan,
 } from "../api/wallet";
@@ -88,4 +90,44 @@ export const useUpgradePlan = () => {
   };
 
   return { handleUpgrade, isPending };
+};
+
+export const useStripeCustomerActions = () => {
+  const token = useAuthStore((state) => state.token);
+
+  const { mutate: setDefaultPaymentMethodMutate, isPending: isSettingDefaultPaymentMethod } = useMutation({
+    mutationFn: setDefaultPaymentMethod,
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const { mutate: removePaymentMethodMutate, isPending: isRemovingPaymentMethod } = useMutation({
+    mutationFn: removePaymentMethod,
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const handleSetDefaultPaymentMethod = (paymentMethodId: string) => {
+    setDefaultPaymentMethodMutate({
+      token: token || "",
+      paymentMethodId,
+    });
+  };
+
+  const handleRemovePaymentMethod = (paymentMethodId: string) => {
+    removePaymentMethodMutate({
+      token: token || "",
+      paymentMethodId,
+    });
+  };
+
+  return { handleSetDefaultPaymentMethod, handleRemovePaymentMethod };
 };

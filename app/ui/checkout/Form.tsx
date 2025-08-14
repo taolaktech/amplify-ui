@@ -18,6 +18,7 @@ import { priceId } from "@/app/lib/pricingPlans";
 import Skeleton from "../Skeleton";
 import { subscribeToPlan, upgradePlan } from "@/app/lib/api/wallet";
 import { useToastStore } from "@/app/lib/stores/toastStore";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 const countryOptions = Object.values(countries).map(
   (country) => country.name
@@ -28,12 +29,14 @@ type CheckoutFormProps = {
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;
   isUpgrade?: boolean;
+  fetchCustomerCards?: (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<any, Error>> | (() => void);
 }
 
 const CheckoutForm = ({
   amount,
   isAddCardPage = false,
   isUpgrade = false,
+  fetchCustomerCards
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -219,6 +222,7 @@ const CheckoutForm = ({
               router.push("/pricing/checkout/success");
               return;
             }
+           fetchCustomerCards?.();
            setToast({
             title: "Card Added Successfully",
             message:

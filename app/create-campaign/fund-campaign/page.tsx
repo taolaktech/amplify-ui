@@ -181,7 +181,7 @@ export default function FundCampaignPage() {
           </div>
         </div>
         <div className="lg:w-[50%] mt-20 lg:mt-0">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center mb-4 justify-between w-full">
             <span className="text-sm tracking-60 text-[#595959]">
               Select Payment Options
             </span>

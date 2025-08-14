@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+type cardDetails = {
+  last4Numbers: string;
+  cardBrand: string;
+  id: string;
+};
+
 type CreateCampaignState = {
   adsShow: {
     location: string[];
@@ -12,6 +18,7 @@ type CreateCampaignState = {
   };
   fundCampaign: {
     amount: number;
+    cardDetails: cardDetails | null;
     complete: boolean;
   };
   instagramSettings: InstagramSettings;
@@ -19,21 +26,21 @@ type CreateCampaignState = {
   googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
-}
+};
 
-type CampaignSnapshots =  {
+type CampaignSnapshots = {
   campaignType: string;
   brandColor: string;
   accentColor: string;
   campaignStartDate: string;
   campaignEndDate: string;
-}
+};
 
 type SupportedAdPlatforms = {
   Facebook: boolean;
   Instagram: boolean;
   Google: boolean;
-}
+};
 
 type InstagramSettings = Record<SocialSettingsKey, boolean>;
 
@@ -41,7 +48,7 @@ type FacebookSettings = Record<SocialSettingsKey, boolean>;
 
 type GoogleSettings = {
   staticPost: boolean;
-}
+};
 
 type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
@@ -51,8 +58,10 @@ type CreateCampaignActions = {
   }) => void;
   storeFundCampaign: (fundCampaign: {
     amount: number;
+    cardDetails: cardDetails | null;
     complete: boolean;
   }) => void;
+  storeSelectedPaymentMethod: (paymentMethod: cardDetails | null) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
@@ -61,7 +70,7 @@ type CreateCampaignActions = {
   toggleInstagramSettings: (setting: SocialSettingsKey) => void;
   toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
-}
+};
 
 type CreateCampaignStore = CreateCampaignState & {
   actions: CreateCampaignActions;
@@ -86,7 +95,8 @@ const initialState: CreateCampaignState = {
   },
 
   fundCampaign: {
-    amount: 40,
+    amount: 50,
+    cardDetails: null,
     complete: false,
   },
   campaignSnapshots: {
@@ -120,6 +130,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         storeAdsShow: (adsShow) => {
           set((state) => ({
             adsShow: { ...state.adsShow, ...adsShow },
+          }));
+        },
+        storeSelectedPaymentMethod: (paymentMethod) => {
+          set((state) => ({
+            fundCampaign: {
+              ...state.fundCampaign,
+              cardDetails: paymentMethod,
+            },
           }));
         },
         getLocationCountries: () => {
