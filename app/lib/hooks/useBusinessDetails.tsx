@@ -9,7 +9,6 @@ import { useMutation } from "@tanstack/react-query";
 import { updateStoreLogo } from "../api/base";
 import { useAuthStore } from "../stores/authStore";
 import { useToastStore } from "../stores/toastStore";
-import { title } from "process";
 
 export const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
 export const teamSizeValue = [
@@ -112,9 +111,9 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     handleSubmitBusinessDetails(businessDetails);
   };
 
-  const handleCompanyRoleChange = (role: string) => {
-    setCompanyRole(role);
-  };
+  // const handleCompanyRoleChange = (role: string) => {
+  //   setCompanyRole(role);
+  // };
 
   return {
     register,

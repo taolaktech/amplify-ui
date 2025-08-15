@@ -95,7 +95,7 @@ export const useUpgradePlan = () => {
 export const useStripeCustomerActions = () => {
   const token = useAuthStore((state) => state.token);
 
-  const { mutate: setDefaultPaymentMethodMutate, isPending: isSettingDefaultPaymentMethod } = useMutation({
+  const { mutate: setDefaultPaymentMethodMutate } = useMutation({
     mutationFn: setDefaultPaymentMethod,
     onSuccess: (data) => {
       console.log(data);
@@ -105,7 +105,7 @@ export const useStripeCustomerActions = () => {
     },
   });
 
-  const { mutate: removePaymentMethodMutate, isPending: isRemovingPaymentMethod } = useMutation({
+  const { mutate: removePaymentMethodMutate } = useMutation({
     mutationFn: removePaymentMethod,
     onSuccess: (data) => {
       console.log(data);

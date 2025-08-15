@@ -12,7 +12,6 @@ import URLInput from "@/app/ui/form/URLInput";
 import { Gallery, TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
 import Image from "next/image";
-import { useUploadPhoto } from "@/app/lib/hooks/useUploadPhoto";
 import { useRef } from "react";
 
 export default function StoreDetails() {

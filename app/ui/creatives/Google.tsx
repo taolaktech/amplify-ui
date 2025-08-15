@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/app/lib/stores/authStore";
+// import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import { roboto } from "../fonts";
 

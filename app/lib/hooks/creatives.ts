@@ -4,18 +4,15 @@ import {
   GoogleCreativesProduct,
 } from "../api/base/creatives";
 import { useAuthStore } from "../stores/authStore";
-import useUIStore from "../stores/uiStore";
+// import useUIStore from "../stores/uiStore";
 import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
-import { error } from "console";
 
 export const useGenerateCreatives = () => {
   const token = useAuthStore((state) => state.token);
   const router = useRouter();
   // const products = useUIStore((state) => state.products);
-  const { productSelection, supportedAdPlatforms } = useCreateCampaignStore(
-    (state) => state
-  );
+  const { productSelection } = useCreateCampaignStore((state) => state);
   const actions = useCreateCampaignStore((state) => state.actions);
   // const;
   const { mutate: googleMutate, isPending: googleCreativeIsPending } =

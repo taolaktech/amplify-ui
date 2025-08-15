@@ -44,7 +44,7 @@ export default function AdsLocationPage() {
 
   const [fetchingProgress, setFetchingProgress] = useState(20);
   // const [isAutoFetching, setIsAutoFetching] = useState(false);
-  const { fetchProducts, loading } = useGetShopifyProducts();
+  const { fetchProducts } = useGetShopifyProducts();
   const setToast = useToastStore((state) => state.setToast);
   const [isDoneLoading, setIsDoneLoading] = useState(true);
 

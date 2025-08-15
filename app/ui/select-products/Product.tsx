@@ -11,7 +11,7 @@ const Product = ({
 }: {
   productNode: any;
   checked: boolean;
-  toggleChecked: (id: number) => void;
+  toggleChecked: (id: string) => void;
   isReview?: boolean;
 }) => {
   const [imgError, setImgError] = useState(false);
@@ -97,10 +97,10 @@ const Product = ({
             ${productNode?.priceRangeV2?.minVariantPrice?.amount}
           </div>
         </div>
-        </div>
-        <div className="flex items-center  md:hidden pr-1">
-          <CheckBox checked={checked} />
-        </div>
+      </div>
+      <div className="flex items-center  md:hidden pr-1">
+        <CheckBox checked={checked} />
+      </div>
     </div>
   );
 };

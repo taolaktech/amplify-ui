@@ -25,4 +25,5 @@ export async function generateGoogleCreatives(data: {
     },
     data: { ...googleCreativesProduct, channel: "GOOGLE" },
   });
+  return response.data;
 }

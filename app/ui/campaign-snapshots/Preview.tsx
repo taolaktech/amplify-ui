@@ -128,7 +128,7 @@ export default Preview;
 const PreviewContainer = ({ item }: { item: any }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const width = 350;
+  // const width = 350;
 
   const scrollBy = (offset: number) => {
     console.log("called");

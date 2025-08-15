@@ -25,7 +25,7 @@ export default async function getCampaigns(data: {
       Authorization: `Bearer ${token}`,
     },
     params: {
-      page: 1,
+      page: page || 1,
       perPage: 10,
       sortBy: sortBy || "createdAt:desc",
       ...(type && { type }),

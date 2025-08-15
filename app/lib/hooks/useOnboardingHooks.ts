@@ -15,9 +15,6 @@ import {
 import { useRouter } from "next/navigation";
 import useUIStore from "../stores/uiStore";
 import { useToastStore } from "../stores/toastStore";
-import { stat } from "fs";
-import { set } from "lodash";
-import Toast from "@/app/ui/Toast";
 
 export const useLinkShopify = (
   setErrorMsg: React.Dispatch<React.SetStateAction<string>>,
@@ -95,6 +92,8 @@ export const useRetrieveStoreDetails = () => {
   const [retrieveStoreDetailsData, setRetrieveStoreDetailsData] =
     useState<any>(null);
   const [shouldFetchData, setShouldFetchData] = useState(false);
+
+  console.log(shouldFetchData);
 
   // const retrieveStoreDetails = useQuery({
   //   queryKey: ["storeDetails"],

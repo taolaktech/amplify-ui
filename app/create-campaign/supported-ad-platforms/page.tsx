@@ -15,9 +15,8 @@ const SupportedAdPlatforms = () => {
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
 
-  const { generateCreatives, initialGeneration, googleCreativeIsPending } =
-    useGenerateCreatives();
-  const [isLoading, setIsLoading] = useState(false);
+  const { initialGeneration, googleCreativeIsPending } = useGenerateCreatives();
+  const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useModal(isLoading);

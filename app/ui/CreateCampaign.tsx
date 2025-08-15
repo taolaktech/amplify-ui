@@ -1,6 +1,5 @@
 "use client";
 import { ArrowLeft } from "iconsax-react";
-import ProgressBar from "./ProgressBar";
 import XCloseIcon from "@/public/x-close-big.svg";
 import XCloseIconSM from "@/public/x-close.svg";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,7 +14,7 @@ export default function CreateCampaign({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentProgressStep, totalProgressStep } = useUIStore((state) => state);
+  const { currentProgressStep } = useUIStore((state) => state);
   const setProgressStep = useUIStore((state) => state.actions.setProgressStep);
   const { adsShow, productSelection, supportedAdPlatforms } =
     useCreateCampaignStore((state) => state);
@@ -25,7 +24,6 @@ export default function CreateCampaign({
   useEffect(() => {
     // actions.reset();
     setProgressStep(1, 6);
-
   }, []);
 
   useEffect(() => {

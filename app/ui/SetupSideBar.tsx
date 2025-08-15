@@ -7,7 +7,7 @@ import NextSM from "@/public/next-sm.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
 import OnboadingSuccess from "./OnboadingSuccess";
 import useUIStore from "../lib/stores/uiStore";
-import ProgressBar from "./ProgressBar";
+// import ProgressBar from "./ProgressBar";
 
 function SetupSideBar() {
   const { connectStore, businessDetails, preferredSalesLocation } =
@@ -16,7 +16,7 @@ function SetupSideBar() {
   const isOnboardingCompleted = useUIStore(
     (state) => state.isOnboardingCompleted
   );
-  const [step, setStep] = useState(1);
+  const [step] = useState(1);
   const { setProgressStep } = useUIStore((state) => state.actions);
   const [stepText, setStepText] = useState("Connect your Store");
   const [lineProgress, setLineProgress] = useState(0);
@@ -30,7 +30,6 @@ function SetupSideBar() {
   console.log("isOnboardingCompleted", isCompleted);
 
   useEffect(() => {
-
     return () => {
       setOnboardingCompleted(false);
     };

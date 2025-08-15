@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import Pagination from "./Pagination";
-import { useGetShopifyProducts } from "@/app/lib/hooks/shopify";
+// import { useGetShopifyProducts } from "@/app/lib/hooks/shopify";
 
 export default function Products() {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +23,7 @@ export default function Products() {
     endCursor,
     hasNextPage,
     hasPreviousPage,
-    currentPage,
+    // currentPage,
   } = useUIStore((state) => state);
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
@@ -33,8 +33,9 @@ export default function Products() {
   console.log("hasNextPage", hasNextPage);
   console.log("hasPreviousPage", hasPreviousPage);
 
-  const { fetchProducts } = useGetShopifyProducts();
+  // const { fetchProducts } = useGetShopifyProducts();
   const [pageCount, setPageCount] = useState(1);
+  console.log("pageCount", pageCount);
 
   useEffect(() => {
     setPageCount(Math.ceil(productCount / 12));
@@ -51,9 +52,9 @@ export default function Products() {
     }
   }, [productSelection.complete]);
 
-  const handlePageClick = (page: number) => {
-    fetchProducts({ page }, false);
-  };
+  // const handlePageClick = (page: number) => {
+  //   fetchProducts({ page }, false);
+  // };
 
   const handleProceed = () => {
     if (!selectedProducts.length) return;
@@ -68,7 +69,7 @@ export default function Products() {
     }, 1000);
   };
 
-  const toggleChecked = (id: number) => {
+  const toggleChecked = (id: string) => {
     if (!products || !products.length) return;
     const product = products.find((p) => p.node.id === id);
     setSelectedProducts((prev) => {

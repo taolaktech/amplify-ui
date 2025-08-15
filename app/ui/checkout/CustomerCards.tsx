@@ -3,7 +3,7 @@ import TickIcon from "@/public/tick-circle-variant.svg";
 import { Trash } from "iconsax-react";
 import { useStripeCustomerActions } from "@/app/lib/hooks/stripe";
 import { useMemo, useState } from "react";
-import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+// import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 
 export const brandIconMap: Record<string, string> = {
   visa: "/visa.svg",
@@ -23,9 +23,9 @@ export default function CustomerCards({
   selectedPaymentMethod: string | null;
   setSelectedPaymentMethod: (paymentMethod: string | null) => void;
 }) {
-  const { storeSelectedPaymentMethod } = useCreateCampaignStore(
-    (state) => state.actions
-  );
+  // const { storeSelectedPaymentMethod } = useCreateCampaignStore(
+  //   (state) => state.actions
+  // );
   const [removedPaymentMethodsId, setRemovedPaymentMethodsId] = useState<
     string[]
   >([]);
