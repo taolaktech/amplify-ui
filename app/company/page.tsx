@@ -21,15 +21,18 @@ export default function StoreDetails() {
     formState: { errors },
     productCategory,
     setProductCategory,
+    isPending,
     productCategoryError,
     setProductCategoryError,
     handleAction,
+    companyRole,
     teamSizeSelected,
     handleSelectTeamSize,
+    preview,
+    handleFileChange,
+    setCompanyRole,
     submitBusinessDetailsMutation,
-  } = useBusinessDetails();
-
-  const { preview, handleFileChange } = useUploadPhoto();
+  } = useBusinessDetails(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +62,8 @@ export default function StoreDetails() {
               alt="store logo"
               width={160}
               height={160}
-              className="rounded-full w-full h-full object-cover"
+              objectPosition="center"
+              className="rounded-full object-center w-full h-full object-cover"
             />
           ) : (
             <>
@@ -213,6 +217,29 @@ export default function StoreDetails() {
             error={undefined}
           />
         </div>
+        <div className="w-full">
+          <SelectInput
+            placeholder="Select your company role"
+            label="What is your role?"
+            options={[
+              "Business Owner/Founder",
+              "Marketing Manager",
+              "Media Buyer",
+              "Creative Director",
+              "Content Manager",
+              "E-commerce Manager",
+              "Data Analyst",
+              "Customer Support",
+              "Agency",
+            ]}
+            borderless
+            setSelected={setCompanyRole}
+            selected={companyRole}
+            large
+            setError={() => {}}
+            error={errors.companyRole?.message}
+          />
+        </div>
         {/* <div className="w-full">
           <div className="text-xs">Integration Status</div>
           <div className="flex gap-2 flex-shrink-0 mt-2 flex-wrap">
@@ -284,7 +311,7 @@ export default function StoreDetails() {
           text="Save Changes"
           height={49}
           action={handleAction}
-          loading={submitBusinessDetailsMutation.isPending}
+          loading={submitBusinessDetailsMutation.isPending || isPending}
           icon={<TickCircle size="16" color="#fff" variant="Bold" />}
         />
       </div>

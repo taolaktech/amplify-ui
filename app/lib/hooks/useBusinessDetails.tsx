@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { useSubmitBusinessDetails } from "@/app/lib/hooks/useOnboardingHooks";
+import { useUploadPhoto } from "./useUploadPhoto";
+import { useMutation } from "@tanstack/react-query";
+import { updateStoreLogo } from "../api/base";
+import { useAuthStore } from "../stores/authStore";
+import { useToastStore } from "../stores/toastStore";
+import { title } from "process";
 
 export const teamSize = ["Just me", "2-5", "6-10", "11-15", "15+"];
 export const teamSizeValue = [
@@ -18,16 +24,20 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const defaultBusinessDetails = useSetupStore(
     (state) => state.businessDetails
   );
+  const { preview, handleFileChange, file } = useUploadPhoto();
+  const setToast = useToastStore((state) => state.setToast);
+
   const [productCategory, setProductCategory] = useState<string | null>(null);
   const [productCategoryError, setProductCategoryError] = useState(false);
   const [companyRole, setCompanyRole] = useState<string | null>(null);
   const [companyRoleError, setCompanyRoleError] = useState(false);
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
+  const token = useAuthStore((state) => state.token);
   const defaultDetails = isStoreDetails
     ? {
         ...defaultBusinessDetails,
-        contactEmail: defaultBusinessDetails.contactEmail,
-        contactPhone: defaultBusinessDetails.contactPhone,
+        // contactEmail: defaultBusinessDetails.contactEmail,
+        // contactPhone: defaultBusinessDetails.contactPhone,
       }
     : defaultBusinessDetails;
   const {
@@ -46,7 +56,20 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   };
 
   const { handleSubmitBusinessDetails, submitBusinessDetailsMutation } =
-    useSubmitBusinessDetails();
+    useSubmitBusinessDetails(isStoreDetails);
+
+  const { mutate: updateLogo, isPending } = useMutation({
+    mutationFn: updateStoreLogo,
+    mutationKey: ["updateStoreLogo"],
+    onError: (error) => {
+      console.error("Error updating logo:", error);
+      setToast({
+        type: "error",
+        title: "Failed to update logo",
+        message: "There was an error updating the logo.",
+      });
+    },
+  });
 
   useEffect(() => {
     if (defaultBusinessDetails.industry)
@@ -79,7 +102,18 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
       companyRole: companyRole ?? "",
       teamSize: teamSizeValue[teamSizeSelected as number],
     };
+
+    if (file && token) {
+      updateLogo({
+        token,
+        businessLogo: file,
+      });
+    }
     handleSubmitBusinessDetails(businessDetails);
+  };
+
+  const handleCompanyRoleChange = (role: string) => {
+    setCompanyRole(role);
   };
 
   return {
@@ -89,6 +123,9 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     productCategory,
     productCategoryError,
     companyRole,
+    preview,
+    handleFileChange,
+    file,
     companyRoleError,
     teamSizeSelected,
     setProductCategory,
@@ -98,6 +135,7 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     setTeamSizeSelected,
     handleAction,
     handleNext,
+    isPending,
     defaultBusinessDetails,
     handleSelectTeamSize,
     submitBusinessDetailsMutation,

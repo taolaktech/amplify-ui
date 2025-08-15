@@ -18,12 +18,16 @@ import { AuthErrorCode } from "../api/errorcodes";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FieldErrors } from "react-hook-form";
 import useGetCampaigns from "./campaigns";
+import { useIntegrationStore } from "../stores/integrationStore";
 
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
   // console.log("token", token);
   console.log("useInitialize");
   const [loading, setLoading] = useState(false);
+  const { setShopifyStoreConnected } = useIntegrationStore(
+    (state) => state.actions
+  );
   const reset = useSetupStore((state) => state.reset);
   const { businessDetails } = useSetupStore((state) => state);
   const {
@@ -68,12 +72,14 @@ export const useInitialize = () => {
           storeUrl: "",
         });
         completeConnectStore(false);
+        setShopifyStoreConnected(false);
         return;
       }
       storeConnectStore({
         storeUrl: response.account.shop,
       });
       completeConnectStore(true);
+      setShopifyStoreConnected(true);
     } else {
       reset();
     }
@@ -92,7 +98,7 @@ export const useInitialize = () => {
       completeBusinessDetails(false);
       return;
     }
-    const details = response?.business.shopifyAccounts[0];
+    const details = response?.business;
     if (!details) {
       console.error("No details found");
       completeBusinessDetails(false);
@@ -102,6 +108,8 @@ export const useInitialize = () => {
     const {
       companyName,
       description,
+      contactEmail,
+      contactPhone,
       website,
       industry,
       companyRole,
@@ -114,6 +122,8 @@ export const useInitialize = () => {
       storeName: companyName,
       description,
       storeUrl: website,
+      contactEmail,
+      contactPhone,
       industry,
       companyRole,
       teamSize: teamSize ? teamSize : { min: 2, max: 5 },

@@ -1,3 +1,4 @@
+import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -13,7 +14,7 @@ type CreateCampaignState = {
     complete: boolean;
   };
   productSelection: {
-    products: any[];
+    products: ShopifyProduct[];
     complete: boolean;
   };
   fundCampaign: {
@@ -53,7 +54,7 @@ type GoogleSettings = {
 type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
   storeProductSelection: (productSelection: {
-    products: any[];
+    products: ShopifyProduct[];
     complete: boolean;
   }) => void;
   storeFundCampaign: (fundCampaign: {

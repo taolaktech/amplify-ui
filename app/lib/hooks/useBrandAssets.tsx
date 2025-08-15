@@ -4,6 +4,8 @@ import { useUploadPhoto } from "./useUploadPhoto";
 // import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 // import "react-pdf/dist/esm/Page/TextLayer.css";
 import { pdfjs } from "react-pdf";
+import { useMutation } from "@tanstack/react-query";
+import { postBrandAssets } from "../api/base";
 
 // import type { PDFDocumentProxy } from "pdfjs-dist";
 export type PDFFile = string | File | null;
@@ -44,6 +46,39 @@ export default function useBrandAssets() {
     uploadPhoto: secondaryLogoUploadPhoto,
     reset: secondaryLogoReset,
   } = useUploadPhoto();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: postBrandAssets,
+    mutationKey: ["postBrandAssets"],
+    onSuccess: (data) => {},
+    onError: (error) => {
+      console.error("Error posting brand assets:", error);
+    },
+  });
+
+  function handleSubmitBrandAssets() {
+    const formData = new FormData();
+
+    formData.append("removePrimaryLogo", String(!primaryLogoFile));
+    formData.append("removeSecondaryLogo", String(!secondaryLogoFile));
+    formData.append("removeBrandGuide", String(!brandGuide));
+
+    formData.append("primaryColor", primaryColor);
+    formData.append("secondaryColor", secondaryColor);
+    formData.append("primaryFont", primaryFont ?? "");
+    formData.append("secondaryFont", secondaryFont ?? "");
+    formData.append("toneOfVoice", toneOfVoice ?? "");
+
+    if (primaryLogoFile) {
+      formData.append("primaryLogo", primaryLogoFile);
+    }
+    if (secondaryLogoFile) {
+      formData.append("secondaryLogo", secondaryLogoFile);
+    }
+    if (brandGuide) {
+      formData.append("brandGuide", brandGuide);
+    }
+  }
 
   const [primaryColor, setPrimaryColor] = useState<string>("#000000");
   const [secondaryColor, setSecondaryColor] = useState<string>("#FFFFFF");

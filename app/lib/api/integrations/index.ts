@@ -1,3 +1,4 @@
+import { redirect } from "next/dist/server/api-utils";
 import axiosInstanceBase from "./axios";
 // import axios from "axios";
 
@@ -19,15 +20,16 @@ export type BusinessDetails = {
   };
   estimatedMonthlyBudget: number;
   estimatedAnnualRevenue: number;
-}
+};
 
 export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;
+  redirect: string;
 }) => {
   const response = await axiosInstanceBase.post(
     "/shopify/auth/url",
-    { shop: data.shop },
+    { shop: data.shop, redirect: data.redirect },
     {
       headers: {
         Authorization: `Bearer ${data.token}`,
@@ -69,7 +71,7 @@ export const handlePostBusinessDetails = async (data: {
   token: string;
 }) => {
   const response = await axiosInstanceBase.post(
-    "/business",
+    "/business/details",
     data.businessDetails,
     {
       headers: {

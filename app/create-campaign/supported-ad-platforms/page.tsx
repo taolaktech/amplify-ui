@@ -8,11 +8,15 @@ import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import { useModal } from "@/app/lib/hooks/useModal";
+import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
+
+  const { generateCreatives, initialGeneration, googleCreativeIsPending } =
+    useGenerateCreatives();
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -45,14 +49,14 @@ const SupportedAdPlatforms = () => {
     supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      if (canProceed) {
-        actions.completeAdsPlatform();
-        router.push("/create-campaign/campaign-snapshots");
-      }
-      setIsLoading(false);
-    }, 2000);
+    initialGeneration();
+    // setTimeout(() => {
+    //   if (canProceed) {
+    //     actions.completeAdsPlatform();
+    //     router.push("/create-campaign/campaign-snapshots");
+    //   }
+    //   setIsLoading(false);
+    // }, 2000);
   };
 
   return (
@@ -191,7 +195,9 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {isLoading && <CircleLoaderModal text="Generating Ad Creatives..." />}
+      {googleCreativeIsPending && (
+        <CircleLoaderModal text="Generating Ad Creatives..." />
+      )}
     </div>
   );
 };

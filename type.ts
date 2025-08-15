@@ -4,14 +4,15 @@ export type ImprovementCategory =
   | "FEATURE_REQUEST"
   | "SOMETHING_FELT_OFF";
 
-  
-
 export type ShopifyProduct = {
   node: {
     id: string;
     title: string;
     description: string;
     handle: string;
+    onlineStorePreviewUrl: string;
+    tags: string[];
+    productType: string;
     hasOnlyDefaultVariant: boolean;
     media: {
       edges: Array<{
@@ -44,5 +45,4 @@ export type ShopifyProduct = {
       sku: string;
     }>;
   };
-}
-
+};

@@ -7,6 +7,7 @@ export default function IntegrationLayout() {
   const { shopifyStore, google, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
+
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
     {
