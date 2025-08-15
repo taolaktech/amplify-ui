@@ -58,9 +58,9 @@ type CreateCampaignActions = {
     complete: boolean;
   }) => void;
   storeFundCampaign: (fundCampaign: {
-    amount: number;
-    cardDetails: cardDetails | null;
-    complete: boolean;
+    amount?: number;
+    cardDetails?: cardDetails | null;
+    complete?: boolean;
   }) => void;
   storeSelectedPaymentMethod: (paymentMethod: cardDetails | null) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;

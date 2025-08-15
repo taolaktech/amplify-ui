@@ -148,7 +148,7 @@ const PreviewContainer = ({ item }: { item: any }) => {
           ref={containerRef}
           className="flex overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
         >
-          {item.creatives.map((creatives, index) => (
+          {item.creatives.map((creatives: any, index: number) => (
             <div
               key={index}
               className="flex-shrink-0 w-[350px]" // or any width you want

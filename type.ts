@@ -13,6 +13,8 @@ export type ShopifyProduct = {
     onlineStorePreviewUrl: string;
     tags: string[];
     productType: string;
+    occasion?: string;
+    brandName?: string;
     hasOnlyDefaultVariant: boolean;
     media: {
       edges: Array<{
