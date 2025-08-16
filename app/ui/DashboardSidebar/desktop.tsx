@@ -3,11 +3,10 @@
 import DashboardLogoIcon from "@/public/dashboard-logo.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
 import DefaultButton from "../Button";
+import BuildingGradient from "@/public/building-gradient.svg";
 import {
   Add,
   AddSquare,
-  // ArrowDown2,
-  // ArrowUp2,
   Building3,
   CalendarEdit,
   // Data2,
@@ -21,8 +20,12 @@ import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 // import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
 // import { useRouter } from "next/navigation";
+import CalenderEditGrad from "@/public/calendar-edit.svg";
 import Feedback from "../Feedback";
 import SettingsIcon from "@/public/setting-2.svg";
+import { SettingsSideBar } from "../SettingsNav";
+import SelectArrow from "../SelectArrow";
+import { CompanySideBar } from "../CompanyNav";
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -30,11 +33,17 @@ type DesktopSideBarProps = {
   isDashboard: boolean;
   isInsights: boolean;
   isCampaigns: boolean;
+  isStoreDetails: boolean;
   isCompany: boolean;
   isSupport: boolean;
+  isPricing: boolean;
+  isBrandAssets: boolean;
+  isIntegrations: boolean;
   isSettings: boolean;
-  isCompanyOpen: boolean;
-  toggleIsCompanyOpen: () => void;
+  isSettingTabOpen: boolean;
+  isCompanyTabOpen: boolean;
+  toggleIsCompanyTabOpen: () => void;
+  toggleIsSettingTabOpen: () => void;
   handleCreateCampaign: () => void;
 };
 
@@ -45,12 +54,17 @@ export default function DesktopSideBar({
   isDashboard,
   isInsights,
   isCampaigns,
+  isStoreDetails,
+  isCompanyTabOpen,
+  isBrandAssets,
   isCompany,
-  // isSupport,
+  isPricing,
+  isIntegrations,
   isSettings,
+  toggleIsSettingTabOpen,
+  isSettingTabOpen,
   handleCreateCampaign,
-  // isCompanyOpen,
-  toggleIsCompanyOpen,
+  toggleIsCompanyTabOpen,
 }: DesktopSideBarProps) {
   // const router = useRouter();
   console.log(isInsights);
@@ -66,7 +80,7 @@ export default function DesktopSideBar({
             isSidebarOpen ? "justify-between px-8" : "justify-center px-5"
           } h-[81px] py-7`}
         >
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <DashboardLogoIcon width={32} height={32} />
             <span
               className={`font-medium text-xl ${
@@ -116,7 +130,7 @@ export default function DesktopSideBar({
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
-                href="/dashboard"
+                href="/"
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
@@ -138,42 +152,21 @@ export default function DesktopSideBar({
                 )}
               </Link>
             </li>
-            {/* <li>
-              <Link
-                href="/insights"
-                className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full ${
-                  isSidebarOpen ? "px-4" : "justify-center"
-                } h-[48px] cursor-pointer ${
-                  isInsights ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span>
-                  {!isInsights && <Magicpen size="24" color="#BFBFBF" />}
-                  {isInsights && <HomeTrendUpGrad width="24" height="24" />}
-                </span>
-                {isSidebarOpen && (
-                  <span
-                    className={`text-sm font-medium ${
-                      isInsights ? "text-heading" : "text-gray-dark"
-                    }`}
-                  >
-                    Insights
-                  </span>
-                )}
-              </Link>
-            </li> */}
+
             <li>
               <Link
-                href="/dashboard/campaigns"
-                className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full ${
+                href="/campaigns"
+                className={`flex items-center rounded-xl  gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isCampaigns
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
                 }`}
               >
                 <span>
                   {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <HomeTrendUpGrad width="24" height="24" />}
+                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
@@ -186,24 +179,30 @@ export default function DesktopSideBar({
                 )}
               </Link>
             </li>
-            <li onClick={toggleIsCompanyOpen}>
-              <Link href="/dashboard/company" className="w-full">
+
+            <li>
+              <span
+                onClick={toggleIsCompanyTabOpen}
+                className={`flex items-center px-4 rounded-xl justify-between 
+                ${
+                  isCompany
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
+                }
+                `}
+              >
                 <span
-                  // href="/company"
-                  className={`flex items-center justify-between rounded-xl ${
-                    isSidebarOpen ? "px-4" : "justify-center"
-                  }  gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                    isCompany
-                      ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
-                      : "hover:bg-[#fdfcfd]"
-                  }`}
+                  className={`flex items-center
+                ${
+                  isSidebarOpen ? "" : "justify-center"
+                }  gap-2 w-full  h-[48px] cursor-pointer `}
                 >
-                  <span className="flex items-center gap-2">
-                    <span>
-                      {!isCompany && <Building3 size="24" color="#BFBFBF" />}
-                      {isCompany && <HomeTrendUpGrad width="24" height="24" />}
-                    </span>
-                    {isSidebarOpen && (
+                  <span>
+                    {!isCompany && <Building3 size="24" color="#BFBFBF" />}
+                    {isCompany && <BuildingGradient width="24" height="24" />}
+                  </span>
+                  {isSidebarOpen && (
+                    <div className="flex items-center gap-2 justify-between">
                       <span
                         className={`text-sm font-medium ${
                           isCompany ? "text-heading" : "text-gray-dark"
@@ -211,47 +210,61 @@ export default function DesktopSideBar({
                       >
                         Company
                       </span>
-                    )}
-                  </span>
-                  {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
-                  {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
+                    </div>
+                  )}
                 </span>
-              </Link>
-              {/* {isCompanyOpen && (
-                <span
-                  className={`flex flex-col gap-1 px-5 transition-all duration-300`}
-                  style={{
-                    height: isCompanyOpen ? 70 : 0,
-                  }}
-                >
-                  <DashboardCompanyLinks />
-                </span>
-              )} */}
+                {isSidebarOpen && <SelectArrow isOpen={isCompanyTabOpen} />}
+              </span>
+              <CompanySideBar
+                on={isCompanyTabOpen}
+                // setOn={toggleIsCompanyTabOpen}
+                isSidebarOpen={isSidebarOpen}
+                isBrandAssets={isBrandAssets}
+                isCompany={isStoreDetails}
+              />
             </li>
             <li>
-              <Link
-                href="/dashboard/settings"
-                className={`flex items-center rounded-xl
+              <span
+                onClick={toggleIsSettingTabOpen}
+                className={`flex items-center px-4 rounded-xl justify-between 
                 ${
-                  isSidebarOpen ? "px-4" : "justify-center"
-                } hover:bg-[#fdfcfd] gap-2 w-full px-4 h-[48px] cursor-pointer ${
-                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
+                  isSettings
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
+                }
+                `}
               >
-                <span>
-                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
-                  {isSettings && <SettingsIcon width="24" height="24" />}
-                </span>
-                {isSidebarOpen && (
-                  <span
-                    className={`text-sm font-medium ${
-                      isSettings ? "text-heading" : "text-gray-dark"
-                    }`}
-                  >
-                    Settings
+                <span
+                  className={`flex items-center
+                ${
+                  isSidebarOpen ? "" : "justify-center"
+                }  gap-2 w-full  h-[48px] cursor-pointer `}
+                >
+                  <span>
+                    {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                    {isSettings && <SettingsIcon width="24" height="24" />}
                   </span>
-                )}
-              </Link>
+                  {isSidebarOpen && (
+                    <div className="flex items-center gap-2 justify-between">
+                      <span
+                        className={`text-sm font-medium ${
+                          isSettings ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Settings
+                      </span>
+                    </div>
+                  )}
+                </span>
+                {isSidebarOpen && <SelectArrow isOpen={isSettingTabOpen} />}
+              </span>
+              <SettingsSideBar
+                on={isSettingTabOpen}
+                // setOn={toggleIsSettingTabOpen}
+                isSidebarOpen={isSidebarOpen}
+                isIntegrations={isIntegrations}
+                isPricing={isPricing}
+              />
             </li>
             {/* <li className="">
               <Link

@@ -1,49 +1,83 @@
+import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface CreateCampaignState {
+type cardDetails = {
+  last4Numbers: string;
+  cardBrand: string;
+  id: string;
+};
+
+type CreateCampaignState = {
   adsShow: {
     location: string[];
     complete: boolean;
   };
   productSelection: {
-    products: any[];
+    products: ShopifyProduct[];
     complete: boolean;
   };
+  fundCampaign: {
+    amount: number;
+    cardDetails: cardDetails | null;
+    complete: boolean;
+  };
+  instagramSettings: InstagramSettings;
+  facebookSettings: FacebookSettings;
+  googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
-}
+};
 
-interface CampaignSnapshots {
+type CampaignSnapshots = {
   campaignType: string;
   brandColor: string;
   accentColor: string;
   campaignStartDate: string;
   campaignEndDate: string;
-}
+};
 
-interface SupportedAdPlatforms {
+type SupportedAdPlatforms = {
   Facebook: boolean;
   Instagram: boolean;
   Google: boolean;
-}
+};
 
-interface CreateCampaignActions {
+type InstagramSettings = Record<SocialSettingsKey, boolean>;
+
+type FacebookSettings = Record<SocialSettingsKey, boolean>;
+
+type GoogleSettings = {
+  staticPost: boolean;
+};
+
+type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
   storeProductSelection: (productSelection: {
-    products: any[];
+    products: ShopifyProduct[];
     complete: boolean;
   }) => void;
+  storeFundCampaign: (fundCampaign: {
+    amount?: number;
+    cardDetails?: cardDetails | null;
+    complete?: boolean;
+  }) => void;
+  storeSelectedPaymentMethod: (paymentMethod: cardDetails | null) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
   completeCampaignSnapshots: () => void;
+  getLocationCountries: () => string[];
+  toggleInstagramSettings: (setting: SocialSettingsKey) => void;
+  toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
-}
+};
 
-interface CreateCampaignStore extends CreateCampaignState {
+type CreateCampaignStore = CreateCampaignState & {
   actions: CreateCampaignActions;
-}
+};
+
+export type SocialSettingsKey = "staticPost" | "carouselPost" | "storyPost";
 
 const initialState: CreateCampaignState = {
   adsShow: {
@@ -60,6 +94,12 @@ const initialState: CreateCampaignState = {
     Google: true,
     complete: true,
   },
+
+  fundCampaign: {
+    amount: 50,
+    cardDetails: null,
+    complete: false,
+  },
   campaignSnapshots: {
     campaignType: "",
     brandColor: "",
@@ -68,16 +108,70 @@ const initialState: CreateCampaignState = {
     campaignEndDate: "",
     complete: false,
   },
+  instagramSettings: {
+    staticPost: true,
+    carouselPost: true,
+    storyPost: true,
+  },
+  facebookSettings: {
+    staticPost: true,
+    carouselPost: true,
+    storyPost: true,
+  },
+  googleSettings: {
+    staticPost: true,
+  },
 };
 
 export const useCreateCampaignStore = create<CreateCampaignStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       actions: {
         storeAdsShow: (adsShow) => {
           set((state) => ({
             adsShow: { ...state.adsShow, ...adsShow },
+          }));
+        },
+        storeSelectedPaymentMethod: (paymentMethod) => {
+          set((state) => ({
+            fundCampaign: {
+              ...state.fundCampaign,
+              cardDetails: paymentMethod,
+            },
+          }));
+        },
+        getLocationCountries: () => {
+          const countries: string[] = [];
+          const locations = get().adsShow.location;
+          locations.forEach((location) => {
+            const country = location.trim().split(",")[2]?.trim();
+            if (!countries.includes(country)) {
+              countries.push(country);
+            }
+          });
+          return countries;
+        },
+        toggleInstagramSettings: (setting: SocialSettingsKey) => {
+          set((state) => ({
+            instagramSettings: {
+              ...state.instagramSettings,
+              [setting]: !state.instagramSettings[setting],
+            },
+          }));
+        },
+        toggleFacebookSettings: (setting: keyof FacebookSettings) => {
+          set((state) => ({
+            facebookSettings: {
+              ...state.facebookSettings,
+              [setting]: !state.facebookSettings[setting],
+            },
+          }));
+        },
+
+        storeFundCampaign: (fundCampaign) => {
+          set((state) => ({
+            fundCampaign: { ...state.fundCampaign, ...fundCampaign },
           }));
         },
         storeProductSelection: (productSelection) => {
@@ -132,6 +226,21 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
       }),
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Error rehydrating campaign store", error);
+          return;
+        }
+
+        if (state) {
+          // Mutate the state object directly
+          state.adsShow.complete = false;
+          state.productSelection.complete = false;
+          state.fundCampaign.complete = false;
+          state.campaignSnapshots.complete = false;
+          state.supportedAdPlatforms.complete = false;
+        }
+      },
     }
   )
 );

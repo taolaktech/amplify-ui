@@ -1,3 +1,4 @@
+import { Cycle } from "@/app/ui/pricing/ModelHeader";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -7,19 +8,27 @@ export type SubscriptionType =
   | "GROW_PLAN"
   | "SCALE_PLAN";
 export type BillingCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
-interface AuthState {
+type AuthState = {
   token: string | null;
+  loginDate: Date | null;
   isAuth: boolean;
   hasHydrated: boolean;
   rememberMe: boolean;
-  subscriptionType: {
-    type: SubscriptionType;
-    billingCycle: BillingCycle;
-  };
+  subscriptionType:
+    | {
+        name: string;
+        price: number;
+        cycle: string;
+      }
+    | {
+        name: string;
+        cycle: Cycle;
+      }
+    | null;
   user: User | null;
 }
 
-interface User {
+type User = {
   email: string;
   name: string;
   phone: string;
@@ -31,26 +40,34 @@ interface User {
   shopifyAccountConnected?: boolean;
 }
 
-interface ProfileIcon {
+type ProfileIcon = {
   initials: string;
   color: string;
 }
 
-interface AuthActions {
+type AuthActions = {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
-  setSubscriptionType: (subscriptionType: {
-    type: SubscriptionType;
-    billingCycle: BillingCycle;
-  }) => void;
+  setSubscriptionType: (
+    subscriptionType:
+      | {
+          name: string;
+          cycle: string;
+          price: number;
+        }
+      | {
+          name: string;
+          cycle: Cycle;
+        }
+  ) => void;
   getUser: () => User | null;
   setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
 }
 
-export interface AuthStore extends AuthState, AuthActions {}
+export type AuthStore = AuthState & AuthActions;
 
 export const useAuthStore = create<AuthStore>()(
   // devtools(
@@ -66,21 +83,24 @@ export const useAuthStore = create<AuthStore>()(
         type: "",
         subscriptionType: "",
       },
+      loginDate: null,
+
       hasHydrated: false,
       subscriptionType: {
-        type: "FREE_PLAN",
-        billingCycle: "MONTHLY",
+        name: 'Free',
+        cycle: 'monthly',
+        // price: 0
       },
       rememberMe: false,
       login: (token, user) => {
-        set({ token, isAuth: true, user });
+        set({ token, isAuth: true, user, loginDate: new Date() });
       },
       setSubscriptionType: (subscriptionType) => {
         set({ subscriptionType });
       },
       logout: () => {
         localStorage.clear();
-        set({ token: null, isAuth: false, user: null });
+        set({ token: null, isAuth: false, user: null, loginDate: null });
       },
       storeRememberMe: () => {
         const rememberMe = !get().rememberMe;
@@ -117,7 +137,7 @@ export const useAuthStore = create<AuthStore>()(
 );
 // );
 
-export interface CreateUserStore {
+export type CreateUserStore = {
   email: string;
   profile: CreateProfileState | null;
   retryError: boolean;
@@ -126,13 +146,13 @@ export interface CreateUserStore {
   actions: CreateUserActions;
 }
 
-export interface CreateProfileState {
+export type CreateProfileState = {
   firstName: string;
   lastName: string;
   password: string;
 }
 
-interface CreateUserActions {
+type CreateUserActions = {
   storeEmail: (email: string) => void;
   storeProfile: (profile: CreateProfileState) => void;
   storeRetryError: (hasError: boolean) => void;

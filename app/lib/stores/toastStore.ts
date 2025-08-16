@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface ToastStore {
+type ToastStore = {
   active: boolean;
   toast: {
     title: string;

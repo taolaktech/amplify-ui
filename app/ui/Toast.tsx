@@ -61,8 +61,10 @@ export default function Toast() {
 
   return (
     <div
-      className={`p-4 rounded-xl flex justify-between items-start gap-3 fixed z-50 top-5 transition-all duration-500 ease-in-out ${
-        active ? "right-[24px]" : "-right-full"
+      className={`p-4 rounded-xl flex translate-x-1/2  md:translate-x-0 justify-between items-start gap-3 fixed z-50 top-5 transition-all duration-500 ease-in-out ${
+        active
+          ? "right-[50%] md:right-[24px]"
+          : "top-[-1000px] md:top-5 right-[50%] md:-right-full"
       } border w-[356px] md:w-[436px]`}
       style={{ backgroundColor: bgColor, borderColor: borderColor }}
     >

@@ -18,22 +18,25 @@ import { priceId } from "@/app/lib/pricingPlans";
 import Skeleton from "../Skeleton";
 import { subscribeToPlan, upgradePlan } from "@/app/lib/api/wallet";
 import { useToastStore } from "@/app/lib/stores/toastStore";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 const countryOptions = Object.values(countries).map(
   (country) => country.name
 ) as string[];
 
-interface CheckoutFormProps {
+type CheckoutFormProps = {
   amount: number;
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;
   isUpgrade?: boolean;
+  fetchCustomerCards?: (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<any, Error>> | (() => void);
 }
 
 const CheckoutForm = ({
   amount,
   isAddCardPage = false,
   isUpgrade = false,
+  fetchCustomerCards
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -172,17 +175,20 @@ const CheckoutForm = ({
 
       console.log("res", res);
 
-      // const { clientSecret } = res.data.data;
+      const { clientSecret } = res.data.data;
+
 
       // 4. Create subscription
       let subscriptionRes;
-      if (isAddCardPage && !isUpgrade && price) {
+   
+
+      if (!isAddCardPage && !isUpgrade && price) {
         subscriptionRes = await subscribeToPlan({
           token: token || "",
           price: price.toString(),
           paymentMethodId: paymentMethod.id,
         });
-      } else if (isUpgrade && price && isAddCardPage) {
+      } else if (isUpgrade && price && !isAddCardPage) {
         subscriptionRes = await upgradePlan({
           token: token || "",
           newPriceId: price.toString(),
@@ -197,17 +203,54 @@ const CheckoutForm = ({
       //   // redirect: "if_required",
       // };
 
-      if (!isAddCardPage) {
-        setSubscriptionSuccess(true);
-        router.push("/pricing/checkout/success");
-      } else {
-        setToast({
-          title: "Card Added Successfully",
-          message:
-            "You’re all set! Your payment method has been saved and ready for your next campaign",
-          type: "success",
-        });
-      }
+      //  const result:any = null
+
+      stripe.confirmCardSetup(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
+         billing_details: {
+            name: fullName,
+          },
+        },
+      })
+      .then(function(result) {
+        console.log("result from setup", result);
+
+        if (result.setupIntent?.status === 'succeeded'){
+           if (!isAddCardPage) {
+              setSubscriptionSuccess(true);
+              router.push("/pricing/checkout/success");
+              return;
+            }
+           fetchCustomerCards?.();
+           setToast({
+            title: "Card Added Successfully",
+            message:
+              "You’re all set! Your payment method has been saved and ready for your next campaign",
+            type: "success",
+          });
+        }
+        else {
+            //  setMessage(result.error.message || "Payment failed");
+          setToast({
+           title: "Something Went Wrong",
+            message:
+             "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+           type: "error",
+         });
+
+        }
+      });
+
+      //  console.log("cardresult", result);
+     
+      // } else {
+      //   if (result.error) {
+     
+      //   return;
+      //   // router.push("/pricing/checkout/failed");
+      // }
+      //   
 
       // if (!isAddCardPage) {
       //   confirmParams.return_url =
@@ -215,22 +258,10 @@ const CheckoutForm = ({
       // }
 
       // 5. Confirm the setup-intent
-      // const result = await stripe.confirmSetup({
-      //   clientSecret: clientSecret,
-      //   confirmParams,
-      // });
+     
+    
 
-      // if (result.error) {
-      //   setMessage(result.error.message || "Payment failed");
-      //   setToast({
-      //     title: "Something Went Wrong",
-      //     message:
-      //       "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
-      //     type: "error",
-      //   });
-      //   return;
-      //   // router.push("/pricing/checkout/failed");
-      // }
+      
       // router.push("/pricing/checkout/success");
     } catch (error) {
       console.log("error", error);

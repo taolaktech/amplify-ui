@@ -30,7 +30,7 @@ export default function CheckoutSuccessPage() {
 
   useEffect(() => {
     if (!isSubscriptionSuccess) {
-      router.push("/dashboard");
+      router.push("/");
     }
   }, [isSubscriptionSuccess, router]);
 
@@ -43,7 +43,7 @@ export default function CheckoutSuccessPage() {
       secondaryActionText="Manage Subscription"
       secondaryButtonWidth={220}
       primaryButtonWidth={210}
-      secondaryAction={() => router.push("/dashboard/settings")}
+      secondaryAction={() => router.push("/settings")}
     />
   );
 }

@@ -7,7 +7,7 @@ import AutoFetchingProduct from "../ui/AutoFetchingProduct";
 import SalesLocationView from "../ui/SalesLocationView";
 import Button from "../ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useModal } from "../lib/hooks/useModal";
 import { useGetShopifyProducts } from "../lib/hooks/shopify";
 import { useSetupStore } from "../lib/stores/setupStore";
@@ -24,12 +24,14 @@ export default function AdsLocationPage() {
   const defaultPreferredSalesLocation = useSetupStore(
     (state) => state.preferredSalesLocation
   );
-  const marketingGoals = useSetupStore((state) => state.marketingGoals);
+  const storeUrl = useSetupStore((state) => state.connectStore?.storeUrl);
   const salesLocationFromStore = useCreateCampaignStore(
     (state) => state.adsShow.location
   );
 
   useEffect(() => {
+    console.log("salesLocation", salesLocationFromStore);
+    console.log("defaultPreferredSalesLocation", defaultPreferredSalesLocation);
     if (salesLocationFromStore.length === 0 || !salesLocationFromStore) {
       setSalesLocation(
         defaultPreferredSalesLocation?.localShippingLocations || []
@@ -40,18 +42,28 @@ export default function AdsLocationPage() {
     salesLocationFromStore,
   ]);
 
-  const [fetchingProgress] = useState(50);
+  const [fetchingProgress, setFetchingProgress] = useState(20);
   // const [isAutoFetching, setIsAutoFetching] = useState(false);
-  const { fetchProducts, loading } = useGetShopifyProducts();
+  const { fetchProducts } = useGetShopifyProducts();
   const setToast = useToastStore((state) => state.setToast);
-  useModal(loading);
+  const [isDoneLoading, setIsDoneLoading] = useState(true);
+
+  const router = useRouter();
+  useModal(isDoneLoading);
   useEffect(() => {
     setSalesLocation(salesLocationFromStore);
   }, []);
 
-  const handleProceed = () => {
-    if (marketingGoals.complete) {
-      fetchProducts({ location: salesLocation }, true);
+  const handleProceed = async () => {
+    setIsDoneLoading(false);
+    if (storeUrl) {
+      console.log("storeUrl", storeUrl);
+      await fetchProducts({ location: salesLocation }, true, false);
+      setFetchingProgress(100);
+      setTimeout(() => {
+        setIsDoneLoading(true);
+        router.push("/create-campaign/product-selection");
+      }, 1500);
       return;
     }
     setToast({
@@ -60,6 +72,11 @@ export default function AdsLocationPage() {
         "You need to complete onboarding before launching your first campaign. It only takes a minute!",
       type: "warning",
     });
+    setTimeout(() => {
+      setIsDoneLoading(true);
+      router.push("/settings/integrations");
+    }, 1500);
+    return;
   };
   return (
     <div className="px-5 max-w-[705px] pb-20 mt-20 min-h-[calc(100vh-200px)] flex flex-col mx-auto flex-1">
@@ -100,7 +117,9 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {loading && <AutoFetchingProduct fetchingProgress={fetchingProgress} />}
+      {!isDoneLoading && (
+        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
+      )}
     </div>
   );
 }

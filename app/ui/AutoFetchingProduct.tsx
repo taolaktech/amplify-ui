@@ -3,9 +3,14 @@ import CloudLoading from "./CloudLoading";
 
 function AutoFetchingProduct({
   fetchingProgress,
+  isPaginating = false,
 }: {
   fetchingProgress: number;
+  isPaginating?: boolean;
 }) {
+  const headingText = isPaginating
+    ? "Fetching products from synced Shopify store"
+    : "Auto-fetching products from synced Shopify store";
   return (
     <div className="">
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"></div>
@@ -18,7 +23,7 @@ function AutoFetchingProduct({
       >
         <CloudLoading
           fetchingProgress={fetchingProgress}
-          headingText="Auto-fetching products from synced Shopify store"
+          headingText={headingText}
           subText="This might take a few minutes"
         />
       </div>

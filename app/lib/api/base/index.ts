@@ -30,6 +30,7 @@ export const handleGoogleLogin = async () => {
 
 import { FirebaseError } from "firebase/app";
 import { AxiosError } from "axios";
+import { ImprovementCategory } from "@/type";
 
 export const handleEmailLogin: (data: {
   email: string;
@@ -141,4 +142,80 @@ export const checkEmailExists = async (email: string) => {
   const response = await axios.get(`/auth/does-user-exist/${email}`);
 
   return response;
+};
+
+export const postFeedBack = async (data: {
+  rating: number;
+  improvementCategory: ImprovementCategory;
+  feedbackNote: string;
+  token: string;
+}) => {
+  const response = await axios.post("/feedback", data, {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const getBrandAssets = async (data: { token: string }) => {
+  const response = await axios.get("/brand-assets", {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
+
+  return response.data;
+};
+
+interface BrandAssetsData {
+  removePrimaryLogo: boolean;
+  removeSecondaryLogo: boolean;
+  removeBrandGuide: boolean;
+  primaryColor: string;
+  secondaryColor: string;
+  primaryFont: string;
+  secondaryFont: string;
+  toneOfVoice: string;
+  primaryLogo?: File | null;
+  secondaryLogo?: File | null;
+  brandGuide?: File | null;
+}
+
+export const postBrandAssets = async (data: {
+  token: string;
+  assets: BrandAssetsData;
+}) => {
+  const response = await axios.post(
+    "/brand-assets",
+    {
+      ...data.assets,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
+export const updateStoreLogo = async (data: {
+  token: string;
+  businessLogo: File;
+}) => {
+  const formData = new FormData();
+  formData.append("businessLogo", data.businessLogo);
+
+  const response = await axios.patch("/business/update-logo", formData, {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
 };

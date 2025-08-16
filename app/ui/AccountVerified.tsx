@@ -34,8 +34,8 @@ export default function Verified() {
                   <Button
                     secondary
                     text="Skip for Now"
-                    href="/dashboard"
-                    // action={() => router.push("/dashboard")}
+                    href="/"
+                    // action={() => router.push("/")}
                   />
                 </div>
                 <div className="w-full md:max-w-[149px]">

@@ -1,5 +1,4 @@
 "use client";
-import { googleAdImgBlur } from "@/app/lib/blurHash";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -9,12 +8,15 @@ import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import { useModal } from "@/app/lib/hooks/useModal";
+import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { initialGeneration, googleCreativeIsPending } = useGenerateCreatives();
+  const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useModal(isLoading);
@@ -36,7 +38,7 @@ const SupportedAdPlatforms = () => {
 
   useEffect(() => {
     if (!productSelection.complete) {
-      router.push("/create-campaign/product-selection");
+      router.push("/create-campaign/");
     }
   }, []);
 
@@ -46,14 +48,14 @@ const SupportedAdPlatforms = () => {
     supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      if (canProceed) {
-        actions.completeAdsPlatform();
-        router.push("/create-campaign/campaign-snapshots");
-      }
-      setIsLoading(false);
-    }, 2000);
+    initialGeneration();
+    // setTimeout(() => {
+    //   if (canProceed) {
+    //     actions.completeAdsPlatform();
+    //     router.push("/create-campaign/campaign-snapshots");
+    //   }
+    //   setIsLoading(false);
+    // }, 2000);
   };
 
   return (
@@ -84,7 +86,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Google ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/google_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -118,7 +120,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Instagram ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/ig_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -134,8 +136,10 @@ const SupportedAdPlatforms = () => {
               width={100}
             />
             <Toggle
-              on={supportedAdPlatforms.Instagram}
-              toggle={() => actions.toggleAdsPlatform("Instagram")}
+              // on={supportedAdPlatforms.Instagram}
+              on={false}
+              // toggle={() => actions.toggleAdsPlatform("Instagram")}
+              toggle={() => {}}
             />
           </div>
         </div>
@@ -154,7 +158,7 @@ const SupportedAdPlatforms = () => {
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Facebook ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={googleAdImgBlur}
+                blurDataURL={"/facebook_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -170,8 +174,10 @@ const SupportedAdPlatforms = () => {
               }`}
             />
             <Toggle
-              on={supportedAdPlatforms.Facebook}
-              toggle={() => actions.toggleAdsPlatform("Facebook")}
+              // on={supportedAdPlatforms.Facebook}
+              on={false}
+              // toggle={() => actions.toggleAdsPlatform("Facebook")}
+              toggle={() => {}}
             />
           </div>
         </div>
@@ -188,7 +194,9 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {isLoading && <CircleLoaderModal text="Generating Ad Creatives..." />}
+      {googleCreativeIsPending && (
+        <CircleLoaderModal text="Generating Ad Creatives..." />
+      )}
     </div>
   );
 };
