@@ -45,6 +45,18 @@ export default function Products() {
   console.log("products", products);
 
 
+
+
+
+  // const { fetchProducts } = useGetShopifyProducts();
+  const [pageCount, setPageCount] = useState(1);
+
+
+  useEffect(() => {
+    setPageCount(Math.ceil(productCount / 12));
+  }, [productCount]);
+  const router = useRouter();
+
   useEffect(() => {
     if (productSelection.complete) {
       setSelectedProducts(productSelection.products);
