@@ -14,6 +14,7 @@ import {
 } from "@/app/lib/api/integrations";
 import { useRouter } from "next/navigation";
 import useUIStore from "../stores/uiStore";
+import { useToastStore } from "../stores/toastStore";
 
 export const useLinkShopify = (
   setErrorMsg: React.Dispatch<React.SetStateAction<string>>,
@@ -30,7 +31,9 @@ export const useLinkShopify = (
     mutationFn: handleShopifyAuth,
     onSuccess: (data) => {
       storeConnectStore({ storeUrl });
+      console.log("Shopify store linked successfully:", data);
       if (data.url) {
+        console.log("Redirecting to Shopify auth URL:", data.url);
         window.location.href = data.url;
       } else {
       }
@@ -51,7 +54,10 @@ export const useLinkShopify = (
     },
   });
 
-  const handleConnectStore = (shopifyStore: string) => {
+  const handleConnectStore = (
+    shopifyStore: string,
+    redirect = "/settings/integrations"
+  ) => {
     setErrorMsg("");
     if (!token) return;
     if (storeUrlFromStore === shopifyStore) {
@@ -68,6 +74,7 @@ export const useLinkShopify = (
 
     linkShopifyMutation.mutate({
       shop: shopifyStore,
+      redirect,
       token,
     });
   };
@@ -86,6 +93,8 @@ export const useRetrieveStoreDetails = () => {
     useState<any>(null);
   const [shouldFetchData, setShouldFetchData] = useState(false);
 
+  console.log(shouldFetchData);
+
   // const retrieveStoreDetails = useQuery({
   //   queryKey: ["storeDetails"],
   //   queryFn: () => {
@@ -96,7 +105,7 @@ export const useRetrieveStoreDetails = () => {
   // });
 
   const retrieveStoreDetails = async () => {
-    if (!token || !shouldFetchData) return;
+    if (!token) return;
     else {
       try {
         setIsLoading(true);
@@ -153,9 +162,10 @@ export const useRetrieveStoreDetails = () => {
   };
 };
 
-export const useSubmitBusinessDetails = () => {
+export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
   const token = useAuthStore((state) => state.token);
   const router = useRouter();
+  const setToast = useToastStore((state) => state.setToast);
 
   const [businessDetails, setBusinessDetails] = useState(null);
   const businessDetailsStore = useSetupStore((state) => state.businessDetails);
@@ -172,7 +182,13 @@ export const useSubmitBusinessDetails = () => {
       if (businessDetails) storeBusinessDetails(businessDetails);
       completeBusinessDetails(true);
       console.log("Business details submitted successfully:", data);
-      router.push("/setup/preferred-sales-location");
+      if (!isStoreDetails) router.push("/setup/preferred-sales-location");
+      else
+        setToast({
+          type: "success",
+          title: "Store details updated",
+          message: "Your store details has successfully been updated",
+        });
     },
     onError: (error: any) => {
       console.error("Error retrieving business details:", error);

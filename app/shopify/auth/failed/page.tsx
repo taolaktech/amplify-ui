@@ -6,7 +6,7 @@ export default function ShopifyFailed() {
   const params = useSearchParams();
   const router = useRouter();
   const error = params.get("error");
-  let errorDescription = '';
+  let errorDescription = "";
   switch (error) {
     case "E_CURRENCY_NOT_SUPPORTED":
       errorDescription = ", your store currency is not supported";
@@ -20,7 +20,7 @@ export default function ShopifyFailed() {
       headingText="Sorry!"
       subText={"We couldn’t connect to your Shopify store" + errorDescription}
       primaryActionText={"Skip this step"}
-      primaryAction={() => router.push("/dashboard")}
+      primaryAction={() => router.push("/")}
       secondaryActionText={"Try again"}
       secondaryAction={() => router.push("/setup/")}
       primaryButtonMaxWidth={130}

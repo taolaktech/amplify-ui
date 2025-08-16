@@ -1,6 +1,6 @@
 import CheckIcon from "@/public/tick-gradient-square.svg";
 
-export default function GreenCheckbox({ ticked }: { ticked: boolean }) {
+export default function GradientCheckbox({ ticked }: { ticked: boolean }) {
   return (
     <button
       onClick={(e) => {

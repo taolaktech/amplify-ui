@@ -3,6 +3,8 @@
 import Image from "next/image";
 import DefaultButton from "../Button";
 import SettingsIcon from "@/public/setting-2.svg";
+import BuildingGradient from "@/public/building-gradient.svg";
+import CalenderEditGrad from "@/public/calendar-edit.svg";
 import {
   Add,
   // ArrowDown2,
@@ -16,14 +18,15 @@ import {
   //  Magicpen,
   // MessageQuestion,
 } from "iconsax-react";
-import HomeTrendUpGrad from "@/public/home-trend-up.svg";
-import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
 // import { useRouter } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 import XCloseIcon from "@/public/x-close.svg";
 // import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
+import { SettingsSideBar } from "../SettingsNav";
+import SelectArrow from "../SelectArrow";
+import { CompanySideBar } from "../CompanyNav";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -32,11 +35,16 @@ type MobileSideBarProps = {
   isInsights: boolean;
   isCampaigns: boolean;
   isCompany: boolean;
-  isSupport: boolean;
+  isPricing: boolean;
+  isBrandAssets: boolean;
+  isCompanyTabOpen: boolean;
   isIntegrations: boolean;
+  isSupport: boolean;
   isSettings: boolean;
-  isCompanyOpen: boolean;
-  toggleIsCompanyOpen: () => void;
+  isSettingTabOpen: boolean;
+  isStoreDetails: boolean;
+  toggleIsSettingTabOpen: () => void;
+  toggleIsCompanyTabOpen: () => void;
   handleCreateCampaign: () => void;
 };
 
@@ -48,18 +56,22 @@ export default function MobileSideBar({
   // isInsights,
   isCampaigns,
   isCompany,
+  isPricing,
+  isBrandAssets,
+  isCompanyTabOpen,
+  toggleIsCompanyTabOpen,
+  isIntegrations,
+  isSettingTabOpen,
+  toggleIsSettingTabOpen,
+  isStoreDetails,
   // isSupport,
   // isIntegrations,
   handleCreateCampaign,
   isSettings,
-  isCompanyOpen,
-  toggleIsCompanyOpen,
 }: MobileSideBarProps) {
   // const router = useRouter();
   useModal(isSidebarOpen);
-  console.log("isSidebarOpen from mobile", isSidebarOpen);
 
-  console.log("isSidebarOpen from mobile", isSidebarOpen);
   return (
     <div className="xl:hidden">
       <div
@@ -69,12 +81,12 @@ export default function MobileSideBar({
         }  xl:hidden fixed top-0 bottom-0 left-0 right-0 z-15 transition-opacity duration-500`}
       />
       <div
-        className={`custom-shadow-sidebar w-[279px] px-8 bg-white ${
+        className={`custom-shadow-sidebar w-[279px]  bg-white ${
           isSidebarOpen ? "" : "-translate-x-[1000px] "
         } top-0 fixed h-screen flex flex-col z-20 transition-all duration-500`}
       >
-        <div className={`flex items-center justify-between h-[81px] py-7`}>
-          <Link href="/dashboard" className="flex items-center gap-2">
+        <div className={`flex items-center justify-between h-[81px] px-5 py-7`}>
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src={"/dashboard-logo.svg"}
               alt="logo"
@@ -91,7 +103,7 @@ export default function MobileSideBar({
           </button>
         </div>
 
-        <div className="my-7 h-[48px]">
+        <div className="my-7 h-[48px] px-5">
           <DefaultButton
             text="Create Campaign"
             height={48}
@@ -102,11 +114,11 @@ export default function MobileSideBar({
             icon={<Add size="24" color="#ffffff" />}
           />
         </div>
-        <div className={`flex-1 flex flex-col overflow-y-auto`}>
+        <div className={`flex-1 flex flex-col overflow-y-auto px-5`}>
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
-                href="/dashboard"
+                href="/"
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
                  h-[48px] cursor-pointer ${
                    isDashboard ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -133,30 +145,9 @@ export default function MobileSideBar({
                 </span>
               </Link>
             </li>
-            {/* <li>
-              <Link
-                href="/insights"
-                className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
-                px-4 h-[48px] cursor-pointer ${
-                  isInsights ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span>
-                  {!isInsights && <Magicpen size="24" color="#BFBFBF" />}
-                  {isInsights && <HomeTrendUpGrad width="24" height="24" />}
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    isInsights ? "text-heading" : "text-gray-dark"
-                  }`}
-                >
-                  Insights
-                </span>
-              </Link>
-            </li> */}
             <li>
               <Link
-                href="/dashboard/campaigns"
+                href="/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
                   isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -164,7 +155,7 @@ export default function MobileSideBar({
               >
                 <span>
                   {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <HomeTrendUpGrad width="24" height="24" />}
+                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
                 </span>
                 <span
                   className={`text-sm font-medium ${
@@ -175,86 +166,95 @@ export default function MobileSideBar({
                 </span>
               </Link>
             </li>
-            <li onClick={toggleIsCompanyOpen}>
+            <li>
               <span
-                // href="/company"
-                className={`flex items-center rounded-xl gap-2 px-4 
-                 h-[48px] cursor-pointer ${
-                   isCompany ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                 }`}
+                onClick={toggleIsCompanyTabOpen}
+                className={`flex items-center px-4 rounded-xl justify-between 
+                ${
+                  isCompany
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
+                }
+                `}
               >
-                <span className="flex items-center gap-2">
+                <span
+                  className={`flex items-center
+                ${
+                  isSidebarOpen ? "" : "justify-center"
+                }  gap-2 w-full  h-[48px] cursor-pointer `}
+                >
                   <span>
                     {!isCompany && <Building3 size="24" color="#BFBFBF" />}
-                    {isCompany && <HomeTrendUpGrad width="24" height="24" />}
+                    {isCompany && <BuildingGradient width="24" height="24" />}
                   </span>
-                  <span
-                    className={`text-sm font-medium ${
-                      isCompany ? "text-heading" : "text-gray-dark"
-                    }`}
-                  >
-                    Company
-                  </span>
+                  {isSidebarOpen && (
+                    <div className="flex items-center gap-2 justify-between">
+                      <span
+                        className={`text-sm font-medium ${
+                          isCompany ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Company
+                      </span>
+                    </div>
+                  )}
                 </span>
-                {/* {!isCompanyOpen && <ArrowDown2 size={20} color="#595959" />} */}
-                {/* {isCompanyOpen && <ArrowUp2 size={20} color="#595959" />} */}
+                {isSidebarOpen && <SelectArrow isOpen={isCompanyTabOpen} />}
               </span>
-              {isCompanyOpen && (
-                <span
-                  className={`flex flex-col gap-1 px-5 transition-all duration-300`}
-                  style={{
-                    height: isCompanyOpen ? 70 : 0,
-                  }}
-                >
-                  <DashboardCompanyLinks />
-                </span>
-              )}
+              <CompanySideBar
+                on={isCompanyTabOpen}
+                // setOn={toggleIsCompanyTabOpen}
+                isSidebarOpen={isSidebarOpen}
+                isBrandAssets={isBrandAssets}
+                isCompany={isStoreDetails}
+              />
             </li>
             <li>
-              <Link
-                href="/dashboard/settings"
-                className={`flex items-center gap-2 rounded-xl px-4 
-                h-[48px] cursor-pointer ${
-                  isSettings ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
+              <span
+                onClick={toggleIsSettingTabOpen}
+                className={`flex items-center px-4 rounded-xl justify-between 
+                ${
+                  isSettings
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
+                }
+                `}
               >
-                <span>
-                  {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
-                  {isSettings && <SettingsIcon width="24" height="24" />}
-                </span>
                 <span
-                  className={`text-sm font-medium ${
-                    isSettings ? "text-heading" : "text-gray-dark"
-                  }`}
+                  className={`flex items-center
+                ${
+                  isSidebarOpen ? "" : "justify-center"
+                }  gap-2 w-full  h-[48px] cursor-pointer `}
                 >
-                  Settings
+                  <span>
+                    {!isSettings && <Setting2 size="24" color="#BFBFBF" />}
+                    {isSettings && <SettingsIcon width="24" height="24" />}
+                  </span>
+                  {isSidebarOpen && (
+                    <div className="flex items-center gap-2 justify-between">
+                      <span
+                        className={`text-sm font-medium ${
+                          isSettings ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Settings
+                      </span>
+                    </div>
+                  )}
                 </span>
-              </Link>
+                {isSidebarOpen && <SelectArrow isOpen={isSettingTabOpen} />}
+              </span>
+              <SettingsSideBar
+                on={isSettingTabOpen}
+                // setOn={toggleIsSettingTabOpen}
+                isSidebarOpen={isSidebarOpen}
+                isIntegrations={isIntegrations}
+                isPricing={isPricing}
+              />
             </li>
-            {/* <li className="">
-              <Link
-                href="/support"
-                className={`flex items-center gap-2 rounded-xl px-4 
-                h-[48px] cursor-pointer ${
-                  isSupport ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span>
-                  {!isSupport && <MessageQuestion size="24" color="#BFBFBF" />}
-                  {isSupport && <HomeTrendUpGrad width="24" height="24" />}
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    isSupport ? "text-heading" : "text-gray-dark"
-                  }`}
-                >
-                  Support
-                </span>
-              </Link>
-            </li> */}
           </ul>
           <div
-            className={`xl:max-h-[250px] flex-1 pb-20 px-4 lg:py-5 flex flex-col justify-end `}
+            className={`xl:max-h-[250px] mt-5 md:mt-0 flex-1 pb-20 px-4 lg:py-5 flex flex-col justify-end `}
           >
             <Feedback isSidebarOpen={isSidebarOpen} />
 

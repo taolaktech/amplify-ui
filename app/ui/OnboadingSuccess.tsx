@@ -27,7 +27,7 @@ export default function OnboardingSuccess() {
               </p>
               <div className="mt-16 w-full flex flex-col items-center justify-center gap-3">
                 <div className="w-full md:max-w-[159px] mx-auto">
-                  <Button text="Go to Dashboard" href="/dashboard" />
+                  <Button text="Go to Dashboard" href="/" />
                 </div>
               </div>
             </div>

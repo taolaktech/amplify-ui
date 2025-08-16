@@ -25,7 +25,7 @@ export default function AuthLayout({
         path === "/auth/signup/create/verify-account?verified=true";
 
       if (isAuth && !validated) {
-        router.replace("/dashboard");
+        router.replace("/");
       }
     }
   }, [isAuth, hasMounted]);

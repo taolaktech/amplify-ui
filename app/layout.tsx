@@ -44,6 +44,11 @@ export default function RootLayout({
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
         <Toast />
       </body>
+      <script
+        async
+        src="//mozilla.github.io/pdf.js/build/pdf.mjs"
+        type="module"
+      ></script>
     </html>
   );
 }

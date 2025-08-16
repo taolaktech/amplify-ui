@@ -18,7 +18,7 @@ function ConnectStore({
   isOpen,
 }: {
   closeModal: () => void;
-  isLinkedStore: boolean;
+  isLinkedStore?: boolean;
   isOpen: boolean;
 }) {
   const completeConnectStore = useSetupStore(
@@ -156,7 +156,9 @@ function ConnectStore({
                   <div className="sm:max-w-[136px] mx-auto mt-2 pb-4 md:mt-14">
                     <DefaultButton
                       text="Continue"
-                      action={() => handleConnectStore(shopifyStore)}
+                      action={() =>
+                        handleConnectStore(shopifyStore, "/setup?linked=true")
+                      }
                       hasIconOrLoader
                       loading={linkShopifyMutation.isPending}
                     />

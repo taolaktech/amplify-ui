@@ -11,8 +11,8 @@ import TextArea from "@/app/ui/form/TextArea";
 import URLInput from "@/app/ui/form/URLInput";
 import { Gallery, TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
-import CheckIcon from "@/public/check-white.svg";
 import Image from "next/image";
+import { useRef } from "react";
 
 export default function StoreDetails() {
   const {
@@ -20,14 +20,26 @@ export default function StoreDetails() {
     formState: { errors },
     productCategory,
     setProductCategory,
+    isPending,
     productCategoryError,
     setProductCategoryError,
     handleAction,
-    defaultBusinessDetails,
+    companyRole,
     teamSizeSelected,
     handleSelectTeamSize,
+    preview,
+    handleFileChange,
+    setCompanyRole,
     submitBusinessDetailsMutation,
-  } = useBusinessDetails();
+  } = useBusinessDetails(true);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadBtnClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   return (
     <div>
@@ -41,19 +53,44 @@ export default function StoreDetails() {
         View and update your store and business info.
       </p>
 
-      <div className="flex flex-col gap-4 items-center justify-center">
-        <div className="w-[160px] h-[160px] flex flex-col items-center justify-center bg-[rgba(230,230,230,0.25)] rounded-full relative">
-          <Gallery size={32} color="#737373" />
-          <p className="text-sm tracking-150 text-[#737373] mt-2 font-medium  text-center">
-            Upload Store Logo
-          </p>
-          <button className="absolute bottom-4 right-1 bg-[#D0B0F3] rounded-full w-8 h-8 flex items-center justify-center">
-            <EditIcon width={16} height={16} />
+      <div className="flex flex-col gap-4 items-center my-16 justify-center">
+        <div className="w-[160px] h-[160px] flex flex-col items-center justify-center bg-[#E6E6E6] rounded-full relative">
+          {preview ? (
+            <Image
+              src={preview}
+              alt="store logo"
+              width={160}
+              height={160}
+              objectPosition="center"
+              className="rounded-full object-center w-full h-full object-cover"
+            />
+          ) : (
+            <>
+              <Gallery size={32} color="#737373" />
+              <p className="text-sm tracking-150 text-[#737373] mt-2 font-medium  text-center">
+                Upload Store Logo
+              </p>
+            </>
+          )}
+
+          <button
+            onClick={handleUploadBtnClick}
+            className="absolute bottom-4 right-1 bg-[#D0B0F3] rounded-full w-8 h-8 flex items-center justify-center"
+          >
+            <span className="relative block">
+              <EditIcon width={16} height={16} />
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden absolute top-0 left-0 w-8 h-8"
+                ref={fileInputRef}
+              />
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="flex gap-4 mt-9">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-9">
         <div className="w-full">
           <Input
             type="text"
@@ -94,7 +131,7 @@ export default function StoreDetails() {
           />
         </div>
       </div>
-      <div className="flex gap-4 mt-9">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-5 md:mt-9">
         <div className="w-full">
           <TextArea
             label="Description"
@@ -132,7 +169,7 @@ export default function StoreDetails() {
           visibility
         />
       </div>
-      <div className="flex gap-4 mt-3">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-5 md:mt-9">
         <div className="w-full">
           <Input
             type="text"
@@ -160,11 +197,11 @@ export default function StoreDetails() {
             background="rgba(230, 230, 230, 0.25)"
             borderless
             showErrorMessage
-            error={errors.storeName?.message}
+            error={errors.contactPhone?.message}
           />
         </div>
       </div>
-      <div className="flex gap-4 mt-9">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-5 md:mt-9">
         <div className="w-full">
           <SelectInput
             placeholder="Just me"
@@ -180,6 +217,29 @@ export default function StoreDetails() {
           />
         </div>
         <div className="w-full">
+          <SelectInput
+            placeholder="Select your company role"
+            label="What is your role?"
+            options={[
+              "Business Owner/Founder",
+              "Marketing Manager",
+              "Media Buyer",
+              "Creative Director",
+              "Content Manager",
+              "E-commerce Manager",
+              "Data Analyst",
+              "Customer Support",
+              "Agency",
+            ]}
+            borderless
+            setSelected={setCompanyRole}
+            selected={companyRole}
+            large
+            setError={() => {}}
+            error={errors.companyRole?.message}
+          />
+        </div>
+        {/* <div className="w-full">
           <div className="text-xs">Integration Status</div>
           <div className="flex gap-2 flex-shrink-0 mt-2 flex-wrap">
             {defaultBusinessDetails.storeUrl && (
@@ -197,10 +257,10 @@ export default function StoreDetails() {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
 
-      <div className="flex gap-4 mt-9">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-5 md:mt-9">
         <div className="w-full">
           <Input
             type="number"
@@ -250,7 +310,7 @@ export default function StoreDetails() {
           text="Save Changes"
           height={49}
           action={handleAction}
-          loading={submitBusinessDetailsMutation.isPending}
+          loading={submitBusinessDetailsMutation.isPending || isPending}
           icon={<TickCircle size="16" color="#fff" variant="Bold" />}
         />
       </div>

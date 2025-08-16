@@ -4,13 +4,15 @@ import MagicStarIcon from "@/public/magic-star.png";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
+import Product from "@/app/ui/campaign-snapshots/Product";
+import useCreativesStore from "@/app/lib/stores/creativesStore";
 
 const productTypes = [
   {
@@ -40,20 +42,66 @@ const productTypes = [
 ];
 
 export default function CampaignSnapshotsPage() {
-  const { productSelection, supportedAdPlatforms } = useCreateCampaignStore(
-    (state) => state
+  const {
+    productSelection,
+    supportedAdPlatforms,
+    instagramSettings,
+    facebookSettings,
+    googleSettings,
+  } = useCreateCampaignStore((state) => state);
+  const { canUndo } = useCreativesStore((state) => state.actions);
+  const { Google } = useCreativesStore((state) => state);
+  const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
+
+  const actions = useCreateCampaignStore((state) => state.actions);
+
+  const [highlightedProduct, setHighlightedProduct] = useState<any>(
+    productSelection.products[0] || null
   );
+
+  // const [creatives, setCreatives] = useState<any | null>({
+
+  // });
   const router = useRouter();
-  const adPlatforms = Object.keys(supportedAdPlatforms)
-    .filter(
-      (platform) =>
-        platform !== "complete" &&
-        supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
-    )
-    .map((platform) => ({
-      title: platform as "Instagram" | "Facebook" | "Google",
-      image: `/${platform.toLowerCase()}_logo.svg`,
-    }));
+
+  // const adPlatforms: {
+  //   title: "Instagram" | "Facebook" | "Google";
+  //   image: string;
+  //   settings: any;
+  //   creatives: any[];
+  // }[];
+
+  useEffect(() => {
+    const resultAdPlatforms = Object.keys(supportedAdPlatforms)
+      .filter(
+        (platform) =>
+          platform !== "complete" &&
+          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
+      )
+      .map((platform) => ({
+        title: platform as "Instagram" | "Facebook" | "Google",
+        image: `/${platform.toLowerCase()}_logo.svg`,
+        settings: {
+          ...(platform === "Instagram"
+            ? instagramSettings
+            : platform === "Facebook"
+            ? facebookSettings
+            : googleSettings),
+        },
+        creatives: platform === "Google" ? Google?.["1"] : [],
+      }))
+      .sort((a, b) => {
+        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        return order[a.title] - order[b.title];
+      });
+    setAdPlatforms(resultAdPlatforms);
+  }, [
+    supportedAdPlatforms,
+    instagramSettings,
+    facebookSettings,
+    googleSettings,
+    Google,
+  ]);
 
   const [campaignDetails, setCampaignDetails] = useState({
     campaignType: "",
@@ -72,36 +120,54 @@ export default function CampaignSnapshotsPage() {
 
   const handleProceed = () => {
     console.log("proceed");
+    actions.storeCampaignSnapshots({
+      campaignType: campaignDetails.campaignType,
+      brandColor: campaignDetails.brandColor,
+      accentColor: campaignDetails.accentColor,
+      campaignStartDate: new Date(
+        campaignDetails.campaignStartDate
+      ).toISOString(),
+      campaignEndDate: new Date(campaignDetails.campaignEndDate).toISOString(),
+    });
+    actions.completeCampaignSnapshots();
     router.push("/create-campaign/fund-campaign");
   };
 
+  useEffect(() => {
+    if (!supportedAdPlatforms.complete) {
+      router.push("/create-campaign/");
+    }
+  }, []);
+
+  const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
+
+  const handleSetHighlightedProduct = (product: any) => {
+    setHighlightedProduct(product);
+  };
   const products = productSelection.products;
   return (
-    <div className="flex gap-6 mt-6 pb-12">
+    <div className="flex items-start gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[115px] flex flex-col gap-8 items-center px-3 py-4 bg-[#FBFAFC] rounded-3xl max-h-[503px]">
-          <div className="flex items-center gap-2">
+        <div className="w-[224px] sticky top-20 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+          <div className="flex justify-between gap-2 px-3">
             <span className="text-sm font-medium">Products</span>
             <span>
-              <ArrowDown2 size={14} color="#000" />
+              <ArrowDown2 size={12} color="#000" />
             </span>
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
             {products.map((product) => (
-              <div key={product.id}>
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  width={80}
-                  height={40}
-                  className="rounded-lg h-[60px] object-cover object-center"
-                />
-              </div>
+              <Product
+                product={product}
+                key={product.node.id}
+                highlightedProduct={highlightedProduct}
+                handleSetHighlightedProduct={handleSetHighlightedProduct}
+              />
             ))}
           </div>
         </div>
       )}
-      <div className="flex-1">
+      <div className="w-[calc(100%-224px)]">
         <div className="flex flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>
@@ -116,21 +182,25 @@ export default function CampaignSnapshotsPage() {
             </div>
           </div>
           <div className="flex gap-2 md:gap-3">
-            <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-              {/* <MagicStarIcon />
-               */}
-              <img
-                src={MagicStarIcon.src}
-                alt="Magic Star"
-                width={20}
-                height={20}
-              />
-              <span className="text-sm font-medium">Mix</span>
-            </button>
-            <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
-              <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
-              <span className="text-sm font-medium">Undo</span>
-            </button>
+            {!isOnlyGoogle && (
+              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
+                {/* <MagicStarIcon />
+                 */}
+                <img
+                  src={MagicStarIcon.src}
+                  alt="Magic Star"
+                  width={20}
+                  height={20}
+                />
+                <span className="text-sm font-medium">Mix</span>
+              </button>
+            )}
+            {canUndo(highlightedProduct?.node?.id) && (
+              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
+                <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+                <span className="text-sm font-medium">Undo</span>
+              </button>
+            )}
 
             <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
               <img
@@ -159,13 +229,16 @@ export default function CampaignSnapshotsPage() {
               />
             </div>
           </div>
-          <BrandColors
-            brandColor={campaignDetails.brandColor}
-            accentColor={campaignDetails.accentColor}
-            setBrandColor={(key: "brandColor" | "accentColor", value: string) =>
-              handleCampaignDetails(key, value)
-            }
-          />
+          {!isOnlyGoogle && (
+            <BrandColors
+              brandColor={campaignDetails.brandColor}
+              accentColor={campaignDetails.accentColor}
+              setBrandColor={(
+                key: "brandColor" | "accentColor",
+                value: string
+              ) => handleCampaignDetails(key, value)}
+            />
+          )}
         </div>
         <DateSelection
           setStartDate={(date: Date) =>
@@ -176,9 +249,9 @@ export default function CampaignSnapshotsPage() {
           }
         />
         <div className="mt-10">
-          <Preview data={adPlatforms} />
+          <Preview adPlatforms={adPlatforms} />
         </div>
-        <div className="mt-5 md:mt-12 sm:max-w-[200px] mx-auto">
+        <div className="mt-5 md:mt-20 sm:max-w-[200px] mx-auto">
           <Button
             text="Proceed"
             action={handleProceed}

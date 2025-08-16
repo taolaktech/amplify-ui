@@ -7,6 +7,7 @@ import { options } from "@/app/lib/stripe";
 import SelectArrow from "../SelectArrow";
 import {
   useGetCustomerPaymentMethods,
+  useStripeCustomerActions,
   useSubscribeToPlan,
   useUpgradePlan,
 } from "@/app/lib/hooks/stripe";
@@ -16,29 +17,58 @@ import Skeleton from "../Skeleton";
 import Button from "../Button";
 import { priceId } from "@/app/lib/pricingPlans";
 import { useSearchParams } from "next/navigation";
+import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 
 export default function Checkout({
   isAddCardPage,
   setRightSideOpen,
   isUpgrade,
+  isDowngrade = false,
 }: {
   isAddCardPage: boolean;
   setRightSideOpen?: (open: boolean) => void;
   isUpgrade?: boolean;
+  isDowngrade?: boolean;
 }) {
   const [isAddCard, setIsAddCard] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    string | null
+  >(null);
   console.log("is Upgrade", isUpgrade);
+
   const { handleSubscribe, isPending } = useSubscribeToPlan();
   const { handleUpgrade, isPending: isUpgradePending } = useUpgradePlan();
+  const { storeSelectedPaymentMethod } = useCreateCampaignStore(
+    (state) => state.actions
+  );
 
-  const { data: customerPaymentMethods, isLoading } =
-    useGetCustomerPaymentMethods();
+  const { handleSetDefaultPaymentMethod } = useStripeCustomerActions();
+
+  const {
+    data: customerPaymentMethods,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useGetCustomerPaymentMethods();
   useEffect(() => {
     if (customerPaymentMethods?.data?.length > 0) {
       setSelectedPaymentMethod(customerPaymentMethods.data[0]?.id);
     }
   }, [customerPaymentMethods]);
+
+  useEffect(() => {
+    if (!selectedPaymentMethod) return;
+    const paymentMethod = customerPaymentMethods?.data.find(
+      (pm: any) => pm.id === selectedPaymentMethod
+    );
+    setSelectedPaymentMethod(selectedPaymentMethod);
+    storeSelectedPaymentMethod({
+      id: paymentMethod.id,
+      last4Numbers: paymentMethod.card.last4,
+      cardBrand: paymentMethod.card.brand,
+    });
+    handleSetDefaultPaymentMethod(selectedPaymentMethod);
+  }, [selectedPaymentMethod]);
 
   useEffect(() => {
     if (isPending) {
@@ -73,7 +103,7 @@ export default function Checkout({
   console.log("customerPaymentMethods", customerPaymentMethods?.data);
   console.log("isLoading", isLoading);
 
-  if (isLoading) {
+  if (isLoading || isRefetching) {
     return <Skeleton width="100%" height="330px" borderRadius="10px" />;
   }
 
@@ -106,7 +136,7 @@ export default function Checkout({
           customerPaymentMethods={customerPaymentMethods}
           selectedPaymentMethod={selectedPaymentMethod}
           setSelectedPaymentMethod={setSelectedPaymentMethod}
-          isLoading={isLoading}
+          isLoading={isLoading || isRefetching}
         />
       </div>
       <div
@@ -147,14 +177,15 @@ export default function Checkout({
           className={`${
             isAddCard
               ? `mt-6 z-50 relative ${"h-[420px]"} opacity-100`
-              : "h-0 opacity-0"
-          } transition-all overflow-hidden duration-300 ease-in-out`}
+              : "h-0 opacity-0 overflow-hidden"
+          } transition-all duration-300 ease-in-out`}
         >
           <Elements stripe={stripePromise} options={options}>
             <CheckoutForm
               amount={1000}
               isAddCardPage={isAddCardPage}
               isUpgrade={isUpgrade}
+              fetchCustomerCards={refetch}
             />
           </Elements>
         </div>
@@ -167,14 +198,14 @@ export default function Checkout({
                 isAddCardPage
                   ? "Add card"
                   : isUpgrade
-                  ? "Upgrade now"
+                  ? `${isDowngrade ? "Downgrade" : "Upgrade"} now`
                   : "Subscribe now"
               }
               hasIconOrLoader
               action={() =>
                 handleSubscribeOrUpgrade(
                   price.toString(),
-                  selectedPaymentMethod
+                  selectedPaymentMethod ?? ""
                 )
               }
               loading={isPending || isUpgradePending}

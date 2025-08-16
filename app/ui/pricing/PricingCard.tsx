@@ -20,7 +20,7 @@ function PricingCard({
   plan: Plan;
   price: number;
   isCurrentPlan?: boolean;
-  planSelected: Plan;
+  planSelected: Plan | null;
   cycle: Cycle;
   isDashboard?: boolean;
   features: string[];
@@ -36,6 +36,7 @@ function PricingCard({
   const handlePlanSelection = () => {
     console.log("handlePlanSelection", plan);
     if (isCurrentPlan) {
+      if (isDashboard) return;
       router.push("/create-Campaign");
       return;
     }
@@ -47,6 +48,7 @@ function PricingCard({
   const changePlan = (plan: Plan) => {
     console.log("changePlan", plan);
     if (isCurrentPlan) {
+      if (isDashboard) return;
       console.log("pushing to create-campaign");
       router.push("/create-campaign");
       return;
@@ -57,7 +59,7 @@ function PricingCard({
 
   return (
     <div
-      className={`p-8 rounded-lg h-screen max-h-[567px] ${
+      className={`p-8 rounded-lg h-screen max-h-[467px] xl:max-h-[567px] ${
         isCurrentPlan
           ? `bg-[#FBFAFC] ${
               isDashboard ? "cursor-not-allowed" : "cursor-pointer"
@@ -68,9 +70,9 @@ function PricingCard({
       }`}
       onClick={() => changePlan(plan)}
     >
-      <div className="text-[#6800D7] text-xl font-medium">{plan}</div>
-      <div className="mt-3 mb-6">
-        <span className="font-bold text-3xl tracking-[-0.1px] num">
+      <div className="text-[#6800D7]  md:text-xl font-medium">{plan}</div>
+      <div className="md:mt-3 mt-2 mb-6">
+        <span className="font-bold text-2xl md:text-3xl tracking-[-0.1px] num">
           ${Math.round(formattedPrice)}
         </span>
         <span className="text-lg font-medium tracking-250">
