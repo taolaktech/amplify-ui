@@ -44,7 +44,6 @@ export default function Products() {
 
   console.log("products", products);
 
-  useEffect(() => {}, []);
 
   useEffect(() => {
     if (productSelection.complete) {
