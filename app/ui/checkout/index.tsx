@@ -62,7 +62,6 @@ export default function Checkout({
       (pm: any) => pm.id === selectedPaymentMethod
     );
     setSelectedPaymentMethod(selectedPaymentMethod);
-    console.log("paymentMethod from effect", paymentMethod);
     storeSelectedPaymentMethod({
       id: paymentMethod.id,
       last4Numbers: paymentMethod.card.last4,
