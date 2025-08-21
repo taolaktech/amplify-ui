@@ -20,17 +20,13 @@ export default function Products() {
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
   );
-
-  useEffect(() => {
-    setPageCount(Math.ceil(productCount / 12));
-  }, [productCount]);
-
-  // const { fetchProducts } = useGetShopifyProducts();
   const [pageCount, setPageCount] = useState(1);
+  console.log(pageCount);
 
   useEffect(() => {
     setPageCount(Math.ceil(productCount / 12));
   }, [productCount]);
+
   const router = useRouter();
 
   useEffect(() => {
