@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import {
   generateGoogleCreatives,
   GoogleCreativesProduct,
-} from "../api/base/creatives";
+} from "../api/ai/creatives";
 import { useAuthStore } from "../stores/authStore";
 // import useUIStore from "../stores/uiStore";
 import { useRouter } from "next/navigation";

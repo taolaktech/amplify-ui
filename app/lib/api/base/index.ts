@@ -160,7 +160,7 @@ export const postFeedBack = async (data: {
 };
 
 export const getBrandAssets = async (data: { token: string }) => {
-  const response = await axios.get("/brand-assets", {
+  const response = await axios.get("/brand-asset", {
     headers: {
       Authorization: `Bearer ${data.token}`,
     },
@@ -187,18 +187,49 @@ export const postBrandAssets = async (data: {
   token: string;
   assets: BrandAssetsData;
 }) => {
-  const response = await axios.post(
-    "/brand-assets",
-    {
-      ...data.assets,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${data.token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    }
+  const {
+    removePrimaryLogo,
+    removeSecondaryLogo,
+    removeBrandGuide,
+    primaryColor,
+    secondaryColor,
+    primaryFont,
+    secondaryFont,
+    toneOfVoice,
+    primaryLogo,
+    secondaryLogo,
+    brandGuide,
+  } = data.assets;
+  const formData = new FormData();
+
+  formData.append("removePrimaryLogo", removePrimaryLogo ? "true" : "false");
+  formData.append(
+    "removeSecondaryLogo",
+    removeSecondaryLogo ? "true" : "false"
   );
+  formData.append("removeBrandGuide", removeBrandGuide ? "true" : "false");
+
+  formData.append("primaryColor", primaryColor);
+  formData.append("secondaryColor", secondaryColor);
+  formData.append("primaryFont", primaryFont);
+  formData.append("secondaryFont", secondaryFont);
+  formData.append("toneOfVoice", toneOfVoice);
+
+  if (primaryLogo) {
+    formData.append("primaryLogo", primaryLogo);
+  }
+  if (secondaryLogo) {
+    formData.append("secondaryLogo", secondaryLogo);
+  }
+  if (brandGuide) {
+    formData.append("brandGuide", brandGuide);
+  }
+  const response = await axios.put("/brand-asset", formData, {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+      // "Content-Type": "multipart/form-data",
+    },
+  });
 
   return response.data;
 };

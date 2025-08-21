@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUploadPhoto } from "./useUploadPhoto";
 // import { useToastStore } from "../stores/toastStore";
 // import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 // import "react-pdf/dist/esm/Page/TextLayer.css";
 import { pdfjs } from "react-pdf";
+import { useMutation } from "@tanstack/react-query";
+import { postBrandAssets } from "../api/base";
+import { useAuthStore } from "../stores/authStore";
+import { useToastStore } from "../stores/toastStore";
+import { stat } from "fs";
+import useBrandAssetStore from "../stores/brandAssetStore";
 // import { useMutation } from "@tanstack/react-query";
 // import { postBrandAssets } from "../api/base";
 
@@ -27,6 +33,20 @@ export const options = {
 // const maxWidth = 800;
 
 export default function useBrandAssets() {
+  const token = useAuthStore((state) => state.token);
+  const setToast = useToastStore((state) => state.setToast);
+  const [removeBrandGuide, setRemoveBrandGuide] = useState(false);
+  const {
+    primaryLogo: currentPrimaryLogo,
+    secondaryLogo: currentSecondaryLogo,
+    primaryColor: currentPrimaryColor,
+    secondaryColor: currentSecondaryColor,
+    toneOfVoice: currentToneOfVoice,
+    primaryFont: currentPrimaryFont,
+    secondaryFont: currentSecondaryFont,
+    brandGuide: currentBrandGuide,
+  } = useBrandAssetStore();
+
   const {
     file: primaryLogoFile,
     preview: primaryLogoPreview,
@@ -47,49 +67,80 @@ export default function useBrandAssets() {
     reset: secondaryLogoReset,
   } = useUploadPhoto();
 
-  // const { mutate, isPending } = useMutation({
-  //   mutationFn: postBrandAssets,
-  //   mutationKey: ["postBrandAssets"],
-  //   onSuccess: (data) => {},
-  //   onError: (error) => {
-  //     console.error("Error posting brand assets:", error);
-  //   },
-  // });
+  const { mutate, isPending } = useMutation({
+    mutationFn: postBrandAssets,
+    mutationKey: ["postBrandAssets"],
+    onSuccess: (data) => {
+      setToast({
+        title: "Brand Assets Updated.",
+        message: "Your brand assets has been updated.",
+        type: "success",
+      });
+    },
+    onError: (error) => {
+      console.error("Error posting brand assets:", error);
+      setToast({
+        title: "Error Occured.",
+        message: "Something went wrong while updating brand assets.",
+        type: "error",
+      });
+    },
+  });
 
-  // function handleSubmitBrandAssets() {
-  //   const formData = new FormData();
+  function handleSubmitBrandAssets() {
+    mutate({
+      token: token ?? "",
+      assets: {
+        removePrimaryLogo: !currentPrimaryLogo && !!primaryLogoPreview,
+        removeSecondaryLogo: !currentSecondaryLogo && !!secondaryLogoPreview,
+        removeBrandGuide,
+        primaryColor: primaryColor || currentPrimaryColor,
+        secondaryColor: secondaryColor || currentSecondaryColor,
+        toneOfVoice: toneOfVoice || currentToneOfVoice || "Friendly",
+        primaryFont: primaryFont || currentPrimaryFont || "Inter",
+        secondaryFont: secondaryFont || currentSecondaryFont || "Inter",
+        ...(brandGuide ? { brandGuide } : {}),
+        ...(primaryLogoFile ? { primaryLogo: primaryLogoFile } : {}),
+        ...(secondaryLogoFile ? { secondaryLogo: secondaryLogoFile } : {}),
+      },
+    });
+  }
 
-  //   formData.append("removePrimaryLogo", String(!primaryLogoFile));
-  //   formData.append("removeSecondaryLogo", String(!secondaryLogoFile));
-  //   formData.append("removeBrandGuide", String(!brandGuide));
+  const [primaryColor, setPrimaryColor] = useState<string>(currentPrimaryColor);
+  const [secondaryColor, setSecondaryColor] = useState<string>(
+    currentSecondaryColor
+  );
 
-  //   formData.append("primaryColor", primaryColor);
-  //   formData.append("secondaryColor", secondaryColor);
-  //   formData.append("primaryFont", primaryFont ?? "");
-  //   formData.append("secondaryFont", secondaryFont ?? "");
-  //   formData.append("toneOfVoice", toneOfVoice ?? "");
-
-  //   if (primaryLogoFile) {
-  //     formData.append("primaryLogo", primaryLogoFile);
-  //   }
-  //   if (secondaryLogoFile) {
-  //     formData.append("secondaryLogo", secondaryLogoFile);
-  //   }
-  //   if (brandGuide) {
-  //     formData.append("brandGuide", brandGuide);
-  //   }
-  // }
-
-  const [primaryColor, setPrimaryColor] = useState<string>("#000000");
-  const [secondaryColor, setSecondaryColor] = useState<string>("#FFFFFF");
   // const setToast = useToastStore((state) => state.setToast);
   // const [numPages, setNumPages] = useState<number | null>(null);
 
-  const [primaryFont, setPrimaryFont] = useState<string | null>(null);
-  const [secondaryFont, setSecondaryFont] = useState<string | null>(null);
+  const [primaryFont, setPrimaryFont] = useState<string | null>(
+    currentPrimaryFont
+  );
+  const [secondaryFont, setSecondaryFont] = useState<string | null>(
+    currentSecondaryFont
+  );
 
   const [brandGuide, setBrandGuide] = useState<File | null>(null);
-  const [toneOfVoice, setToneOfVoice] = useState<string | null>(null);
+  const [toneOfVoice, setToneOfVoice] = useState<string | null>(
+    currentToneOfVoice
+  );
+
+  useEffect(() => {
+    setPrimaryColor(currentPrimaryColor);
+    setSecondaryColor(currentSecondaryColor);
+    setPrimaryFont(currentPrimaryFont);
+    setSecondaryFont(currentSecondaryFont);
+    setToneOfVoice(currentToneOfVoice);
+  }, [
+    currentPrimaryColor,
+    currentSecondaryColor,
+    currentPrimaryFont,
+    currentSecondaryFont,
+    currentToneOfVoice,
+  ]);
+
+  console.log("color:", currentPrimaryColor, primaryColor);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -130,8 +181,6 @@ export default function useBrandAssets() {
   //   setNumPages(nextNumPages);
   // }
 
-  const handleSubmit = () => {};
-
   return {
     primaryLogoFile,
     primaryLogoPreview,
@@ -159,8 +208,11 @@ export default function useBrandAssets() {
     setToneOfVoice,
     handleChange,
     handleFontChange,
-    handleSubmit,
     handleBrandGuideChange,
+    handleSubmitBrandAssets,
+    isPending,
     // onDocumentLoadSuccess,
   };
 }
+
+// export default function useSubmitBr
