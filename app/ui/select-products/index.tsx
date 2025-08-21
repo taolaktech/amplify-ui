@@ -16,45 +16,17 @@ import Pagination from "./Pagination";
 export default function Products() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-  const {
-    products,
-    productCount,
-    startCursor,
-    endCursor,
-    hasNextPage,
-    hasPreviousPage,
-    // currentPage,
-  } = useUIStore((state) => state);
+  const { products, productCount } = useUIStore((state) => state);
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
   );
-  console.log("startCursor", startCursor);
-  console.log("endCursor", endCursor);
-  console.log("hasNextPage", hasNextPage);
-  console.log("hasPreviousPage", hasPreviousPage);
-
-  // const { fetchProducts } = useGetShopifyProducts();
   const [pageCount, setPageCount] = useState(1);
-  console.log("pageCount", pageCount);
+  console.log(pageCount);
 
   useEffect(() => {
     setPageCount(Math.ceil(productCount / 12));
   }, [productCount]);
-  const router = useRouter();
 
-  console.log("products", products);
-
-
-
-
-
-  // const { fetchProducts } = useGetShopifyProducts();
-  const [pageCount, setPageCount] = useState(1);
-
-
-  useEffect(() => {
-    setPageCount(Math.ceil(productCount / 12));
-  }, [productCount]);
   const router = useRouter();
 
   useEffect(() => {

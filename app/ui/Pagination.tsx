@@ -10,6 +10,7 @@ export default function Pagination({
   setCurrentPage: (page: number) => void;
   currentPage: number;
 }) {
+  console.log(currentPage);
   return (
     <ReactPaginate
       pageCount={pageCount}
