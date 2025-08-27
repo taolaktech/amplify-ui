@@ -30,6 +30,7 @@ export default function StoreDetails() {
     preview,
     handleFileChange,
     setCompanyRole,
+    storeLogo,
     submitBusinessDetailsMutation,
   } = useBusinessDetails(true);
 
@@ -40,6 +41,8 @@ export default function StoreDetails() {
       fileInputRef.current.click();
     }
   };
+
+  console.log("storeLogo:", storeLogo);
 
   return (
     <div>
@@ -55,9 +58,9 @@ export default function StoreDetails() {
 
       <div className="flex flex-col gap-4 items-center my-16 justify-center">
         <div className="w-[160px] h-[160px] flex flex-col items-center justify-center bg-[#E6E6E6] rounded-full relative">
-          {preview ? (
+          {preview || storeLogo ? (
             <Image
-              src={preview}
+              src={preview ?? storeLogo}
               alt="store logo"
               width={160}
               height={160}

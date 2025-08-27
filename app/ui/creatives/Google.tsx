@@ -17,7 +17,7 @@ export default function GoogleCreatives({
   return (
     <div
       style={{ width: 350 }}
-      className={`p-8 flex flex-col gap-2 bg-white rounded-3xl ${roboto.className}`}
+      className={`p-8 flex h-full flex-col gap-2 bg-white rounded-3xl ${roboto.className}`}
     >
       <div className="flex gap-3 items-center ">
         <span className={`text-[#333] font-bold ${roboto.className}`}>Ad.</span>

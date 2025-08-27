@@ -88,7 +88,8 @@ export default function CampaignSnapshotsPage() {
             ? facebookSettings
             : googleSettings),
         },
-        creatives: platform === "Google" ? Google?.["1"] : [],
+        creatives:
+          platform === "Google" ? Google?.[highlightedProduct.node.id] : [],
       }))
       .sort((a, b) => {
         const order = { Google: 0, Instagram: 1, Facebook: 2 };
@@ -100,11 +101,12 @@ export default function CampaignSnapshotsPage() {
     instagramSettings,
     facebookSettings,
     googleSettings,
+    highlightedProduct.node.id,
     Google,
   ]);
 
   const [campaignDetails, setCampaignDetails] = useState({
-    campaignType: "",
+    campaignType: "Product Launch",
     campaignName: "",
     brandColor: "#000000",
     accentColor: "#FFFFFF",
@@ -146,9 +148,9 @@ export default function CampaignSnapshotsPage() {
   };
   const products = productSelection.products;
   return (
-    <div className="flex items-start gap-6 mt-6 pb-12">
+    <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[224px] sticky top-20 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+        <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
           <div className="flex justify-between gap-2 px-3">
             <span className="text-sm font-medium">Products</span>
             <span>

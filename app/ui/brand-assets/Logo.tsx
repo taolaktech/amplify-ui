@@ -13,7 +13,7 @@ type LogoProps = {
     e: React.ChangeEvent<HTMLInputElement>
   ) => void;
   secondaryLogoReset: () => void;
-}
+};
 
 export default function Logo({
   primaryLogoPreview,
@@ -87,9 +87,9 @@ function NoPreview({
         <SecondaryBrandExample width={122} height={95} />
       )}
       <div className="text-xs text-[#595959] mt-6 text-center tracking-100 leading-[150%]">
-        Please upload your primary logo ({isPrimary ? "Light" : "Dark"}{" "}
-        Background) in PNG, JPG, or SVG format. Ensure the file size does not
-        exceed 10MB.
+        Please upload your {isPrimary ? "primary" : "secondary"} logo (
+        {isPrimary ? "Light" : "Dark"} Background) in PNG, JPG, or SVG format.
+        Ensure the file size does not exceed 10MB.
       </div>
       <div className="text-center mt-3">
         <button

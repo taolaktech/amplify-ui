@@ -142,12 +142,14 @@ export const useInitialize = () => {
       website,
       industry,
       companyRole,
+      logo,
       teamSize,
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
     } = details;
     console.log("Store Details Data:", details);
     storeBusinessDetails({
+      storeLogo: logo ?? null,
       storeName: companyName,
       description,
       storeUrl: website,

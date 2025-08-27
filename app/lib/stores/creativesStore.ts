@@ -18,7 +18,7 @@ type CreativesStore = {
     generalUndo: (productId: string) => void;
     canUndo: (productId: string) => boolean;
   };
-}
+};
 
 const useCreativesStore = create<CreativesStore>((set, get) => ({
   Google: {
@@ -124,14 +124,27 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
     ) => {
       const { Google, Instagram, Facebook } = get();
       if (kind === "Google") {
-        Google?.[productId].push(creative);
-        set({ Google });
+        const subGoogle = Google || {};
+        if (!subGoogle[productId]) {
+          subGoogle[productId] = [];
+        }
+        subGoogle[productId].push(creative);
+        console.log("setting:", subGoogle);
+        set({ Google: subGoogle });
       } else if (kind === "Instagram") {
-        Instagram?.[productId].push(creative);
-        set({ Instagram });
+        const subInstagram = Instagram || {};
+        if (!subInstagram[productId]) {
+          subInstagram[productId] = [];
+        }
+        subInstagram[productId].push(creative);
+        set({ Instagram: subInstagram });
       } else if (kind === "Facebook") {
-        Facebook?.[productId].push(creative);
-        set({ Facebook });
+        const subFacebook = Facebook || {};
+        if (!subFacebook[productId]) {
+          subFacebook[productId] = [];
+        }
+        subFacebook[productId].push(creative);
+        set({ Facebook: subFacebook });
       }
     },
   },

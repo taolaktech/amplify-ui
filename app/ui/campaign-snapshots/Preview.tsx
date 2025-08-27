@@ -7,6 +7,7 @@ import { SocialSettingsKey } from "@/app/lib/stores/createCampaignStore";
 import GoogleCreatives from "../creatives/Google";
 import CarouselArrow from "../CarouselArrow";
 import { useRef } from "react";
+import { it } from "node:test";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -27,7 +28,7 @@ const Preview = ({
     { label: "Carousel Post", key: "carouselPost" },
     { label: "Story Post", key: "storyPost" },
   ];
-
+  console.log("adPlatforms", adPlatforms);
   const { toggleFacebookSettings, toggleInstagramSettings } =
     useCreateCampaignStore((state) => state.actions);
 
@@ -130,35 +131,60 @@ const PreviewContainer = ({ item }: { item: any }) => {
 
   // const width = 350;
 
+  console.log("PreviewContainer item", item);
+
   const scrollBy = (offset: number) => {
     console.log("called");
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: offset, behavior: "smooth" });
     }
   };
-  return (
-    <div className="bg-[#f1f1f1] relative rounded-3xl mt-5 overflow-hidden">
-      {/* Carousel arrows */}
-      <div className="absolute top-0 z-[1] w-full">
-        <CarouselArrow title={item.title} scrollBy={scrollBy} />
-      </div>
 
-      {item.title === "Google" && (
+  const lastIndex = item?.creatives?.length - 1 || 0;
+  const creativesAvailable = item?.creatives?.length > 0;
+  // if (!item?.creatives?.length) return null;
+  return (
+    <div className="bg-[#f1f1f1] max-w-full relative rounded-3xl mt-5 overflow-hidden">
+      {/* Carousel arrows */}
+      {creativesAvailable && (
+        <div className="absolute top-0 z-[1] w-full">
+          <CarouselArrow title={item.title} scrollBy={scrollBy} />
+        </div>
+      )}
+
+      {item.title === "Google" && creativesAvailable ? (
         <div
           ref={containerRef}
-          className="flex overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
+          className="flex max-w-full overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
         >
-          {item.creatives.map((creatives: any, index: number) => (
+          {item?.creatives[lastIndex]?.map((creatives: any, index: number) => (
             <div
               key={index}
-              className="flex-shrink-0 w-[350px]" // or any width you want
+              className="flex-shrink-0 w-[350px] h-[230px]" // or any width you want
             >
               <GoogleCreatives
-                headline={creatives.description}
-                description={creatives.description}
+                headline={
+                  creatives?.headline ??
+                  (Object.keys(creatives || {}).find((key) =>
+                    key.toLowerCase().includes("headline")
+                  )
+                    ? creatives[
+                        Object.keys(creatives).find((key) =>
+                          key.toLowerCase().includes("headline")
+                        )!
+                      ]
+                    : "")
+                }
+                description={creatives?.description || ""}
               />
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-[400px]">
+          <p className="text-neutral-ligh font-medium">
+            No Creatives Available
+          </p>
         </div>
       )}
     </div>
