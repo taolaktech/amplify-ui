@@ -8,6 +8,7 @@ import GoogleCreatives from "../creatives/Google";
 import CarouselArrow from "../CarouselArrow";
 import { useRef } from "react";
 import { it } from "node:test";
+import GoogleAdsCreatives from "../creatives/GoogleAds";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -35,10 +36,7 @@ const Preview = ({
   return (
     <div className="flex flex-col gap-12">
       {adPlatforms?.map((item) => (
-        <div
-          className="h-[300px] md:h-[500px] flex flex-col w-full "
-          key={item.title}
-        >
+        <div className="flex flex-col w-full " key={item.title}>
           <div className="flex justify-between items-center">
             <div className="flex gap-16 items-center">
               <p className="text-sm flex gap-2 items-center">
@@ -144,47 +142,49 @@ const PreviewContainer = ({ item }: { item: any }) => {
   const creativesAvailable = item?.creatives?.length > 0;
   // if (!item?.creatives?.length) return null;
   return (
-    <div className="bg-[#f1f1f1] max-w-full relative rounded-3xl mt-5 overflow-hidden">
+    <div className="bg-[#f1f1f1] max-w-full relative rounded-3xl mt-5">
       {/* Carousel arrows */}
-      {creativesAvailable && (
-        <div className="absolute top-0 z-[1] w-full">
-          <CarouselArrow title={item.title} scrollBy={scrollBy} />
-        </div>
-      )}
 
-      {item.title === "Google" && creativesAvailable ? (
-        <div
-          ref={containerRef}
-          className="flex max-w-full overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
-        >
-          {item?.creatives[lastIndex]?.map((creatives: any, index: number) => (
-            <div
-              key={index}
-              className="flex-shrink-0 w-[350px] h-[230px]" // or any width you want
-            >
-              <GoogleCreatives
-                headline={
-                  creatives?.headline ??
-                  (Object.keys(creatives || {}).find((key) =>
-                    key.toLowerCase().includes("headline")
-                  )
-                    ? creatives[
-                        Object.keys(creatives).find((key) =>
-                          key.toLowerCase().includes("headline")
-                        )!
-                      ]
-                    : "")
-                }
-                description={creatives?.description || ""}
-              />
+      {creativesAvailable ? (
+        <>
+          {item.title === "Google" && (
+            <div className="flex flex-1 xs:h-[300px] sm:h-[350px] md:h-[600px] items-center justify-center">
+              <GoogleAdsCreatives creatives={item.creatives[lastIndex]} />
             </div>
-          ))}
-        </div>
+            // <div
+            //   ref={containerRef}
+            //   className="flex max-w-full overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
+            // >
+            //   {item?.creatives[lastIndex]?.map(
+            //     (creatives: any, index: number) => (
+            //       <div
+            //         key={index}
+            //         className="flex-shrink-0 w-[350px] h-[230px]" // or any width you want
+            //       >
+            //         <GoogleCreatives
+            //           headline={
+            //             creatives?.headline ??
+            //             (Object.keys(creatives || {}).find((key) =>
+            //               key.toLowerCase().includes("headline")
+            //             )
+            //               ? creatives[
+            //                   Object.keys(creatives).find((key) =>
+            //                     key.toLowerCase().includes("headline")
+            //                   )!
+            //                 ]
+            //               : "")
+            //           }
+            //           description={creatives?.description || ""}
+            //         />
+            //       </div>
+            //     )
+            //   )}
+            // </div>
+          )}
+        </>
       ) : (
-        <div className="flex items-center justify-center h-[400px]">
-          <p className="text-neutral-ligh font-medium">
-            No Creatives Available
-          </p>
+        <div className="flex items-center justify-center h-[600px]">
+          <p className="text-neutral-ligh font-medium">Generate Creatives</p>
         </div>
       )}
     </div>

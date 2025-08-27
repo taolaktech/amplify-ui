@@ -9,7 +9,7 @@ export default function DateSelection({
   setEndDate: (date: Date) => void;
 }) {
   return (
-    <div className="flex gap-12 mt-5 w-full">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-12 mt-5 w-full">
       {/* Start Date */}
       <div className="flex flex-col  gap-[5px] w-full">
         <div className="text-xs block mb-2">Start Date</div>

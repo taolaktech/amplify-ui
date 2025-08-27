@@ -13,6 +13,77 @@ import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
 import Product from "@/app/ui/campaign-snapshots/Product";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
+import { ShopifyProduct } from "@/type";
+
+const ProductContainer = ({
+  products,
+  highlightedProduct,
+  handleSetHighlightedProduct,
+}: {
+  products: ShopifyProduct[];
+  highlightedProduct: ShopifyProduct | null;
+  handleSetHighlightedProduct: (product: ShopifyProduct) => void;
+}) => {
+  return (
+    <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+      <div className="flex justify-between gap-2 px-3">
+        <span className="text-sm font-medium">Products</span>
+        <span>
+          <ArrowDown2 size={12} color="#000" />
+        </span>
+      </div>
+      <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
+        {products.map((product) => (
+          <Product
+            product={product}
+            key={product.node.id}
+            highlightedProduct={highlightedProduct}
+            handleSetHighlightedProduct={handleSetHighlightedProduct}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MainActions = ({
+  isOnlyGoogle,
+  canUndo,
+  highlightedProduct,
+}: {
+  isOnlyGoogle?: boolean;
+  canUndo: (id: string) => boolean;
+  highlightedProduct: ShopifyProduct;
+}) => {
+  return (
+    <div className="flex gap-2 md:gap-3">
+      {!isOnlyGoogle && (
+        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
+          {/* <MagicStarIcon />
+           */}
+          <img
+            src={MagicStarIcon.src}
+            alt="Magic Star"
+            width={20}
+            height={20}
+          />
+          <span className="text-sm font-medium">Mix</span>
+        </button>
+      )}
+      {canUndo(highlightedProduct?.node?.id) && (
+        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
+          <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+          <span className="text-sm font-medium">Undo</span>
+        </button>
+      )}
+
+      <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
+        <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
+        <span className="text-sm font-medium">Generate</span>
+      </button>
+    </div>
+  );
+};
 
 const productTypes = [
   {
@@ -150,26 +221,15 @@ export default function CampaignSnapshotsPage() {
   return (
     <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
-          <div className="flex justify-between gap-2 px-3">
-            <span className="text-sm font-medium">Products</span>
-            <span>
-              <ArrowDown2 size={12} color="#000" />
-            </span>
-          </div>
-          <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
-            {products.map((product) => (
-              <Product
-                product={product}
-                key={product.node.id}
-                highlightedProduct={highlightedProduct}
-                handleSetHighlightedProduct={handleSetHighlightedProduct}
-              />
-            ))}
-          </div>
+        <div className="hidden lg:block">
+          <ProductContainer
+            highlightedProduct={highlightedProduct}
+            products={products}
+            handleSetHighlightedProduct={handleSetHighlightedProduct}
+          />
         </div>
       )}
-      <div className="w-[calc(100%-224px)]">
+      <div className="w-full lg:w-[calc(100%-224px)]">
         <div className="flex flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>
@@ -183,36 +243,12 @@ export default function CampaignSnapshotsPage() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 md:gap-3">
-            {!isOnlyGoogle && (
-              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-                {/* <MagicStarIcon />
-                 */}
-                <img
-                  src={MagicStarIcon.src}
-                  alt="Magic Star"
-                  width={20}
-                  height={20}
-                />
-                <span className="text-sm font-medium">Mix</span>
-              </button>
-            )}
-            {canUndo(highlightedProduct?.node?.id) && (
-              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
-                <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
-                <span className="text-sm font-medium">Undo</span>
-              </button>
-            )}
-
-            <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-              <img
-                src={RegenerateIcon.src}
-                alt="Generate"
-                width={20}
-                height={20}
-              />
-              <span className="text-sm font-medium">Generate</span>
-            </button>
+          <div className="hidden lg:block">
+            <MainActions
+              isOnlyGoogle={isOnlyGoogle}
+              canUndo={canUndo}
+              highlightedProduct={highlightedProduct}
+            />
           </div>
         </div>
         <div className="mt-6 flex flex-col md:flex-row gap-4 md:gap-14">
