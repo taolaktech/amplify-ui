@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type BusinessDetails = {
+  storeLogo?: string | null;
   storeName: string;
   description: string;
   storeUrl: string;
@@ -16,22 +17,23 @@ type BusinessDetails = {
   adSpendBudget: number;
   annualRevenue: number;
   complete?: boolean;
-}
+};
 
 type PreferredSalesLocation = {
   localShippingLocations: string[];
   internationalShippingLocations: string[];
   complete: boolean;
-}
+};
 
 type MarketingGoals = {
   brandAwareness: boolean;
   acquireNewCustomers: boolean;
   boostRepeatPurchases: boolean;
   complete: boolean;
-}
+};
 
 const defaultBusinessDetails: BusinessDetails = {
+  storeLogo: null,
   storeName: "",
   description: "",
   storeUrl: "",
@@ -69,7 +71,7 @@ type SetupState = {
   businessDetails: BusinessDetails;
   preferredSalesLocation: PreferredSalesLocation;
   marketingGoals: MarketingGoals;
-}
+};
 
 type SetupActions = {
   storeConnectStore: (connectStore: { storeUrl: string }) => void;
@@ -83,7 +85,7 @@ type SetupActions = {
   completePreferredSalesLocation: (complete: boolean) => void;
   storeMarketingGoals: (marketingGoals: MarketingGoals) => void;
   completeMarketingGoals: (complete: boolean) => void;
-}
+};
 
 export type SetupStore = SetupState & SetupActions;
 

@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
       "lh3.googleusercontent.com",
       "cdn.shopify.com",
       "cdn.pixabay.com",
+      "s3.us-east-2.amazonaws.com",
     ],
   },
   experimental: {

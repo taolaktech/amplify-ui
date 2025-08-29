@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useSetupStore } from "../stores/setupStore";
 import {
+  getBrandAssets,
   handleEmailLogin,
   handleForgotPassword,
   handleGoogleLogin,
@@ -19,6 +20,8 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { FieldErrors } from "react-hook-form";
 import useGetCampaigns from "./campaigns";
 import { useIntegrationStore } from "../stores/integrationStore";
+import useBrandAssetStore from "../stores/brandAssetStore";
+// import { stat } from "fs";
 
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
@@ -29,7 +32,18 @@ export const useInitialize = () => {
     (state) => state.actions
   );
   const reset = useSetupStore((state) => state.reset);
-  const { businessDetails } = useSetupStore((state) => state);
+  const businessDetails = useSetupStore((state) => state.businessDetails);
+  const {
+    setPrimaryColor,
+    setPrimaryFont,
+    // setBrandAssets,
+    setBrandGuide,
+    setPrimaryLogo,
+    setToneOfVoice,
+    setSecondaryColor,
+    setSecondaryFont,
+    setSecondaryLogo,
+  } = useBrandAssetStore((state) => state.actions);
   const {
     storeBusinessDetails,
     completeConnectStore,
@@ -58,6 +72,21 @@ export const useInitialize = () => {
       return true;
     }
     return false;
+  }
+
+  async function handleGetBrandAssets(token: string) {
+    if (!token) return;
+    const response = await getBrandAssets({ token });
+    console.log("Brand assets data:", response);
+    const data = response.data;
+    if (data.primaryLogo) setPrimaryLogo(data.primaryLogo);
+    if (data.secondaryLogo) setSecondaryLogo(data.secondaryLogo);
+    if (data.primaryColor) setPrimaryColor(data.primaryColor);
+    if (data.secondaryColor) setSecondaryColor(data.secondaryColor);
+    if (data.toneOfVoice) setToneOfVoice(data.toneOfVoice);
+    if (data.primaryFont) setPrimaryFont(data.primaryFont);
+    if (data.secondaryFont) setSecondaryFont(data.secondaryFont);
+    if (data.brandGuide) setBrandGuide(data.brandGuide);
   }
 
   async function getShopifyAccount(token: string, isConnected: boolean) {
@@ -113,12 +142,14 @@ export const useInitialize = () => {
       website,
       industry,
       companyRole,
+      logo,
       teamSize,
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
     } = details;
     console.log("Store Details Data:", details);
     storeBusinessDetails({
+      storeLogo: logo ?? null,
       storeName: companyName,
       description,
       storeUrl: website,
@@ -175,6 +206,7 @@ export const useInitialize = () => {
     getShopifyAccount,
     getStoreDetails,
     setLoading,
+    handleGetBrandAssets,
   };
 };
 
@@ -191,8 +223,14 @@ export const useEmailLogin = (
     (state) => state.completeConnectStore
   );
   const login = useAuthStore((state) => state.login);
-  const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
-    useInitialize();
+  const {
+    loading,
+    getMe,
+    getShopifyAccount,
+    getStoreDetails,
+    setLoading,
+    handleGetBrandAssets,
+  } = useInitialize();
   const { fetchCampaigns } = useGetCampaigns();
 
   const emailLoginMutation = useMutation({
@@ -205,9 +243,13 @@ export const useEmailLogin = (
         completeConnectStore(isShopifyAccountConnected);
         try {
           const isConnected = await getMe(response.data?.access_token);
-          await getShopifyAccount(response.data?.access_token, isConnected);
-          await getStoreDetails(response.data?.access_token, isConnected);
-          await fetchCampaigns(response.data?.access_token);
+
+          await Promise.all([
+            getShopifyAccount(response.data?.access_token, isConnected),
+            getStoreDetails(response.data?.access_token, isConnected),
+            fetchCampaigns(response.data?.access_token),
+            handleGetBrandAssets(response.data?.access_token),
+          ]);
           login(response.data?.access_token, response.data?.user);
           router.push("/");
         } catch (error) {
@@ -254,8 +296,14 @@ export const useGoogleLogin = (
 
   const login = useAuthStore((state) => state.login);
 
-  const { loading, getMe, getShopifyAccount, getStoreDetails, setLoading } =
-    useInitialize();
+  const {
+    loading,
+    getMe,
+    getShopifyAccount,
+    getStoreDetails,
+    setLoading,
+    handleGetBrandAssets,
+  } = useInitialize();
 
   const { fetchCampaigns } = useGetCampaigns();
 
@@ -278,9 +326,12 @@ export const useGoogleLogin = (
           completeConnectStore(isShopifyAccountConnected);
           try {
             const isConnected = await getMe(response.data?.access_token);
-            await getShopifyAccount(response.data?.access_token, isConnected);
-            await getStoreDetails(response.data?.access_token, isConnected);
-            await fetchCampaigns(response.data?.access_token);
+            await Promise.all([
+              getShopifyAccount(response.data?.access_token, isConnected),
+              getStoreDetails(response.data?.access_token, isConnected),
+              fetchCampaigns(response.data?.access_token),
+              handleGetBrandAssets(response.data?.access_token),
+            ]);
             login(response.data?.access_token, response.data?.user);
 
             router.push("/");

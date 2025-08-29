@@ -4,12 +4,19 @@ export type ImprovementCategory =
   | "FEATURE_REQUEST"
   | "SOMETHING_FELT_OFF";
 
+export type Platform = "GOOGLE ADS" | "FACEBOOK" | "INSTAGRAM";
+// handle, product type, tags
 export type ShopifyProduct = {
   node: {
     id: string;
     title: string;
     description: string;
     handle: string;
+    category: {
+      fullName: string;
+      id: string;
+      name: string;
+    };
     onlineStorePreviewUrl: string;
     tags: string[];
     productType: string;
@@ -23,7 +30,7 @@ export type ShopifyProduct = {
           mediaContentType: string;
           preview: {
             image: {
-              src: string;
+              url: string;
               alt: string;
             };
           };

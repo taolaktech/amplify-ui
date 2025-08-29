@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
 import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
+import { Platform } from "@/type";
 
 const countries = {
   usa: "United States",
@@ -35,9 +36,18 @@ export default function ReviewPage() {
   const { getLocationCountries } = useCreateCampaignStore(
     (state) => state.actions
   );
+  const [adPlatforms, setAdPlatforms] = useState<
+    {
+      title: "Instagram" | "Facebook" | "Google";
+      platform: Platform;
+      image: string;
+      settings: any;
+      creatives: any[];
+    }[]
+  >([]);
   const [isLaunchCampaign, setIsLaunchCampaign] = useState(false);
   const router = useRouter();
-  const { Google } = useCreativesStore((state) => state);
+  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
     productSelection.products[0] ?? null
   );
@@ -69,28 +79,50 @@ export default function ReviewPage() {
     setHighlightedProduct(product);
   };
 
-  const adPlatforms = Object.keys(supportedAdPlatforms)
-    .filter(
-      (platform) =>
-        platform !== "complete" &&
-        supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
-    )
-    .map((platform) => ({
-      title: platform as "Instagram" | "Facebook" | "Google",
-      image: `/${platform.toLowerCase()}_logo.svg`,
-      settings: {
-        ...(platform === "Instagram"
-          ? instagramSettings
-          : platform === "Facebook"
-          ? facebookSettings
-          : googleSettings),
-      },
-      creatives: platform === "Google" ? Google?.["1"] : [],
-    }))
-    .sort((a, b) => {
-      const order = { Google: 0, Instagram: 1, Facebook: 2 };
-      return order[a.title] - order[b.title];
-    });
+  useEffect(() => {
+    const resultAdPlatforms = Object.keys(supportedAdPlatforms)
+      .filter(
+        (platform) =>
+          platform !== "complete" &&
+          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
+      )
+      .map((platform) => ({
+        title: platform as "Instagram" | "Facebook" | "Google",
+        platform:
+          platform === "Google"
+            ? "GOOGLE ADS"
+            : (platform.toUpperCase() as Platform),
+        image: `/${platform.toLowerCase()}_logo.svg`,
+        settings: {
+          ...(platform === "Instagram"
+            ? instagramSettings
+            : platform === "Facebook"
+            ? facebookSettings
+            : googleSettings),
+        },
+        creatives: highlightedProduct?.node?.id
+          ? platform === "Google"
+            ? Google?.[highlightedProduct.node.id] ?? []
+            : platform === "Instagram"
+            ? Instagram?.[highlightedProduct.node.id] ?? []
+            : platform === "Facebook"
+            ? Facebook?.[highlightedProduct.node.id] ?? []
+            : []
+          : [],
+      }))
+      .sort((a, b) => {
+        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        return order[a.title] - order[b.title];
+      });
+    setAdPlatforms(resultAdPlatforms);
+  }, [
+    supportedAdPlatforms,
+    instagramSettings,
+    facebookSettings,
+    googleSettings,
+    highlightedProduct?.node.id,
+    Google,
+  ]);
 
   const isOnlyGoogle =
     adPlatforms.length === 1 && adPlatforms[0].title === "Google";
@@ -259,7 +291,13 @@ export default function ReviewPage() {
         </section>
 
         <section className="mt-8">
-          <Preview adPlatforms={adPlatforms} isReview />
+          <Preview
+            adPlatforms={adPlatforms}
+            isReview
+            highlightedProductId={highlightedProduct?.node.id || "1"}
+            generateCreatives={() => {}}
+            loading={false}
+          />
         </section>
 
         <section className="mt-14">

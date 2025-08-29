@@ -15,7 +15,7 @@ const SupportedAdPlatforms = () => {
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
 
-  const { initialGeneration, googleCreativeIsPending } = useGenerateCreatives();
+  const { initialGeneration, loading } = useGenerateCreatives();
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -194,9 +194,7 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {googleCreativeIsPending && (
-        <CircleLoaderModal text="Generating Ad Creatives..." />
-      )}
+      {loading && <CircleLoaderModal text="Generating Ad Creatives..." />}
     </div>
   );
 };

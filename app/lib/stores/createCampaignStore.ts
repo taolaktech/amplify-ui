@@ -101,11 +101,13 @@ const initialState: CreateCampaignState = {
     complete: false,
   },
   campaignSnapshots: {
-    campaignType: "",
+    campaignType: "Product Launch",
     brandColor: "",
     accentColor: "",
-    campaignStartDate: "",
-    campaignEndDate: "",
+    campaignStartDate: new Date().toISOString().split("T")[0],
+    campaignEndDate: new Date(new Date().setDate(new Date().getDate() + 30))
+      .toISOString()
+      .split("T")[0],
     complete: false,
   },
   instagramSettings: {

@@ -31,7 +31,7 @@ export default function ClientLayoutWrapper({
 
   console.log("inDashboard: ", inDashboard);
 
-  useRefreshInitialize();
+  const { loading } = useRefreshInitialize();
   const onIdle = () => {
     if (isAuth) {
       logout();
@@ -66,7 +66,7 @@ export default function ClientLayoutWrapper({
           <div>{children}</div>
         )}
       </AuthBlock>
-      <SplashScreen />
+      <SplashScreen isRefreshing={loading} />
     </QueryClientProvider>
   );
 }
