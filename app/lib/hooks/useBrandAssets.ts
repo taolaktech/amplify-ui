@@ -8,7 +8,6 @@ import { useMutation } from "@tanstack/react-query";
 import { postBrandAssets } from "../api/base";
 import { useAuthStore } from "../stores/authStore";
 import { useToastStore } from "../stores/toastStore";
-import { stat } from "fs";
 import useBrandAssetStore from "../stores/brandAssetStore";
 // import { useMutation } from "@tanstack/react-query";
 // import { postBrandAssets } from "../api/base";
@@ -35,7 +34,7 @@ export const options = {
 export default function useBrandAssets() {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
-  const [removeBrandGuide, setRemoveBrandGuide] = useState(false);
+  const [removeBrandGuide] = useState(false);
   const {
     primaryLogo: currentPrimaryLogo,
     secondaryLogo: currentSecondaryLogo,
@@ -44,7 +43,7 @@ export default function useBrandAssets() {
     toneOfVoice: currentToneOfVoice,
     primaryFont: currentPrimaryFont,
     secondaryFont: currentSecondaryFont,
-    brandGuide: currentBrandGuide,
+    // brandGuide: currentBrandGuide,
   } = useBrandAssetStore();
 
   const {
@@ -71,6 +70,7 @@ export default function useBrandAssets() {
     mutationFn: postBrandAssets,
     mutationKey: ["postBrandAssets"],
     onSuccess: (data) => {
+      console.log("Brand assets posted successfully", data);
       setToast({
         title: "Brand Assets Updated.",
         message: "Your brand assets has been updated.",

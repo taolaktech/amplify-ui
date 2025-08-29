@@ -11,6 +11,7 @@ import { useSetupStore } from "../stores/setupStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import useCreativesStore from "../stores/creativesStore";
 import { useState } from "react";
+import { Platform } from "@/type";
 
 export const useGenerateCreatives = () => {
   const token = useAuthStore((state) => state.token);
@@ -30,7 +31,7 @@ export const useGenerateCreatives = () => {
         console.log("Google creatives generated successfully", data);
         if (data.success) {
           actions.completeAdsPlatform();
-          generate("Google", currentProductId!, data.data);
+          generate("GOOGLE ADS", currentProductId!, data.data);
           router.push("/create-campaign/campaign-snapshots");
         }
       },
@@ -40,7 +41,7 @@ export const useGenerateCreatives = () => {
       },
     });
 
-  const generateCreatives = (productId: string) => {
+  const generateCreatives = (productId: string, platform?: Platform) => {
     const product = productSelection.products.find(
       (p) => p.node.id === productId
     );
@@ -65,7 +66,13 @@ export const useGenerateCreatives = () => {
       productLink: product.node.onlineStorePreviewUrl || "",
       campaignType: "",
     };
-    googleMutate({ token, googleCreativesProduct: creativeProduct });
+
+    if (platform && platform === "GOOGLE ADS") {
+      googleMutate({ token, googleCreativesProduct: creativeProduct });
+      return;
+    } else {
+      googleMutate({ token, googleCreativesProduct: creativeProduct });
+    }
   };
 
   const initialGeneration = () => {
@@ -73,5 +80,9 @@ export const useGenerateCreatives = () => {
     generateCreatives(productSelection.products[0].node.id);
   };
 
-  return { generateCreatives, googleCreativeIsPending, initialGeneration };
+  return {
+    generateCreatives,
+    loading: googleCreativeIsPending,
+    initialGeneration,
+  };
 };

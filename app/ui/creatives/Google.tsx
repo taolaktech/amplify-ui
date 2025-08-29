@@ -21,7 +21,7 @@ export default function GoogleCreatives({
       className={`flex ${
         isThumbnail
           ? "h-[42px] md:h-[102px] p-3 gap-[1px] w-full rounded-[3px] md:rounded-[9px]"
-          : "h-[189px] md:h-[280px] p-6 w-full md:p-8 gap-2 md:gap-4 rounded-[12px] md:rounded-3xl"
+          : "h-[189px] md:h-[280px] p-6 max-w-[300px] mx-auto sm:max-w-full  w-full md:p-8 gap-2 md:gap-4 rounded-[12px] md:rounded-3xl"
       } items-start flex-col  bg-white  ${roboto.className}`}
     >
       <div className="flex gap-1 md:gap-3 items-center  ">

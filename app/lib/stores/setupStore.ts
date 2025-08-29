@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type BusinessDetails = {
-  storeLogo: string | null;
+  storeLogo?: string | null;
   storeName: string;
   description: string;
   storeUrl: string;

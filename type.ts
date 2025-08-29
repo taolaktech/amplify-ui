@@ -4,7 +4,8 @@ export type ImprovementCategory =
   | "FEATURE_REQUEST"
   | "SOMETHING_FELT_OFF";
 
-  // handle, product type, tags
+export type Platform = "GOOGLE ADS" | "FACEBOOK" | "INSTAGRAM";
+// handle, product type, tags
 export type ShopifyProduct = {
   node: {
     id: string;
@@ -12,9 +13,9 @@ export type ShopifyProduct = {
     description: string;
     handle: string;
     category: {
-       fullName: string;
-       id: string;
-       name: string;
+      fullName: string;
+      id: string;
+      name: string;
     };
     onlineStorePreviewUrl: string;
     tags: string[];

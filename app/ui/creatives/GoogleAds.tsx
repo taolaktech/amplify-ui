@@ -26,13 +26,13 @@ export default function GoogleAdsCreatives({
     <div className="flex-1 gap-4 md:gap-12 flex flex-col items-center relative">
       <div
         onClick={handlePrevSlide}
-        className="absolute cursor-pointer left-[-16px] md:left-[-80px] top-1/2 -translate-y-1/2 flex md:hidden justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
+        className="absolute cursor-pointer left-[-2%] md:left-[-80px] top-1/2 -translate-y-1/2 flex md:hidden justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
       >
         <ArrowLeft2 size={18} color="#101214" />
       </div>
       <div
         onClick={handleNextSlide}
-        className="absolute cursor-pointer right-[-16px] md:right-[-80px] top-1/2 -translate-y-1/2 flex md:hidden justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
+        className="absolute cursor-pointer right-[-2%] md:right-[-80px] top-1/2 -translate-y-1/2 flex md:hidden justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
       >
         <ArrowRight2 size={18} color="#101214" />
       </div>
@@ -61,12 +61,12 @@ export default function GoogleAdsCreatives({
           autoFocus
           swipeable={false}
         >
-          {creatives.map((creative, index) => (
+          {creatives?.map((creative, index) => (
             <Google
               key={index}
               storeLink={storeLink}
               headline={
-                creative.headline ??
+                creative?.headline ??
                 (Object.keys(creative || {}).find((key) =>
                   key.toLowerCase().includes("headline")
                 )
@@ -77,7 +77,7 @@ export default function GoogleAdsCreatives({
                     ]
                   : "")
               }
-              description={creative.description}
+              description={creative?.description}
             />
           ))}
         </Carousel>

@@ -60,7 +60,7 @@ export default function StoreDetails() {
         <div className="w-[160px] h-[160px] flex flex-col items-center justify-center bg-[#E6E6E6] rounded-full relative">
           {preview || storeLogo ? (
             <Image
-              src={preview ?? storeLogo}
+              src={(preview as string) ?? (storeLogo as string)}
               alt="store logo"
               width={160}
               height={160}

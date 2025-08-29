@@ -21,7 +21,7 @@ import { FieldErrors } from "react-hook-form";
 import useGetCampaigns from "./campaigns";
 import { useIntegrationStore } from "../stores/integrationStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
-import { stat } from "fs";
+// import { stat } from "fs";
 
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
@@ -36,7 +36,7 @@ export const useInitialize = () => {
   const {
     setPrimaryColor,
     setPrimaryFont,
-    setBrandAssets,
+    // setBrandAssets,
     setBrandGuide,
     setPrimaryLogo,
     setToneOfVoice,

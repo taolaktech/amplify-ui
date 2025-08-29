@@ -42,6 +42,7 @@ export default function BrandAssetsPage() {
   //   setLoading(true);
   //   handleGetBrandAssets(token).finally(() => setLoading(false));
   // }, [token]);
+  console.log("brand assets page rendered", token);
 
   // if (loading) return <div>Loading...</div>;
 

@@ -1,20 +1,20 @@
+import { Platform } from "@/type";
 import { create } from "zustand";
 
+type Creatives = {
+  creatives: any[];
+  createdAt: Date;
+  kind: Platform;
+};
+
 type CreativesStore = {
-  Google: Record<string, any[]> | null;
-  Instagram: Record<string, any[]> | null;
-  Facebook: Record<string, any[]> | null;
+  Google: Record<string, Creatives[]> | null;
+  Instagram: Record<string, Creatives[]> | null;
+  Facebook: Record<string, Creatives[]> | null;
 
   actions: {
-    undo: (
-      kind: "Google" | "Instagram" | "Facebook",
-      productId: string
-    ) => void;
-    generate: (
-      kind: "Google" | "Instagram" | "Facebook",
-      productId: string,
-      creative: any
-    ) => void;
+    undo: (kind: Platform, productId: string) => void;
+    generate: (kind: Platform, productId: string, creative: any) => void;
     generalUndo: (productId: string) => void;
     canUndo: (productId: string) => boolean;
   };
@@ -24,88 +24,95 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
   Google: {
     "1": [
       {
-        headline: "Amplify Creatives",
-        description: "Generating Creatives for you",
-      },
-      {
-        headline: "Amplify Creatives",
-        description: "Generating Creatives for you",
-      },
-      {
-        headline: "Amplify Creatives",
-        description: "Generating Creatives for you",
-      },
-      {
-        headline: "Amplify Creatives",
-        description: "Generating Creatives for you",
+        creatives: [
+          {
+            headline: "Amplify Creatives",
+            description: "Generating Creatives for you",
+          },
+          {
+            headline: "Amplify Creatives",
+            description: "Generating Creatives for you",
+          },
+          {
+            headline: "Amplify Creatives",
+            description: "Generating Creatives for you",
+          },
+          {
+            headline: "Amplify Creatives",
+            description: "Generating Creatives for you",
+          },
+        ],
+        createdAt: new Date(),
+        kind: "GOOGLE ADS",
       },
     ],
   },
   Instagram: null,
   Facebook: null,
   actions: {
-    undo: (kind: "Google" | "Instagram" | "Facebook", productId: string) => {
+    undo: (kind: Platform, productId: string) => {
       const { Google, Instagram, Facebook } = get();
-      if (kind === "Google") {
+      if (
+        kind === "GOOGLE ADS" &&
+        Google?.[productId] &&
+        Google?.[productId].length
+      ) {
         Google?.[productId].pop();
         set({ Google });
-      } else if (kind === "Instagram") {
+      } else if (
+        kind === "INSTAGRAM" &&
+        Instagram?.[productId] &&
+        Instagram?.[productId].length
+      ) {
         Instagram?.[productId].pop();
         set({ Instagram });
-      } else if (kind === "Facebook") {
+      } else if (
+        kind === "FACEBOOK" &&
+        Facebook?.[productId] &&
+        Facebook?.[productId].length
+      ) {
         Facebook?.[productId].pop();
         set({ Facebook });
       }
     },
 
     generalUndo: (productId: string) => {
+      console.log("general undo called for productId:", productId);
       const { Google, Instagram, Facebook } = get();
-      const allCreatives: any[] = [];
+      const allCreatives: Creatives[] = [];
       if (Google?.[productId]) {
-        allCreatives.push(Google[productId]);
+        allCreatives.push(...Google[productId]);
       }
       if (Instagram?.[productId]) {
-        allCreatives.push(Instagram[productId]);
+        allCreatives.push(...Instagram[productId]);
       }
       if (Facebook?.[productId]) {
-        allCreatives.push(Facebook[productId]);
+        allCreatives.push(...Facebook[productId]);
       }
 
-      allCreatives.sort((a, b) => {
-        return (
+      allCreatives.sort(
+        (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      });
+      );
+      console.log("allCreatives", allCreatives);
 
-      const lastCreative = allCreatives[allCreatives.length - 1];
+      const lastCreative = allCreatives[0];
       if (!lastCreative) return;
+      console.log("lastCreative to undo", lastCreative);
 
-      if (lastCreative.kind === "Google") {
+      if (lastCreative.kind === "GOOGLE ADS") {
         if (Google?.[productId] && Google?.[productId]?.length > 1)
           Google?.[productId].pop();
         set({ Google });
-      } else if (lastCreative.kind === "Instagram") {
+      } else if (lastCreative.kind === "INSTAGRAM") {
         if (Instagram?.[productId] && Instagram?.[productId]?.length > 1)
           Instagram?.[productId].pop();
         set({ Instagram });
-      } else if (lastCreative.kind === "Facebook") {
+      } else if (lastCreative.kind === "FACEBOOK") {
         if (Facebook?.[productId] && Facebook?.[productId]?.length > 1)
           Facebook?.[productId].pop();
         set({ Facebook });
       }
-
-      // if (Google?.[productId]?.length) {
-      //   Google[productId].pop();
-      //   set({ Google });
-      // }
-      // if (Instagram?.[productId]?.length) {
-      //   Instagram[productId].pop();
-      //   set({ Instagram });
-      // }
-      // if (Facebook?.[productId]?.length) {
-      //   Facebook[productId].pop();
-      //   set({ Facebook });
-      // }
     },
 
     canUndo: (productId: string) => {
@@ -117,33 +124,41 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       );
     },
 
-    generate: (
-      kind: "Google" | "Instagram" | "Facebook",
-      productId: string,
-      creative: any
-    ) => {
+    generate: (kind: Platform, productId: string, creatives: any) => {
       const { Google, Instagram, Facebook } = get();
-      if (kind === "Google") {
+      if (kind === "GOOGLE ADS") {
         const subGoogle = Google || {};
         if (!subGoogle[productId]) {
           subGoogle[productId] = [];
         }
-        subGoogle[productId].push(creative);
+        subGoogle[productId].push({
+          creatives: creatives,
+          kind: "GOOGLE ADS",
+          createdAt: new Date(),
+        });
         console.log("setting:", subGoogle);
         set({ Google: subGoogle });
-      } else if (kind === "Instagram") {
+      } else if (kind === "INSTAGRAM") {
         const subInstagram = Instagram || {};
         if (!subInstagram[productId]) {
           subInstagram[productId] = [];
         }
-        subInstagram[productId].push(creative);
+        subInstagram[productId].push({
+          creatives: creatives,
+          kind: "INSTAGRAM",
+          createdAt: new Date(),
+        });
         set({ Instagram: subInstagram });
-      } else if (kind === "Facebook") {
+      } else if (kind === "FACEBOOK") {
         const subFacebook = Facebook || {};
         if (!subFacebook[productId]) {
           subFacebook[productId] = [];
         }
-        subFacebook[productId].push(creative);
+        subFacebook[productId].push({
+          creatives: creatives,
+          kind: "FACEBOOK",
+          createdAt: new Date(),
+        });
         set({ Facebook: subFacebook });
       }
     },
