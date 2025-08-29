@@ -7,6 +7,9 @@ import Fonts from "@/app/ui/brand-assets/Fonts";
 import BrandGuide from "@/app/ui/brand-assets/BrandGuide";
 import { TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
+// import { useInitialize } from "@/app/lib/hooks/useLoginHooks";
+// import { useEffect, useState } from "react";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function BrandAssetsPage() {
   const {
@@ -22,13 +25,27 @@ export default function BrandAssetsPage() {
     setPrimaryColor,
     setSecondaryColor,
     primaryFont,
-    handleSubmit,
+    handleSubmitBrandAssets,
+    isPending,
     secondaryFont,
     toneOfVoice,
     brandGuide,
     setToneOfVoice,
     handleBrandGuideChange,
   } = useBrandAssets();
+  const token = useAuthStore((state) => state.token);
+  // const { handleGetBrandAssets } = useInitialize();
+  // const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   if (!token) return;
+  //   setLoading(true);
+  //   handleGetBrandAssets(token).finally(() => setLoading(false));
+  // }, [token]);
+  console.log("brand assets page rendered", token);
+
+  // if (loading) return <div>Loading...</div>;
+
   return (
     <div className="pb-4">
       <div className="flex gap-1 items-center">
@@ -77,7 +94,8 @@ export default function BrandAssetsPage() {
           hasIconOrLoader
           text="Save Changes"
           height={49}
-          action={handleSubmit}
+          loading={isPending}
+          action={handleSubmitBrandAssets}
           icon={<TickCircle size="16" color="#fff" variant="Bold" />}
         />
       </div>

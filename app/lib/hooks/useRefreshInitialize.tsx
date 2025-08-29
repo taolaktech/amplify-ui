@@ -4,7 +4,8 @@ import { useInitialize } from "./useLoginHooks";
 import { useEffect, useState } from "react";
 
 export default function useRefreshInitialize() {
-  const { getMe, getShopifyAccount, getStoreDetails } = useInitialize();
+  const { getMe, getShopifyAccount, getStoreDetails, handleGetBrandAssets } =
+    useInitialize();
   const token = useAuthStore((state) => state.token);
   const [loading, setLoading] = useState(true);
   console.log("loading", loading);
@@ -12,13 +13,19 @@ export default function useRefreshInitialize() {
 
   const refreshInitialize = async () => {
     console.log("refreshInitialize");
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     console.log("token", token);
     const isConnected = await getMe(token);
     console.log("isConnected", isConnected);
-    await getShopifyAccount(token, isConnected);
-    await getStoreDetails(token, isConnected);
-    await fetchCampaigns(token);
+    await Promise.all([
+      getShopifyAccount(token, isConnected),
+      getStoreDetails(token, isConnected),
+      fetchCampaigns(token),
+      handleGetBrandAssets(token),
+    ]);
     setLoading(false);
     console.log("Initialization complete");
   };
@@ -27,5 +34,5 @@ export default function useRefreshInitialize() {
     refreshInitialize();
   }, [token]);
 
-  return { refreshInitialize };
+  return { refreshInitialize, loading };
 }

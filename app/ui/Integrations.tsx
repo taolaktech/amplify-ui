@@ -77,6 +77,7 @@ export default function Integrations({
           <ConnectStore
             isOpen={connectStoreModal}
             closeModal={() => setConnectStoreModal(false)}
+            isIntegrations={true}
             // isLinkedStore={isLinkedStore}
           />
         )}

@@ -1,4 +1,5 @@
 import { DatePicker } from "antd";
+import dayjs from "dayjs";
 
 export default function DateSelection({
   setStartDate,
@@ -8,7 +9,7 @@ export default function DateSelection({
   setEndDate: (date: Date) => void;
 }) {
   return (
-    <div className="flex gap-12 mt-5 w-full">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-12 mt-5 w-full">
       {/* Start Date */}
       <div className="flex flex-col  gap-[5px] w-full">
         <div className="text-xs block mb-2">Start Date</div>
@@ -19,7 +20,10 @@ export default function DateSelection({
               height: "48px",
             }}
             format="MMMM D YYYY"
-            onChange={(date) => setStartDate(date ? date.toDate() : new Date())}
+            defaultValue={dayjs()}
+            onChange={(date) =>
+              setStartDate(date ? date?.toDate() : new Date())
+            }
             // needConfirm
           />
         </div>
@@ -34,6 +38,7 @@ export default function DateSelection({
               width: "100%",
               height: "48px",
             }}
+            defaultValue={dayjs(new Date().setMonth(new Date().getMonth() + 1))}
             format="MMMM D YYYY"
             placement="bottomLeft"
             onChange={(date) => setEndDate(date ? date.toDate() : new Date())}

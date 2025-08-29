@@ -272,6 +272,13 @@ a.gradient:not(:disabled):hover {
     linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
 }
 
+.gradient-border2 {
+  border: 3px solid transparent;
+  /* border-radius: 12px; */
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
+}
+
 button.gradient::after,
 a.gradient::after {
   content: "";

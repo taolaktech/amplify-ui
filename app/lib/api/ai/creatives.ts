@@ -4,7 +4,7 @@ export type GoogleCreativesProduct = {
   productPrice: string;
   productDescription: string;
   productOccasion: string;
-  productFeature: string[];
+  productFeatures: string[];
   tone: string;
   productCategory: string;
   brandName: string;
@@ -17,13 +17,20 @@ export async function generateGoogleCreatives(data: {
   token: string;
   googleCreativesProduct: GoogleCreativesProduct;
 }) {
-  // Implementation for generating Google creatives
   const { token, googleCreativesProduct } = data;
-  const response = await axiosInstance.post("/creatives", {
-    headers: {
-      Authorization: `Bearer ${token}`,
+
+  const response = await axiosInstance.post(
+    "/creatives",
+    {
+      ...googleCreativesProduct,
+      channel: "GOOGLE",
     },
-    data: { ...googleCreativesProduct, channel: "GOOGLE" },
-  });
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
   return response.data;
 }

@@ -15,10 +15,12 @@ import { useModal } from "@/app/lib/hooks/useModal";
 function ConnectStore({
   closeModal,
   isLinkedStore,
+  isIntegrations = false,
   isOpen,
 }: {
   closeModal: () => void;
   isLinkedStore?: boolean;
+  isIntegrations?: boolean;
   isOpen: boolean;
 }) {
   const completeConnectStore = useSetupStore(
@@ -157,7 +159,12 @@ function ConnectStore({
                     <DefaultButton
                       text="Continue"
                       action={() =>
-                        handleConnectStore(shopifyStore, "/setup?linked=true")
+                        handleConnectStore(
+                          shopifyStore,
+                          isIntegrations
+                            ? "/settings/integrations"
+                            : "/setup?linked_store=true"
+                        )
                       }
                       hasIconOrLoader
                       loading={linkShopifyMutation.isPending}

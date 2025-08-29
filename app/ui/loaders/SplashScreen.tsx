@@ -5,12 +5,17 @@ import SplashIcon from "@/public/splash.svg";
 import SplashSMIcon from "@/public/splash-sm.svg";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 
-export default function SplashScreen() {
+export default function SplashScreen({
+  isRefreshing,
+}: {
+  isRefreshing?: boolean;
+}) {
   const [showSplash, setShowSplash] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
+    if (isRefreshing) return;
     const maybeHydrated =
       typeof window !== "undefined" && !!localStorage.getItem("auth-storage");
 
@@ -33,6 +38,8 @@ export default function SplashScreen() {
   }, []);
 
   useEffect(() => {
+    if (isRefreshing) return;
+
     if (hasHydrated) {
       // Step 1: Start fade out
       const fadeTimer = setTimeout(() => {
@@ -56,7 +63,9 @@ export default function SplashScreen() {
   return (
     <div
       className={`fixed top-0 z-50 flex items-center justify-center flex-col h-screen w-screen bg-white md:bg-background-2 transition-opacity duration-500 ${
-        isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
+        !isRefreshing || isFadingOut
+          ? "opacity-0 pointer-events-none"
+          : "opacity-100"
       }`}
     >
       <div className="hidden md:block">

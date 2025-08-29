@@ -61,7 +61,8 @@ export const useLinkShopify = (
     setErrorMsg("");
     if (!token) return;
     if (storeUrlFromStore === shopifyStore) {
-      router.push("/setup/business-details");
+      // router.replace(redirect);
+      window.location.href = redirect;
       return;
     }
     const shopifyRegex =

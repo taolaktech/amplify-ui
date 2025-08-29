@@ -13,6 +13,94 @@ import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
 import Product from "@/app/ui/campaign-snapshots/Product";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
+import { Platform, ShopifyProduct } from "@/type";
+import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
+import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
+
+const ProductContainer = ({
+  products,
+  highlightedProduct,
+  handleSetHighlightedProduct,
+}: {
+  products: ShopifyProduct[];
+  highlightedProduct: ShopifyProduct | null;
+  handleSetHighlightedProduct: (product: ShopifyProduct) => void;
+}) => {
+  return (
+    <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+      <div className="flex justify-between gap-2 px-3">
+        <span className="text-sm font-medium">Products</span>
+        <span>
+          <ArrowDown2 size={12} color="#000" />
+        </span>
+      </div>
+      <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
+        {products.map((product) => (
+          <Product
+            product={product}
+            key={product.node.id}
+            highlightedProduct={highlightedProduct}
+            handleSetHighlightedProduct={handleSetHighlightedProduct}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MainActions = ({
+  isOnlyGoogle,
+  canUndo,
+  highlightedProduct,
+  generateCreatives,
+  loading,
+  generalUndo,
+}: {
+  isOnlyGoogle?: boolean;
+  canUndo: (id: string) => boolean;
+  highlightedProduct: ShopifyProduct;
+  generateCreatives: (productId: string, platform: Platform) => void;
+  loading: boolean;
+  generalUndo: (productId: string) => void;
+}) => {
+  return (
+    <div className="flex gap-2 md:gap-3">
+      {!isOnlyGoogle && (
+        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
+          {/* <MagicStarIcon />
+           */}
+          <img
+            src={MagicStarIcon.src}
+            alt="Magic Star"
+            width={20}
+            height={20}
+          />
+          <span className="text-sm font-medium">Mix</span>
+        </button>
+      )}
+      {canUndo(highlightedProduct?.node?.id) && (
+        <button
+          onClick={() => generalUndo(highlightedProduct?.node?.id)}
+          className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center "
+        >
+          <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+          <span className="text-sm font-medium">Undo</span>
+        </button>
+      )}
+
+      <button
+        disabled={loading}
+        onClick={() =>
+          generateCreatives(highlightedProduct?.node?.id, "GOOGLE ADS")
+        }
+        className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border "
+      >
+        <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
+        <span className="text-sm font-medium">Generate</span>
+      </button>
+    </div>
+  );
+};
 
 const productTypes = [
   {
@@ -50,14 +138,15 @@ export default function CampaignSnapshotsPage() {
     googleSettings,
   } = useCreateCampaignStore((state) => state);
   const { canUndo } = useCreativesStore((state) => state.actions);
-  const { Google } = useCreativesStore((state) => state);
+  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { generalUndo } = useCreativesStore((state) => state.actions);
   const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
 
   const actions = useCreateCampaignStore((state) => state.actions);
 
-  const [highlightedProduct, setHighlightedProduct] = useState<any>(
-    productSelection.products[0] || null
-  );
+  const [highlightedProduct, setHighlightedProduct] =
+    useState<ShopifyProduct | null>(productSelection.products[0] || null);
+  const { generateCreatives, loading } = useGenerateCreatives();
 
   // const [creatives, setCreatives] = useState<any | null>({
 
@@ -80,6 +169,10 @@ export default function CampaignSnapshotsPage() {
       )
       .map((platform) => ({
         title: platform as "Instagram" | "Facebook" | "Google",
+        platform:
+          platform === "Google"
+            ? "GOOGLE ADS"
+            : (platform.toUpperCase() as Platform),
         image: `/${platform.toLowerCase()}_logo.svg`,
         settings: {
           ...(platform === "Instagram"
@@ -88,7 +181,15 @@ export default function CampaignSnapshotsPage() {
             ? facebookSettings
             : googleSettings),
         },
-        creatives: platform === "Google" ? Google?.["1"] : [],
+        creatives: highlightedProduct?.node?.id
+          ? platform === "Google"
+            ? Google?.[highlightedProduct.node.id] ?? []
+            : platform === "Instagram"
+            ? Instagram?.[highlightedProduct.node.id] ?? []
+            : platform === "Facebook"
+            ? Facebook?.[highlightedProduct.node.id] ?? []
+            : []
+          : [],
       }))
       .sort((a, b) => {
         const order = { Google: 0, Instagram: 1, Facebook: 2 };
@@ -100,11 +201,12 @@ export default function CampaignSnapshotsPage() {
     instagramSettings,
     facebookSettings,
     googleSettings,
+    highlightedProduct?.node.id,
     Google,
   ]);
 
   const [campaignDetails, setCampaignDetails] = useState({
-    campaignType: "",
+    campaignType: "Product Launch",
     campaignName: "",
     brandColor: "#000000",
     accentColor: "#FFFFFF",
@@ -141,33 +243,22 @@ export default function CampaignSnapshotsPage() {
 
   const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
 
-  const handleSetHighlightedProduct = (product: any) => {
+  const handleSetHighlightedProduct = (product: ShopifyProduct) => {
     setHighlightedProduct(product);
   };
   const products = productSelection.products;
   return (
-    <div className="flex items-start gap-6 mt-6 pb-12">
+    <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="w-[224px] sticky top-20 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
-          <div className="flex justify-between gap-2 px-3">
-            <span className="text-sm font-medium">Products</span>
-            <span>
-              <ArrowDown2 size={12} color="#000" />
-            </span>
-          </div>
-          <div className="flex flex-col w-full gap-5 flex-1 break-words pink-scroll overflow-x-hidden overflow-y-auto px-3">
-            {products.map((product) => (
-              <Product
-                product={product}
-                key={product.node.id}
-                highlightedProduct={highlightedProduct}
-                handleSetHighlightedProduct={handleSetHighlightedProduct}
-              />
-            ))}
-          </div>
+        <div className="hidden lg:block">
+          <ProductContainer
+            highlightedProduct={highlightedProduct}
+            products={products}
+            handleSetHighlightedProduct={handleSetHighlightedProduct}
+          />
         </div>
       )}
-      <div className="w-[calc(100%-224px)]">
+      <div className="w-full lg:w-[calc(100%-224px)]">
         <div className="flex flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>
@@ -181,36 +272,17 @@ export default function CampaignSnapshotsPage() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 md:gap-3">
-            {!isOnlyGoogle && (
-              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-                {/* <MagicStarIcon />
-                 */}
-                <img
-                  src={MagicStarIcon.src}
-                  alt="Magic Star"
-                  width={20}
-                  height={20}
-                />
-                <span className="text-sm font-medium">Mix</span>
-              </button>
-            )}
-            {canUndo(highlightedProduct?.node?.id) && (
-              <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center ">
-                <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
-                <span className="text-sm font-medium">Undo</span>
-              </button>
-            )}
-
-            <button className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-              <img
-                src={RegenerateIcon.src}
-                alt="Generate"
-                width={20}
-                height={20}
+          <div className="hidden lg:block">
+            {highlightedProduct && (
+              <MainActions
+                isOnlyGoogle={isOnlyGoogle}
+                canUndo={canUndo}
+                highlightedProduct={highlightedProduct}
+                generateCreatives={generateCreatives}
+                loading={loading}
+                generalUndo={generalUndo}
               />
-              <span className="text-sm font-medium">Generate</span>
-            </button>
+            )}
           </div>
         </div>
         <div className="mt-6 flex flex-col md:flex-row gap-4 md:gap-14">
@@ -249,7 +321,12 @@ export default function CampaignSnapshotsPage() {
           }
         />
         <div className="mt-10">
-          <Preview adPlatforms={adPlatforms} />
+          <Preview
+            adPlatforms={adPlatforms}
+            highlightedProductId={highlightedProduct?.node.id || "1"}
+            generateCreatives={generateCreatives}
+            loading={loading}
+          />
         </div>
         <div className="mt-5 md:mt-20 sm:max-w-[200px] mx-auto">
           <Button
@@ -262,6 +339,7 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       </div>
+      {loading && <CircleLoaderModal text="Generating Ad Creatives..." />}
     </div>
   );
 }

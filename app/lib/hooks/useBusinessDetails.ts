@@ -32,6 +32,7 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const [companyRoleError, setCompanyRoleError] = useState(false);
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
   const token = useAuthStore((state) => state.token);
+  const { storeLogo } = defaultBusinessDetails;
   const defaultDetails = isStoreDetails
     ? {
         ...defaultBusinessDetails,
@@ -135,6 +136,7 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     handleAction,
     handleNext,
     isPending,
+    storeLogo,
     defaultBusinessDetails,
     handleSelectTeamSize,
     submitBusinessDetailsMutation,
