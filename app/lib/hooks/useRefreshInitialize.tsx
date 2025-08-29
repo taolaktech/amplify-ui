@@ -13,7 +13,10 @@ export default function useRefreshInitialize() {
 
   const refreshInitialize = async () => {
     console.log("refreshInitialize");
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     console.log("token", token);
     const isConnected = await getMe(token);
     console.log("isConnected", isConnected);
@@ -31,5 +34,5 @@ export default function useRefreshInitialize() {
     refreshInitialize();
   }, [token]);
 
-  return { refreshInitialize };
+  return { refreshInitialize, loading };
 }

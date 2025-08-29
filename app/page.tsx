@@ -6,7 +6,7 @@ import GettingStarted from "./ui/dashboard/GettingStarted";
 import Metrics from "./ui/dashboard/metrics";
 
 export default function DashboardPage() {
-  useInitialize();
+  const { loading } = useInitialize();
 
   return (
     <main className="">
