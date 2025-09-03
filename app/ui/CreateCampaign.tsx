@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
 import useUIStore from "../lib/stores/uiStore";
+import { set } from "lodash";
 
 export default function CreateCampaign({
   children,
@@ -20,6 +21,7 @@ export default function CreateCampaign({
     useCreateCampaignStore((state) => state);
   // const [step, setStep] = useState(1);
   const [backText, setBackText] = useState("");
+  const [route, setRoute] = useState("");
 
   useEffect(() => {
     // actions.reset();
@@ -30,24 +32,29 @@ export default function CreateCampaign({
     if (pathname.includes("review")) {
       setProgressStep(6, 6);
       setBackText("Fund Campaign");
+      setRoute("/create-campaign/fund-campaign");
     } else if (pathname.includes("fund-campaign")) {
       setProgressStep(5, 6);
       setBackText("Campaign Snapshots");
+      setRoute("/create-campaign/campaign-snapshots");
     } else if (
       supportedAdPlatforms.complete &&
       pathname.includes("campaign-snapshots")
     ) {
       setProgressStep(4, 6);
       setBackText("Supported Ad Platforms");
+      setRoute("/create-campaign/supported-ad-platforms");
     } else if (
       productSelection.complete &&
       pathname.includes("supported-ad-platforms")
     ) {
       setProgressStep(3, 6);
       setBackText("Select Products");
+      setRoute("/create-campaign/product-selection");
     } else if (adsShow.complete && pathname.includes("product-selection")) {
       setProgressStep(2, 6);
       setBackText("Create Campaign");
+      setRoute("/create-campaign/create-campaign");
     } else {
       setProgressStep(1, 6);
       setBackText("");
@@ -55,7 +62,7 @@ export default function CreateCampaign({
   }, [adsShow.complete, productSelection.complete, pathname]);
 
   const handleBack = () => {
-    router.back();
+    router.push(route);
   };
 
   return (

@@ -173,7 +173,7 @@ const PreviewContainer = ({ item }: { item: any }) => {
       {creativesAvailable ? (
         <>
           {item.title === "Google" && (
-            <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[600px] items-center justify-center">
+            <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
               <GoogleAdsCreatives
                 creatives={item.creatives[lastIndex].creatives}
               />

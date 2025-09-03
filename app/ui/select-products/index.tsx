@@ -59,7 +59,8 @@ export default function Products() {
       if (prev.find((p) => p.node.id === id)) {
         return prev.filter((p) => p.node.id !== id);
       }
-      return [...prev, product];
+      // return [...prev, product];
+      return [product];
     });
   };
 
