@@ -148,7 +148,9 @@ export const useInitialize = () => {
       estimatedAnnualRevenue,
     } = details;
     console.log("Store Details Data:", details);
+    console.log("store id:", details._id);
     storeBusinessDetails({
+      id: details._id,
       storeLogo: logo ?? null,
       storeName: companyName,
       description,

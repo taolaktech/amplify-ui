@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type BusinessDetails = {
+  id?: string | null;
   storeLogo?: string | null;
   storeName: string;
   description: string;
@@ -33,6 +34,7 @@ type MarketingGoals = {
 };
 
 const defaultBusinessDetails: BusinessDetails = {
+  id: null,
   storeLogo: null,
   storeName: "",
   description: "",
@@ -75,6 +77,7 @@ type SetupState = {
 
 type SetupActions = {
   storeConnectStore: (connectStore: { storeUrl: string }) => void;
+  storeBusinessId: (id: string) => void;
   completeConnectStore: (complete: boolean) => void;
   reset: () => void;
   storeBusinessDetails: (businessDetails: BusinessDetails) => void;
@@ -105,6 +108,14 @@ export const useSetupStore = create<SetupStore>()(
           businessDetails: {
             ...get().businessDetails,
             storeUrl: connectStore.storeUrl,
+          },
+        });
+      },
+      storeBusinessId: (id) => {
+        set({
+          businessDetails: {
+            ...get().businessDetails,
+            id,
           },
         });
       },

@@ -227,6 +227,11 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         adsShow: state.adsShow,
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
+        fundCampaign: state.fundCampaign,
+        supportedAdPlatforms: state.supportedAdPlatforms,
+        instagramSettings: state.instagramSettings,
+        facebookSettings: state.facebookSettings,
+        googleSettings: state.googleSettings,
       }),
       onRehydrateStorage: () => (state, error) => {
         if (error) {

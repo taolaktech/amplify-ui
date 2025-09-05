@@ -1,8 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import { postFeedBack } from "../api/base";
+import { getTargetROAS, postFeedBack, TargetROASPlatform } from "../api/base";
 import { useAuthStore } from "../stores/authStore";
 import { useToastStore } from "../stores/toastStore";
 import { ImprovementCategory } from "@/type";
+import { useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { useCreateCampaignStore } from "../stores/createCampaignStore";
 
 export const usePostFeedBack = (handleClose: () => void) => {
   const token = useAuthStore((state) => state.token);
@@ -46,4 +49,50 @@ export const usePostFeedBack = (handleClose: () => void) => {
   };
 
   return { handlePostFeedBack, isPending };
+};
+
+export const useGetTargetROAS = () => {
+  const token = useAuthStore((state) => state.token);
+  const supporttedAdPlatforms = useCreateCampaignStore(
+    (state) => state.supportedAdPlatforms
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [targetROAS, setTargetROAS] = useState<any | null>(null);
+
+  const debouncedFetch = useDebouncedCallback((newBudget: number) => {
+    if (!newBudget || !token) return;
+    console.log("Fetching target ROAS for budget:", newBudget);
+    const platforms: TargetROASPlatform[] = [];
+    if (supporttedAdPlatforms.Facebook)
+      platforms.push(TargetROASPlatform.FACEBOOK);
+    if (supporttedAdPlatforms.Instagram)
+      platforms.push(TargetROASPlatform.INSTAGRAM);
+    if (supporttedAdPlatforms.Google) platforms.push(TargetROASPlatform.GOOGLE);
+    mutate({ budget: newBudget, token: token, platforms });
+  }, 500);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: getTargetROAS,
+    onSuccess: (data) => {
+      console.log("targetROAS:", data);
+      setTargetROAS(data);
+    },
+    onError: (error) => {
+      console.log(error);
+      setIsLoading(false);
+    },
+  });
+
+  const handleGetTargetROAS = (newBudget: number) => {
+    console.log("handleGetTargetROAS", newBudget);
+    setIsLoading(true);
+    debouncedFetch(newBudget);
+  };
+
+  return {
+    handleGetTargetROAS,
+    isLoading: isLoading || isPending,
+    targetROAS: targetROAS,
+  };
 };

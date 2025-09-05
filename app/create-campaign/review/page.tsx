@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
 import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
 import { Platform } from "@/type";
+import { useLaunchCampaign } from "@/app/lib/hooks/campaigns";
 
 const countries = {
   usa: "United States",
@@ -46,6 +47,8 @@ export default function ReviewPage() {
     }[]
   >([]);
   const [isLaunchCampaign, setIsLaunchCampaign] = useState(false);
+  const { handleLaunchCampaign, isPending } =
+    useLaunchCampaign(setIsLaunchCampaign);
   const router = useRouter();
   const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
@@ -351,8 +354,9 @@ export default function ReviewPage() {
         <div className="mt-5 md:mt-20 sm:max-w-[242px] mx-auto">
           <Button
             text="Launch Campaign"
-            action={() => setIsLaunchCampaign(true)}
+            action={handleLaunchCampaign}
             hasIconOrLoader
+            loading={isPending}
             icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
             iconPosition="right"
             iconSize={16}

@@ -117,3 +117,35 @@ export const removePaymentMethod = async (data: {
   );
   return response.data;
 };
+
+// curl https://dev-wallet.useamplify.ai/wallet/top-up \
+//   --request POST \
+//   --header 'idempotency-key: ' \
+//   --header 'Content-Type: application/json' \
+//   --data '{
+//   "amount": 100,
+//   "paymentMethodId": "pm_1P7kvL2eZvKYlo2C9GvA3B4C"
+// }'
+
+export const topUpWallet = async (data: {
+  token: string;
+  amount: number;
+  idempotencyKey: string;
+  paymentMethodId: string;
+}) => {
+  const response = await axiosInstance.post(
+    "/wallet/top-up",
+    {
+      amount: data.amount,
+      paymentMethodId: data.paymentMethodId,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "idempotency-key": data.idempotencyKey,
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};

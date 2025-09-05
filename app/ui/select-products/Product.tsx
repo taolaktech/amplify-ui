@@ -97,9 +97,11 @@ const Product = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center  md:hidden pr-1">
-        <CheckBox checked={checked} />
-      </div>
+      {!isReview && (
+        <div className="flex items-center  md:hidden pr-1">
+          <CheckBox checked={checked} />
+        </div>
+      )}
     </div>
   );
 };

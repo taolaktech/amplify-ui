@@ -84,7 +84,7 @@ export default function GoogleAdsCreatives({
       </div>
 
       <div className="flex flex-wrap flex-shrink-0 flex-1 w-full gap-2 md:gap-4 px-5 items-center justify-center ">
-        {creatives.map((creative, index) => (
+        {creatives?.map((creative, index) => (
           <div
             className={`w-full max-w-[87px] md:max-w-[190px] rounded-[3px] md:rounded-[9px] cursor-pointer ${
               index === currentSlide ? "ring-2 ring-[#A755FF] " : ""

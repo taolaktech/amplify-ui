@@ -35,6 +35,15 @@ export default function Checkout({
     string | null
   >(null);
   console.log("is Upgrade", isUpgrade);
+  const selectedPaymentFromStore = useCreateCampaignStore(
+    (state) => state.fundCampaign.cardDetails
+  );
+  useEffect(() => {
+    if (selectedPaymentFromStore) {
+      console.log("selectedPaymentFromStore", selectedPaymentFromStore);
+      setSelectedPaymentMethod(selectedPaymentFromStore?.id);
+    }
+  }, [selectedPaymentFromStore]);
 
   const { handleSubscribe, isPending } = useSubscribeToPlan();
   const { handleUpgrade, isPending: isUpgradePending } = useUpgradePlan();
@@ -44,6 +53,7 @@ export default function Checkout({
 
   const { handleSetDefaultPaymentMethod } = useStripeCustomerActions();
 
+  useEffect(() => {}, []);
   const {
     data: customerPaymentMethods,
     isLoading,
@@ -63,15 +73,15 @@ export default function Checkout({
     );
     setSelectedPaymentMethod(selectedPaymentMethod);
     storeSelectedPaymentMethod({
-      id: paymentMethod.id,
-      last4Numbers: paymentMethod.card.last4,
-      cardBrand: paymentMethod.card.brand,
+      id: paymentMethod?.id,
+      last4Numbers: paymentMethod?.card.last4,
+      cardBrand: paymentMethod?.card.brand,
     });
     handleSetDefaultPaymentMethod(selectedPaymentMethod);
   }, [selectedPaymentMethod]);
 
   useEffect(() => {
-    if (isPending) {
+    if (isPending || isLoading || isRefetching) {
       setIsAddCard(false);
       return;
     }

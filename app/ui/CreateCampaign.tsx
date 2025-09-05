@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
 import useUIStore from "../lib/stores/uiStore";
-import { set } from "lodash";
 
 export default function CreateCampaign({
   children,

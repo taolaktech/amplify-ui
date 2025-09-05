@@ -9,6 +9,8 @@ import "range-slider-input/dist/style.css";
 import Checkout from "@/app/ui/checkout";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useRouter } from "next/navigation";
+import { useTopUpWallet } from "@/app/lib/hooks/wallet";
+import { useGetTargetROAS } from "@/app/lib/hooks";
 
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
@@ -19,15 +21,25 @@ export default function FundCampaignPage() {
   const campaignSnapshots = useCreateCampaignStore(
     (state) => state.campaignSnapshots
   );
+  const { handleTopUpWallet, isPending } = useTopUpWallet(handleProceed);
+  const adFundAmount = useCreateCampaignStore(
+    (state) => state.fundCampaign.amount
+  );
   const [isEditing, setIsEditing] = useState(false);
   console.log("rightSideOpen", rightSideOpen);
 
   const router = useRouter();
 
+  const { handleGetTargetROAS, targetROAS } = useGetTargetROAS();
+
   useEffect(() => {
     if (!campaignSnapshots.complete) {
       router.push("/create-campaign/");
     }
+    console.log("adFundAmount", adFundAmount);
+    setAmount(adFundAmount || 50);
+    handleGetTargetROAS(adFundAmount || 50);
+    sliderFuncRef.current?.value([0, adFundAmount || 50]);
   }, []);
 
   // Update slider when amount changes (e.g., via contentEditable)
@@ -45,6 +57,7 @@ export default function FundCampaignPage() {
         sliderFuncRef.current.value([0, am]);
       }
     }
+    handleGetTargetROAS(amount || 50);
   }, [amount, isEditing]);
 
   // Initialize slider
@@ -78,22 +91,28 @@ export default function FundCampaignPage() {
 
     sliderFuncRef.current = slider;
 
+    // Now that slider is ready, set value from adFundAmount
+    const initialAmount = adFundAmount || 50;
+    setAmount(initialAmount);
+    slider.value([0, initialAmount]);
+    handleGetTargetROAS(initialAmount);
+
     // Cleanup on unmount
     return () => {
       slider.removeGlobalEventListeners();
     };
   }, []);
 
-  const handleProceed = () => {
-    if (amount < 50) {
-      return;
-    }
+  function handleProceed() {
+    // if (amount < 50) {
+    //   return;
+    // }
     actions.storeFundCampaign({
       amount,
       complete: true,
     });
     router.push("/create-campaign/review");
-  };
+  }
 
   const handleAmount = () => {
     if (amount < 50) {
@@ -124,8 +143,12 @@ export default function FundCampaignPage() {
             </span>
             <span className="text-sm font-medium tracking-150">
               The minimum budget based on your campaign settings is $50. Your
-              campaign ad spend of $150 has the opportunity to achieve a return
-              on ad spend (ROAS) of at least 3.5x
+              campaign ad spend of ${targetROAS?.budget || 50} has the
+              opportunity to achieve a return on ad spend (ROAS) of at least{" "}
+              {targetROAS
+                ? (targetROAS?.targetRoas?.googleSearch / 99206).toFixed(1)
+                : 1}
+              x
             </span>
           </div>
           <div className="lg:max-w-[425px] mx-auto mt-12">
@@ -202,11 +225,13 @@ export default function FundCampaignPage() {
       >
         <Button
           text="Proceed"
-          action={handleProceed}
+          action={() => handleTopUpWallet(amount)}
           hasIconOrLoader
           icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
           iconPosition="right"
           iconSize={16}
+          disabled={isPending}
+          loading={isPending}
         />
       </div>
     </div>
