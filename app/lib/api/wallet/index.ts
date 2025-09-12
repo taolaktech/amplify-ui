@@ -83,7 +83,6 @@ export const getCurrentSubscriptionPlan = async (token: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("response from current subscription plan", response);
   return response.data;
 };
 

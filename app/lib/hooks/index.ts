@@ -12,8 +12,7 @@ export const usePostFeedBack = (handleClose: () => void) => {
   const setToast = useToastStore((state) => state.setToast);
   const { mutate, isPending } = useMutation({
     mutationFn: postFeedBack,
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
       setToast({
         title: "Feedback Sent",
         message:
@@ -22,8 +21,7 @@ export const usePostFeedBack = (handleClose: () => void) => {
       });
       handleClose();
     },
-    onError: (error) => {
-      console.log(error);
+    onError: () => {
       setToast({
         title: "Error submitting feedback",
         message: "Something went wrong. Please try again later",
@@ -59,10 +57,10 @@ export const useGetTargetROAS = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [targetROAS, setTargetROAS] = useState<any | null>(null);
+  const [baseX, setBaseX] = useState<number | string>(1.0);
 
   const debouncedFetch = useDebouncedCallback((newBudget: number) => {
     if (!newBudget || !token) return;
-    console.log("Fetching target ROAS for budget:", newBudget);
     const platforms: TargetROASPlatform[] = [];
     if (supporttedAdPlatforms.Facebook)
       platforms.push(TargetROASPlatform.FACEBOOK);
@@ -75,17 +73,16 @@ export const useGetTargetROAS = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: getTargetROAS,
     onSuccess: (data) => {
-      console.log("targetROAS:", data);
       setTargetROAS(data);
+      const base = (data.targetRoas?.googleSearch / data.budget) * 50;
+      setBaseX(base.toFixed(1));
     },
-    onError: (error) => {
-      console.log(error);
+    onError: () => {
       setIsLoading(false);
     },
   });
 
   const handleGetTargetROAS = (newBudget: number) => {
-    console.log("handleGetTargetROAS", newBudget);
     setIsLoading(true);
     debouncedFetch(newBudget);
   };
@@ -94,5 +91,6 @@ export const useGetTargetROAS = () => {
     handleGetTargetROAS,
     isLoading: isLoading || isPending,
     targetROAS: targetROAS,
+    baseX,
   };
 };

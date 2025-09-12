@@ -14,7 +14,6 @@ export function useTopUpWallet(onSuccess?: (data: any) => void) {
   const { mutate, isPending } = useMutation({
     mutationFn: topUpWallet,
     onSuccess: (data) => {
-      console.log("Wallet topped up successfully", data);
       setToast({
         title: "Wallet Topped Up",
         message: "Your wallet has been topped up successfully.",
@@ -43,7 +42,6 @@ export function useTopUpWallet(onSuccess?: (data: any) => void) {
       return;
     }
     const idempotencyKey = crypto.randomUUID();
-    console.log("Topping up wallet with idempotency key:", idempotencyKey);
     mutate({ token, amount, paymentMethodId, idempotencyKey });
   };
 

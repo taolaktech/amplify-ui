@@ -6,14 +6,14 @@ export const SettingsSideBar = ({
   isSidebarOpen,
   isIntegrations,
   isPricing,
+  closeSidebar,
 }: {
   on: boolean;
   isSidebarOpen: boolean;
   isIntegrations: boolean;
   isPricing: boolean;
+  closeSidebar?: () => void;
 }) => {
-  console.log("isIntegrations", isIntegrations);
-  console.log("isPricing", isPricing);
   return (
     <ul
       className={`flex flex-col overflow-hidden gap-1 transition-all duration-300 ${
@@ -21,7 +21,11 @@ export const SettingsSideBar = ({
       }`}
     >
       <li className={`px-4 rounded-xl py-2 ${isPricing ? "bg-[#F6F6F6]" : ""}`}>
-        <Link href="/settings" className="flex items-center gap-2">
+        <Link
+          onClick={closeSidebar}
+          href="/settings"
+          className="flex items-center gap-2"
+        >
           {isPricing ? (
             <ReceiptItem size="18" color={"#000"} />
           ) : (
@@ -45,7 +49,11 @@ export const SettingsSideBar = ({
           ${isIntegrations ? "bg-[#F6F6F6]" : ""}
           `}
       >
-        <Link href="/settings/integrations" className="flex items-center gap-2">
+        <Link
+          onClick={closeSidebar}
+          href="/settings/integrations"
+          className="flex items-center gap-2"
+        >
           {isIntegrations ? (
             <FolderConnection size="18" color={"#000"} />
           ) : (

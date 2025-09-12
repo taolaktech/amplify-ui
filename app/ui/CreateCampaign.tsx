@@ -53,7 +53,7 @@ export default function CreateCampaign({
     } else if (adsShow.complete && pathname.includes("product-selection")) {
       setProgressStep(2, 6);
       setBackText("Create Campaign");
-      setRoute("/create-campaign/create-campaign");
+      setRoute("/create-campaign");
     } else {
       setProgressStep(1, 6);
       setBackText("");

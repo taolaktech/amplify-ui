@@ -16,6 +16,7 @@ import useCreativesStore from "@/app/lib/stores/creativesStore";
 import { Platform, ShopifyProduct } from "@/type";
 import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
+import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGeneration";
 
 const ProductContainer = ({
   products,
@@ -216,12 +217,10 @@ export default function CampaignSnapshotsPage() {
   });
 
   const handleCampaignDetails = (key: string, value: string) => {
-    console.log(key, value);
     setCampaignDetails((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleProceed = () => {
-    console.log("proceed");
     actions.storeCampaignSnapshots({
       campaignType: campaignDetails.campaignType,
       brandColor: campaignDetails.brandColor,
@@ -285,6 +284,10 @@ export default function CampaignSnapshotsPage() {
             )}
           </div>
         </div>
+        <ProductsForGeneration
+          highlightedProductId={highlightedProduct?.node.id || "1"}
+          setHighlightedProduct={setHighlightedProduct}
+        />
         <div className="mt-6 flex flex-col md:flex-row gap-4 md:gap-14">
           <div className="flex-1">
             <div className="w-full">

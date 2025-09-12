@@ -21,7 +21,6 @@ export default function GoogleAdsCreatives({
     setCurrentSlide((prev) => (prev === creatives.length - 1 ? 0 : prev + 1));
   };
 
-  console.log("creatives", creatives);
   return (
     <div className="flex-1 gap-4 md:gap-12 flex flex-col items-center relative">
       <div

@@ -24,9 +24,6 @@ export const useSubscribeToPlan = () => {
   const token = useAuthStore((state) => state.token);
   const { mutate, isPending } = useMutation({
     mutationFn: subscribeToPlan,
-    onSuccess: (data) => {
-      console.log(data);
-    },
     onError: (error) => {
       console.log(error);
     },
@@ -74,9 +71,7 @@ export const useUpgradePlan = () => {
   const token = useAuthStore((state) => state.token);
   const { mutate, isPending } = useMutation({
     mutationFn: upgradePlan,
-    onSuccess: (data) => {
-      console.log(data);
-    },
+
     onError: (error) => {
       console.log(error);
     },
@@ -107,9 +102,7 @@ export const useStripeCustomerActions = () => {
 
   const { mutate: removePaymentMethodMutate } = useMutation({
     mutationFn: removePaymentMethod,
-    onSuccess: (data) => {
-      console.log(data);
-    },
+    onSuccess: () => {},
     onError: (error) => {
       console.log(error);
     },

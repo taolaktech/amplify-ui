@@ -29,7 +29,6 @@ const CampaignTypeInput = ({
   const selectRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (option: { label: string; recommended: boolean }) => {
-    console.log(option);
     setSelected(option.label);
     setIsOpen(false);
     setError(false);

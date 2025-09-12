@@ -16,7 +16,7 @@ export default function DashboardSideBar() {
   const { navigateToCreateCampaign } = useCampaignsActions();
   const reset = useSetupStore((state) => state.reset);
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
-  const { toggleSidebar } = useUIStore((state) => state.actions);
+  const { toggleSidebar,  } = useUIStore((state) => state.actions);
   const router = useRouter();
   const {
     isDashboard,

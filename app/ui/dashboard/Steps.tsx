@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 export default function Steps() {
   const [step, setStep] = useState(3);
   const [stepText, setStepText] = useState("Getting Started");
-  const [link, setLink] = useState("/setup");
-  console.log(link);
+  const [, setLink] = useState("/setup");
   const {
     connectStore,
     businessDetails,

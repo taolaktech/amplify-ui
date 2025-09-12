@@ -34,13 +34,11 @@ export default function Checkout({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >(null);
-  console.log("is Upgrade", isUpgrade);
   const selectedPaymentFromStore = useCreateCampaignStore(
     (state) => state.fundCampaign.cardDetails
   );
   useEffect(() => {
     if (selectedPaymentFromStore) {
-      console.log("selectedPaymentFromStore", selectedPaymentFromStore);
       setSelectedPaymentMethod(selectedPaymentFromStore?.id);
     }
   }, [selectedPaymentFromStore]);
@@ -107,11 +105,6 @@ export default function Checkout({
           billingCycle as "MONTHLY" | "QUARTERLY" | "YEARLY"
         ]
       : 0;
-
-  console.log("price", price);
-
-  console.log("customerPaymentMethods", customerPaymentMethods?.data);
-  console.log("isLoading", isLoading);
 
   if (isLoading || isRefetching) {
     return <Skeleton width="100%" height="330px" borderRadius="10px" />;

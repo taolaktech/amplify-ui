@@ -15,7 +15,7 @@ import { useGetTargetROAS } from "@/app/lib/hooks";
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
   const actions = useCreateCampaignStore((state) => state.actions);
-  const [rightSideOpen, setRightSideOpen] = useState(false);
+  const [, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderFuncRef = useRef<any>(null);
   const campaignSnapshots = useCreateCampaignStore(
@@ -26,17 +26,15 @@ export default function FundCampaignPage() {
     (state) => state.fundCampaign.amount
   );
   const [isEditing, setIsEditing] = useState(false);
-  console.log("rightSideOpen", rightSideOpen);
 
   const router = useRouter();
 
-  const { handleGetTargetROAS, targetROAS } = useGetTargetROAS();
+  const { handleGetTargetROAS, targetROAS, baseX } = useGetTargetROAS();
 
   useEffect(() => {
     if (!campaignSnapshots.complete) {
       router.push("/create-campaign/");
     }
-    console.log("adFundAmount", adFundAmount);
     setAmount(adFundAmount || 50);
     handleGetTargetROAS(adFundAmount || 50);
     sliderFuncRef.current?.value([0, adFundAmount || 50]);
@@ -137,7 +135,7 @@ export default function FundCampaignPage() {
       </div>
       <div className="lg:flex gap-12 mt-10">
         <div className="bg-[rgba(230,230,230,0.15)] p-6 rounded-3xl lg:w-[50%] max-h-[417px]">
-          <div className="py-4 px-5 bg-[#FEF5EA] flex-shrink-0 flex items-start gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
+          <div className="py-3 lg:py-4 px-3 lg:px-5 bg-[#FEF5EA] flex-shrink-0 flex items-start gap-3 text-[#C67B22] border-[0.5px] border-[#FDE0BD] rounded-xl">
             <span className="flex items-center justify-center w-[32px] h-[32px] flex-shrink-0 bg-[#FDE0BD] rounded-full">
               <NoteRemove size="17" color="#C67B22" />
             </span>
@@ -146,7 +144,10 @@ export default function FundCampaignPage() {
               campaign ad spend of ${targetROAS?.budget || 50} has the
               opportunity to achieve a return on ad spend (ROAS) of at least{" "}
               {targetROAS
-                ? (targetROAS?.targetRoas?.googleSearch / 99206).toFixed(1)
+                ? (
+                    targetROAS?.targetRoas?.googleSearch /
+                    parseFloat(baseX.toString())
+                  ).toFixed(1)
                 : 1}
               x
             </span>
@@ -177,7 +178,6 @@ export default function FundCampaignPage() {
                     } else if (!/^\d$/.test(e.key)) {
                       e.preventDefault();
                     } else if (e.currentTarget?.innerText?.length > 7) {
-                      console.log("here");
                       e.preventDefault();
                     }
                   }}
@@ -185,7 +185,6 @@ export default function FundCampaignPage() {
                     setIsEditing(false);
                     e.currentTarget.style.cursor = "default";
                     const val = e.currentTarget.textContent?.trim();
-                    console.log("val:", val);
                     // const newAmount = Math.max(50, Number(val || 500)); // Enforce minimum $50
                     setAmount(Number(val));
                     e.currentTarget.textContent = `${Number(val)}`; // Reset span content

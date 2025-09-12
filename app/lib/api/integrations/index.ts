@@ -93,7 +93,6 @@ export const postPreferredSalesLocation = async (data: {
   };
   token: string;
 }) => {
-  console.log("data", data);
   const response = await axiosInstanceBase.post(
     "/business/set-shipping-locations",
     data.data,
@@ -131,7 +130,6 @@ export const handleGetCities = async (data: {
   token: string;
 }) => {
   if (!data.token) {
-    console.log("token:", data.token);
     return;
   }
   const response = await axiosInstanceBase.post(
@@ -164,7 +162,5 @@ export const getProducts = async (data: {
       Authorization: `Bearer ${data.token}`,
     },
   });
-  console.log("token", data.token);
-  console.log("response", response.data);
   return response.data;
 };

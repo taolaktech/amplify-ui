@@ -25,8 +25,6 @@ export default function Profile() {
   //   return () => document.removeEventListener("mousedown", handleClickOutside);
   // }, []);
 
-  console.log("user type", subscriptionType);
-
   const toggleProfile = () => {
     // setIsOpen((prev) => !prev);
   };

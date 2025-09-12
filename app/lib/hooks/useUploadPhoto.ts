@@ -67,7 +67,6 @@ export function useUploadPhoto(): UseUploadPhotoReturn {
           message: "Upload failed.",
           type: "error",
         });
-        console.log(response);
         return;
       }
     } catch (err: any) {

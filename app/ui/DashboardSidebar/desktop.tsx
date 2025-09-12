@@ -52,7 +52,6 @@ export default function DesktopSideBar({
   handleToggleSidebar,
   handleLogout,
   isDashboard,
-  isInsights,
   isCampaigns,
   isStoreDetails,
   isCompanyTabOpen,
@@ -67,7 +66,6 @@ export default function DesktopSideBar({
   toggleIsCompanyTabOpen,
 }: DesktopSideBarProps) {
   // const router = useRouter();
-  console.log(isInsights);
   return (
     <>
       <div

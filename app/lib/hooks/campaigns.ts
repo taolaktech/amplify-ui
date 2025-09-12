@@ -38,7 +38,6 @@ export default function useGetCampaigns() {
       if (data.data) {
         actions.setData(data.data);
       }
-      console.log("Fetched campaigns:", data.data);
       setError(null); // Clear any previous errors
     } catch (error: any) {
       console.error("Error fetching campaigns:", error);
@@ -102,14 +101,13 @@ export const useLaunchCampaign = (
 
   const { mutate, isPending } = useMutation({
     mutationFn: launchCampaign,
-    onSuccess: (data) => {
-      console.log("Campaign launched successfully:", data);
+    onSuccess: () => {
       setIsLaunchCampaign(true);
-      setToast({
-        title: "Campaign Launched 🎉",
-        message: "Your campaign has been launched successfully.",
-        type: "success",
-      });
+      // setToast({
+      //   title: "Campaign Launched 🎉",
+      //   message: "Your campaign has been launched successfully.",
+      //   type: "success",
+      // });
     },
     onError: (error: any) => {
       console.error("Error launching campaign:", error);
@@ -123,10 +121,6 @@ export const useLaunchCampaign = (
   });
 
   const handleLaunchCampaign = () => {
-    console.log("handleLaunchCampaign");
-    console.log("products", products);
-    console.log("businessDetails", businessDetails.id);
-    console.log("location", locations);
     if (!authToken || !businessDetails.id || !products.length) return;
     const campaignPlatforms: CampaignPlatformsTitle[] = [];
     if (supportedAdPlatforms.Facebook)

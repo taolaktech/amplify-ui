@@ -2,7 +2,6 @@ import { usePathname } from "next/navigation";
 
 export const useDashboardPath = () => {
   const pathname = usePathname().trim().replace(/\/$/, "");
-  console.log("pathname", pathname);
 
   const pathName1 = pathname.split("/")[1] ?? "";
   const isDashboard = pathname === "/";

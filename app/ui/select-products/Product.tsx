@@ -19,8 +19,6 @@ const Product = ({
 
   const imgURL = productNode?.media?.edges[0]?.node?.preview?.image?.url;
   const hasLength = imgURL?.trim()?.length > 0;
-  console.log("Image Loaded:", imgLoaded);
-  console.log("Image URL:", imgURL);
   const showImgLoader = !hasLength || imgError || !imgLoaded;
 
   return (

@@ -26,7 +26,7 @@ type AuthState = {
       }
     | null;
   user: User | null;
-}
+};
 
 type User = {
   email: string;
@@ -38,12 +38,12 @@ type User = {
   paymentStatus?: string;
   hasActiveSubscription?: boolean;
   shopifyAccountConnected?: boolean;
-}
+};
 
 type ProfileIcon = {
   initials: string;
   color: string;
-}
+};
 
 type AuthActions = {
   login: (token: string, user: User) => void;
@@ -65,7 +65,7 @@ type AuthActions = {
   setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
-}
+};
 
 export type AuthStore = AuthState & AuthActions;
 
@@ -87,8 +87,8 @@ export const useAuthStore = create<AuthStore>()(
 
       hasHydrated: false,
       subscriptionType: {
-        name: 'Free',
-        cycle: 'monthly',
+        name: "Free",
+        cycle: "monthly",
         // price: 0
       },
       rememberMe: false,
@@ -111,20 +111,16 @@ export const useAuthStore = create<AuthStore>()(
       },
       getUser: () => get().user,
       setHasHydrated: (state) => {
-        console.log("setHasHydrated", state);
         set({ hasHydrated: state });
       },
     }),
     {
       name: "auth-storage",
       onRehydrateStorage: () => {
-        console.log("onRehydrateStorage");
         // ✅ hydration begins (optional)
         return (state, error) => {
           if (error) {
-            console.log("an error happened during hydration", error);
           } else {
-            console.log("hydration finished");
             state?.setHasHydrated(true);
           }
         };
@@ -144,13 +140,13 @@ export type CreateUserStore = {
   justVerified: boolean;
   justCreated: boolean;
   actions: CreateUserActions;
-}
+};
 
 export type CreateProfileState = {
   firstName: string;
   lastName: string;
   password: string;
-}
+};
 
 type CreateUserActions = {
   storeEmail: (email: string) => void;
@@ -158,7 +154,7 @@ type CreateUserActions = {
   storeRetryError: (hasError: boolean) => void;
   storeJustCreated: (justCreated: boolean) => void;
   storeJustVerified: (justVerified: boolean) => void;
-}
+};
 
 export const useCreateUserStore = create<CreateUserStore>()((set) => ({
   email: "",

@@ -45,7 +45,6 @@ const SalesLocationInput = ({
         (location) => !salesLocation.includes(location.description)
       );
       filteredLocations2 = filteredLocations2?.map((item) => item.description);
-      console.log("searchedLocation", filteredLocations2);
       if (!filteredLocations2) return;
       setSearchedLocation(filteredLocations2);
       setIsOpen(true);
@@ -127,7 +126,6 @@ const SelectionModal = ({
     e: React.MouseEvent<HTMLDivElement>,
     location: string
   ) => {
-    console.log("location", location);
     e.stopPropagation();
     selectLocation(location);
   };

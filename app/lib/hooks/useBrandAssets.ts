@@ -34,7 +34,6 @@ export const options = {
 export default function useBrandAssets() {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
-  const [removeBrandGuide] = useState(false);
   const {
     primaryLogo: currentPrimaryLogo,
     secondaryLogo: currentSecondaryLogo,
@@ -43,8 +42,16 @@ export default function useBrandAssets() {
     toneOfVoice: currentToneOfVoice,
     primaryFont: currentPrimaryFont,
     secondaryFont: currentSecondaryFont,
+    brandGuide: currentBrandGuide,
+    brandGuideName: currentBrandGuideName,
     // brandGuide: currentBrandGuide,
   } = useBrandAssetStore();
+  const brandActions = useBrandAssetStore((state) => state.actions);
+  const {
+    setPrimaryLogo,
+    setSecondaryLogo,
+    setBrandGuide: storeBrandGuide,
+  } = brandActions;
 
   const {
     file: primaryLogoFile,
@@ -55,6 +62,16 @@ export default function useBrandAssets() {
     uploadPhoto: primaryLogoUploadPhoto,
     reset: primaryLogoReset,
   } = useUploadPhoto();
+
+  const handlePrimaryLogoRemove = () => {
+    setPrimaryLogo(null);
+    primaryLogoReset();
+  };
+
+  const handleSecondaryLogoRemove = () => {
+    setSecondaryLogo(null);
+    secondaryLogoReset();
+  };
 
   const {
     file: secondaryLogoFile,
@@ -69,8 +86,7 @@ export default function useBrandAssets() {
   const { mutate, isPending } = useMutation({
     mutationFn: postBrandAssets,
     mutationKey: ["postBrandAssets"],
-    onSuccess: (data) => {
-      console.log("Brand assets posted successfully", data);
+    onSuccess: () => {
       setToast({
         title: "Brand Assets Updated.",
         message: "Your brand assets has been updated.",
@@ -91,9 +107,9 @@ export default function useBrandAssets() {
     mutate({
       token: token ?? "",
       assets: {
-        removePrimaryLogo: !currentPrimaryLogo && !!primaryLogoPreview,
-        removeSecondaryLogo: !currentSecondaryLogo && !!secondaryLogoPreview,
-        removeBrandGuide,
+        removePrimaryLogo: !currentPrimaryLogo && !primaryLogoPreview,
+        removeSecondaryLogo: !currentSecondaryLogo && !secondaryLogoPreview,
+        removeBrandGuide: !currentBrandGuide && !brandGuide,
         primaryColor: primaryColor || currentPrimaryColor,
         secondaryColor: secondaryColor || currentSecondaryColor,
         toneOfVoice: toneOfVoice || currentToneOfVoice || "Friendly",
@@ -140,8 +156,6 @@ export default function useBrandAssets() {
     currentToneOfVoice,
   ]);
 
-  console.log("color:", currentPrimaryColor, primaryColor);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "primaryColor") {
@@ -175,6 +189,12 @@ export default function useBrandAssets() {
     }
   };
 
+  const handleRemoveBrandGuide = () => {
+    setBrandGuide(null);
+    storeBrandGuide(null);
+    // setRemoveBrandGuide(true);
+  };
+
   // function onDocumentLoadSuccess({
   //   numPages: nextNumPages,
   // }: PDFDocumentProxy): void {
@@ -189,6 +209,9 @@ export default function useBrandAssets() {
     primaryLogoHandleFileChange,
     primaryLogoUploadPhoto,
     primaryLogoReset,
+    handlePrimaryLogoRemove,
+    handleSecondaryLogoRemove,
+    handleRemoveBrandGuide,
     secondaryLogoFile,
     secondaryLogoPreview,
     secondaryLogoUploading,
@@ -196,6 +219,7 @@ export default function useBrandAssets() {
     secondaryLogoHandleFileChange,
     secondaryLogoUploadPhoto,
     secondaryLogoReset,
+    currentBrandGuideName,
     primaryColor,
     secondaryColor,
     primaryFont,
@@ -205,12 +229,15 @@ export default function useBrandAssets() {
     setPrimaryColor,
     setSecondaryColor,
     toneOfVoice,
+    currentBrandGuide,
     setToneOfVoice,
     handleChange,
     handleFontChange,
     handleBrandGuideChange,
     handleSubmitBrandAssets,
     isPending,
+    currentPrimaryLogo,
+    currentSecondaryLogo,
     // onDocumentLoadSuccess,
   };
 }

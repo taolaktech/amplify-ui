@@ -15,7 +15,6 @@ export const useGetShopifyProducts = () => {
   const actions = useCreateCampaignStore((state) => state.actions);
   const router = useRouter();
 
-  console.log("token", token);
   const fetchProducts = async (
     data: {
       first?: number;
@@ -30,32 +29,13 @@ export const useGetShopifyProducts = () => {
   ) => {
     // const isAhead: boolean = data.page > data.currentPage;
     setLoading(true);
-    console.log("token");
     try {
-      console.log("data", token);
       const response = await getProducts({
         token: token || "",
         after: data.after,
         before: data.before,
       });
-      console.log("response", response);
       const products = response.products;
-      console.log("products edges", products.edges);
-      console.log("products productsCount", products.productsCount);
-      console.log("products pageInfo", products.pageInfo);
-      console.log(
-        "products pageInfo hasNextPage",
-        products.pageInfo.hasNextPage
-      );
-      console.log(
-        "products pageInfo hasPreviousPage",
-        products.pageInfo.hasPreviousPage
-      );
-      console.log(
-        "products pageInfo startCursor",
-        products.pageInfo.startCursor
-      );
-      console.log("products pageInfo endCursor", products.pageInfo.endCursor);
       try {
         setProducts(
           products.edges,
@@ -75,7 +55,6 @@ export const useGetShopifyProducts = () => {
         });
       }
 
-      console.log("products after set", products.edges);
       if (isAdShow) {
         actions.storeAdsShow({
           complete: true,
@@ -85,7 +64,6 @@ export const useGetShopifyProducts = () => {
       }
     } catch (error: any) {
       setError(error);
-      console.log(error.response);
       setToast({
         title: "Error fetching products",
         message: "Something went wrong. Please try again later",

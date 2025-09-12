@@ -32,8 +32,6 @@ export default function Pagination() {
     if (!hasNextPage) return;
     setIsLoading(true);
 
-    console.log("endCursor", endCursor);
-    console.log("fetching next page");
     await fetchProducts({ after: endCursor }, false);
     setFetchingProgress(100);
 
