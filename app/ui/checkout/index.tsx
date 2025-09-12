@@ -51,7 +51,6 @@ export default function Checkout({
 
   const { handleSetDefaultPaymentMethod } = useStripeCustomerActions();
 
-  useEffect(() => {}, []);
   const {
     data: customerPaymentMethods,
     isLoading,

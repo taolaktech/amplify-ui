@@ -102,9 +102,6 @@ export default function FundCampaignPage() {
   }, []);
 
   function handleProceed() {
-    // if (amount < 50) {
-    //   return;
-    // }
     actions.storeFundCampaign({
       amount,
       complete: true,
