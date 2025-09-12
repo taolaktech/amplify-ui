@@ -28,7 +28,6 @@ export const useGenerateCreatives = () => {
     useMutation({
       mutationFn: generateGoogleCreatives,
       onSuccess: (data: any) => {
-        console.log("Google creatives generated successfully", data);
         if (data.success) {
           actions.completeAdsPlatform();
           generate("GOOGLE ADS", currentProductId!, data.data);
@@ -46,7 +45,6 @@ export const useGenerateCreatives = () => {
       (p) => p.node.id === productId
     );
     if (!token || !productSelection.products || !product) return;
-    console.log("product from creatives:", product);
     setCurrentProductId(productId);
     const creativeProduct: GoogleCreativesProduct = {
       productPrice: product.node.priceRangeV2.minVariantPrice.amount,

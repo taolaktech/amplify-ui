@@ -95,7 +95,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   };
 
   const handleNext = (data: typeof defaultBusinessDetails) => {
-    console.log("data", data);
     const businessDetails = {
       ...data,
       industry: productCategory ?? "",

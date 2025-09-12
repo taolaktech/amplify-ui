@@ -29,21 +29,21 @@ type CheckoutFormProps = {
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;
   isUpgrade?: boolean;
-  fetchCustomerCards?: (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<any, Error>> | (() => void);
-}
+  fetchCustomerCards?: (
+    options?: RefetchOptions | undefined
+  ) => Promise<QueryObserverResult<any, Error>> | (() => void);
+};
 
 const CheckoutForm = ({
-  amount,
   isAddCardPage = false,
   isUpgrade = false,
-  fetchCustomerCards
+  fetchCustomerCards,
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [stripeLoading, setStripeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  console.log("message", message);
+  const [, setMessage] = useState<string | null>(null);
   const params = useSearchParams();
   const planId = params.get("planId")?.split("_")[0];
   const billingCycle = params.get("billingCycle");
@@ -51,7 +51,6 @@ const CheckoutForm = ({
     priceId && planId && billingCycle
       ? priceId[planId as "STARTER" | "GROW" | "SCALE"]
       : 0;
-  console.log("price", price);
   const router = useRouter();
   const [country, setCountry] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
@@ -63,7 +62,6 @@ const CheckoutForm = ({
     (state) => state.actions.setSubscriptionSuccess
   );
   const [brand, setBrand] = useState("unknown");
-  console.log("amount", amount);
   const handleChange = (event: any) => {
     setBrand(event.brand);
     setNumberElement(event.complete);
@@ -122,7 +120,7 @@ const CheckoutForm = ({
 
     //1. Create customer
     try {
-      const customerRes = await axios.post(
+      await axios.post(
         "https://dev-wallet.useamplify.ai/stripe/customers/create",
         {
           metadata: { cardHolderName: fullName, country: country },
@@ -134,8 +132,6 @@ const CheckoutForm = ({
           },
         }
       );
-
-      console.log("customerRes", customerRes);
 
       // 2. Create PaymentMethod
       const { paymentMethod, error: pmError } =
@@ -159,8 +155,6 @@ const CheckoutForm = ({
         return;
       }
 
-      console.log("token from form:", token);
-
       // 3. Get client secret from backend
       const res = await axios.post(
         "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
@@ -173,29 +167,22 @@ const CheckoutForm = ({
         }
       );
 
-      console.log("res", res);
-
       const { clientSecret } = res.data.data;
 
-
       // 4. Create subscription
-      let subscriptionRes;
-   
 
       if (!isAddCardPage && !isUpgrade && price) {
-        subscriptionRes = await subscribeToPlan({
+        await subscribeToPlan({
           token: token || "",
           price: price.toString(),
           paymentMethodId: paymentMethod.id,
         });
       } else if (isUpgrade && price && !isAddCardPage) {
-        subscriptionRes = await upgradePlan({
+        await upgradePlan({
           token: token || "",
           newPriceId: price.toString(),
         });
       }
-
-      console.log("subscriptionRes", subscriptionRes);
 
       // const confirmParams: any = {
       //   payment_method: paymentMethod.id,
@@ -205,52 +192,49 @@ const CheckoutForm = ({
 
       //  const result:any = null
 
-      stripe.confirmCardSetup(clientSecret, {
-        payment_method: {
-          card: cardNumberElement,
-         billing_details: {
-            name: fullName,
+      stripe
+        .confirmCardSetup(clientSecret, {
+          payment_method: {
+            card: cardNumberElement,
+            billing_details: {
+              name: fullName,
+            },
           },
-        },
-      })
-      .then(function(result) {
-        console.log("result from setup", result);
-
-        if (result.setupIntent?.status === 'succeeded'){
-           if (!isAddCardPage) {
+        })
+        .then(function (result) {
+          if (result.setupIntent?.status === "succeeded") {
+            if (!isAddCardPage) {
               setSubscriptionSuccess(true);
               router.push("/pricing/checkout/success");
               return;
             }
-           fetchCustomerCards?.();
-           setToast({
-            title: "Card Added Successfully",
-            message:
-              "You’re all set! Your payment method has been saved and ready for your next campaign",
-            type: "success",
-          });
-        }
-        else {
+            fetchCustomerCards?.();
+            setToast({
+              title: "Card Added Successfully",
+              message:
+                "You’re all set! Your payment method has been saved and ready for your next campaign",
+              type: "success",
+            });
+          } else {
             //  setMessage(result.error.message || "Payment failed");
-          setToast({
-           title: "Something Went Wrong",
-            message:
-             "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
-           type: "error",
-         });
-
-        }
-      });
+            setToast({
+              title: "Something Went Wrong",
+              message:
+                "We couldn’t verify your payment method. Please check your connection or try again in a few minutes.",
+              type: "error",
+            });
+          }
+        });
 
       //  console.log("cardresult", result);
-     
+
       // } else {
       //   if (result.error) {
-     
+
       //   return;
       //   // router.push("/pricing/checkout/failed");
       // }
-      //   
+      //
 
       // if (!isAddCardPage) {
       //   confirmParams.return_url =
@@ -258,10 +242,7 @@ const CheckoutForm = ({
       // }
 
       // 5. Confirm the setup-intent
-     
-    
 
-      
       // router.push("/pricing/checkout/success");
     } catch (error) {
       console.log("error", error);

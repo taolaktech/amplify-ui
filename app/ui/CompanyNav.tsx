@@ -6,14 +6,14 @@ export const CompanySideBar = ({
   isSidebarOpen,
   isBrandAssets,
   isCompany,
+  closeSidebar,
 }: {
   on: boolean;
   isSidebarOpen: boolean;
   isBrandAssets: boolean;
   isCompany: boolean;
+  closeSidebar?: () => void;
 }) => {
-  console.log("isBrandAssets", isBrandAssets);
-  console.log("isCompany", isCompany);
   return (
     <ul
       className={`flex flex-col overflow-hidden gap-1 transition-all duration-300 ${
@@ -21,7 +21,11 @@ export const CompanySideBar = ({
       }`}
     >
       <li className={`px-4 rounded-xl py-2 ${isCompany ? "bg-[#F6F6F6]" : ""}`}>
-        <Link href="/company" className="flex items-center gap-2">
+        <Link
+          onClick={closeSidebar}
+          href="/company"
+          className="flex items-center gap-2"
+        >
           {isCompany ? (
             <InfoCircle size="18" color="#000" />
           ) : (
@@ -45,7 +49,11 @@ export const CompanySideBar = ({
           ${isBrandAssets ? "bg-[#F6F6F6]" : ""}
           `}
       >
-        <Link href="/company/brand-assets" className="flex items-center gap-2">
+        <Link
+          onClick={closeSidebar}
+          href="/company/brand-assets"
+          className="flex items-center gap-2"
+        >
           {isBrandAssets ? (
             <FolderOpen size="18" color="#000" />
           ) : (

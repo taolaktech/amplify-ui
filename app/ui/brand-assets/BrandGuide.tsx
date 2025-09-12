@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useRef } from "react";
 import SelectInput from "../form/SelectInput";
 import PdfIcon from "@/public/pdf.svg";
-import { DocumentDownload } from "iconsax-react";
+import { CloseCircle, DocumentDownload } from "iconsax-react";
 // import Image from "next/image";
 import { Document, Page } from "react-pdf";
 import { options } from "@/app/lib/hooks/useBrandAssets";
@@ -20,9 +20,15 @@ export default function brandGuide({
   brandGuide,
   handleToneChange,
   handleBrandGuideChange,
+  currentBrandGuideName,
+  currentBrandGuide,
+  handleRemoveBrandGuide,
 }: {
   tone: string | null;
   brandGuide: File | null;
+  currentBrandGuide: string | null;
+  currentBrandGuideName: string | null;
+  handleRemoveBrandGuide: () => void;
   handleToneChange: Dispatch<SetStateAction<string | null>>;
   handleBrandGuideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
@@ -40,7 +46,7 @@ export default function brandGuide({
             background="rgba(230, 230, 230, 0.25)"
             borderless
             setSelected={handleToneChange}
-            selected={tone}
+            selected={tone ?? "Friendly"}
             large
           />
         </div>
@@ -48,14 +54,24 @@ export default function brandGuide({
           <p className="text-xs tracking-tight block mb-2">
             Brand Book or Brand Guidelines
           </p>
-          <div style={{ display: brandGuide ? "block" : "none" }}>
+          <div
+            style={{
+              display: brandGuide || currentBrandGuide ? "block" : "none",
+            }}
+          >
             <BrandGuidePreview
-              brandGuide={brandGuide}
+              brandGuide={brandGuide || currentBrandGuide}
+              brandGuideName={brandGuide?.name ?? currentBrandGuideName}
               handleBrandGuideChange={handleBrandGuideChange}
+              handleRemoveBrandGuide={handleRemoveBrandGuide}
             />
           </div>
 
-          <div style={{ display: brandGuide ? "none" : "block" }}>
+          <div
+            style={{
+              display: brandGuide || currentBrandGuide ? "none" : "block",
+            }}
+          >
             <NoBrand handleBrandGuideChange={handleBrandGuideChange} />
           </div>
           <canvas id="pdf-canvas" style={{ display: "none" }}></canvas>
@@ -68,9 +84,13 @@ export default function brandGuide({
 const BrandGuidePreview = ({
   brandGuide,
   handleBrandGuideChange,
+  brandGuideName,
+  handleRemoveBrandGuide,
 }: {
-  brandGuide: File | null;
+  brandGuide: File | string | null;
+  brandGuideName: string | null | undefined;
   handleBrandGuideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleRemoveBrandGuide: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,10 +99,15 @@ const BrandGuidePreview = ({
       inputRef.current.click();
     }
   };
+
+  const removeBrandGuide = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    handleRemoveBrandGuide();
+  };
   return (
     <div
       onClick={handleUploadBtnClick}
-      className="w-full cursor-pointer h-[278px] flex flex-col gap-3 bg-[rgba(230,230,230,0.25)] rounded-[8px] p-4"
+      className="w-full relative cursor-pointer h-[278px] flex flex-col gap-3 bg-[rgba(230,230,230,0.25)] rounded-[8px] p-4"
     >
       <div className="w-full h-[169px] bg-white max-h-[167px] max-w-full overflow-hidden relative">
         {/* <img src={null} id="pdf-thumbnail" alt="" height={200} /> */}
@@ -98,12 +123,13 @@ const BrandGuidePreview = ({
         overflow-hidden text-ellipsis whitespace-nowrap
         "
           >
-            {brandGuide?.name}
+            {brandGuideName || "Brand_Guide.pdf"}
           </div>
         </div>
         <div className="text-sm tracking-100">
-          {brandGuide?.size ? (brandGuide?.size / (1024 * 1024)).toFixed(2) : 0}
-          MB
+          {typeof brandGuide !== "string" && brandGuide?.size
+            ? (brandGuide?.size / (1024 * 1024)).toFixed(2) + " MB"
+            : ""}
         </div>
       </div>
       <input
@@ -113,6 +139,12 @@ const BrandGuidePreview = ({
         accept=".pdf,.doc,.docx,.ppt,.pptx"
         onChange={handleBrandGuideChange}
       />
+      <button
+        className="absolute top-4 right-4 cursor-pointer"
+        onClick={removeBrandGuide}
+      >
+        <CloseCircle size="32" color="#101214" variant="Bold" />
+      </button>
     </div>
   );
 };

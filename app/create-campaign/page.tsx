@@ -30,8 +30,6 @@ export default function AdsLocationPage() {
   );
 
   useEffect(() => {
-    console.log("salesLocation", salesLocationFromStore);
-    console.log("defaultPreferredSalesLocation", defaultPreferredSalesLocation);
     if (salesLocationFromStore.length === 0 || !salesLocationFromStore) {
       setSalesLocation(
         defaultPreferredSalesLocation?.localShippingLocations || []
@@ -57,7 +55,6 @@ export default function AdsLocationPage() {
   const handleProceed = async () => {
     setIsDoneLoading(false);
     if (storeUrl) {
-      console.log("storeUrl", storeUrl);
       await fetchProducts({ location: salesLocation }, true, false);
       setFetchingProgress(100);
       setTimeout(() => {

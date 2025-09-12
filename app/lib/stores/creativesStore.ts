@@ -77,7 +77,6 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
     },
 
     generalUndo: (productId: string) => {
-      console.log("general undo called for productId:", productId);
       const { Google, Instagram, Facebook } = get();
       const allCreatives: Creatives[] = [];
       if (Google?.[productId]) {
@@ -94,11 +93,9 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      console.log("allCreatives", allCreatives);
 
       const lastCreative = allCreatives[0];
       if (!lastCreative) return;
-      console.log("lastCreative to undo", lastCreative);
 
       if (lastCreative.kind === "GOOGLE ADS") {
         if (Google?.[productId] && Google?.[productId]?.length > 1)
@@ -136,7 +133,6 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
           kind: "GOOGLE ADS",
           createdAt: new Date(),
         });
-        console.log("setting:", subGoogle);
         set({ Google: subGoogle });
       } else if (kind === "INSTAGRAM") {
         const subInstagram = Instagram || {};

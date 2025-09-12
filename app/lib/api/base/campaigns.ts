@@ -35,3 +35,59 @@ export default async function getCampaigns(data: {
   });
   return response.data;
 }
+
+type CampaignProductCreative = {
+  channel: string;
+  data: any[]; // URLs or text
+};
+
+export enum CampaignPlatformsTitle {
+  FACEBOOK = "FACEBOOK",
+  INSTAGRAM = "INSTAGRAM",
+  GOOGLE = "GOOGLE",
+}
+
+type CampaignProduct = {
+  shopifyId: string;
+  title: string;
+  price: number;
+  description: string;
+  audience?: string;
+  occasion?: string;
+  features: string[];
+  category: string;
+  imageLink: string;
+  productLink: string;
+  creatives: CampaignProductCreative[];
+};
+
+export type LaunchCampaignPayload = {
+  businessId: string;
+  type: string;
+  platforms: CampaignPlatformsTitle[];
+  brandColor?: string;
+  accentColor?: string;
+  tone: string;
+  startDate: string; // ISO string
+  endDate: string; // ISO string
+  totalBudget: number;
+  products: CampaignProduct[];
+  location: {
+    city: string;
+    state: string;
+    country: string;
+  }[];
+};
+
+export async function launchCampaign(data: {
+  token: string;
+  campaignPayload: LaunchCampaignPayload;
+}) {
+  const { token, campaignPayload } = data;
+  const response = await instance.post(`/campaign`, campaignPayload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}

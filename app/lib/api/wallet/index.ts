@@ -83,7 +83,6 @@ export const getCurrentSubscriptionPlan = async (token: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("response from current subscription plan", response);
   return response.data;
 };
 
@@ -111,6 +110,38 @@ export const removePaymentMethod = async (data: {
     `/stripe/customers/payment-methods/${data.paymentMethodId}`,
     {
       headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+// curl https://dev-wallet.useamplify.ai/wallet/top-up \
+//   --request POST \
+//   --header 'idempotency-key: ' \
+//   --header 'Content-Type: application/json' \
+//   --data '{
+//   "amount": 100,
+//   "paymentMethodId": "pm_1P7kvL2eZvKYlo2C9GvA3B4C"
+// }'
+
+export const topUpWallet = async (data: {
+  token: string;
+  amount: number;
+  idempotencyKey: string;
+  paymentMethodId: string;
+}) => {
+  const response = await axiosInstance.post(
+    "/wallet/top-up",
+    {
+      amount: data.amount,
+      paymentMethodId: data.paymentMethodId,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "idempotency-key": data.idempotencyKey,
         Authorization: `Bearer ${data.token}`,
       },
     }

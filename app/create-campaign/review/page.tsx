@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
 import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
 import { Platform } from "@/type";
+import { useLaunchCampaign } from "@/app/lib/hooks/campaigns";
 
 const countries = {
   usa: "United States",
@@ -46,13 +47,13 @@ export default function ReviewPage() {
     }[]
   >([]);
   const [isLaunchCampaign, setIsLaunchCampaign] = useState(false);
+  const { handleLaunchCampaign, isPending } =
+    useLaunchCampaign(setIsLaunchCampaign);
   const router = useRouter();
   const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
     productSelection.products[0] ?? null
   );
-
-  console.log("productSelection", productSelection);
 
   useEffect(() => {
     setHighlightedProduct(productSelection.products[0]);
@@ -63,8 +64,6 @@ export default function ReviewPage() {
       router.push("/create-campaign/");
     }
   }, []);
-
-  console.log("id:", highlightedProduct.node.id);
 
   const formattedStartDate = format(
     parseISO(campaignSnapshots.campaignStartDate || new Date().toISOString()),
@@ -156,7 +155,7 @@ export default function ReviewPage() {
 
         <section>
           <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
-            <h3 className="text-heading text-lg font-medium ">Summary</h3>
+            <h3 className="text-heading md:text-lg font-medium ">Summary</h3>
             <Link
               href="/create-campaign"
               className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
@@ -168,7 +167,9 @@ export default function ReviewPage() {
             </Link>
           </div>
           <div className="mt-8">
-            <p className="tracking-200 text-[#595959]">Campaign Location</p>
+            <p className="tracking-200 text-sm md:text-base text-[#595959]">
+              Campaign Location
+            </p>
             <div className="mt-2 flex gap-6 items-center">
               {getLocationCountries().map((country, index) => (
                 <div
@@ -206,7 +207,9 @@ export default function ReviewPage() {
             ))}
           </div>
           <div className="mt-5">
-            <p className="tracking-200 text-[#595959]">Ad Platforms</p>
+            <p className="tracking-200 text-sm md:text-base text-[#595959]">
+              Ad Platforms
+            </p>
 
             <div className="mt-2 mb-1 flex gap-8 items-center">
               {adPlatforms.map((platform) => (
@@ -235,7 +238,7 @@ export default function ReviewPage() {
         </section>
         <section>
           <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
-            <h3 className="text-heading text-lg font-medium ">Ad Preview</h3>
+            <h3 className="text-heading md:text-lg font-medium ">Ad Preview</h3>
             <Link
               href={"/create-campaign/campaign-snapshots"}
               className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
@@ -302,7 +305,9 @@ export default function ReviewPage() {
 
         <section className="mt-14">
           <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
-            <h3 className="text-heading text-lg font-medium ">Campaign Fund</h3>
+            <h3 className="text-heading md:text-lg font-medium ">
+              Campaign Fund
+            </h3>
             <Link
               href={"/create-campaign/fund-campaign"}
               className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
@@ -351,8 +356,9 @@ export default function ReviewPage() {
         <div className="mt-5 md:mt-20 sm:max-w-[242px] mx-auto">
           <Button
             text="Launch Campaign"
-            action={() => setIsLaunchCampaign(true)}
+            action={handleLaunchCampaign}
             hasIconOrLoader
+            loading={isPending}
             icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
             iconPosition="right"
             iconSize={16}

@@ -20,7 +20,8 @@ function ProductSelection() {
         <div>
           <h1 className="text-xl tracking-40 font-medium md:text-2xl md:font-bold text-heading md:tracking-800">
             <span className="num">2. </span>
-            <span>Select Products for Your Campaign</span>
+            {/* <span>Select Products for Your Campaign</span> */}
+            <span>Select a Product for Your Campaign</span>
           </h1>
           <p className="mt-[0.38rem] text-neutral-light tracking-40 text-xs md:text-sm">
             Amplify AI has fetched your products from Shopify. Select the ones

@@ -73,6 +73,7 @@ export default function ForgotPassword() {
                     text="Send Reset Link"
                     loading={forgotPasswordMutation.isPending}
                     hasIconOrLoader
+                    disabled={forgotPasswordMutation.isPending}
                   />
                 </div>
               </form>

@@ -25,9 +25,7 @@ function SetupSideBar() {
   const onboarding = searchParams.get("onboarding");
 
   const isCompleted = onboarding === "success" && isOnboardingCompleted;
-  console.log("onboarding", onboarding);
   const pathname = usePathname().trim().replace(/\/$/, "");
-  console.log("isOnboardingCompleted", isCompleted);
 
   useEffect(() => {
     return () => {

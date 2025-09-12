@@ -4,7 +4,6 @@ function useLocalSalesLocation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [salesLocation, setSalesLocation] = useState<string[]>([]);
   const toggleSalesLocation = (location: string) => {
-    console.log("location", location);
     const isSelected = salesLocation.some((item) => item === location);
     if (isSelected) {
       setSalesLocation((prev) => prev.filter((item) => item !== location));

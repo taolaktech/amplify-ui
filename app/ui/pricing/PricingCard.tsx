@@ -34,7 +34,6 @@ function PricingCard({
     : 0;
 
   const handlePlanSelection = () => {
-    console.log("handlePlanSelection", plan);
     if (isCurrentPlan) {
       if (isDashboard) return;
       router.push("/create-Campaign");
@@ -46,10 +45,8 @@ function PricingCard({
     );
   };
   const changePlan = (plan: Plan) => {
-    console.log("changePlan", plan);
     if (isCurrentPlan) {
       if (isDashboard) return;
-      console.log("pushing to create-campaign");
       router.push("/create-campaign");
       return;
     }

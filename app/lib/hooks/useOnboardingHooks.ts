@@ -31,9 +31,7 @@ export const useLinkShopify = (
     mutationFn: handleShopifyAuth,
     onSuccess: (data) => {
       storeConnectStore({ storeUrl });
-      console.log("Shopify store linked successfully:", data);
       if (data.url) {
-        console.log("Redirecting to Shopify auth URL:", data.url);
         window.location.href = data.url;
       } else {
       }
@@ -92,9 +90,7 @@ export const useRetrieveStoreDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [retrieveStoreDetailsData, setRetrieveStoreDetailsData] =
     useState<any>(null);
-  const [shouldFetchData, setShouldFetchData] = useState(false);
-
-  console.log(shouldFetchData);
+  const [, setShouldFetchData] = useState(false);
 
   // const retrieveStoreDetails = useQuery({
   //   queryKey: ["storeDetails"],
@@ -121,9 +117,6 @@ export const useRetrieveStoreDetails = () => {
     }
   };
 
-  console.log("retrieve details data:", retrieveStoreDetailsData);
-  console.log("Store Details Data:", retrieveStoreDetailsData);
-
   useEffect(() => {
     if (!retrieveStoreDetailsData) return;
     const {
@@ -136,7 +129,6 @@ export const useRetrieveStoreDetails = () => {
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
     } = retrieveStoreDetailsData;
-    console.log("Store Details Data:", retrieveStoreDetailsData);
     storeBusinessDetails({
       storeName: companyName,
       description,
@@ -167,6 +159,8 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
   const token = useAuthStore((state) => state.token);
   const router = useRouter();
   const setToast = useToastStore((state) => state.setToast);
+  const [companyRoleError, setCompanyRoleError] = useState(false);
+  const [productCategoryError, setProductCategoryError] = useState(false);
 
   const [businessDetails, setBusinessDetails] = useState(null);
   const businessDetailsStore = useSetupStore((state) => state.businessDetails);
@@ -179,10 +173,9 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
   );
   const submitBusinessDetailsMutation = useMutation({
     mutationFn: handlePostBusinessDetails,
-    onSuccess: (data) => {
+    onSuccess: () => {
       if (businessDetails) storeBusinessDetails(businessDetails);
       completeBusinessDetails(true);
-      console.log("Business details submitted successfully:", data);
       if (!isStoreDetails) router.push("/setup/preferred-sales-location");
       else
         setToast({
@@ -198,8 +191,18 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
 
   const handleSubmitBusinessDetails = (data: any) => {
     if (!token) return;
-    console.log("data", data);
-    console.log("businessDetailsStore", businessDetailsStore);
+    if (!data.companyRole) {
+      setCompanyRoleError(true);
+      return;
+    } else {
+      setCompanyRoleError(false);
+    }
+    if (!data.industry) {
+      setProductCategoryError(true);
+      return;
+    } else {
+      setProductCategoryError(false);
+    }
 
     const normalizedNewData = {
       storeName: data.storeName,
@@ -216,7 +219,6 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
     if (
       JSON.stringify(normalizedNewData) === JSON.stringify(businessDetailsStore)
     ) {
-      console.log("equal");
       completeBusinessDetails(true);
       router.push("/setup/preferred-sales-location");
       return;
@@ -237,7 +239,14 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
     submitBusinessDetailsMutation.mutate({ businessDetails, token });
   };
 
-  return { submitBusinessDetailsMutation, handleSubmitBusinessDetails };
+  return {
+    submitBusinessDetailsMutation,
+    handleSubmitBusinessDetails,
+    companyRoleError,
+    setCompanyRoleError,
+    productCategoryError,
+    setProductCategoryError,
+  };
 };
 
 export const useGetPlaces = () => {
@@ -247,7 +256,6 @@ export const useGetPlaces = () => {
   const getCitiesMutation = useMutation({
     mutationFn: handleGetCities,
     onSuccess: (data) => {
-      console.log("Cities fetched successfully:", data);
       setCitiesData(data);
     },
     onError: (error: any) => {
@@ -285,13 +293,11 @@ export const useSubmitPreferredLocation = () => {
 
   const submitPreferredLocationMutation = useMutation({
     mutationFn: postPreferredSalesLocation,
-    onSuccess: (data) => {
-      console.log("post preferred location data:", data);
+    onSuccess: () => {
       storePreferredSalesLocation({
         ...preferredSalesLocation,
         complete: true,
       });
-      console.log("Preferred location submitted successfully:", data);
       router.push("/setup/marketing-goals");
     },
     onError: (error: any) => {
@@ -310,13 +316,6 @@ export const useSubmitPreferredLocation = () => {
       internationalShippingLocations: data.internationalShippingLocations,
       complete: true,
     };
-
-    console.log("Comparing preferred locations:");
-    console.log("New data:", JSON.stringify(normalizedNewData, null, 2));
-    console.log(
-      "Store data:",
-      JSON.stringify(preferredSalesLocationFromStore, null, 2)
-    );
 
     if (
       JSON.stringify(normalizedNewData) ===
@@ -368,13 +367,12 @@ export const useSubmitBusinessGoals = () => {
 
   const submitMarketingGoalsMutation = useMutation({
     mutationFn: postMarketingGoals,
-    onSuccess: (data) => {
+    onSuccess: () => {
       if (!marketingGoals) return;
       storeMarketingGoals({
         ...marketingGoals,
         complete: true,
       });
-      console.log("Maketing Goals submitted successfully:", data);
       setOnboardingCompleted(true);
       router.push("/setup?onboarding=success");
     },
@@ -396,13 +394,6 @@ export const useSubmitBusinessGoals = () => {
       boostRepeatPurchases: data.boostRepeatPurchases,
       complete: true,
     };
-
-    console.log("Comparing marketing goals:");
-    console.log("New data:", JSON.stringify(normalizedNewData, null, 2));
-    console.log(
-      "Store data:",
-      JSON.stringify(marketingGoalsFromStore, null, 2)
-    );
 
     if (
       JSON.stringify(normalizedNewData) ===

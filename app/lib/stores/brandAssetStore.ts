@@ -9,10 +9,12 @@ type BrandAssetStore = {
   primaryFont: string | null;
   secondaryFont: string | null;
   brandGuide: string | null;
+  brandGuideName: string | null;
   actions: {
     setBrandAssets: (assets: Partial<BrandAssetStore>) => void;
     setPrimaryLogo: (logo: string | null) => void;
     setSecondaryLogo: (logo: string | null) => void;
+    setBrandGuideName: (name: string | null) => void;
     setPrimaryColor: (color: string) => void;
     setSecondaryColor: (color: string) => void;
     setToneOfVoice: (tone: string | null) => void;
@@ -31,9 +33,11 @@ const useBrandAssetStore = create<BrandAssetStore>((set) => ({
   primaryFont: null,
   secondaryFont: null,
   brandGuide: null,
+  brandGuideName: null,
   actions: {
     setBrandAssets: (assets: Partial<BrandAssetStore>) =>
       set((state) => ({ ...state, ...assets })),
+    setBrandGuideName: (name: string | null) => set({ brandGuideName: name }),
     setPrimaryLogo: (logo: string | null) => set({ primaryLogo: logo }),
     setSecondaryLogo: (logo: string | null) => set({ secondaryLogo: logo }),
     setPrimaryColor: (color: string) => set({ primaryColor: color }),

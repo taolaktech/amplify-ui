@@ -27,6 +27,7 @@ import Feedback from "../Feedback";
 import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
+import useUIStore from "@/app/lib/stores/uiStore";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -72,6 +73,12 @@ export default function MobileSideBar({
   // const router = useRouter();
   useModal(isSidebarOpen);
 
+  const { setSidebarOpen } = useUIStore((state) => state.actions);
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="xl:hidden">
       <div
@@ -86,7 +93,11 @@ export default function MobileSideBar({
         } top-0 fixed h-screen flex flex-col z-20 transition-all duration-500`}
       >
         <div className={`flex items-center justify-between h-[81px] px-5 py-7`}>
-          <Link href="/" className="flex items-center gap-2">
+          <Link
+            onClick={closeSidebar}
+            href="/"
+            className="flex items-center gap-2"
+          >
             <Image
               src={"/dashboard-logo.svg"}
               alt="logo"
@@ -119,6 +130,7 @@ export default function MobileSideBar({
             <li>
               <Link
                 href="/"
+                onClick={closeSidebar}
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
                  h-[48px] cursor-pointer ${
                    isDashboard ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -147,6 +159,7 @@ export default function MobileSideBar({
             </li>
             <li>
               <Link
+                onClick={closeSidebar}
                 href="/campaigns"
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
@@ -203,6 +216,7 @@ export default function MobileSideBar({
               </span>
               <CompanySideBar
                 on={isCompanyTabOpen}
+                closeSidebar={closeSidebar}
                 // setOn={toggleIsCompanyTabOpen}
                 isSidebarOpen={isSidebarOpen}
                 isBrandAssets={isBrandAssets}
@@ -247,6 +261,7 @@ export default function MobileSideBar({
               <SettingsSideBar
                 on={isSettingTabOpen}
                 // setOn={toggleIsSettingTabOpen}
+                closeSidebar={closeSidebar}
                 isSidebarOpen={isSidebarOpen}
                 isIntegrations={isIntegrations}
                 isPricing={isPricing}

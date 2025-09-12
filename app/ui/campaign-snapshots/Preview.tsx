@@ -1,5 +1,6 @@
 // import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Image as ImageIcon } from "iconsax-react";
 import { ArrowForward, Magicpen } from "iconsax-react";
 import GradientCheckbox from "../form/GradientCheckbox2";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
@@ -38,7 +39,6 @@ const Preview = ({
 
   // const { generateCreatives, loading } = useGenerateCreatives();
 
-  console.log("adPlatforms", adPlatforms);
   const { toggleFacebookSettings, toggleInstagramSettings } =
     useCreateCampaignStore((state) => state.actions);
 
@@ -154,8 +154,6 @@ const PreviewContainer = ({ item }: { item: any }) => {
 
   // const width = 350;
 
-  console.log("PreviewContainer item", item);
-
   // const scrollBy = (offset: number) => {
   //   console.log("called");
   //   if (containerRef.current) {
@@ -173,7 +171,7 @@ const PreviewContainer = ({ item }: { item: any }) => {
       {creativesAvailable ? (
         <>
           {item.title === "Google" && (
-            <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[600px] items-center justify-center">
+            <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
               <GoogleAdsCreatives
                 creatives={item.creatives[lastIndex].creatives}
               />
@@ -210,8 +208,11 @@ const PreviewContainer = ({ item }: { item: any }) => {
           )}
         </>
       ) : (
-        <div className="flex items-center justify-center h-[600px]">
-          <p className="text-neutral-ligh font-medium">Generate Creatives</p>
+        <div className="flex items-center justify-center h-[518px] md:h-[600px]">
+          <div className="flex flex-col gap-1 items-center">
+            <ImageIcon size="48" color="#DADADA" variant="Bold" />
+            <p className="text-sm text-[#BFBFBF] font-medium">No Preview</p>
+          </div>
         </div>
       )}
     </div>

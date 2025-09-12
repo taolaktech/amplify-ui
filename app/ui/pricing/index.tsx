@@ -16,7 +16,6 @@ export default function Pricing({
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
-  console.log("currentPlan", currentPlan);
   const currentPlan2 = currentPlan ?? {
     name: "Free",
     cycle: "monthly" as Cycle,

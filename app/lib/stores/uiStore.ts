@@ -30,7 +30,7 @@ type UIStore = {
     setOnboardingCompleted: (completed: boolean) => void;
     setSubscriptionSuccess: (success: boolean) => void;
   };
-}
+};
 
 // use window.innerWidth (or document.documentElement.clientWidth) …
 // guard with typeof window so it doesn’t blow up during SSR
@@ -69,11 +69,10 @@ const useUIStore = create<UIStore>((set) => ({
         hasPreviousPage: hasPreviousPage,
         currentPage: currentPage,
       })),
-      setProgressStep: (current, total = 6) =>
-        set({ currentProgressStep: current, totalProgressStep: total }),
+    setProgressStep: (current, total = 6) =>
+      set({ currentProgressStep: current, totalProgressStep: total }),
     setSidebarOpen: (open) => set({ isSidebarOpen: open }),
     toggleSidebar: () => {
-      console.log("toggleSidebar");
       set((state) => ({ isSidebarOpen: !state.isSidebarOpen }));
     },
     setOnboardingCompleted: (completed) =>
