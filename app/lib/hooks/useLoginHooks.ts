@@ -26,17 +26,17 @@ import useBrandAssetStore from "../stores/brandAssetStore";
 export const useInitialize = () => {
   // const token = useAuthStore((state) => state.token);
   // console.log("token", token);
-  console.log("useInitialize");
   const [loading, setLoading] = useState(false);
   const { setShopifyStoreConnected } = useIntegrationStore(
     (state) => state.actions
   );
   const reset = useSetupStore((state) => state.reset);
-  const businessDetails = useSetupStore((state) => state.businessDetails);
+  // const businessDetails = useSetupStore((state) => state.businessDetails);
   const {
     setPrimaryColor,
     setPrimaryFont,
     // setBrandAssets,
+    setBrandGuideName,
     setBrandGuide,
     setPrimaryLogo,
     setToneOfVoice,
@@ -59,7 +59,6 @@ export const useInitialize = () => {
     // tun this to async
     if (token) {
       const response = await handleGetMe(token);
-      console.log("User data:", response.onboarding);
       if (!response.onboarding) return false;
       completeConnectStore(response.onboarding?.shopifyAccountConnected);
       completeBusinessDetails(
@@ -77,24 +76,21 @@ export const useInitialize = () => {
   async function handleGetBrandAssets(token: string) {
     if (!token) return;
     const response = await getBrandAssets({ token });
-    console.log("Brand assets data:", response);
     const data = response.data;
-    if (data.primaryLogo) setPrimaryLogo(data.primaryLogo);
-    if (data.secondaryLogo) setSecondaryLogo(data.secondaryLogo);
+    if (data.primaryLogoUrl) setPrimaryLogo(data.primaryLogoUrl);
+    if (data.secondaryLogoUrl) setSecondaryLogo(data.secondaryLogoUrl);
     if (data.primaryColor) setPrimaryColor(data.primaryColor);
     if (data.secondaryColor) setSecondaryColor(data.secondaryColor);
     if (data.toneOfVoice) setToneOfVoice(data.toneOfVoice);
     if (data.primaryFont) setPrimaryFont(data.primaryFont);
     if (data.secondaryFont) setSecondaryFont(data.secondaryFont);
-    if (data.brandGuide) setBrandGuide(data.brandGuide);
+    if (data.brandGuideUrl) setBrandGuide(data.brandGuideUrl);
+    if (data.brandGuideName) setBrandGuideName(data.brandGuideName);
   }
 
   async function getShopifyAccount(token: string, isConnected: boolean) {
-    console.log("useEffect triggered with token:", token);
-    console.log("connectStore.complete:", isConnected);
     if (token && isConnected) {
       const response = await handleGetShopifyAccount(token);
-      console.log("Shopify account data:", response);
       if (!response.account.shop) {
         console.error("No Shopify account found");
         storeConnectStore({
@@ -115,13 +111,10 @@ export const useInitialize = () => {
   }
 
   async function getStoreDetails(token: string, isConnected: boolean) {
-    console.log("businessDetails.complete:", businessDetails.complete);
-    console.log("token", token);
     if (!isConnected || !token) {
       return;
     }
     const response = await handleRetrieveStoreDetails(token);
-    console.log("Store details response:", response);
     if (!response.business || !response.business.shopifyAccounts.length) {
       console.error("No business details found");
       completeBusinessDetails(false);
@@ -133,7 +126,6 @@ export const useInitialize = () => {
       completeBusinessDetails(false);
       return;
     }
-    console.log("Retrieved store details:", details);
     const {
       companyName,
       description,
@@ -147,8 +139,8 @@ export const useInitialize = () => {
       estimatedMonthlyBudget,
       estimatedAnnualRevenue,
     } = details;
-    console.log("Store Details Data:", details);
     storeBusinessDetails({
+      id: details._id,
       storeLogo: logo ?? null,
       storeName: companyName,
       description,
@@ -163,7 +155,6 @@ export const useInitialize = () => {
     });
 
     if (details.shippingLocations) {
-      console.log("Shipping details found:", details.shippingLocations);
       storePreferredSalesLocation({
         localShippingLocations:
           details.shippingLocations.localShippingLocations.map(
@@ -183,7 +174,6 @@ export const useInitialize = () => {
     }
 
     if (details.businessGoals) {
-      console.log("Business goals found:", details.businessGoals);
       storeMarketingGoals({
         brandAwareness: details.businessGoals.brandAwareness,
         acquireNewCustomers: details.businessGoals.acquireNewCustomers,
@@ -363,9 +353,8 @@ export const useResetPassword = (
 ) => {
   const resetPasswordMutation = useMutation({
     mutationFn: handleResetPassword,
-    onSuccess: (response: AxiosResponse<any, any>) => {
+    onSuccess: () => {
       setPasswordChangeSuccessful(true);
-      console.log("Password reset successful:", response);
     },
     onError: (error: any) => {
       if (error.response.data.message === "E_INVALID_TOKEN") {

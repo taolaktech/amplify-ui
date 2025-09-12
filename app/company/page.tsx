@@ -30,7 +30,9 @@ export default function StoreDetails() {
     preview,
     handleFileChange,
     setCompanyRole,
+    setCompanyRoleError,
     storeLogo,
+    companyRoleError,
     submitBusinessDetailsMutation,
   } = useBusinessDetails(true);
 
@@ -41,8 +43,6 @@ export default function StoreDetails() {
       fileInputRef.current.click();
     }
   };
-
-  console.log("storeLogo:", storeLogo);
 
   return (
     <div>
@@ -235,11 +235,12 @@ export default function StoreDetails() {
               "Agency",
             ]}
             borderless
+            background="rgba(230, 230, 230, 0.25)"
             setSelected={setCompanyRole}
             selected={companyRole}
             large
-            setError={() => {}}
-            error={errors.companyRole?.message}
+            setError={() => setCompanyRoleError(false)}
+            error={companyRoleError ? "Choose your company role" : undefined}
           />
         </div>
         {/* <div className="w-full">

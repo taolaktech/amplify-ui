@@ -48,7 +48,11 @@ const SupportedAdPlatforms = () => {
     supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
+    // actions.completeAdsPlatform();
     initialGeneration();
+
+    // router.push("/create-campaign/campaign-snapshots");
+
     // setTimeout(() => {
     //   if (canProceed) {
     //     actions.completeAdsPlatform();

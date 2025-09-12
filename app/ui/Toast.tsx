@@ -61,7 +61,7 @@ export default function Toast() {
 
   return (
     <div
-      className={`p-4 rounded-xl flex translate-x-1/2  md:translate-x-0 justify-between items-start gap-3 fixed z-50 top-5 transition-all duration-500 ease-in-out ${
+      className={`p-4 rounded-xl flex translate-x-1/2  md:translate-x-0 justify-between items-start gap-3 fixed z-[1000] top-5 transition-all duration-500 ease-in-out ${
         active
           ? "right-[50%] md:right-[24px]"
           : "top-[-1000px] md:top-5 right-[50%] md:-right-full"

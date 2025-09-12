@@ -250,3 +250,30 @@ export const updateStoreLogo = async (data: {
 
   return response.data;
 };
+
+export enum TargetROASPlatform {
+  FACEBOOK = "facebook",
+  GOOGLE = "googleSearch",
+  INSTAGRAM = "instagram",
+}
+
+export async function getTargetROAS(data: {
+  token: string;
+  budget: number;
+  platforms: TargetROASPlatform[];
+}) {
+  const response = await axios.post(
+    "/business/calculate-target-roas",
+    {
+      budget: data.budget,
+      platforms: data.platforms,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+
+  return response.data;
+}

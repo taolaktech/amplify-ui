@@ -20,8 +20,7 @@ export default function Products() {
   const { actions, productSelection } = useCreateCampaignStore(
     (state) => state
   );
-  const [pageCount, setPageCount] = useState(1);
-  console.log(pageCount);
+  const [, setPageCount] = useState(1);
 
   useEffect(() => {
     setPageCount(Math.ceil(productCount / 12));
@@ -59,7 +58,8 @@ export default function Products() {
       if (prev.find((p) => p.node.id === id)) {
         return prev.filter((p) => p.node.id !== id);
       }
-      return [...prev, product];
+      // return [...prev, product];
+      return [product];
     });
   };
 

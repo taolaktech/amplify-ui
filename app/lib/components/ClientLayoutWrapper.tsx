@@ -8,7 +8,6 @@ import Navbar from "@/app/ui/Navbar";
 import AuthBlock from "./AuthBlock";
 import SplashScreen from "@/app/ui/loaders/SplashScreen";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import useRefreshInitialize from "../hooks/useRefreshInitialize";
 import { useDashboardPath } from "../hooks/useDashboardPath";
 import DashboardSideBar from "@/app/ui/DashboardSidebar";
@@ -29,8 +28,6 @@ export default function ClientLayoutWrapper({
 
   const inDashboard = allPaths.some((path) => path);
 
-  console.log("inDashboard: ", inDashboard);
-
   const { loading } = useRefreshInitialize();
   const onIdle = () => {
     if (isAuth) {
@@ -43,13 +40,6 @@ export default function ClientLayoutWrapper({
     onIdle,
     debounce: 500,
   });
-
-  useEffect(() => {
-    const defaultSidebarOpen =
-      typeof window !== "undefined" ? window.innerWidth > 1280 : false;
-
-    console.log("defaultSidebarOpen: ", defaultSidebarOpen);
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

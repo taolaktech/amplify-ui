@@ -122,6 +122,7 @@ export default function Login() {
                 action={handleLoginButtonPressed}
                 loading={emailLoginMutation.isPending || emailLoading}
                 hasIconOrLoader
+                disabled={emailLoginMutation.isPending || emailLoading}
               />
             </div>
             <div className="text-center text-[#BFBFBF] mt-3 text-sm">
@@ -134,6 +135,7 @@ export default function Login() {
               action={googleLoginMutation.mutate}
               loading={googleLoginMutation.isPending || googleLoading}
               hasIconOrLoader
+              disabled={googleLoginMutation.isPending || googleLoading}
             />
 
             <div className="mt-3">

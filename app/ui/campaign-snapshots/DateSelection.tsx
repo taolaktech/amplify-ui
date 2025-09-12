@@ -8,6 +8,7 @@ export default function DateSelection({
   setStartDate: (date: Date) => void;
   setEndDate: (date: Date) => void;
 }) {
+  const tomorrow = dayjs().add(1, "day");
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-12 mt-5 w-full">
       {/* Start Date */}
@@ -20,7 +21,8 @@ export default function DateSelection({
               height: "48px",
             }}
             format="MMMM D YYYY"
-            defaultValue={dayjs()}
+            minDate={tomorrow}
+            defaultValue={tomorrow}
             onChange={(date) =>
               setStartDate(date ? date?.toDate() : new Date())
             }

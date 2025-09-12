@@ -19,8 +19,6 @@ const Product = ({
 
   const imgURL = productNode?.media?.edges[0]?.node?.preview?.image?.url;
   const hasLength = imgURL?.trim()?.length > 0;
-  console.log("Image Loaded:", imgLoaded);
-  console.log("Image URL:", imgURL);
   const showImgLoader = !hasLength || imgError || !imgLoaded;
 
   return (
@@ -97,9 +95,11 @@ const Product = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center  md:hidden pr-1">
-        <CheckBox checked={checked} />
-      </div>
+      {!isReview && (
+        <div className="flex items-center  md:hidden pr-1">
+          <CheckBox checked={checked} />
+        </div>
+      )}
     </div>
   );
 };

@@ -29,7 +29,6 @@ export default function CustomerCards({
   const [removedPaymentMethodsId, setRemovedPaymentMethodsId] = useState<
     string[]
   >([]);
-  console.log("customerPaymentMethods", customerPaymentMethods);
   console.log("isLoading", isLoading);
 
   const { handleRemovePaymentMethod } = useStripeCustomerActions();

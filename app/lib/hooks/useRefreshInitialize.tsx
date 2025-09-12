@@ -8,18 +8,14 @@ export default function useRefreshInitialize() {
     useInitialize();
   const token = useAuthStore((state) => state.token);
   const [loading, setLoading] = useState(true);
-  console.log("loading", loading);
   const { fetchCampaigns } = useGetCampaigns();
 
   const refreshInitialize = async () => {
-    console.log("refreshInitialize");
     if (!token) {
       setLoading(false);
       return;
     }
-    console.log("token", token);
     const isConnected = await getMe(token);
-    console.log("isConnected", isConnected);
     await Promise.all([
       getShopifyAccount(token, isConnected),
       getStoreDetails(token, isConnected),
@@ -27,7 +23,6 @@ export default function useRefreshInitialize() {
       handleGetBrandAssets(token),
     ]);
     setLoading(false);
-    console.log("Initialization complete");
   };
 
   useEffect(() => {

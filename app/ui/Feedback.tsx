@@ -224,7 +224,6 @@ export default function Feedback({
   };
 
   const handleClose = () => {
-    console.log("close");
     setIsOpen(false);
   };
 

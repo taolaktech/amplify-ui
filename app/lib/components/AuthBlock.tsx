@@ -27,7 +27,6 @@ export default function AuthBlock({
 
   useEffect(() => {
     setIsMounted(true);
-    console.log("loginDate", loginDate);
     if (!rememberMe && loginDate) {
       const loginDateObj = new Date(loginDate);
       const timeDiff = Date.now() - loginDateObj?.getTime();

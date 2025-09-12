@@ -23,7 +23,6 @@ export default function CheckoutPage() {
 
   const { data: currentPlanDetails } = useGetCurrentSubscriptionPlan();
   const currentPlanId = currentPlanDetails?.data?.activeStripePriceId;
-  console.log("currentPlanDetails", currentPlanId);
 
   // const router = useRouter();
   const planId = searchParams.get("planId");
@@ -32,7 +31,6 @@ export default function CheckoutPage() {
   const isAddCardPage = searchParams.get("isAddCardPage");
 
   const plan = plans[planId as keyof typeof plans];
-  console.log("planId", planId);
 
   const billingCyclePlan =
     billingCycles[billingCycle as keyof typeof billingCycles];

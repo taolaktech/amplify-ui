@@ -9,16 +9,13 @@ import { TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
 // import { useInitialize } from "@/app/lib/hooks/useLoginHooks";
 // import { useEffect, useState } from "react";
-import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function BrandAssetsPage() {
   const {
     primaryLogoPreview,
     primaryLogoHandleFileChange,
-    primaryLogoReset,
     secondaryLogoPreview,
     secondaryLogoHandleFileChange,
-    secondaryLogoReset,
     primaryColor,
     secondaryColor,
     handleFontChange,
@@ -30,10 +27,16 @@ export default function BrandAssetsPage() {
     secondaryFont,
     toneOfVoice,
     brandGuide,
+    currentBrandGuide,
+    handleRemoveBrandGuide,
     setToneOfVoice,
+    currentBrandGuideName,
+    currentPrimaryLogo,
+    currentSecondaryLogo,
     handleBrandGuideChange,
+    handlePrimaryLogoRemove,
+    handleSecondaryLogoRemove,
   } = useBrandAssets();
-  const token = useAuthStore((state) => state.token);
   // const { handleGetBrandAssets } = useInitialize();
   // const [loading, setLoading] = useState(false);
 
@@ -42,7 +45,6 @@ export default function BrandAssetsPage() {
   //   setLoading(true);
   //   handleGetBrandAssets(token).finally(() => setLoading(false));
   // }, [token]);
-  console.log("brand assets page rendered", token);
 
   // if (loading) return <div>Loading...</div>;
 
@@ -59,10 +61,12 @@ export default function BrandAssetsPage() {
         <Logo
           primaryLogoPreview={primaryLogoPreview}
           primaryLogoHandleFileChange={primaryLogoHandleFileChange}
-          primaryLogoReset={primaryLogoReset}
+          primaryLogoReset={handlePrimaryLogoRemove}
           secondaryLogoPreview={secondaryLogoPreview}
           secondaryLogoHandleFileChange={secondaryLogoHandleFileChange}
-          secondaryLogoReset={secondaryLogoReset}
+          secondaryLogoReset={handleSecondaryLogoRemove}
+          currentPrimaryLogo={currentPrimaryLogo}
+          currentSecondaryLogo={currentSecondaryLogo}
         />
       </div>
       <div className="mt-12">
@@ -83,6 +87,9 @@ export default function BrandAssetsPage() {
       <div className="mt-12">
         <BrandGuide
           tone={toneOfVoice}
+          currentBrandGuide={currentBrandGuide}
+          currentBrandGuideName={currentBrandGuideName}
+          handleRemoveBrandGuide={handleRemoveBrandGuide}
           brandGuide={brandGuide}
           handleToneChange={setToneOfVoice}
           handleBrandGuideChange={handleBrandGuideChange}
