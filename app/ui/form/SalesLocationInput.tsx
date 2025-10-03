@@ -31,7 +31,7 @@ const SalesLocationInput = ({
   // Debounce callback
   const debounced = useDebouncedCallback((value) => {
     handleGetPlaces(value);
-  }, 1000);
+  }, 500);
 
   const handleSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

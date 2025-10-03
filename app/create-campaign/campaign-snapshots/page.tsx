@@ -17,6 +17,7 @@ import { Platform, ShopifyProduct } from "@/type";
 import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGeneration";
+import Input from "@/app/ui/form/Input";
 
 const ProductContainer = ({
   products,
@@ -212,16 +213,26 @@ export default function CampaignSnapshotsPage() {
     brandColor: "#000000",
     accentColor: "#FFFFFF",
     campaignDescription: "",
-    campaignStartDate: new Date(),
+    campaignStartDate: new Date(new Date().setDate(new Date().getDate() + 1)),
     campaignEndDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
   });
+  const [error, setError] = useState(false);
 
   const handleCampaignDetails = (key: string, value: string) => {
     setCampaignDetails((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleProceed = () => {
+    if (campaignDetails.campaignName.trim() === "") {
+      setError(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    } else {
+      setError(false);
+    }
+    console.log("Proceed to next step", campaignDetails);
     actions.storeCampaignSnapshots({
+      campaignName: campaignDetails.campaignName,
       campaignType: campaignDetails.campaignType,
       brandColor: campaignDetails.brandColor,
       accentColor: campaignDetails.accentColor,
@@ -288,7 +299,30 @@ export default function CampaignSnapshotsPage() {
           highlightedProductId={highlightedProduct?.node.id || "1"}
           setHighlightedProduct={setHighlightedProduct}
         />
-        <div className="mt-6 flex flex-col md:flex-row gap-4 md:gap-14">
+        <div className="mt-6">
+          <Input
+            type="text"
+            label="Campaign Name"
+            name="campaignName"
+            placeholder="My Campaign"
+            large
+            onBlur={() => {
+              console.log("onBlur");
+              setError(false);
+            }}
+            error={error ? "Campaign name is required" : ""}
+            value={campaignDetails.campaignName}
+            onChange={(e) =>
+              handleCampaignDetails("campaignName", e.target.value)
+            }
+          />
+          {error && (
+            <div className="text-[#BE343B] text-xs mt-1">
+              Campaign name is required
+            </div>
+          )}
+        </div>
+        <div className="mt-5 flex flex-col md:flex-row gap-4 md:gap-14">
           <div className="flex-1">
             <div className="w-full">
               <CampaignTypeInput

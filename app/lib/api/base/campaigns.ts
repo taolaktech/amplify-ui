@@ -6,6 +6,7 @@ import {
 } from "../../stores/campaignsStore";
 
 import axios from "axios";
+import { topUpWallet } from "../wallet";
 
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
@@ -64,6 +65,7 @@ type CampaignProduct = {
 export type LaunchCampaignPayload = {
   businessId: string;
   type: string;
+  name: string;
   platforms: CampaignPlatformsTitle[];
   brandColor?: string;
   accentColor?: string;
@@ -82,8 +84,18 @@ export type LaunchCampaignPayload = {
 export async function launchCampaign(data: {
   token: string;
   campaignPayload: LaunchCampaignPayload;
+  amount: number;
+  paymentMethodId: string;
+  idempotencyKey: string;
 }) {
-  const { token, campaignPayload } = data;
+  const { token, campaignPayload, idempotencyKey } = data;
+
+  await topUpWallet({
+    token,
+    amount: data.amount,
+    paymentMethodId: data.paymentMethodId,
+    idempotencyKey,
+  });
   const response = await instance.post(`/campaign`, campaignPayload, {
     headers: {
       Authorization: `Bearer ${token}`,

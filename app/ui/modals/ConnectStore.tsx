@@ -9,7 +9,7 @@ import {
   useLinkShopify,
   useRetrieveStoreDetails,
 } from "@/app/lib/hooks/useOnboardingHooks";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useModal } from "@/app/lib/hooks/useModal";
 
 function ConnectStore({
@@ -26,7 +26,8 @@ function ConnectStore({
   const completeConnectStore = useSetupStore(
     (state) => state.completeConnectStore
   );
-
+  const isRouteToCampaigns =
+    useSearchParams().get("redirect") === "create-campaign";
   const storeUrl = useSetupStore((state) => state.connectStore.storeUrl);
   const [errorMsg, setErrorMsg] = useState("");
   const retrieveStoreDetails = useRetrieveStoreDetails();
@@ -60,6 +61,10 @@ function ConnectStore({
         setFetchingInfo(false);
         completeConnectStore(true);
         closeModal();
+        if (isRouteToCampaigns) {
+          router.push("/setup/business-details?redirect=create-campaign");
+          return;
+        }
         router.push("/setup/business-details");
       }, 2000);
     }
@@ -163,6 +168,8 @@ function ConnectStore({
                           shopifyStore,
                           isIntegrations
                             ? "/settings/integrations"
+                            : isRouteToCampaigns
+                            ? "/setup?linked_store=true&redirect=create-campaign"
                             : "/setup?linked_store=true"
                         )
                       }

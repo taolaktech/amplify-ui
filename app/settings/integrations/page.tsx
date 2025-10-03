@@ -4,7 +4,7 @@ import FolderConnectionIcon from "@/public/folder-connection.svg";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 
 export default function IntegrationLayout() {
-  const { shopifyStore, google, instagram, facebook } = useIntegrationStore(
+  const { shopifyStore, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
 
@@ -20,10 +20,7 @@ export default function IntegrationLayout() {
     {
       heading: "Google Ads",
       image: "/google_ads-icon.svg",
-      writeUp:
-        "Connect your Google Ads account to manage your product and orders.",
-      toggleOn: () => actions.toggleGoogle(),
-      on: google,
+      writeUp: "Google Ads automatically connects when you setup your account.",
     },
     {
       heading: "Instagram",

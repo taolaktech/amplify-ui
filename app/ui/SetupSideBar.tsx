@@ -16,7 +16,8 @@ function SetupSideBar() {
   const isOnboardingCompleted = useUIStore(
     (state) => state.isOnboardingCompleted
   );
-  const [step] = useState(1);
+  // const [step] = useState(1);
+  const progressStep = useUIStore((state) => state.currentProgressStep);
   const { setProgressStep } = useUIStore((state) => state.actions);
   const [stepText, setStepText] = useState("Connect your Store");
   const [lineProgress, setLineProgress] = useState(0);
@@ -37,7 +38,10 @@ function SetupSideBar() {
     let step = 1;
 
     let lineProgress = 0;
-    if (preferredSalesLocation && pathname === "/setup/marketing-goals") {
+    if (
+      preferredSalesLocation.complete &&
+      pathname === "/setup/marketing-goals"
+    ) {
       lineProgress = 100;
       step = 4;
       setStepText("Marketing Goals");
@@ -96,12 +100,14 @@ function SetupSideBar() {
                   className="stroke-current text-[#27AE60]"
                   strokeWidth="2"
                   strokeDasharray="100"
-                  strokeDashoffset={((step / 4) * 100 - 100) * -1}
+                  strokeDashoffset={((progressStep / 4) * 100 - 100) * -1}
                   strokeLinecap="round"
                 ></circle>
               </svg>
               <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                <span className="text-center text-heading num">{step}/4</span>
+                <span className="text-center text-heading num">
+                  {progressStep}/4
+                </span>
               </div>
             </div>
 
@@ -134,22 +140,22 @@ function SetupSideBar() {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                     <TickCircle
                       size={24}
-                      color={step >= 1 ? "#D0B0F3" : "#BFBFBF"}
-                      variant={step >= 1 ? "Bold" : "Linear"}
+                      color={progressStep >= 1 ? "#D0B0F3" : "#BFBFBF"}
+                      variant={progressStep >= 1 ? "Bold" : "Linear"}
                     />
                   </div>
                 </div>
                 <div className="ml-1 pt-2">
                   <div
                     className={`text-xs ${
-                      step >= 0 ? "text-black" : "text-gray-light"
+                      progressStep >= 0 ? "text-black" : "text-gray-light"
                     } font-medium`}
                   >
                     STEP 1
                   </div>
                   <div
                     className={`font-medium ${
-                      step >= 0 ? "text-purple-dark" : "text-gray-light"
+                      progressStep >= 0 ? "text-purple-dark" : "text-gray-light"
                     }`}
                   >
                     Connect your Store
@@ -163,22 +169,22 @@ function SetupSideBar() {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                     <TickCircle
                       size={24}
-                      color={step >= 2 ? "#D0B0F3" : "#BFBFBF"}
-                      variant={step >= 2 ? "Bold" : "Linear"}
+                      color={progressStep >= 2 ? "#D0B0F3" : "#BFBFBF"}
+                      variant={progressStep >= 2 ? "Bold" : "Linear"}
                     />
                   </div>
                 </div>
                 <div className="ml-1 pt-2">
                   <div
                     className={`text-xs ${
-                      step >= 2 ? "text-black" : "text-gray-light"
+                      progressStep >= 2 ? "text-black" : "text-gray-light"
                     } font-medium`}
                   >
                     STEP 2
                   </div>
                   <div
                     className={`font-medium ${
-                      step >= 2 ? "text-purple-dark" : "text-gray-light"
+                      progressStep >= 2 ? "text-purple-dark" : "text-gray-light"
                     }`}
                   >
                     Business Details
@@ -192,22 +198,22 @@ function SetupSideBar() {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                     <TickCircle
                       size={24}
-                      color={step >= 3 ? "#D0B0F3" : "#BFBFBF"}
-                      variant={step >= 3 ? "Bold" : "Linear"}
+                      color={progressStep >= 3 ? "#D0B0F3" : "#BFBFBF"}
+                      variant={progressStep >= 3 ? "Bold" : "Linear"}
                     />
                   </div>
                 </div>
                 <div className="ml-1 pt-2">
                   <div
                     className={`text-xs ${
-                      step >= 3 ? "text-black" : "text-gray-light"
+                      progressStep >= 3 ? "text-black" : "text-gray-light"
                     } font-medium`}
                   >
                     STEP 3
                   </div>
                   <div
                     className={`font-medium ${
-                      step >= 3 ? "text-purple-dark" : "text-gray-light"
+                      progressStep >= 3 ? "text-purple-dark" : "text-gray-light"
                     }`}
                   >
                     Preferred Sales Location
@@ -221,22 +227,22 @@ function SetupSideBar() {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center ">
                     <TickCircle
                       size={24}
-                      color={step >= 4 ? "#D0B0F3" : "#BFBFBF"}
-                      variant={step >= 4 ? "Bold" : "Linear"}
+                      color={progressStep >= 4 ? "#D0B0F3" : "#BFBFBF"}
+                      variant={progressStep >= 4 ? "Bold" : "Linear"}
                     />
                   </div>
                 </div>
                 <div className="ml-1 pt-2">
                   <div
                     className={`text-xs ${
-                      step >= 4 ? "text-black" : "text-gray-light"
+                      progressStep >= 4 ? "text-black" : "text-gray-light"
                     } font-medium`}
                   >
                     STEP 4
                   </div>
                   <div
                     className={`font-medium ${
-                      step >= 4 ? "text-purple-dark" : "text-gray-light"
+                      progressStep >= 4 ? "text-purple-dark" : "text-gray-light"
                     }`}
                   >
                     Marketing Goals
@@ -256,7 +262,7 @@ function SetupSideBar() {
             </button>
           </div>
           <div className="text-xs rounded-3xl bg-[#F3EFF6] py-2.5 px-5 inline-block">
-            STEP{` ${step}`}/4 - {stepText}
+            STEP{` ${progressStep}`}/4 - {stepText}
           </div>
         </div>
       </div>
