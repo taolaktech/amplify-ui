@@ -12,7 +12,7 @@ import {
   postMarketingGoals,
   handlePostBusinessDetails,
 } from "@/app/lib/api/integrations";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useUIStore from "../stores/uiStore";
 import { useToastStore } from "../stores/toastStore";
 
@@ -161,7 +161,8 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
   const setToast = useToastStore((state) => state.setToast);
   const [companyRoleError, setCompanyRoleError] = useState(false);
   const [productCategoryError, setProductCategoryError] = useState(false);
-
+  const isRouteToCampaigns =
+    useSearchParams().get("redirect") === "create-campaign";
   const [businessDetails, setBusinessDetails] = useState(null);
   const businessDetailsStore = useSetupStore((state) => state.businessDetails);
   const storeBusinessDetails = useSetupStore(
@@ -176,7 +177,9 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
     onSuccess: () => {
       if (businessDetails) storeBusinessDetails(businessDetails);
       completeBusinessDetails(true);
-      if (!isStoreDetails) router.push("/setup/preferred-sales-location");
+      if (!isStoreDetails && isRouteToCampaigns)
+        router.push("/setup/preferred-sales-location?redirect=create-campaign");
+      else if (!isStoreDetails) router.push("/setup/preferred-sales-location");
       else
         setToast({
           type: "success",
@@ -220,6 +223,10 @@ export const useSubmitBusinessDetails = (isStoreDetails?: boolean) => {
       JSON.stringify(normalizedNewData) === JSON.stringify(businessDetailsStore)
     ) {
       completeBusinessDetails(true);
+      if (isRouteToCampaigns) {
+        router.push("/setup/preferred-sales-location?redirect=create-campaign");
+        return;
+      }
       router.push("/setup/preferred-sales-location");
       return;
     }
@@ -279,6 +286,8 @@ export const useSubmitPreferredLocation = () => {
   const preferredSalesLocationFromStore = useSetupStore(
     (state) => state.preferredSalesLocation
   );
+  const isRouteToCampaigns =
+    useSearchParams().get("redirect") === "create-campaign";
   const [preferredSalesLocation, setPreferredSalesLocation] = useState<{
     localShippingLocations: string[];
     internationalShippingLocations: string[];
@@ -298,6 +307,10 @@ export const useSubmitPreferredLocation = () => {
         ...preferredSalesLocation,
         complete: true,
       });
+      if (isRouteToCampaigns) {
+        router.push("/setup/marketing-goals?redirect=create-campaign");
+        return;
+      }
       router.push("/setup/marketing-goals");
     },
     onError: (error: any) => {
@@ -321,6 +334,10 @@ export const useSubmitPreferredLocation = () => {
       JSON.stringify(normalizedNewData) ===
       JSON.stringify(preferredSalesLocationFromStore)
     ) {
+      if (isRouteToCampaigns) {
+        router.push("/setup/marketing-goals?redirect=create-campaign");
+        return;
+      }
       router.push("/setup/marketing-goals");
       return;
     }
@@ -364,6 +381,8 @@ export const useSubmitBusinessGoals = () => {
     (state) => state.storeMarketingGoals
   );
   const router = useRouter();
+  const isRouteToCampaigns =
+    useSearchParams().get("redirect") === "create-campaign";
 
   const submitMarketingGoalsMutation = useMutation({
     mutationFn: postMarketingGoals,
@@ -374,6 +393,10 @@ export const useSubmitBusinessGoals = () => {
         complete: true,
       });
       setOnboardingCompleted(true);
+      if (isRouteToCampaigns) {
+        router.push("/setup?onboarding=success&redirect=create-campaign");
+        return;
+      }
       router.push("/setup?onboarding=success");
     },
     onError: (error: any) => {

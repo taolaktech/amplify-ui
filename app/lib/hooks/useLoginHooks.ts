@@ -57,20 +57,27 @@ export const useInitialize = () => {
 
   async function getMe(token: string) {
     // tun this to async
-    if (token) {
-      const response = await handleGetMe(token);
-      if (!response.onboarding) return false;
-      completeConnectStore(response.onboarding?.shopifyAccountConnected);
-      completeBusinessDetails(
-        response.onboarding?.isBusinessDetailsSet || false
-      );
-      completeMarketingGoals(response.onboarding?.isBusinessGoalsSet || false);
-      completePreferredSalesLocation(
-        response.onboarding?.isShippingDetailsSet || false
-      );
-      return true;
+    try {
+      if (token) {
+        const response = await handleGetMe(token);
+        if (!response.onboarding) return false;
+        completeConnectStore(response.onboarding?.shopifyAccountConnected);
+        completeBusinessDetails(
+          response.onboarding?.isBusinessDetailsSet || false
+        );
+        completeMarketingGoals(
+          response.onboarding?.isBusinessGoalsSet || false
+        );
+        completePreferredSalesLocation(
+          response.onboarding?.isShippingDetailsSet || false
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return false;
     }
-    return false;
   }
 
   async function handleGetBrandAssets(token: string) {
@@ -89,24 +96,28 @@ export const useInitialize = () => {
   }
 
   async function getShopifyAccount(token: string, isConnected: boolean) {
-    if (token && isConnected) {
-      const response = await handleGetShopifyAccount(token);
-      if (!response.account.shop) {
-        console.error("No Shopify account found");
+    try {
+      if (token && isConnected) {
+        const response = await handleGetShopifyAccount(token);
+        if (!response.account.shop) {
+          console.error("No Shopify account found");
+          storeConnectStore({
+            storeUrl: "",
+          });
+          completeConnectStore(false);
+          setShopifyStoreConnected(false);
+          return;
+        }
         storeConnectStore({
-          storeUrl: "",
+          storeUrl: response.account.shop,
         });
-        completeConnectStore(false);
-        setShopifyStoreConnected(false);
-        return;
+        completeConnectStore(true);
+        setShopifyStoreConnected(true);
+      } else {
+        reset();
       }
-      storeConnectStore({
-        storeUrl: response.account.shop,
-      });
-      completeConnectStore(true);
-      setShopifyStoreConnected(true);
-    } else {
-      reset();
+    } catch (error) {
+      console.error("Error fetching Shopify account:", error);
     }
   }
 
@@ -114,80 +125,84 @@ export const useInitialize = () => {
     if (!isConnected || !token) {
       return;
     }
-    const response = await handleRetrieveStoreDetails(token);
-    if (!response.business || !response.business.shopifyAccounts.length) {
-      console.error("No business details found");
-      completeBusinessDetails(false);
-      return;
-    }
-    const details = response?.business;
-    if (!details) {
-      console.error("No details found");
-      completeBusinessDetails(false);
-      return;
-    }
-    const {
-      companyName,
-      description,
-      contactEmail,
-      contactPhone,
-      website,
-      industry,
-      companyRole,
-      logo,
-      teamSize,
-      estimatedMonthlyBudget,
-      estimatedAnnualRevenue,
-    } = details;
-    storeBusinessDetails({
-      id: details._id,
-      storeLogo: logo ?? null,
-      storeName: companyName,
-      description,
-      storeUrl: website,
-      contactEmail,
-      contactPhone,
-      industry,
-      companyRole,
-      teamSize: teamSize ? teamSize : { min: 2, max: 5 },
-      adSpendBudget: estimatedMonthlyBudget?.amount,
-      annualRevenue: estimatedAnnualRevenue?.amount,
-    });
+    try {
+      const response = await handleRetrieveStoreDetails(token);
+      if (!response.business || !response.business.shopifyAccounts.length) {
+        console.error("No business details found");
+        completeBusinessDetails(false);
+        return;
+      }
+      const details = response?.business;
+      if (!details) {
+        console.error("No details found");
+        completeBusinessDetails(false);
+        return;
+      }
+      const {
+        companyName,
+        description,
+        contactEmail,
+        contactPhone,
+        website,
+        industry,
+        companyRole,
+        logo,
+        teamSize,
+        estimatedMonthlyBudget,
+        estimatedAnnualRevenue,
+      } = details;
+      storeBusinessDetails({
+        id: details._id,
+        storeLogo: logo ?? null,
+        storeName: companyName,
+        description,
+        storeUrl: website,
+        contactEmail,
+        contactPhone,
+        industry,
+        companyRole,
+        teamSize: teamSize ? teamSize : { min: 2, max: 5 },
+        adSpendBudget: estimatedMonthlyBudget?.amount,
+        annualRevenue: estimatedAnnualRevenue?.amount,
+      });
 
-    if (details.shippingLocations) {
-      storePreferredSalesLocation({
-        localShippingLocations:
-          details.shippingLocations.localShippingLocations.map(
-            (location: any) => location.shorthand
-          ),
-        internationalShippingLocations:
-          details.shippingLocations.internationalShippingLocations,
-        complete: true,
-      });
-    } else {
-      console.warn("No shipping details found");
-      storePreferredSalesLocation({
-        localShippingLocations: [],
-        internationalShippingLocations: [],
-        complete: false,
-      });
-    }
+      if (details.shippingLocations) {
+        storePreferredSalesLocation({
+          localShippingLocations:
+            details.shippingLocations.localShippingLocations.map(
+              (location: any) => location.shorthand
+            ),
+          internationalShippingLocations:
+            details.shippingLocations.internationalShippingLocations,
+          complete: true,
+        });
+      } else {
+        console.warn("No shipping details found");
+        storePreferredSalesLocation({
+          localShippingLocations: [],
+          internationalShippingLocations: [],
+          complete: false,
+        });
+      }
 
-    if (details.businessGoals) {
-      storeMarketingGoals({
-        brandAwareness: details.businessGoals.brandAwareness,
-        acquireNewCustomers: details.businessGoals.acquireNewCustomers,
-        boostRepeatPurchases: details.businessGoals.boostRepeatPurchases,
-        complete: true,
-      });
-    } else {
-      console.warn("No business goals found");
-      storeMarketingGoals({
-        brandAwareness: false,
-        acquireNewCustomers: false,
-        boostRepeatPurchases: false,
-        complete: false,
-      });
+      if (details.businessGoals) {
+        storeMarketingGoals({
+          brandAwareness: details.businessGoals.brandAwareness,
+          acquireNewCustomers: details.businessGoals.acquireNewCustomers,
+          boostRepeatPurchases: details.businessGoals.boostRepeatPurchases,
+          complete: true,
+        });
+      } else {
+        console.warn("No business goals found");
+        storeMarketingGoals({
+          brandAwareness: false,
+          acquireNewCustomers: false,
+          boostRepeatPurchases: false,
+          complete: false,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching store details:", error);
     }
   }
   return {

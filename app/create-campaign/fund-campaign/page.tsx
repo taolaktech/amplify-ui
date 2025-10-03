@@ -11,9 +11,13 @@ import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useRouter } from "next/navigation";
 import { useTopUpWallet } from "@/app/lib/hooks/wallet";
 import { useGetTargetROAS } from "@/app/lib/hooks";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
+  const cardDetails = useCreateCampaignStore(
+    (state) => state.fundCampaign.cardDetails
+  );
   const actions = useCreateCampaignStore((state) => state.actions);
   const [, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -21,15 +25,17 @@ export default function FundCampaignPage() {
   const campaignSnapshots = useCreateCampaignStore(
     (state) => state.campaignSnapshots
   );
-  const { handleTopUpWallet, isPending } = useTopUpWallet(handleProceed);
+  const { isPending } = useTopUpWallet(handleProceed);
   const adFundAmount = useCreateCampaignStore(
     (state) => state.fundCampaign.amount
   );
   const [isEditing, setIsEditing] = useState(false);
+  const setToast = useToastStore((state) => state.setToast);
 
   const router = useRouter();
 
-  const { handleGetTargetROAS, targetROAS, baseX } = useGetTargetROAS();
+  const { handleGetTargetROAS, targetROAS, roasInMultiple } =
+    useGetTargetROAS();
 
   useEffect(() => {
     if (!campaignSnapshots.complete) {
@@ -102,6 +108,14 @@ export default function FundCampaignPage() {
   }, []);
 
   function handleProceed() {
+    if (!cardDetails) {
+      setToast({
+        type: "error",
+        title: "Card Required",
+        message: "Please add a card to proceed",
+      });
+      return;
+    }
     actions.storeFundCampaign({
       amount,
       complete: true,
@@ -138,15 +152,9 @@ export default function FundCampaignPage() {
             </span>
             <span className="text-sm font-medium tracking-150">
               The minimum budget based on your campaign settings is $50. Your
-              campaign ad spend of ${targetROAS?.budget || 50} has the
+              campaign ad spend of ${targetROAS?.totalBudget || 50} has the
               opportunity to achieve a return on ad spend (ROAS) of at least{" "}
-              {targetROAS
-                ? (
-                    targetROAS?.targetRoas?.googleSearch /
-                    parseFloat(baseX.toString())
-                  ).toFixed(1)
-                : 1}
-              x
+              {roasInMultiple}x
             </span>
           </div>
           <div className="lg:max-w-[425px] mx-auto mt-12">
@@ -221,7 +229,7 @@ export default function FundCampaignPage() {
       >
         <Button
           text="Proceed"
-          action={() => handleTopUpWallet(amount)}
+          action={handleProceed}
           hasIconOrLoader
           icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
           iconPosition="right"

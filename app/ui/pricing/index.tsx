@@ -63,9 +63,7 @@ export default function Pricing({
         handleCycleChange={handleBillingCycleChange}
       />
       <div
-        className={`grid grid-cols-1 md:grid-cols-2 ${
-          isDashboard ? "xl:grid-cols-3" : "xl:grid-cols-4"
-        } gap-3 w-full ${
+        className={`grid justify-center grid-cols-1 md:grid-cols-3 gap-3 w-full ${
           !isDashboard
             ? "max-w-[520px] md:max-w-[600px] xl:max-w-[1266px] mx-auto"
             : ""

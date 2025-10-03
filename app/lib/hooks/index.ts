@@ -57,7 +57,8 @@ export const useGetTargetROAS = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [targetROAS, setTargetROAS] = useState<any | null>(null);
-  const [baseX, setBaseX] = useState<number | string>(1.0);
+  const [baseX] = useState<number | string>(1.0);
+  const [roasInMultiple, setRoasInMultiple] = useState<number | string>(1.0);
 
   const debouncedFetch = useDebouncedCallback((newBudget: number) => {
     if (!newBudget || !token) return;
@@ -74,8 +75,8 @@ export const useGetTargetROAS = () => {
     mutationFn: getTargetROAS,
     onSuccess: (data) => {
       setTargetROAS(data);
-      const base = (data.targetRoas?.googleSearch / data.budget) * 50;
-      setBaseX(base.toFixed(1));
+      console.log("roas", data);
+      setRoasInMultiple(data.roasInMultiple);
     },
     onError: () => {
       setIsLoading(false);
@@ -91,6 +92,7 @@ export const useGetTargetROAS = () => {
     handleGetTargetROAS,
     isLoading: isLoading || isPending,
     targetROAS: targetROAS,
+    roasInMultiple,
     baseX,
   };
 };

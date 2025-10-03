@@ -9,9 +9,11 @@ import { useSubmitPreferredLocation } from "@/app/lib/hooks/useOnboardingHooks";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import SalesLocationView from "@/app/ui/SalesLocationView";
 import useLocalSalesLocation from "@/app/lib/hooks/useLocalSalesLocation";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 function PreferredSalesLocation() {
-  const [merchantInUsCanada, setMerchantInUsCanada] = useState(false);
+  const [merchantOutsideUsCanada, setMerchantOutsideUsCanada] = useState(false);
+  const setToast = useToastStore((state) => state.setToast);
   const [selectedIntLocation, setSelectedIntLocation] = useState<string[]>([]);
   const preferredSalesLocationFromStore = useSetupStore(
     (state) => state.preferredSalesLocation
@@ -34,10 +36,12 @@ function PreferredSalesLocation() {
         preferredSalesLocationFromStore
       );
       setSalesLocation(preferredSalesLocationFromStore.localShippingLocations);
-      setSelectedIntLocation(
-        preferredSalesLocationFromStore.internationalShippingLocations
-      );
-      setMerchantInUsCanada(true);
+      if (merchantOutsideUsCanada) {
+        setSelectedIntLocation(
+          preferredSalesLocationFromStore.internationalShippingLocations
+        );
+      }
+      setMerchantOutsideUsCanada(merchantOutsideUsCanada);
     }
   }, []);
 
@@ -59,8 +63,20 @@ function PreferredSalesLocation() {
   const handleNext = () => {
     const data = {
       localShippingLocations: salesLocation,
-      internationalShippingLocations: selectedIntLocation,
+      internationalShippingLocations: merchantOutsideUsCanada
+        ? selectedIntLocation
+        : ["USA", "Canada"],
     };
+    if (
+      data.localShippingLocations.length === 0 &&
+      data.internationalShippingLocations.length === 0
+    ) {
+      setToast({
+        title: "No Shipping Locations",
+        message: "Please add at least one shipping location.",
+        type: "error",
+      });
+    }
     handleSubmitPreferredLocation(data);
   };
   return (
@@ -91,14 +107,14 @@ function PreferredSalesLocation() {
         <div className="rounded-lg bg-[#FBFAFC] p-5 ">
           <div
             className="flex items-center gap-2 mb-4 cursor-pointer"
-            onClick={() => setMerchantInUsCanada((prev) => !prev)}
+            onClick={() => setMerchantOutsideUsCanada((prev) => !prev)}
           >
-            <GreenCheckbox ticked={merchantInUsCanada} />
+            <GreenCheckbox ticked={merchantOutsideUsCanada} />
             <span className="text-sm">I'm a merchant outside Canada/US</span>
           </div>
 
           <div className="mt-4 max-w-[387px]">
-            {merchantInUsCanada && (
+            {merchantOutsideUsCanada && (
               <PreferredIntlLocationSelectInput
                 selectedIntlLocation={selectedIntLocation}
                 label=""

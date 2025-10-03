@@ -13,6 +13,7 @@ import { useSetupStore } from "../stores/setupStore";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import { useToastStore } from "../stores/toastStore";
+import { useGetSetupComplete } from "./useGetSetupComplete";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
@@ -55,11 +56,18 @@ export const useCampaignsActions = () => {
   const data = useCampaignsStore((state) => state.data);
   const subscriptionType = useAuthStore((state) => state.subscriptionType);
   const router = useRouter();
+  const { isSetupComplete } = useGetSetupComplete();
 
   const navigateToCreateCampaign = () => {
+    if (!isSetupComplete) {
+      router.push("/setup?redirect=create-campaign");
+      return;
+    }
     if (
-      (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
-      (!data || data.length === 0)
+      subscriptionType?.name?.toLowerCase() === "free" ||
+      !subscriptionType ||
+      !data ||
+      data.length === 0
     ) {
       router.push("/pricing");
     } else {
@@ -88,11 +96,15 @@ export const useLaunchCampaign = (
   const supportedAdPlatforms = useCreateCampaignStore(
     (state) => state.supportedAdPlatforms
   );
+  const paymentMethodId = useCreateCampaignStore(
+    (state) => state.fundCampaign.cardDetails?.id
+  );
 
   const {
     campaignType,
     campaignEndDate,
     campaignStartDate,
+    campaignName,
     brandColor,
     accentColor,
   } = useCreateCampaignStore((state) => state.campaignSnapshots);
@@ -186,6 +198,7 @@ export const useLaunchCampaign = (
     });
     const campaignData: LaunchCampaignPayload = {
       businessId: businessDetails.id,
+      name: campaignName ?? "Campaign",
       type: campaignType || "Product Launch",
       platforms: campaignPlatforms,
       brandColor: brandColor || primaryColor || "#000000",
@@ -210,7 +223,15 @@ export const useLaunchCampaign = (
         };
       }),
     };
-    mutate({ token: authToken, campaignPayload: campaignData });
+    const idempotencyKey = crypto.randomUUID();
+
+    mutate({
+      token: authToken,
+      campaignPayload: campaignData,
+      idempotencyKey,
+      amount,
+      paymentMethodId: paymentMethodId!,
+    });
   };
 
   return {

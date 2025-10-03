@@ -1,15 +1,17 @@
-import ChartIcon from "@/public/chart.svg";
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
-// import DefaultButton from "../Button";
 import { CloseCircle, Notification } from "iconsax-react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import Steps from "./Steps";
 import { useState } from "react";
-import DefaultLink from "../DefaultLink";
+import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
+import Button from "../Button";
+import Link from "next/link";
+import Image from "next/image";
+import Steps2 from "./Steps2";
 
 function GettingStarted() {
   const user = useAuthStore((state) => state.user);
   const [cancelNotification, setCancelNotification] = useState(false);
+  const { navigateToCreateCampaign } = useCampaignsActions();
 
   const firstName = user?.name?.split(" ")[0] || "Unknown";
   return (
@@ -37,8 +39,10 @@ function GettingStarted() {
                 You're almost there!
               </p>
               <p className="text-xs lg:text-sm w-full">
-                Complete your campaign setup to start running ads and reach your
-                audience effectively.
+                <Link href="/setup" className="underline font-medium">
+                  Complete your campaign setup
+                </Link>{" "}
+                to start running ads and reach your audience effectively.
               </p>
             </div>
           </div>
@@ -47,33 +51,39 @@ function GettingStarted() {
           </button>
         </div>
       </div>
-      <div className="h-[320px] md:h-[390px] lg:h-[326px] flex gap-2  ">
-        <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
+      <div className="h-[377px] md:h-[416px] flex gap-2  ">
+        <div className="w-[100%] h-full">
+          <Steps2 />
+        </div>
+        {/* <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
           <Steps />
           <div className="absolute top-0 right-0 translate-x-[25%] -translate-y-[35%] bg-[rgba(255,255,255,0.05)] h-[305px] w-[305px] md:h-[610px] md:w-[610px] flex items-center justify-center rounded-full">
             <div className="bg-[rgba(255,255,255,0.05)] h-[237px] w-[237px] md:h-[474px] md:w-[474px] flex items-center justify-center rounded-full">
               <div className="bg-[rgba(255,255,255,0.05)] h-[163.5px] w-[163.5px] md:h-[327px] md:w-[327px] rounded-full"></div>
             </div>
           </div>
-        </div>
-        <div className="hidden relative  flex-col xl:flex w-full max-w-[291px] bg-[#F0E6FB] rounded-2xl p-8">
+        </div> */}
+        <div className="hidden relative flex-col xl:flex w-full max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
           <div>
             <HomeTrendIcon width={34} height={34} />
-            <span className="absolute bottom-0 right-0">
-              <ChartIcon width={126} height={126} />
+            <span className="absolute bottom-0 z-[1] right-0">
+              {/* <ChartIcon width={226} height={226} />
+               */}
+              <Image alt="chart" src={"/chart.png"} width={276} height={276} />
             </span>
-            <h1 className="text-2xl mt-3 font-bold bg-gradient-to-r from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
+            <h1 className="text-4xl mt-3 font-extrabold bg-gradient-to-r max-w-[300px] from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
               Ready to Amplify Your Sales?
             </h1>
-            <p className="text-sm mt-2">
+            <p className="text-sm text-white mt-2 max-w-[220px]">
               Kickstart your first campaign and watch your conversions grow.
             </p>
           </div>
-          <div className="max-w-[130px] mt-auto">
-            <DefaultLink
-              secondary
+          <div className="max-w-[140px] z-[2] mt-auto">
+            <Button
               text="Start Campaign"
-              href="/create-campaign"
+              height={50}
+              action={navigateToCreateCampaign}
+              secondary
             />
           </div>
         </div>
