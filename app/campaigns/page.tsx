@@ -1,14 +1,14 @@
 "use client";
 import { ArrowDown, ArrowUp, CalendarEdit } from "iconsax-react";
 import Button from "../ui/Button";
-import { NoCampaigns } from "../ui/dashboard/metrics/Campaigns";
 import { useCampaignsActions } from "../lib/hooks/campaigns";
+import Campaigns from "../ui/campaigns";
 
 export default function CampaignsPage() {
   const { navigateToCreateCampaign } = useCampaignsActions();
 
   return (
-    <div className="min-h-[calc(100vh-56px)] flex flex-col gap-8">
+    <div className="min-h-[calc(100vh-56px)] relative flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="font-medium tracking-150">Overview</div>
         <div className="max-w-[180px]">
@@ -21,7 +21,7 @@ export default function CampaignsPage() {
           />
         </div>
       </div>
-      <div className="flex h-[126px] gap-4 mt-6">
+      <div className="flex h-[126px] gap-4 ">
         <div className="border relative border-[#F3EFF6] rounded-2xl flex-1 p-8 flex items-center">
           {true && (
             <div className="absolute rounded-[20px] backdrop-blur-[5px] bg-transparent top-0 right-0 bottom-0 left-0 w-full"></div>
@@ -87,7 +87,7 @@ export default function CampaignsPage() {
           </div>
         </div>
       </div>
-      <div className="flex h-[126px] gap-4 mt-6">
+      <div className="flex h-[126px] gap-4 ">
         <div className="border relative border-[#F3EFF6] rounded-2xl flex-1 p-8 flex items-center">
           <div className="flex flex-col gap-2">
             <div className="text-xs text-[#595959]">Total Revenue</div>
@@ -116,8 +116,11 @@ export default function CampaignsPage() {
           )}
         </div>
       </div>
-      <div className="flex-1 min-h-[350px] mb-8 lg:min-h-[550px] bg-[#FBFAFC] flex flex-col">
+      {/* <div className="flex-1 min-h-[350px] mb-8 lg:min-h-[550px] bg-[#FBFAFC] flex flex-col">
         <NoCampaigns handleCreateCampaign={navigateToCreateCampaign} />
+      </div> */}
+      <div className="mt-4">
+        <Campaigns />
       </div>
       {/* <div className="h-8"></div> */}
     </div>

@@ -26,11 +26,11 @@ export default function ProductsForGeneration({
           <ArrowDown2 size="12" color="#000" />
         </span>
       </div>
-      <div className="flex ml-4">
+      <div className="flex gap-2 ml-4">
         {productSelection.products.map((product) => (
           <div
             key={product.node.id}
-            className={`rounded-lg hover:opacity-70 transition-all duration-300 cursor-pointer ${
+            className={`rounded-lg hover:opacity-70 transition-opacity duration-300 cursor-pointer ${
               highlightedProductId === product.node.id
                 ? "outline-3 outline-[#A75fff]"
                 : "outline-0"

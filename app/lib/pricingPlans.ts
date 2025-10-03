@@ -35,16 +35,16 @@ const pricingPlans = [
       "Pay <b> 0% commission for the first 3 months,</b> then only <b>1.5% on ad spend.</b>",
     ],
   },
-  {
-    name: "Scale",
-    price: parseInt(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE || "199"),
-    features: [
-      "Everything in Grow plan plus",
-      "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
-      "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
-      "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
-    ],
-  },
+  // {
+  //   name: "Scale",
+  //   price: parseInt(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE || "199"),
+  //   features: [
+  //     "Everything in Grow plan plus",
+  //     "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
+  //     "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
+  //     "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
+  //   ],
+  // },
 ];
 
 export default pricingPlans;

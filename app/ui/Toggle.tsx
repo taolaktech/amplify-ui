@@ -5,7 +5,7 @@ const Toggle = ({
   toggle,
   large,
 }: {
-  on: boolean;
+  on?: boolean;
   toggle: () => void;
   large?: boolean;
 }) => {

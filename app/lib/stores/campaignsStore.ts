@@ -8,6 +8,15 @@ export enum CampaignStatus {
   ARCHIVED = "ARCHIVED",
 }
 
+export enum CampaignTab {
+  ALL = "All",
+  IN_REVIEW = "In Review",
+  ACTIVE = "Active",
+  PAUSED = "Paused",
+  COMPLETED = "Completed",
+  RECENTLY_ACTIVE = "Recently Active",
+}
+
 export enum CampaignType {
   PRODUCT_LAUNCH = "Product Launch",
   FLASH_SALE = "Flash Sale / Limited Time",
@@ -39,6 +48,8 @@ type CampaignsStore = {
   platforms: CampaignPlatforms | null;
   data: any[] | null;
   sortBy: CampaignSortBy | null;
+  activeTab: CampaignTab;
+  
 
   actions: {
     setPage: (page: number) => void;
@@ -47,8 +58,9 @@ type CampaignsStore = {
     setPlatforms: (platforms: CampaignPlatforms | null) => void;
     setData: (data: any[] | null) => void;
     setSortBy: (sortBy: CampaignSortBy) => void;
+    setActiveTab: (tab: CampaignTab) => void;
   };
-}
+};
 
 const useCampaignsStore = create<CampaignsStore>((set) => ({
   page: 1,
@@ -57,10 +69,14 @@ const useCampaignsStore = create<CampaignsStore>((set) => ({
   platforms: null,
   data: null,
   sortBy: CampaignSortBy.Desc,
+  activeTab: CampaignTab.ALL,
 
   actions: {
     setPage: (page: number) => {
       set({ page });
+    },
+    setActiveTab: (tab: CampaignTab) => {
+      set({ activeTab: tab });
     },
     setSortBy: (sortBy: CampaignSortBy) => {
       set({ sortBy });

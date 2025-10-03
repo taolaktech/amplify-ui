@@ -13,8 +13,8 @@ export default function Integrations({
   heading: string;
   image: string;
   writeUp: string;
-  toggleOn: () => void;
-  on: boolean;
+  toggleOn?: () => void;
+  on?: boolean;
 }) {
   const [connectStoreModal, setConnectStoreModal] = useState(false);
 
@@ -22,7 +22,7 @@ export default function Integrations({
     if (!on && heading === "Shopify Store") {
       setConnectStoreModal(true);
     } else {
-      toggleOn();
+      toggleOn?.();
     }
   };
 
@@ -42,33 +42,35 @@ export default function Integrations({
             <div className="font-semibold text-sm md:text-base md:font-bold tracking-200">
               {heading}
             </div>
-            <div
-              className={`px-2 py-1 rounded-full flex items-center gap-1 ${
-                on ? "bg-[#EAF7EF]" : "bg-[#FFECED]"
-              }`}
-            >
-              <span
-                className={`w-1 h-1 rounded-full ${
-                  on ? "bg-[#27AE60]" : "bg-[#FF4949]"
-                }`}
-              ></span>{" "}
-              <span
-                className={`text-[8px] font-medium ${
-                  on ? "text-[#27AE60]" : "text-[#FF4949]"
+            {toggleOn && (
+              <div
+                className={`px-2 py-1 rounded-full flex items-center gap-1 ${
+                  on ? "bg-[#EAF7EF]" : "bg-[#FFECED]"
                 }`}
               >
-                {on ? "Connected" : "Not Connected"}
-              </span>
-            </div>
+                <span
+                  className={`w-1 h-1 rounded-full ${
+                    on ? "bg-[#27AE60]" : "bg-[#FF4949]"
+                  }`}
+                ></span>{" "}
+                <span
+                  className={`text-[8px] font-medium ${
+                    on ? "text-[#27AE60]" : "text-[#FF4949]"
+                  }`}
+                >
+                  {on ? "Connected" : "Not Connected"}
+                </span>
+              </div>
+            )}
           </div>
           <div className="text-xs tracking-100 text-[#555456]">{writeUp}</div>
         </div>
         <div>
           <div className="lg:hidden">
-            <Toggle on={on} toggle={handleConnectStore} />
+            {toggleOn && <Toggle on={on} toggle={handleConnectStore} />}
           </div>
           <div className="hidden lg:block">
-            <Toggle on={on} toggle={handleConnectStore} large />
+            {toggleOn && <Toggle on={on} toggle={handleConnectStore} large />}
           </div>
         </div>
       </div>

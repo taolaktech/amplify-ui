@@ -23,9 +23,10 @@ export default function DateSelection({
             format="MMMM D YYYY"
             minDate={tomorrow}
             defaultValue={tomorrow}
-            onChange={(date) =>
-              setStartDate(date ? date?.toDate() : new Date())
-            }
+            onChange={(date) => {
+              console.log(date);
+              setStartDate(date ? date?.toDate() : new Date());
+            }}
             // needConfirm
           />
         </div>
