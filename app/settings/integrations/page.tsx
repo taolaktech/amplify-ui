@@ -24,7 +24,7 @@ export default function IntegrationLayout() {
     },
     {
       heading: "Instagram",
-      image: "/instagram.svg",
+      image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
       toggleOn: () => actions.toggleInstagram(),
