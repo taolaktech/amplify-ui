@@ -267,7 +267,7 @@ function SetupSideBar() {
         </div>
       </div>
       {isCompleted && (
-        <div className="fixed z-10 top-[54px] left-0 right-0 bottom-0 min-h-[calc(100vh-54px)] bg-white">
+        <div className="fixed z-[200] top-[54px] left-0 right-0 bottom-0 min-h-[calc(100vh-54px)] bg-white">
           <OnboadingSuccess />
         </div>
       )}

@@ -4,10 +4,12 @@ import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/DefaultLink";
 import CompletionBackground from "@/app/ui/CompletionBackground";
 import { useSearchParams } from "next/navigation";
+// import { useCampaignsActions } from "../lib/hooks/campaigns";
 
 export default function OnboardingSuccess() {
   const isRouteToCampaigns =
     useSearchParams().get("redirect") === "create-campaign";
+
   return (
     <div className="md:flex items-start bg-white justify-center md:min-h-[500px] md:h-[calc(100vh-56px)] md:py-0">
       {/* <div className="flex justify-center bg-white h-[calc(100vh-56px)] items-start md:min-h-[800px]"> */}
@@ -34,7 +36,7 @@ export default function OnboardingSuccess() {
                     text={
                       isRouteToCampaigns ? "Create Campaign" : "Go to Dashboard"
                     }
-                    href={isRouteToCampaigns ? "/create-campaign" : "/"}
+                    href={isRouteToCampaigns ? "/pricing" : "/"}
                   />
                 </div>
               </div>

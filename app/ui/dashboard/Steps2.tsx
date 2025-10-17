@@ -79,7 +79,10 @@ export default function Steps2() {
         />
         <StepsItem
           text="Upload Brand Kit"
-          connected={facebook}
+          connected={
+            Boolean(primaryLogo) &&
+            (Boolean(brandGuide) || Boolean(brandGuideName))
+          }
           isOptional
           action={handleUploadBrandKit}
         />

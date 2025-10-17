@@ -7,6 +7,8 @@ const CampaignTypeInput = ({
   placeholder = "Select an option",
   selected,
   label,
+  background,
+  borderless = false,
   large,
   error,
   setError,
@@ -16,6 +18,8 @@ const CampaignTypeInput = ({
     recommended: boolean;
   }[];
   label: string;
+  background?: string;
+  borderless?: boolean;
   placeholder?: string;
   setSelected:
     | React.Dispatch<React.SetStateAction<string | null>>
@@ -55,7 +59,10 @@ const CampaignTypeInput = ({
       <p className="text-xs tracking-tight leading-4 block">{label}</p>
       <div
         ref={selectRef}
-        className={`cursor-pointer relative px-4 mt-2 w-full py-3 flex items-center justify-between ${
+        style={{
+          background: background ? background : "",
+        }}
+        className={` cursor-pointer relative px-4 mt-2 w-full py-3 flex items-center justify-between ${
           large ? `h-[48px] md:h-[44px]` : `h-[44px] md:h-[40px]`
         } placeholder:text-heading text-heading font-medium ${
           error
@@ -63,7 +70,7 @@ const CampaignTypeInput = ({
             : isOpen
             ? "border-[#A755FF]"
             : "border-input-border"
-        } rounded-lg text-sm border-[1.2px]`}
+        } rounded-lg text-sm ${borderless ? "border-0" : "border-[1.2px]"}`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <p

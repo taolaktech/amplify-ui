@@ -46,7 +46,7 @@ const CheckoutForm = ({
   const [, setMessage] = useState<string | null>(null);
   const params = useSearchParams();
   const planId = params.get("planId")?.split("_")[0];
-  const billingCycle = params.get("billingCycle");
+  const billingCycle = params.get("billingCycle")!;
   const price =
     priceId && planId && billingCycle
       ? priceId[planId as "STARTER" | "GROW" | "SCALE"]
@@ -84,6 +84,7 @@ const CheckoutForm = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+    console.log("handling submit");
 
     if (!stripe || !elements) return;
 
@@ -117,6 +118,7 @@ const CheckoutForm = ({
       setLoading(false);
       return;
     }
+    console.log("proceeding to create customer", isUpgrade);
 
     //1. Create customer
     try {
@@ -170,17 +172,20 @@ const CheckoutForm = ({
       const { clientSecret } = res.data.data;
 
       // 4. Create subscription
-
+      console.log("price:", price);
+      console.log("billingCycle:", billingCycle);
+      console.log("isAddCardPage:", isAddCardPage);
+      console.log("isUpgrade:", isUpgrade);
       if (!isAddCardPage && !isUpgrade && price) {
         await subscribeToPlan({
           token: token || "",
-          price: price.toString(),
+          price: price[billingCycle as keyof typeof price],
           paymentMethodId: paymentMethod.id,
         });
       } else if (isUpgrade && price && !isAddCardPage) {
         await upgradePlan({
           token: token || "",
-          newPriceId: price.toString(),
+          newPriceId: price[billingCycle as keyof typeof price].toString(),
         });
       }
 
@@ -202,6 +207,7 @@ const CheckoutForm = ({
           },
         })
         .then(function (result) {
+          console.log("on upgrade result:", result);
           if (result.setupIntent?.status === "succeeded") {
             if (!isAddCardPage) {
               setSubscriptionSuccess(true);

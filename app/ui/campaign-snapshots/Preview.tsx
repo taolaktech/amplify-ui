@@ -28,7 +28,7 @@ const Preview = ({
   }[];
   highlightedProductId: string;
   isReview?: boolean;
-  generateCreatives: (productId: string, platform: Platform) => void;
+  generateCreatives: (productId: string, platforms: Platform[]) => void;
   loading: boolean;
 }) => {
   const settings: { label: string; key: SocialSettingsKey }[] = [
@@ -130,7 +130,7 @@ const Preview = ({
                 )}
                 <button
                   onClick={() =>
-                    generateCreatives(highlightedProductId, item.platform)
+                    generateCreatives(highlightedProductId, [item.platform])
                   }
                   className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                 >
@@ -151,6 +151,7 @@ export default Preview;
 
 const PreviewContainer = ({ item }: { item: any }) => {
   // const containerRef = useRef<HTMLDivElement>(null);
+  console.log("PreviewContainer item:", item);
 
   // const width = 350;
 
@@ -163,6 +164,11 @@ const PreviewContainer = ({ item }: { item: any }) => {
 
   const lastIndex = item?.creatives?.length - 1 || 0;
   const creativesAvailable = item?.creatives?.length > 0;
+
+  const mediaCreative = item.creatives?.length - 1 || 0;
+  const isMediaCreative = item?.creatives;
+  console.log("isMediaCreative:", isMediaCreative);
+  console.log(isMediaCreative[mediaCreative]?.creatives);
   // if (!item?.creatives?.length) return null;
   return (
     <div className="bg-[#f1f1f1] max-w-full relative rounded-xl md:rounded-3xl mt-5">
@@ -170,41 +176,27 @@ const PreviewContainer = ({ item }: { item: any }) => {
 
       {creativesAvailable ? (
         <>
-          {item.title === "Google" && (
+          {item.title === "Google" ? (
             <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
               <GoogleAdsCreatives
-                creatives={item.creatives[lastIndex].creatives}
+                creatives={item.creatives[lastIndex]?.creatives}
               />
             </div>
-            // <div
-            //   ref={containerRef}
-            //   className="flex max-w-full overflow-x-auto  items-center flex-1 scroll-smooth gap-6 h-[400px] no-scrollbar  px-10"
-            // >
-            //   {item?.creatives[lastIndex]?.map(
-            //     (creatives: any, index: number) => (
-            //       <div
-            //         key={index}
-            //         className="flex-shrink-0 w-[350px] h-[230px]" // or any width you want
-            //       >
-            //         <GoogleCreatives
-            //           headline={
-            //             creatives?.headline ??
-            //             (Object.keys(creatives || {}).find((key) =>
-            //               key.toLowerCase().includes("headline")
-            //             )
-            //               ? creatives[
-            //                   Object.keys(creatives).find((key) =>
-            //                     key.toLowerCase().includes("headline")
-            //                   )!
-            //                 ]
-            //               : "")
-            //           }
-            //           description={creatives?.description || ""}
-            //         />
-            //       </div>
-            //     )
-            //   )}
-            // </div>
+          ) : (
+            <div className="flex flex-1 h-[350px] flex-row gap-2 sm:h-[350px] md:h-[650px] items-center justify-center">
+              {isMediaCreative[mediaCreative]?.creatives.map(
+                (creative: string, index: number) => (
+                  <img
+                    key={creative}
+                    src={isMediaCreative[mediaCreative]?.creatives[index]}
+                    alt={`${item.title} ad preview`}
+                    width={300}
+                    height={600}
+                    className="object-contain w-[150px] h-[300px] lg:w-[200px] lg:h-[500px] xl:w-[300px] xl:h-[600px] rounded-2xl"
+                  />
+                )
+              )}
+            </div>
           )}
         </>
       ) : (

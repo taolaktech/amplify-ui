@@ -1,12 +1,15 @@
 "use client";
-import { useInitialize } from "./lib/hooks/useLoginHooks";
-// import { useAuthStore } from "@/app/lib/stores/authStore";
-// import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useGetCampaigns from "./lib/hooks/campaigns";
 import GettingStarted from "./ui/dashboard/GettingStarted";
 import Metrics from "./ui/dashboard/metrics";
 
 export default function DashboardPage() {
-  useInitialize();
+  const { fetchCampaigns } = useGetCampaigns();
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
 
   return (
     <main className="">

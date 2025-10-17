@@ -1,14 +1,13 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { billingCycles, planIdToName } from "@/app/lib/pricingPlans";
+import pricingPlans, { billingCycles } from "@/app/lib/pricingPlans";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-xs.svg";
 import { capitalize } from "lodash";
-// import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
-// import { useAuthStore } from "@/app/lib/stores/authStore";
 import { TickCircle } from "iconsax-react";
 import Checkout from "@/app/ui/checkout";
-import { useGetCurrentSubscriptionPlan } from "@/app/lib/hooks/stripe";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useMemo } from "react";
 
 const plans = {
   FREE_PLAN: 0,
@@ -21,8 +20,12 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
   // const subscriptionType = useAuthStore((state) => state.subscriptionType);
 
-  const { data: currentPlanDetails } = useGetCurrentSubscriptionPlan();
-  const currentPlanId = currentPlanDetails?.data?.activeStripePriceId;
+  // const { data: currentPlanDetails } = useGetCurrentSubscriptionPlan();
+  const subscriptionType = useAuthStore((state) => state.subscriptionType);
+  // const currentPlan = pricingPlans.find(
+  //   (plan) => plan.name.toUpperCase() === subscriptionType?.name
+  // ) ;
+  // console.log("currentPlanId", currentPlanId);
 
   // const router = useRouter();
   const planId = searchParams.get("planId");
@@ -34,22 +37,44 @@ export default function CheckoutPage() {
 
   const billingCyclePlan =
     billingCycles[billingCycle as keyof typeof billingCycles];
-  const price = plan
-    ? plan - (plan * (billingCyclePlan?.discount / 100) || 0)
-    : 0;
 
-  const oldPlan = currentPlanId
-    ? planIdToName[currentPlanId as keyof typeof planIdToName]
-    : {
-        name: "FREE",
-        cycle: "MONTHLY",
-        price: 0,
-      };
+  let price = plan - (plan * (billingCyclePlan?.discount / 100) || 0);
+  price = Number(price.toFixed(2)); // keeps it as a number
+  console.log("price", price);
+
+  const oldPlan = subscriptionType ?? {
+    name: "FREE",
+    cycle: "MONTHLY",
+    price: 0,
+  };
+  const newPlan = pricingPlans.find(
+    (p) => p.name.toUpperCase() === searchParams.get("planId")?.split("_")[0]
+  );
 
   const oldBillingCycle = oldPlan?.cycle;
-  const oldPrice = oldPlan?.price;
+  const oldPrice =
+    pricingPlans.find((plan) => plan.name.toUpperCase() === oldPlan?.name)
+      ?.price ?? 0;
 
-  const isDowngrade = price < oldPrice;
+  const isDowngrade = useMemo(() => {
+    if (newPlan?.name.toLowerCase() === oldPlan?.name.toLowerCase()) {
+      if (
+        billingCycles[billingCycle as keyof typeof billingCycles]?.size <
+        billingCycles[oldBillingCycle as keyof typeof billingCycles]?.size
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    if (
+      oldPrice >
+      (pricingPlans.find((p) => p.name === newPlan?.name)?.price || 0)
+    ) {
+      return true;
+    }
+    return false;
+  }, [subscriptionType]);
 
   const formattedPlan = planId
     ? `${planId.toUpperCase()[0]}${planId
@@ -107,7 +132,7 @@ export default function CheckoutPage() {
                 ></div>
                 <div className="mt-1">
                   <span className="text-xl lg:text-2xl text-heading font-medium lg:font-bold num">
-                    ${Math.round(price)}
+                    ${price}
                   </span>
                   <span className="text-sm lg:text-base">
                     /{billingCyclePlan.value}
@@ -128,7 +153,7 @@ export default function CheckoutPage() {
           <div>
             <Checkout
               isAddCardPage={isAddCardPage === "TRUE"}
-              isUpgrade={!!currentPlanId}
+              isUpgrade={!isDowngrade}
               isDowngrade={isDowngrade}
             />
           </div>
@@ -141,9 +166,7 @@ export default function CheckoutPage() {
         <div>
           <div className="flex justify-between gap-3">
             <div className="text-lg tracking-600">Amplify {formattedPlan}</div>
-            <div className="text-heading font-medium text-sm num">
-              ${Math.round(price)}
-            </div>
+            <div className="text-heading font-medium text-sm num">${price}</div>
           </div>
           <div className="flex justify-between gap-3 mt-2">
             <div className="text-xs">{billingCyclePlan.statement}</div>
@@ -156,14 +179,14 @@ export default function CheckoutPage() {
         <div className="flex justify-between gap-3">
           <div className="text-sm font-medium text-heading">Subtotal</div>
           <div className="text-heading font-medium text-sm num">
-            ${Math.round(price)}
+            ${(price * billingCyclePlan.size).toFixed(2)}
           </div>
         </div>
         <div className="bg-[#333] h-[0.25px] w-full"></div>
         <div className="flex justify-between gap-3 rounded-[26px] bg-[#F3EFF6] py-6 px-8">
           <div className="text-sm font-medium">Total Amount</div>
           <div className="text-heading font-medium text-lg tracking-40 num">
-            ${Math.round(price)}
+            ${(price * billingCyclePlan.size).toFixed(2)}
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ export const options: StripeElementsOptions = {
   fonts: [
     {
       family: "Satoshi",
+      // src: "url('https://fonts.cdnfonts.com/css/satoshi')",
       src: "url('https://raw.githubusercontent.com/taolaktech/amplify-ui/AMP-33-dev-create-campaign/public/fonts/Satoshi-Medium.woff')",
       weight: "500",
     },
