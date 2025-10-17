@@ -123,6 +123,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
 
     generate: (kind: Platform, productId: string, creatives: any) => {
       const { Google, Instagram, Facebook } = get();
+      console.log("Generating creatives for", { kind, productId, creatives });
       if (kind === "GOOGLE ADS") {
         const subGoogle = Google || {};
         if (!subGoogle[productId]) {

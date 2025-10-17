@@ -54,6 +54,8 @@ export default function CustomerCards({
     setSelectedPaymentMethod(id);
   };
 
+  console.log("paymentMethods", paymentMethods);
+
   return (
     <div className="flex flex-col gap-2">
       {paymentMethods?.map((paymentMethod: any) => (

@@ -4,7 +4,7 @@ import MagicStarIcon from "@/public/magic-star.png";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
@@ -57,14 +57,25 @@ const MainActions = ({
   generateCreatives,
   loading,
   generalUndo,
+  supportedAdPlatforms,
 }: {
   isOnlyGoogle?: boolean;
   canUndo: (id: string) => boolean;
   highlightedProduct: ShopifyProduct;
-  generateCreatives: (productId: string, platform: Platform) => void;
+  generateCreatives: (productId: string, platform: Platform[]) => Promise<void>;
   loading: boolean;
+  supportedAdPlatforms?: any;
   generalUndo: (productId: string) => void;
 }) => {
+  const supportedPlatformArr = useMemo(() => {
+    const platforms: Platform[] = [];
+    if (!supportedAdPlatforms) return platforms;
+
+    if (supportedAdPlatforms.FACEBOOK) platforms.push("FACEBOOK");
+    if (supportedAdPlatforms.INSTAGRAM) platforms.push("INSTAGRAM");
+    if (supportedAdPlatforms["GOOGLE ADS"]) platforms.push("GOOGLE ADS");
+    return platforms;
+  }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
       {!isOnlyGoogle && (
@@ -93,7 +104,7 @@ const MainActions = ({
       <button
         disabled={loading}
         onClick={() =>
-          generateCreatives(highlightedProduct?.node?.id, "GOOGLE ADS")
+          generateCreatives(highlightedProduct?.node?.id, supportedPlatformArr)
         }
         className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border "
       >
@@ -198,6 +209,7 @@ export default function CampaignSnapshotsPage() {
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
+    console.log("Ad Platforms:", resultAdPlatforms);
   }, [
     supportedAdPlatforms,
     instagramSettings,
@@ -299,6 +311,19 @@ export default function CampaignSnapshotsPage() {
           highlightedProductId={highlightedProduct?.node.id || "1"}
           setHighlightedProduct={setHighlightedProduct}
         />
+        <div className="flex flex-row justify-end mt-6 lg:hidden">
+          {highlightedProduct && (
+            <MainActions
+              isOnlyGoogle={isOnlyGoogle}
+              canUndo={canUndo}
+              highlightedProduct={highlightedProduct}
+              generateCreatives={generateCreatives}
+              loading={loading}
+              supportedAdPlatforms={supportedAdPlatforms}
+              generalUndo={generalUndo}
+            />
+          )}
+        </div>
         <div className="mt-6">
           <Input
             type="text"
@@ -310,6 +335,8 @@ export default function CampaignSnapshotsPage() {
               console.log("onBlur");
               setError(false);
             }}
+            background="rgba(232,232,232,0.35)"
+            borderless
             error={error ? "Campaign name is required" : ""}
             value={campaignDetails.campaignName}
             onChange={(e) =>
@@ -329,6 +356,8 @@ export default function CampaignSnapshotsPage() {
                 label="Campaign Type"
                 placeholder="Product Launch"
                 options={productTypes}
+                background="rgba(232,232,232,0.35)"
+                borderless
                 selected={campaignDetails.campaignType}
                 setSelected={(value: string) =>
                   handleCampaignDetails("campaignType", value)

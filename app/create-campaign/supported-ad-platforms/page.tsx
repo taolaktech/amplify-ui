@@ -140,10 +140,10 @@ const SupportedAdPlatforms = () => {
               width={100}
             />
             <Toggle
-              // on={supportedAdPlatforms.Instagram}
-              on={false}
-              // toggle={() => actions.toggleAdsPlatform("Instagram")}
-              toggle={() => {}}
+              on={supportedAdPlatforms.Instagram}
+              // on={false}
+              toggle={() => actions.toggleAdsPlatform("Instagram")}
+              // toggle={() => {}}
             />
           </div>
         </div>
@@ -178,10 +178,10 @@ const SupportedAdPlatforms = () => {
               }`}
             />
             <Toggle
-              // on={supportedAdPlatforms.Facebook}
-              on={false}
-              // toggle={() => actions.toggleAdsPlatform("Facebook")}
-              toggle={() => {}}
+              on={supportedAdPlatforms.Facebook}
+              // on={false}
+              toggle={() => actions.toggleAdsPlatform("Facebook")}
+              // toggle={() => {}}
             />
           </div>
         </div>

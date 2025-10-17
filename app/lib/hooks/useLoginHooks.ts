@@ -205,6 +205,18 @@ export const useInitialize = () => {
       console.error("Error fetching store details:", error);
     }
   }
+
+  async function handleGetCampaigns(token: string) {
+    if (!token) {
+      return;
+    }
+    try {
+      const response = await handleGetCampaigns(token);
+      console.log("Campaigns fetched:", response);
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+    }
+  }
   return {
     loading,
     getMe,
@@ -212,6 +224,7 @@ export const useInitialize = () => {
     getStoreDetails,
     setLoading,
     handleGetBrandAssets,
+    handleGetCampaigns,
   };
 };
 
