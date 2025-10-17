@@ -92,7 +92,13 @@ export default function Checkout({
       setIsAddCard(false);
       setRightSideOpen?.(false);
     }
-  }, [customerPaymentMethods, isAddCardPage, isPending]);
+  }, [
+    customerPaymentMethods,
+    isAddCardPage,
+    isPending,
+    isLoading,
+    isRefetching,
+  ]);
 
   const params = useSearchParams();
   const planId = params.get("planId")?.split("_")[0];
@@ -118,6 +124,7 @@ export default function Checkout({
     isAddCardPage || customerPaymentMethods?.data?.length > 0;
 
   const handleSubscribeOrUpgrade = (price: string, paymentMethodId: string) => {
+    console.log("price:", price);
     if (isUpgrade) {
       handleUpgrade({
         newPriceId: price,
@@ -129,6 +136,7 @@ export default function Checkout({
       });
     }
   };
+  console.log();
 
   const showStripeInfo = !putInContainer && !isAddCard && !isAddCardPage;
   return (

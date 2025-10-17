@@ -20,12 +20,14 @@ export default function useGetCampaigns() {
   const { page, sortBy, type, status, platforms } = useCampaignsStore(
     (state) => state
   );
+  const isLoading = useCampaignsStore((state) => state.isLoading);
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken: string) => {
+  const fetchCampaigns = async (authToken?: string) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
+    actions.setIsLoading(true);
     const requestData: any = {
       token,
     };
@@ -36,6 +38,7 @@ export default function useGetCampaigns() {
     if (platforms) requestData.platforms = platforms;
     try {
       const data = await getCampaigns(requestData);
+      console.log("Fetched campaigns data:", data);
       if (data.data) {
         actions.setData(data.data);
       }
@@ -43,12 +46,15 @@ export default function useGetCampaigns() {
     } catch (error: any) {
       console.error("Error fetching campaigns:", error);
       setError(error.message || "Unknown error");
+    } finally {
+      actions.setIsLoading(false);
     }
   };
 
   return {
     fetchCampaigns,
     error,
+    isLoading,
   };
 }
 

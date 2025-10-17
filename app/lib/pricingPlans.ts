@@ -127,6 +127,7 @@ export const billingCycles = {
     value: "month",
     statement: "Billed Every Month",
     cycleDetails: "1 month",
+    size: 1,
     billingDetails: "Monthly",
     discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_MONTHLY_DISCOUNT),
   },
@@ -135,6 +136,7 @@ export const billingCycles = {
     value: "quarter",
     statement: "Billed Every 3 Months",
     cycleDetails: "3 months",
+    size: 3,
     billingDetails: `<span>Quarterly - <span class='num'>${Number(
       process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT
     )}%</span> Off</span>`,
@@ -145,6 +147,7 @@ export const billingCycles = {
     value: "year",
     statement: "Billed Every Year",
     cycleDetails: "12 months",
+    size: 12,
     billingDetails: `<span>Yearly - <span class='num'>${Number(
       process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT
     )}%</span> Off</span>`,

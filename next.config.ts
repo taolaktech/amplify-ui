@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
       "cdn.shopify.com",
       "cdn.pixabay.com",
       "s3.us-east-2.amazonaws.com",
+      "amplify-shopify-uploads.s3.us-east-2.amazonaws.com",
     ],
   },
   experimental: {

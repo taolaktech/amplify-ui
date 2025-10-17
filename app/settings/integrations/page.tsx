@@ -20,11 +20,12 @@ export default function IntegrationLayout() {
     {
       heading: "Google Ads",
       image: "/google_ads-icon.svg",
-      writeUp: "Google Ads automatically connects when you setup your account.",
+      writeUp:
+        "Google Ads will automatically be connected after creating a campaign",
     },
     {
       heading: "Instagram",
-      image: "/instagram.svg",
+      image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
       toggleOn: () => actions.toggleInstagram(),

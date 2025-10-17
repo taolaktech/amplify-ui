@@ -63,7 +63,7 @@ export default function Pricing({
         handleCycleChange={handleBillingCycleChange}
       />
       <div
-        className={`grid justify-center grid-cols-1 md:grid-cols-3 gap-3 w-full ${
+        className={`grid justify-center items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full ${
           !isDashboard
             ? "max-w-[520px] md:max-w-[600px] xl:max-w-[1266px] mx-auto"
             : ""
@@ -76,10 +76,19 @@ export default function Pricing({
             price={plan.price}
             isDashboard={isDashboard}
             features={plan.features}
-            isCurrentPlan={
-              currentPlan2?.name?.toLowerCase() === plan?.name.toLowerCase() &&
-              currentPlan2?.cycle?.toLowerCase() === billingCycle?.toLowerCase()
-            }
+            currentPlan={currentPlan}
+            isCurrentPlan={(() => {
+              console.log("currentPlan:", currentPlan);
+              console.log("pricingPlans[index]:", pricingPlans[index]);
+              console.log("billingCycle:", billingCycle);
+              return pricingPlans[index].name.toLowerCase() === "free" &&
+                currentPlan?.name.toLowerCase() === "free"
+                ? true
+                : currentPlan?.name.toLowerCase() ===
+                    pricingPlans[index].name.toLowerCase() &&
+                    currentPlan?.cycle.toLowerCase() ===
+                      billingCycle.toLowerCase();
+            })()}
             planSelected={selectedPlan}
             cycle={billingCycle}
             handlePlanChange={handlePlanChange}

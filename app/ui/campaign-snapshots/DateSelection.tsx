@@ -19,6 +19,8 @@ export default function DateSelection({
             style={{
               width: "100%",
               height: "48px",
+              backgroundColor: "rgba(232,232,232,0.35)",
+              border: "0px solid #BFBFBF",
             }}
             format="MMMM D YYYY"
             minDate={tomorrow}
@@ -40,6 +42,8 @@ export default function DateSelection({
             style={{
               width: "100%",
               height: "48px",
+              backgroundColor: "rgba(232,232,232,0.35)",
+              border: "0px solid #BFBFBF",
             }}
             defaultValue={dayjs(new Date().setMonth(new Date().getMonth() + 1))}
             format="MMMM D YYYY"

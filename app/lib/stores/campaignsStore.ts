@@ -47,9 +47,9 @@ type CampaignsStore = {
   type: CampaignType | null;
   platforms: CampaignPlatforms | null;
   data: any[] | null;
+  isLoading: boolean;
   sortBy: CampaignSortBy | null;
   activeTab: CampaignTab;
-  
 
   actions: {
     setPage: (page: number) => void;
@@ -59,6 +59,7 @@ type CampaignsStore = {
     setData: (data: any[] | null) => void;
     setSortBy: (sortBy: CampaignSortBy) => void;
     setActiveTab: (tab: CampaignTab) => void;
+    setIsLoading: (isLoading: boolean) => void;
   };
 };
 
@@ -68,12 +69,16 @@ const useCampaignsStore = create<CampaignsStore>((set) => ({
   type: null,
   platforms: null,
   data: null,
+  isLoading: false,
   sortBy: CampaignSortBy.Desc,
   activeTab: CampaignTab.ALL,
 
   actions: {
     setPage: (page: number) => {
       set({ page });
+    },
+    setIsLoading: (isLoading: boolean) => {
+      set({ isLoading });
     },
     setActiveTab: (tab: CampaignTab) => {
       set({ activeTab: tab });
