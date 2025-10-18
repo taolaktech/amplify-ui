@@ -191,7 +191,7 @@ export const useGenerateCreatives = () => {
       }
 
       if (instagramResult) {
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 10; i++) {
           setIsCreativeSetLoading(true);
           // if (facebookResult && isLoading[1]) {
           //   const creativeSet = await getCreativeSet({
