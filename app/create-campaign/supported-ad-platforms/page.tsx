@@ -48,10 +48,9 @@ const SupportedAdPlatforms = () => {
     supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
-    // actions.completeAdsPlatform();
-    initialGeneration();
+    actions.completeAdsPlatform();
 
-    // router.push("/create-campaign/campaign-snapshots");
+    router.push("/create-campaign/campaign-snapshots");
 
     // setTimeout(() => {
     //   if (canProceed) {
@@ -198,7 +197,7 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {loading && <CircleLoaderModal text="Generating Ad Creatives..." />}
+      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 };

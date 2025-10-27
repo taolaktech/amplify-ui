@@ -9,6 +9,10 @@ import { SocialSettingsKey } from "@/app/lib/stores/createCampaignStore";
 import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
+import useUIStore from "@/app/lib/stores/uiStore";
+import { useMemo } from "react";
+import BlackCircleLoader from "../loaders/BlackCircleLoader";
+import CircleLoader from "../loaders/CircleLoader";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -36,6 +40,9 @@ const Preview = ({
     { label: "Carousel Post", key: "carouselPost" },
     { label: "Story Post", key: "storyPost" },
   ];
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
 
   // const { generateCreatives, loading } = useGenerateCreatives();
 
@@ -117,30 +124,43 @@ const Preview = ({
               <div className="flex gap-2 items-center">
                 {item.creatives && item.creatives?.length > 1 && (
                   <button
+                    disabled={
+                      creativeLoadingStates?.[highlightedProductId]?.[
+                        item.platform
+                      ]
+                    }
                     onClick={() => undo(item.platform, highlightedProductId)}
-                    className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                    className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                   >
                     <ArrowForward
-                      size={16}
+                      size={12}
                       color="#000"
                       className="-mt-[2px] -scale-x-100"
                     />
-                    <span className="text-sm"> Undo</span>
+                    <span className="text-xs"> Undo</span>
                   </button>
                 )}
                 <button
+                  disabled={
+                    creativeLoadingStates?.[highlightedProductId]?.[
+                      item.platform
+                    ]
+                  }
                   onClick={() =>
                     generateCreatives(highlightedProductId, [item.platform])
                   }
-                  className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                  className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                 >
                   <Magicpen size={12} color="#000" />
-                  <span className="text-xs tracking-100">Generate</span>
+                  <span className="text-xs tracking-100">Regenerate</span>
                 </button>
               </div>
             )}
           </div>
-          <PreviewContainer item={item} />
+          <PreviewContainer
+            item={item}
+            highlightedProductId={highlightedProductId}
+          />
         </div>
       ))}
     </div>
@@ -149,9 +169,37 @@ const Preview = ({
 
 export default Preview;
 
-const PreviewContainer = ({ item }: { item: any }) => {
+const PreviewContainer = ({
+  item,
+  highlightedProductId,
+}: {
+  item: any;
+  highlightedProductId: string;
+}) => {
   // const containerRef = useRef<HTMLDivElement>(null);
   console.log("PreviewContainer item:", item);
+
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
+
+  const isLoading = useMemo(() => {
+    console.log("highlightedProductId:", highlightedProductId);
+    console.log("item.platform:", item?.platform);
+    console.log(
+      "creativeLoadingStates:",
+      creativeLoadingStates?.[highlightedProductId]
+    );
+    console.log(
+      "isLoading:",
+      creativeLoadingStates?.[highlightedProductId]?.[item.platform]
+    );
+    return creativeLoadingStates?.[highlightedProductId]?.[item.platform];
+  }, [
+    highlightedProductId,
+    creativeLoadingStates,
+    creativeLoadingStates?.[highlightedProductId],
+  ]);
 
   // const width = 350;
 
@@ -174,7 +222,11 @@ const PreviewContainer = ({ item }: { item: any }) => {
     <div className="bg-[#f1f1f1] max-w-full relative rounded-xl md:rounded-3xl mt-5">
       {/* Carousel arrows */}
 
-      {creativesAvailable ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[518px] md:h-[600px]">
+          <CircleLoader />
+        </div>
+      ) : creativesAvailable ? (
         <>
           {item.title === "Google" ? (
             <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
@@ -184,18 +236,20 @@ const PreviewContainer = ({ item }: { item: any }) => {
             </div>
           ) : (
             <div className="flex flex-1 h-[350px] flex-row gap-2 sm:h-[350px] md:h-[650px] items-center justify-center">
-              {isMediaCreative[mediaCreative]?.creatives.map(
-                (creative: string, index: number) => (
-                  <img
-                    key={creative}
-                    src={isMediaCreative[mediaCreative]?.creatives[index]}
-                    alt={`${item.title} ad preview`}
-                    width={300}
-                    height={600}
-                    className="object-contain w-[150px] h-[300px] lg:w-[200px] lg:h-[500px] xl:w-[300px] xl:h-[600px] rounded-2xl"
-                  />
-                )
-              )}
+              <>
+                {isMediaCreative[mediaCreative]?.creatives.map(
+                  (creative: string, index: number) => (
+                    <img
+                      key={creative}
+                      src={isMediaCreative[mediaCreative]?.creatives[index]}
+                      alt={`${item.title} ad preview`}
+                      width={300}
+                      height={600}
+                      className="object-contain w-[150px] h-[300px] lg:w-[200px] lg:h-[500px] xl:w-[300px] xl:h-[600px] rounded-2xl"
+                    />
+                  )
+                )}
+              </>
             </div>
           )}
         </>

@@ -13,6 +13,9 @@ export default function CheckoutSuccessPage() {
   const isSubscriptionSuccess = useUIStore(
     (state) => state.isSubscriptionSuccess
   );
+  const setIsSubscriptionSuccess = useUIStore(
+    (state) => state.actions.setSubscriptionSuccess
+  );
   const { navigateToCreateCampaign } = useCampaignsActions();
 
   const handleContinueCreateCampaign = () => {
@@ -22,8 +25,15 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (!isSubscriptionSuccess) {
       router.push("/");
+      console.log("No subscription success, redirecting to home.");
     }
-  }, [isSubscriptionSuccess, router]);
+    console.log("isSubscriptionSuccess:", isSubscriptionSuccess);
+    console.log("Subscription success confirmed.");
+    return () => {
+      setIsSubscriptionSuccess(false);
+      console.log("Resetting subscription success state.");
+    };
+  }, []);
 
   return (
     <SuccessScreen

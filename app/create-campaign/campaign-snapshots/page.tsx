@@ -1,10 +1,13 @@
 "use client";
-import { ArrowCircleRight2, ArrowDown2 } from "iconsax-react";
+import { ArrowCircleRight2, ArrowDown2, Magicpen } from "iconsax-react";
 import MagicStarIcon from "@/public/magic-star.png";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
-import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
-import { useEffect, useMemo, useState } from "react";
+import {
+  CampaignSnapshots,
+  useCreateCampaignStore,
+} from "@/app/lib/stores/createCampaignStore";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
@@ -18,6 +21,9 @@ import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGeneration";
 import Input from "@/app/ui/form/Input";
+import useUIStore from "@/app/lib/stores/uiStore";
+import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
+import { set } from "lodash";
 
 const ProductContainer = ({
   products,
@@ -57,31 +63,58 @@ const MainActions = ({
   generateCreatives,
   loading,
   generalUndo,
-  supportedAdPlatforms,
 }: {
   isOnlyGoogle?: boolean;
   canUndo: (id: string) => boolean;
   highlightedProduct: ShopifyProduct;
   generateCreatives: (productId: string, platform: Platform[]) => Promise<void>;
   loading: boolean;
-  supportedAdPlatforms?: any;
   generalUndo: (productId: string) => void;
 }) => {
+  const supportedAdPlatforms = useCreateCampaignStore(
+    (state) => state.supportedAdPlatforms
+  );
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
+  const isLoading = useMemo(() => {
+    return (
+      creativeLoadingStates?.[highlightedProduct?.node.id || ""] &&
+      Object.values(
+        creativeLoadingStates?.[highlightedProduct?.node.id || ""] || {}
+      ).some((state) => state === true)
+    );
+  }, [creativeLoadingStates, highlightedProduct?.node.id]);
+
+  console.log("Supported Ad Platforms in MainActions:", supportedAdPlatforms);
   const supportedPlatformArr = useMemo(() => {
     const platforms: Platform[] = [];
-    if (!supportedAdPlatforms) return platforms;
+    if (!supportedAdPlatforms) {
+      return platforms;
+    }
 
-    if (supportedAdPlatforms.FACEBOOK) platforms.push("FACEBOOK");
-    if (supportedAdPlatforms.INSTAGRAM) platforms.push("INSTAGRAM");
-    if (supportedAdPlatforms["GOOGLE ADS"]) platforms.push("GOOGLE ADS");
+    const platformMap: Record<string, Platform> = {
+      Facebook: "FACEBOOK",
+      Instagram: "INSTAGRAM",
+      Google: "GOOGLE ADS",
+    };
+
+    // Treat supportedAdPlatforms as a string-keyed record so we can safely index with dynamic keys
+    const supported = supportedAdPlatforms as Record<string, boolean>;
+
+    Object.entries(platformMap).forEach(([key, platform]) => {
+      if (supported[key] === true) {
+        platforms.push(platform);
+      }
+    });
+
     return platforms;
   }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
-      {!isOnlyGoogle && (
+      {/* {!isOnlyGoogle && (
         <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-          {/* <MagicStarIcon />
-           */}
+          
           <img
             src={MagicStarIcon.src}
             alt="Magic Star"
@@ -90,7 +123,7 @@ const MainActions = ({
           />
           <span className="text-sm font-medium">Mix</span>
         </button>
-      )}
+      )} */}
       {canUndo(highlightedProduct?.node?.id) && (
         <button
           onClick={() => generalUndo(highlightedProduct?.node?.id)}
@@ -102,14 +135,28 @@ const MainActions = ({
       )}
 
       <button
-        disabled={loading}
-        onClick={() =>
-          generateCreatives(highlightedProduct?.node?.id, supportedPlatformArr)
-        }
-        className="flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border "
+        disabled={isLoading}
+        onClick={() => {
+          console.log("Supported Platform Array:", supportedAdPlatforms);
+          console.log(
+            "Regenerate clicked for",
+            highlightedProduct?.node?.id,
+            supportedPlatformArr
+          );
+          generateCreatives(highlightedProduct?.node?.id, supportedPlatformArr);
+        }}
+        className={`flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center ${
+          !isLoading
+            ? "bg-[#F0E6FB] border-[#D0B0F3] border"
+            : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
+        }`}
       >
-        <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
-        <span className="text-sm font-medium">Generate</span>
+        {isLoading ? (
+          <Magicpen size={18} color="#000" />
+        ) : (
+          <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
+        )}
+        <span className="text-sm font-medium">Regenerate</span>
       </button>
     </div>
   );
@@ -159,7 +206,8 @@ export default function CampaignSnapshotsPage() {
 
   const [highlightedProduct, setHighlightedProduct] =
     useState<ShopifyProduct | null>(productSelection.products[0] || null);
-  const { generateCreatives, loading } = useGenerateCreatives();
+  const { generateCreatives, loading, initialGeneration, creativeLoadingRef } =
+    useGenerateCreatives();
 
   // const [creatives, setCreatives] = useState<any | null>({
 
@@ -172,6 +220,42 @@ export default function CampaignSnapshotsPage() {
   //   settings: any;
   //   creatives: any[];
   // }[];
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
+
+  const hasRunRef = useRef<{ [key: string]: boolean }>({});
+  useEffect(() => {
+    const productId = highlightedProduct?.node.id;
+    if (!productId || hasRunRef.current[productId]) return;
+
+    const activePlatforms = [];
+    if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
+
+    const isLoading =
+      creativeLoadingRef?.[productId] &&
+      Object.values(creativeLoadingRef[productId] || {}).some(
+        (state) => state === true
+      );
+
+    console.log("Auto-generating creatives for", productId, activePlatforms);
+    console.log("Is Loading:", isLoading);
+    console.log(creativeLoadingRef);
+
+    if (isLoading) return;
+
+    const hasCreative =
+      (supportedAdPlatforms.Google && Google?.[productId]) ||
+      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+
+    if (!hasCreative) {
+      hasRunRef.current[productId] = true;
+      generateCreatives(productId, activePlatforms as Platform[]);
+    }
+  }, [highlightedProduct?.node.id]);
 
   useEffect(() => {
     const resultAdPlatforms = Object.keys(supportedAdPlatforms)
@@ -216,22 +300,39 @@ export default function CampaignSnapshotsPage() {
     facebookSettings,
     googleSettings,
     highlightedProduct?.node.id,
-    Google,
+    Google?.[highlightedProduct?.node.id || ""],
+    Instagram?.[highlightedProduct?.node.id || ""],
+    Facebook?.[highlightedProduct?.node.id || ""],
   ]);
 
-  const [campaignDetails, setCampaignDetails] = useState({
-    campaignType: "Product Launch",
-    campaignName: "",
-    brandColor: "#000000",
-    accentColor: "#FFFFFF",
-    campaignDescription: "",
-    campaignStartDate: new Date(new Date().setDate(new Date().getDate() + 1)),
-    campaignEndDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-  });
+  const campaignDetails = useCreateCampaignStore(
+    (state) => state.campaignSnapshots
+  );
+  const setCampaignDetails = useCreateCampaignStore(
+    (state) => state.actions.storeCampaignSnapshots
+  );
+
+  const primaryColor = useBrandAssetStore((state) => state.primaryColor);
+  const secondaryColor = useBrandAssetStore((state) => state.secondaryColor);
+
+  useEffect(() => {
+    console.log("Current Campaign Details:", campaignDetails);
+    console.log("Primary Color from Brand Assets:", primaryColor);
+    console.log("Secondary Color from Brand Assets:", secondaryColor);
+    setCampaignDetails({
+      brandColor: primaryColor,
+      accentColor: secondaryColor,
+    });
+  }, [primaryColor, secondaryColor]);
+
   const [error, setError] = useState(false);
 
-  const handleCampaignDetails = (key: string, value: string) => {
-    setCampaignDetails((prev) => ({ ...prev, [key]: value }));
+  const handleCampaignDetails = (
+    key: keyof CampaignSnapshots,
+    value: string
+  ) => {
+    // setCampaignDetails((prev) => ({ ...prev, [key]: value }));
+    setCampaignDetails({ ...campaignDetails, [key]: value });
   };
 
   const handleProceed = () => {
@@ -319,7 +420,6 @@ export default function CampaignSnapshotsPage() {
               highlightedProduct={highlightedProduct}
               generateCreatives={generateCreatives}
               loading={loading}
-              supportedAdPlatforms={supportedAdPlatforms}
               generalUndo={generalUndo}
             />
           )}
@@ -405,7 +505,7 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       </div>
-      {loading && <CircleLoaderModal text="Generating Ad Creatives..." />}
+      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 }
