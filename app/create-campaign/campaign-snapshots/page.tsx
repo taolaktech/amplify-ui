@@ -225,37 +225,37 @@ export default function CampaignSnapshotsPage() {
   );
 
   const hasRunRef = useRef<{ [key: string]: boolean }>({});
-  useEffect(() => {
-    const productId = highlightedProduct?.node.id;
-    if (!productId || hasRunRef.current[productId]) return;
+  // useEffect(() => {
+  //   const productId = highlightedProduct?.node.id;
+  //   if (!productId || hasRunRef.current[productId]) return;
 
-    const activePlatforms = [];
-    if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
-    if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
-    if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
+  //   const activePlatforms = [];
+  //   if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
+  //   if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
+  //   if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
 
-    const isLoading =
-      creativeLoadingRef?.[productId] &&
-      Object.values(creativeLoadingRef[productId] || {}).some(
-        (state) => state === true
-      );
+  //   const isLoading =
+  //     creativeLoadingRef?.[productId] &&
+  //     Object.values(creativeLoadingRef[productId] || {}).some(
+  //       (state) => state === true
+  //     );
 
-    console.log("Auto-generating creatives for", productId, activePlatforms);
-    console.log("Is Loading:", isLoading);
-    console.log(creativeLoadingRef);
+  //   console.log("Auto-generating creatives for", productId, activePlatforms);
+  //   console.log("Is Loading:", isLoading);
+  //   console.log(creativeLoadingRef);
 
-    if (isLoading) return;
+  //   if (isLoading) return;
 
-    const hasCreative =
-      (supportedAdPlatforms.Google && Google?.[productId]) ||
-      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+  //   const hasCreative =
+  //     (supportedAdPlatforms.Google && Google?.[productId]) ||
+  //     (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+  //     (supportedAdPlatforms.Facebook && Facebook?.[productId]);
 
-    if (!hasCreative) {
-      hasRunRef.current[productId] = true;
-      generateCreatives(productId, activePlatforms as Platform[]);
-    }
-  }, [highlightedProduct?.node.id]);
+  //   if (!hasCreative) {
+  //     hasRunRef.current[productId] = true;
+  //     generateCreatives(productId, activePlatforms as Platform[]);
+  //   }
+  // }, [highlightedProduct?.node.id]);
 
   useEffect(() => {
     const resultAdPlatforms = Object.keys(supportedAdPlatforms)
@@ -373,7 +373,7 @@ export default function CampaignSnapshotsPage() {
   return (
     <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="hidden lg:block">
+        <div className="hidden w-[224px] lg:block">
           <ProductContainer
             highlightedProduct={highlightedProduct}
             products={products}
@@ -381,8 +381,8 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       )}
-      <div className="w-full lg:w-[calc(100%-224px)]">
-        <div className="flex flex-col lg:flex-row gap-3 justify-between">
+      <div className="lg:w-[calc(100%-248px)] max-w-full">
+        <div className="flex px-5 lg:pl-0 lg:pr-5 flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>
               <h1 className="text-xl tracking-40 md:text-2xl font-medium md:font-bold text-heading md:tracking-800">
@@ -395,7 +395,7 @@ export default function CampaignSnapshotsPage() {
               </p>
             </div>
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden px-5 lg:pl-0 lg:pr-5 lg:block">
             {highlightedProduct && (
               <MainActions
                 isOnlyGoogle={isOnlyGoogle}
@@ -408,11 +408,13 @@ export default function CampaignSnapshotsPage() {
             )}
           </div>
         </div>
-        <ProductsForGeneration
-          highlightedProductId={highlightedProduct?.node.id || "1"}
-          setHighlightedProduct={setHighlightedProduct}
-        />
-        <div className="flex flex-row justify-end mt-6 lg:hidden">
+        <div className="px-5 lg:pl-0 lg:pr-5">
+          <ProductsForGeneration
+            highlightedProductId={highlightedProduct?.node.id || "1"}
+            setHighlightedProduct={setHighlightedProduct}
+          />
+        </div>
+        <div className="flex px-5 lg:pl-0 lg:pr-5 flex-row justify-end mt-6 lg:hidden">
           {highlightedProduct && (
             <MainActions
               isOnlyGoogle={isOnlyGoogle}
@@ -424,7 +426,7 @@ export default function CampaignSnapshotsPage() {
             />
           )}
         </div>
-        <div className="mt-6">
+        <div className="mt-6 px-5 lg:pl-0 lg:pr-5">
           <Input
             type="text"
             label="Campaign Name"
@@ -449,7 +451,7 @@ export default function CampaignSnapshotsPage() {
             </div>
           )}
         </div>
-        <div className="mt-5 flex flex-col md:flex-row gap-4 md:gap-14">
+        <div className="mt-5 px-5 lg:pl-0 lg:pr-5 flex flex-col md:flex-row gap-4 md:gap-14">
           <div className="flex-1">
             <div className="w-full">
               <CampaignTypeInput
@@ -478,14 +480,16 @@ export default function CampaignSnapshotsPage() {
             />
           )}
         </div>
-        <DateSelection
-          setStartDate={(date: Date) =>
-            handleCampaignDetails("campaignStartDate", date.toISOString())
-          }
-          setEndDate={(date: Date) =>
-            handleCampaignDetails("campaignEndDate", date.toISOString())
-          }
-        />
+        <div className="px-5 lg:pl-0 lg:pr-5">
+          <DateSelection
+            setStartDate={(date: Date) =>
+              handleCampaignDetails("campaignStartDate", date.toISOString())
+            }
+            setEndDate={(date: Date) =>
+              handleCampaignDetails("campaignEndDate", date.toISOString())
+            }
+          />
+        </div>
         <div className="mt-10">
           <Preview
             adPlatforms={adPlatforms}
@@ -494,7 +498,7 @@ export default function CampaignSnapshotsPage() {
             loading={loading}
           />
         </div>
-        <div className="mt-5 md:mt-20 sm:max-w-[200px] mx-auto">
+        <div className="mt-5 md:mt-20 px-5 lg:pl-0 lg:pr-5 sm:max-w-[200px] mx-auto">
           <Button
             text="Proceed"
             action={handleProceed}

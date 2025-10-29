@@ -68,7 +68,7 @@ export default function CreateCampaign({
     <div>
       {/* <ProgressBar width={(step / 6) * 100} /> */}
       <div
-        className={`flex items-center h-[40px] mt-6 ${
+        className={`flex px-5 items-center h-[40px] mt-6 ${
           currentProgressStep > 1 ? "justify-between" : "justify-end"
         }`}
       >
@@ -95,7 +95,9 @@ export default function CreateCampaign({
           <span className="text-sm font-medium">Close</span>
         </button>
       </div>
-      <main>{children}</main>
+      <main className={`${currentProgressStep === 4 ? "" : "px-5"}`}>
+        {children}
+      </main>
     </div>
   );
 }
