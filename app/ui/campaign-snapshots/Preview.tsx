@@ -166,10 +166,12 @@ const PreviewContainer = ({
   item,
   highlightedProductId,
   platform,
+  settings,
 }: {
   item: any;
   highlightedProductId: string;
   platform: Platform;
+  settings?: { label: string; key: SocialSettingsKey }[];
 }) => {
   // const containerRef = useRef<HTMLDivElement>(null);
   console.log("PreviewContainer item:", item);
@@ -177,6 +179,14 @@ const PreviewContainer = ({
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
   );
+
+  const instagramSettings = useCreateCampaignStore(
+    (state) => state.instagramSettings
+  );
+
+  const instagramSettingsCount = useMemo(() => {
+    return Object.values(instagramSettings).filter((value) => value).length;
+  }, [instagramSettings]);
 
   const isLoading = useMemo(() => {
     console.log("highlightedProductId:", highlightedProductId);
@@ -195,15 +205,6 @@ const PreviewContainer = ({
     creativeLoadingStates,
     creativeLoadingStates?.[highlightedProductId],
   ]);
-
-  // const width = 350;
-
-  // const scrollBy = (offset: number) => {
-  //   console.log("called");
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollBy({ left: offset, behavior: "smooth" });
-  //   }
-  // };
 
   const lastIndex = item?.creatives?.length - 1 || 0;
   const creativesAvailable = item?.creatives?.length > 0;
@@ -250,21 +251,27 @@ const PreviewContainer = ({
       {isInstagram && (
         <DragScrollContainer>
           <div className="mt-5 pl-5 flex gap-4 max-w-full items-center">
-            <div className="w-[25%] min-w-[308.6px]">
-              <IGStaticPostView
-                photoUrl={isMediaCreative[mediaCreative]?.creatives[0]}
-              />
-            </div>
-            <div className="w-[50%] min-w-[529.6px]">
-              <IGCarouselPostView
-                photoUrls={isMediaCreative[mediaCreative]?.creatives || []}
-              />
-            </div>
-            <div className="w-[25%] min-w-[308.6px]">
-              <StoryPostView
-                photoUrl={isMediaCreative[mediaCreative]?.creatives[0] || []}
-              />
-            </div>
+            {instagramSettings.staticPost && (
+              <div className="w-[25%] min-w-[308.6px]">
+                <IGStaticPostView
+                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0]}
+                />
+              </div>
+            )}
+            {instagramSettings.carouselPost && (
+              <div className="w-[50%] min-w-[529.6px]">
+                <IGCarouselPostView
+                  photoUrls={isMediaCreative[mediaCreative]?.creatives || []}
+                />
+              </div>
+            )}
+            {instagramSettings.storyPost && (
+              <div className="w-[25%] min-w-[308.6px]">
+                <StoryPostView
+                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0] || []}
+                />
+              </div>
+            )}
           </div>
         </DragScrollContainer>
       )}
