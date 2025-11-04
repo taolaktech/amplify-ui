@@ -25,13 +25,10 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (!isSubscriptionSuccess) {
       router.push("/");
-      console.log("No subscription success, redirecting to home.");
     }
     console.log("isSubscriptionSuccess:", isSubscriptionSuccess);
-    console.log("Subscription success confirmed.");
     return () => {
       setIsSubscriptionSuccess(false);
-      console.log("Resetting subscription success state.");
     };
   }, []);
 

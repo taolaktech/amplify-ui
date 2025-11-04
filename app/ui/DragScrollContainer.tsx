@@ -6,13 +6,15 @@ export default function DragScrollContainer({
 }: {
   children: React.ReactNode;
 }) {
-  const containerRef = useRef<any | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  const onMouseDown = (e: any) => {
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
     setIsDragging(true);
+    if (!containerRef.current) return;
     setStartX(e.pageX - containerRef.current?.offsetLeft);
     setScrollLeft(containerRef.current.scrollLeft);
   };
@@ -20,9 +22,10 @@ export default function DragScrollContainer({
   const onMouseLeave = () => setIsDragging(false);
   const onMouseUp = () => setIsDragging(false);
 
-  const onMouseMove = (e: any) => {
-    if (!isDragging) return;
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (!isDragging) return;
+    if (!containerRef.current) return;
     const x = e.pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1; // scroll speed multiplier
     containerRef.current.scrollLeft = scrollLeft - walk;
