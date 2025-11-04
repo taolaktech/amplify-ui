@@ -13,7 +13,6 @@ import { useMemo } from "react";
 import IGStaticPostView from "../media-creatives/ig/StaticPostView";
 import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
 import CircleLoader from "../loaders/CircleLoader";
-import { toggle } from "@heroui/theme";
 import DragScrollContainer from "../DragScrollContainer";
 import StoryPostView from "../media-creatives/ig/StoryPostView";
 
@@ -166,6 +165,7 @@ const PreviewContainer = ({
   item,
   highlightedProductId,
   platform,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   settings,
 }: {
   item: any;
@@ -184,9 +184,9 @@ const PreviewContainer = ({
     (state) => state.instagramSettings
   );
 
-  const instagramSettingsCount = useMemo(() => {
-    return Object.values(instagramSettings).filter((value) => value).length;
-  }, [instagramSettings]);
+  // const instagramSettingsCount = useMemo(() => {
+  //   return Object.values(instagramSettings).filter((value) => value).length;
+  // }, [instagramSettings]);
 
   const isLoading = useMemo(() => {
     console.log("highlightedProductId:", highlightedProductId);
@@ -216,7 +216,7 @@ const PreviewContainer = ({
   // if (!item?.creatives?.length) return null;
   const isGoogleAds = platform === "GOOGLE ADS";
   const isInstagram = platform === "INSTAGRAM";
-  const isFacebook = platform === "FACEBOOK";
+  // const isFacebook = platform === "FACEBOOK";
   return (
     <>
       {isGoogleAds && (

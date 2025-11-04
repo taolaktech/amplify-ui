@@ -1,6 +1,5 @@
 "use client";
 import { ArrowCircleRight2, ArrowDown2, Magicpen } from "iconsax-react";
-import MagicStarIcon from "@/public/magic-star.png";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import {
@@ -18,12 +17,11 @@ import Product from "@/app/ui/campaign-snapshots/Product";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import { Platform, ShopifyProduct } from "@/type";
 import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
-import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGeneration";
 import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
-import { set } from "lodash";
+import { getCampaignTypes } from "@/app/lib/campaignTypes";
 
 const ProductContainer = ({
   products,
@@ -57,10 +55,12 @@ const ProductContainer = ({
 };
 
 const MainActions = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isOnlyGoogle,
   canUndo,
   highlightedProduct,
   generateCreatives,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loading,
   generalUndo,
 }: {
@@ -162,32 +162,7 @@ const MainActions = ({
   );
 };
 
-const productTypes = [
-  {
-    label: "Introducing our Fall 2025 Line",
-    recommended: true,
-  },
-  {
-    label: "Autumn Vibes 2025 Collection",
-    recommended: true,
-  },
-  {
-    label: "Harvest Chic 2025 Lineup",
-    recommended: false,
-  },
-  {
-    label: "Crisp Leaves 2025 Series",
-    recommended: false,
-  },
-  {
-    label: "Fall Fashion Fest 2025",
-    recommended: false,
-  },
-  {
-    label: "Autumn Essentials 2025 Range",
-    recommended: false,
-  },
-];
+const productTypes = getCampaignTypes();
 
 export default function CampaignSnapshotsPage() {
   const {
@@ -206,7 +181,7 @@ export default function CampaignSnapshotsPage() {
 
   const [highlightedProduct, setHighlightedProduct] =
     useState<ShopifyProduct | null>(productSelection.products[0] || null);
-  const { generateCreatives, loading, initialGeneration, creativeLoadingRef } =
+  const { generateCreatives, loading, creativeLoadingRef } =
     useGenerateCreatives();
 
   // const [creatives, setCreatives] = useState<any | null>({
@@ -219,43 +194,44 @@ export default function CampaignSnapshotsPage() {
   //   image: string;
   //   settings: any;
   //   creatives: any[];
-  // }[];
+  // }[]
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
   );
 
   const hasRunRef = useRef<{ [key: string]: boolean }>({});
-  // useEffect(() => {
-  //   const productId = highlightedProduct?.node.id;
-  //   if (!productId || hasRunRef.current[productId]) return;
+  useEffect(() => {
+    const productId = highlightedProduct?.node.id;
+    if (!productId || hasRunRef.current[productId]) return;
 
-  //   const activePlatforms = [];
-  //   if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
-  //   if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
-  //   if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
+    const activePlatforms = [];
+    if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
 
-  //   const isLoading =
-  //     creativeLoadingRef?.[productId] &&
-  //     Object.values(creativeLoadingRef[productId] || {}).some(
-  //       (state) => state === true
-  //     );
+    const isLoading =
+      creativeLoadingRef?.[productId] &&
+      Object.values(creativeLoadingRef[productId] || {}).some(
+        (state) => state === true
+      );
 
-  //   console.log("Auto-generating creatives for", productId, activePlatforms);
-  //   console.log("Is Loading:", isLoading);
-  //   console.log(creativeLoadingRef);
+    console.log("Auto-generating creatives for", productId, activePlatforms);
+    console.log("Is Loading:", isLoading);
+    console.log(creativeLoadingRef);
 
-  //   if (isLoading) return;
+    if (isLoading) return;
 
-  //   const hasCreative =
-  //     (supportedAdPlatforms.Google && Google?.[productId]) ||
-  //     (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-  //     (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+    const hasCreative =
+      (supportedAdPlatforms.Google && Google?.[productId]) ||
+      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
 
-  //   if (!hasCreative) {
-  //     hasRunRef.current[productId] = true;
-  //     generateCreatives(productId, activePlatforms as Platform[]);
-  //   }
-  // }, [highlightedProduct?.node.id]);
+    if (!hasCreative) {
+      hasRunRef.current[productId] = true;
+      generateCreatives(productId, activePlatforms as Platform[]);
+    }
+  }, [highlightedProduct?.node.id]);
 
   useEffect(() => {
     const resultAdPlatforms = Object.keys(supportedAdPlatforms)

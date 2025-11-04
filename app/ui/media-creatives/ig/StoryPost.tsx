@@ -9,6 +9,7 @@ import StorySendIcon from "@/public/media-creatives/story-send.png";
 
 export default function StoryPost({
   brandName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   location,
   photoUrl,
   maximized,
@@ -20,6 +21,8 @@ export default function StoryPost({
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
+
+  const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,8 +64,24 @@ export default function StoryPost({
         style={{
           height: maximized ? `${maximizedHeight! * (376 / 413)}px` : "376px",
         }}
-        className="bg-black relative"
+        className="bg-black relative flex items-center justify-center"
       >
+        {photoUrl && (
+          <Image
+            src={photoUrl}
+            alt="Story Image"
+            width={maximized ? maximizedWidth! : 211.51}
+            height={maximized ? maximizedHeight! * (211.51 / 413) : 211.51}
+            style={{
+              width: maximized ? maximizedWidth! : 211.51,
+              height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
+              // objectFit: "fill",
+              opacity: photoUrlLoaded ? 1 : 0,
+              transition: "opacity 0.5s ease-in-out",
+            }}
+            onLoad={() => setPhotoUrlLoaded(true)}
+          />
+        )}
         <div className="absolute top-0 py-5 px-3 left-0 right-0">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 ">

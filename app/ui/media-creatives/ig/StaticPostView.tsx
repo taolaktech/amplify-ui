@@ -1,6 +1,6 @@
 import StaticPost from "./StaticPost";
 import MaximizeButton from "../MaximizeButton";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import XIcon from "@/public/x.svg";
@@ -17,6 +17,8 @@ export default function StaticPostView({
     (state) => state.adsShow.location[0] || "Location"
   );
   const [maximize, setMaximize] = useState(false);
+
+  console.log("photoUrl in StaticPostView:", photoUrl);
 
   const toggleMaximize = () => {
     setMaximize(!maximize);

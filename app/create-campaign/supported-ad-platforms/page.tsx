@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import Toggle from "@/app/ui/Toggle";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
-import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 import GooglePostSM from "@/public/google_post_sm.webp";
 import GooglePostLG from "@/public/google_post_lg.webp";
 import IGPostSM from "@/public/ig_post_sm.webp";
@@ -14,14 +13,14 @@ import IGPostLG from "@/public/ig_post_lg.webp";
 import FacebookPostSM from "@/public/facebook_post_sm.webp";
 import FacebookPostLG from "@/public/facebook_post_lg.webp";
 import { useModal } from "@/app/lib/hooks/useModal";
-import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
+// import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
 
-  const { initialGeneration, loading } = useGenerateCreatives();
+  // const { initialGeneration, loading } = useGenerateCreatives();
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

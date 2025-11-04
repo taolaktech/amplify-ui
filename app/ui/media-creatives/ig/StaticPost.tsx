@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Skeleton from "../../Skeleton";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
-import IGArrowIcon from "@/public/IGArrowIcon.svg";
+// import IGArrowIcon from "@/public/IGArrowIcon.svg";
 import Image from "next/image";
 // import SendIcon from "@/public/media-creatives/ig_send.svg";
 // import HeartIcon from "@/public/media-creatives/ig_heart.svg";
@@ -12,12 +12,14 @@ import HeartIcon from "@/public/media-creatives/Heart.png";
 import CommentIcon from "@/public/media-creatives/Comment.png";
 import BookmarkIcon from "@/public/media-creatives/Bookmark.png";
 import ChevronRight from "@/public/chevron-right-white.svg";
-import { inter, roboto } from "@/app/ui/fonts";
+// import { inter, roboto } from "@/app/ui/fonts";
+// import CircleLoader from "../../loaders/CircleLoader";
 
 export default function StaticPost({
   brandName,
   location,
   photoUrl,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
 }: {
@@ -31,6 +33,8 @@ export default function StaticPost({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
+
+  const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -133,8 +137,25 @@ export default function StaticPost({
         style={{
           height: maximized ? maximizedHeight! * (260 / 413) : "260px",
         }}
-        className=" bg-black"
+        className="flex items-center justify-center bg-black"
       >
+        {photoUrl && photoUrlLoaded && (
+          <Image
+            src={photoUrl}
+            alt="Post Image"
+            width={maximized ? maximizedHeight! * (260.7 / 413) : 260.7}
+            height={maximized ? maximizedHeight! * (260 / 413) : 260}
+            style={{
+              width: maximized ? maximizedHeight! * (260.7 / 413) : 260.7,
+              height: maximized ? maximizedHeight! * (260 / 413) : 260,
+              objectFit: "cover",
+              opacity: photoUrlLoaded ? 1 : 0,
+            }}
+            onLoad={() => setPhotoUrlLoaded(true)}
+            // placeholder="blur"
+          />
+        )}
+        {/* {(photoUrl || !photoUrlLoaded) && <CircleLoader />} */}
         {/* <Skeleton
           width="100%"
           height={maximized ? `${maximizedHeight! * (260 / 413)}px` : "260px"}

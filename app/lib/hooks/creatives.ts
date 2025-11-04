@@ -8,14 +8,13 @@ import {
 } from "../api/ai/creatives";
 import { useAuthStore } from "../stores/authStore";
 // import useUIStore from "../stores/uiStore";
-import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import { useSetupStore } from "../stores/setupStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import useCreativesStore from "../stores/creativesStore";
 import { useRef, useState } from "react";
 import { Platform } from "@/type";
-import useCampaignsStore from "../stores/campaignsStore";
+
 import useUIStore from "../stores/uiStore";
 
 export const useGenerateCreatives = () => {
@@ -31,9 +30,9 @@ export const useGenerateCreatives = () => {
   const campaignType = useCreateCampaignStore(
     (state) => state.campaignSnapshots.campaignType
   );
-  const campaignName = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.campaignName
-  );
+  // const campaignName = useCreateCampaignStore(
+  //   (state) => state.campaignSnapshots.campaignName
+  // );
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
   );
@@ -47,16 +46,17 @@ export const useGenerateCreatives = () => {
   );
 
   const [, setCurrentProductId] = useState<string | null>(null);
-  const router = useRouter();
+  // const router = useRouter();
   const generate = useCreativesStore((state) => state.actions.generate);
   const supportedAdPlatforms = useCreateCampaignStore(
     (state) => state.supportedAdPlatforms
   );
-  const [isCreativeSetLoading, setIsCreativeSetLoading] = useState(false);
+
+  const [isCreativeSetLoading] = useState(false);
   // const products = useUIStore((state) => state.products);
   const { productSelection } = useCreateCampaignStore((state) => state);
-  const actions = useCreateCampaignStore((state) => state.actions);
-  // const;
+
+  // const actions = useCreateCampaignStore((state) => state.actions);
   const { mutateAsync: googleMutate, isPending: googleCreativeIsPending } =
     useMutation({
       mutationFn: generateGoogleCreatives,
@@ -215,7 +215,7 @@ export const useGenerateCreatives = () => {
     };
 
     if (platforms?.length) {
-      let loadingStates: Record<Platform, boolean> = {
+      const loadingStates: Record<Platform, boolean> = {
         "GOOGLE ADS": false,
         FACEBOOK: false,
         INSTAGRAM: false,

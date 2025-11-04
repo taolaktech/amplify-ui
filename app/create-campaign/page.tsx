@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useLocalSalesLocation from "../lib/hooks/useLocalSalesLocation";
-import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
+// import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
 import SalesLocationInput from "../ui/form/SalesLocationInput";
 import AutoFetchingProduct from "../ui/AutoFetchingProduct";
 import SalesLocationView from "../ui/SalesLocationView";
@@ -12,23 +12,19 @@ import { useModal } from "../lib/hooks/useModal";
 import { useGetShopifyProducts } from "../lib/hooks/shopify";
 import { useSetupStore } from "../lib/stores/setupStore";
 import { useToastStore } from "../lib/stores/toastStore";
-import { on } from "events";
+
 export default function AdsLocationPage() {
   const {
     searchQuery,
     setSearchQuery,
     salesLocation,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setSalesLocation,
     toggleSalesLocation,
     clearSalesLocation,
   } = useLocalSalesLocation();
-  const defaultPreferredSalesLocation = useSetupStore(
-    (state) => state.preferredSalesLocation
-  );
+
   const storeUrl = useSetupStore((state) => state.connectStore?.storeUrl);
-  const salesLocationFromStore = useCreateCampaignStore(
-    (state) => state.adsShow.location
-  );
 
   // useEffect(() => {
   //   if (salesLocationFromStore.length === 0 || !salesLocationFromStore) {
@@ -53,17 +49,17 @@ export default function AdsLocationPage() {
   //   setSalesLocation(salesLocationFromStore);
   // }, []);
 
-  const doneFetching = () => {
-    setTimeout(() => {
-      setFetchingProgress(100);
-      setIsDoneLoading(true);
-      router.push("/create-campaign/product-selection");
-    }, 1500);
-  };
+  // const doneFetching = () => {
+  //   setTimeout(() => {
+  //     setFetchingProgress(100);
+  //     setIsDoneLoading(true);
+  //     router.push("/create-campaign/product-selection");
+  //   }, 1500);
+  // };
 
-  const onErrorFetching = () => {
-    setIsDoneLoading(true);
-  };
+  // const onErrorFetching = () => {
+  //   setIsDoneLoading(true);
+  // };
 
   const handleProceed = async () => {
     setIsDoneLoading(false);
@@ -71,15 +67,16 @@ export default function AdsLocationPage() {
       await fetchProducts(
         { location: salesLocation },
         true,
-        false,
-        doneFetching,
-        onErrorFetching
+        false
+        // doneFetching,
+        // onErrorFetching
       );
       setFetchingProgress(100);
-      // setTimeout(() => {
-      //   setIsDoneLoading(true);
-      //   router.push("/create-campaign/product-selection");
-      // }, 1500);
+      setTimeout(() => {
+        setIsDoneLoading(true);
+
+        router.push("/create-campaign/product-selection");
+      }, 1500);
       return;
     }
     setToast({

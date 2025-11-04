@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Skeleton from "../../Skeleton";
+// import Skeleton from "../../Skeleton";
 import Image from "next/image";
 
 export default function CarouselPost({
@@ -9,8 +9,10 @@ export default function CarouselPost({
   photoUrl?: string;
   maximized?: boolean;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [imgLoaded, setImgLoaded] = useState(false);
   const [maximizedWidth, setMaximizedWidth] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [maximizedHeight, setMaximizedHeight] = useState(0);
 
   useEffect(() => {
@@ -46,6 +48,7 @@ export default function CarouselPost({
         borderRadius: maximized
           ? `${maximizedWidth! * (10.43 / 260)}px`
           : "10.43px",
+        overflow: "hidden",
       }}
       className="bg-black rounded-[10.43px]  relative"
     >

@@ -48,7 +48,7 @@ export const useGetShopifyProducts = () => {
           products.pageInfo.hasPreviousPage,
           data.page || 1
         );
-        if (onSuccess) onSuccess();
+        // if (onSuccess) onSuccess();
       } catch (error) {
         console.log("error", error);
         setToast({
@@ -58,13 +58,13 @@ export const useGetShopifyProducts = () => {
         });
       }
 
-      // if (isAdShow) {
-      //   actions.storeAdsShow({
-      //     complete: true,
-      //     location: data.location || [],
-      //   });
-      //   if (shouldRoute) router.push("/create-campaign/product-selection");
-      // }
+      if (isAdShow) {
+        actions.storeAdsShow({
+          complete: true,
+          location: data.location || [],
+        });
+        if (shouldRoute) router.push("/create-campaign/product-selection");
+      }
     } catch (error: any) {
       setError(error);
       setToast({

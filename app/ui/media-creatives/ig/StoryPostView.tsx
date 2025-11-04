@@ -47,6 +47,7 @@ export default function StoryPostView({
 
 const StoryPostViewMaximized = ({
   photoUrl,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   toggleMaximize,
 }: {
