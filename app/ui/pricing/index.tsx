@@ -31,6 +31,8 @@ export default function Pricing({
       else setSelectedPlan(plans[1]);
     }
 
+    setBillingCycle(currentPlan2.cycle.toLowerCase() as Cycle);
+
     // setSelectedPlan(
     //   plans.filter(
     //     (plan) => plan.toLowerCase() !== currentPlan?.name.toLowerCase()

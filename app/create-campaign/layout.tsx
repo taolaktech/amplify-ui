@@ -39,7 +39,7 @@ export default function CreateCampaignLayout({
         },
       }}
     >
-      <div className="max-w-[1300px] mx-auto px-5">
+      <div className="max-w-[1300px] 3xl:max-w-[1500px] mx-auto">
         <CreateCampaign>{children}</CreateCampaign>
       </div>
     </ConfigProvider>

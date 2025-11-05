@@ -25,7 +25,9 @@ export const useGetShopifyProducts = () => {
       currentPage?: number;
     },
     isAdShow: boolean,
-    shouldRoute: boolean = true
+    shouldRoute: boolean = true,
+    onSuccess?: () => void,
+    onError?: () => void
   ) => {
     // const isAhead: boolean = data.page > data.currentPage;
     setLoading(true);
@@ -46,6 +48,7 @@ export const useGetShopifyProducts = () => {
           products.pageInfo.hasPreviousPage,
           data.page || 1
         );
+        // if (onSuccess) onSuccess();
       } catch (error) {
         console.log("error", error);
         setToast({
@@ -69,12 +72,7 @@ export const useGetShopifyProducts = () => {
         message: "Something went wrong. Please try again later",
         type: "error",
       });
-      // if (isAdShow) {
-      //   actions.storeAdsShow({
-      //     complete: false,
-      //     location: data.location || [],
-      //   });
-      // }
+      if (onError) onError();
     } finally {
       setLoading(false);
     }

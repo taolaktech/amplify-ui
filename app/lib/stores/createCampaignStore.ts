@@ -29,7 +29,7 @@ type CreateCampaignState = {
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
 };
 
-type CampaignSnapshots = {
+export type CampaignSnapshots = {
   campaignName: string;
   campaignType: string;
   brandColor: string;
@@ -66,7 +66,7 @@ type CreateCampaignActions = {
   storeSelectedPaymentMethod: (paymentMethod: cardDetails | null) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   completeAdsPlatform: () => void;
-  storeCampaignSnapshots: (campaignSnapshots: CampaignSnapshots) => void;
+  storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
   getLocationCountries: () => string[];
   toggleInstagramSettings: (setting: SocialSettingsKey) => void;
@@ -204,7 +204,8 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             },
           }));
         },
-        storeCampaignSnapshots: (campaignSnapshots) => {
+        storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => {
+          console.log("Storing campaign snapshots:", campaignSnapshots);
           set((state) => ({
             campaignSnapshots: {
               ...state.campaignSnapshots,
@@ -243,14 +244,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           return;
         }
 
-        if (state) {
-          // Mutate the state object directly
-          state.adsShow.complete = false;
-          state.productSelection.complete = false;
-          state.fundCampaign.complete = false;
-          state.campaignSnapshots.complete = false;
-          state.supportedAdPlatforms.complete = false;
-        }
+        // if (state) {
+        //   // Mutate the state object directly
+        //   state.adsShow.complete = false;
+        //   state.productSelection.complete = false;
+        //   state.fundCampaign.complete = false;
+        //   state.campaignSnapshots.complete = false;
+        //   state.supportedAdPlatforms.complete = false;
+        // }
       },
     }
   )

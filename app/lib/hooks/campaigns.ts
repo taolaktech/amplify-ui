@@ -197,7 +197,7 @@ export const useLaunchCampaign = (
           product.node?.handle || "",
         ],
         category: product.node.productType || "General",
-        imageLink: product.node.media.edges[0]?.node.preview.image.url || "",
+        imageLinks: [product.node.media.edges[0]?.node.preview.image.url || ""],
         productLink: product.node.onlineStorePreviewUrl || "",
         creatives,
       };

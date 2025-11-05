@@ -1,8 +1,11 @@
 import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 
+type Platform = "FACEBOOK" | "INSTAGRAM" | "GOOGLE ADS";
+
 type UIStore = {
   products: ShopifyProduct[];
+  creativeLoadingState?: Record<string, Record<Platform | string, boolean>>;
   productCount: number;
   totalProgressStep: number;
   currentProgressStep: number;
@@ -24,6 +27,10 @@ type UIStore = {
       hasPreviousPage: boolean,
       currentPage: number
     ) => void;
+    setCreativeLoadingState: (
+      productId: string,
+      state: Record<Platform, boolean>
+    ) => void;
     setSidebarOpen: (open: boolean) => void;
     setProgressStep: (current: number, total?: number) => void;
     toggleSidebar: () => void;
@@ -39,6 +46,7 @@ const defaultSidebarOpen =
 
 const useUIStore = create<UIStore>((set) => ({
   products: [],
+  creativeLoadingState: {},
   productCount: 0,
   currentPage: 1,
   startCursor: "",
@@ -51,6 +59,16 @@ const useUIStore = create<UIStore>((set) => ({
   isOnboardingCompleted: false,
   isSubscriptionSuccess: false,
   actions: {
+    setCreativeLoadingState: (
+      productId: string,
+      state: Record<Platform, boolean>
+    ) =>
+      set((store) => ({
+        creativeLoadingState: {
+          ...store.creativeLoadingState,
+          [productId]: state,
+        },
+      })),
     setProducts: (
       products: any[],
       productCount: number,
