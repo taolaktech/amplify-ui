@@ -40,7 +40,8 @@ export default function useGetCampaigns() {
       const data = await getCampaigns(requestData);
       console.log("Fetched campaigns data:", data);
       if (data.data) {
-        actions.setData(data.data);
+        actions.setData(data.data.campaigns);
+        actions.setPaginationInfo(data.data.pagination);
       }
       setError(null); // Clear any previous errors
     } catch (error: any) {
@@ -65,6 +66,8 @@ export const useCampaignsActions = () => {
   const { isSetupComplete } = useGetSetupComplete();
 
   const navigateToCreateCampaign = () => {
+    console.log("campaigns data in actions hook:", data);
+
     if (!isSetupComplete) {
       router.push("/setup?redirect=create-campaign");
       return;
@@ -73,7 +76,7 @@ export const useCampaignsActions = () => {
       subscriptionType?.name?.toLowerCase() === "free" ||
       !subscriptionType ||
       !data ||
-      data.length === 0
+      data?.length === 0
     ) {
       router.push("/pricing");
     } else {

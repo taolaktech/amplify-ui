@@ -4,8 +4,13 @@ import { useInitialize } from "./useLoginHooks";
 import { useEffect, useState } from "react";
 
 export default function useRefreshInitialize() {
-  const { getMe, getShopifyAccount, getStoreDetails, handleGetBrandAssets } =
-    useInitialize();
+  const {
+    getMe,
+    getShopifyAccount,
+    getStoreDetails,
+    handleGetBrandAssets,
+    handleGetCurrentSubscriptionPlan,
+  } = useInitialize();
   const token = useAuthStore((state) => state.token);
   const [loading, setLoading] = useState(true);
   const { fetchCampaigns } = useGetCampaigns();
@@ -21,6 +26,7 @@ export default function useRefreshInitialize() {
       getStoreDetails(token, isConnected),
       fetchCampaigns(token),
       handleGetBrandAssets(token),
+      handleGetCurrentSubscriptionPlan(token),
     ]);
     setLoading(false);
   };

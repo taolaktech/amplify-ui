@@ -14,6 +14,7 @@ type AuthState = {
   isAuth: boolean;
   hasHydrated: boolean;
   rememberMe: boolean;
+  hasActiveSubscription?: boolean;
   subscriptionType:
     | {
         name: string;
@@ -49,6 +50,7 @@ type AuthActions = {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
+  setHasActiveSubscription: (state: boolean) => void;
   setSubscriptionType: (
     subscriptionType:
       | {
@@ -84,7 +86,7 @@ export const useAuthStore = create<AuthStore>()(
         subscriptionType: "",
       },
       loginDate: null,
-
+      hasActiveSubscription: false,
       hasHydrated: false,
       subscriptionType: {
         name: "Free",
@@ -108,6 +110,9 @@ export const useAuthStore = create<AuthStore>()(
       },
       setUser: (user) => {
         set({ user });
+      },
+      setHasActiveSubscription: (state) => {
+        set({ hasActiveSubscription: state });
       },
       getUser: () => get().user,
       setHasHydrated: (state) => {

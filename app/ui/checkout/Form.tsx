@@ -29,6 +29,8 @@ type CheckoutFormProps = {
   showStripeInfo?: boolean;
   isAddCardPage?: boolean;
   isUpgrade?: boolean;
+  isDowngrade?: boolean;
+  hasActiveSubscription?: boolean;
   fetchCustomerCards?: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<any, Error>> | (() => void);
@@ -37,6 +39,8 @@ type CheckoutFormProps = {
 const CheckoutForm = ({
   isAddCardPage = false,
   isUpgrade = false,
+  hasActiveSubscription = false,
+  isDowngrade = false,
   fetchCustomerCards,
 }: CheckoutFormProps) => {
   const stripe = useStripe();
@@ -176,13 +180,20 @@ const CheckoutForm = ({
       console.log("billingCycle:", billingCycle);
       console.log("isAddCardPage:", isAddCardPage);
       console.log("isUpgrade:", isUpgrade);
-      if (!isAddCardPage && !isUpgrade && price) {
+      if (!isAddCardPage && !hasActiveSubscription && price) {
+        console.log("subscribing to plan");
         await subscribeToPlan({
           token: token || "",
           price: price[billingCycle as keyof typeof price],
           paymentMethodId: paymentMethod.id,
         });
-      } else if (isUpgrade && price && !isAddCardPage) {
+      } else if (
+        (isUpgrade || isDowngrade) &&
+        price &&
+        !isAddCardPage &&
+        hasActiveSubscription
+      ) {
+        console.log(`${isDowngrade ? "downgrading" : "upgrading"} plan`);
         await upgradePlan({
           token: token || "",
           newPriceId: price[billingCycle as keyof typeof price].toString(),
@@ -403,8 +414,10 @@ const CheckoutForm = ({
               text={
                 isAddCardPage
                   ? "Add card"
-                  : isUpgrade
+                  : isUpgrade && hasActiveSubscription
                   ? "Upgrade now"
+                  : isDowngrade && hasActiveSubscription
+                  ? "Downgrade now"
                   : "Subscribe now"
               }
               hasIconOrLoader

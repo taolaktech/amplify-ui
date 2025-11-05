@@ -5,11 +5,11 @@ import GettingStarted from "./ui/dashboard/GettingStarted";
 import Metrics from "./ui/dashboard/metrics";
 
 export default function DashboardPage() {
-  const { fetchCampaigns } = useGetCampaigns();
+  // const { fetchCampaigns } = useGetCampaigns();
 
-  useEffect(() => {
-    fetchCampaigns();
-  }, []);
+  // useEffect(() => {
+  //   fetchCampaigns();
+  // }, []);
 
   return (
     <main className="">
