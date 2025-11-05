@@ -1,3 +1,4 @@
+import { capitalize } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 
@@ -96,7 +97,7 @@ export default function BrandColors({
               maxLength={7}
               className="h-[48px] 
                 text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
-              value={brandColor}
+              value={brandColor.toUpperCase()}
               onChange={(e) => setBrandColor("brandColor", e.target.value)}
             />
             <div
@@ -132,7 +133,7 @@ export default function BrandColors({
               maxLength={7}
               className="h-[48px] 
                 text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
-              value={accentColor}
+              value={accentColor.toUpperCase()}
               onChange={(e) => setBrandColor("accentColor", e.target.value)}
             />
             <div
@@ -154,7 +155,9 @@ export default function BrandColors({
               >
                 <HexColorPicker
                   color={accentColor}
-                  onChange={(color) => setBrandColor("accentColor", color)}
+                  onChange={(color) =>
+                    setBrandColor("accentColor", capitalize(color))
+                  }
                 />
               </div>
             )}

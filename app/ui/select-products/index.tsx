@@ -41,14 +41,12 @@ export default function Products() {
   const handleProceed = () => {
     if (!selectedProducts.length) return;
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      actions.storeProductSelection({
-        products: selectedProducts,
-        complete: true,
-      });
-      router.push("/create-campaign/supported-ad-platforms");
-    }, 1000);
+    setIsLoading(false);
+    actions.storeProductSelection({
+      products: selectedProducts,
+      complete: true,
+    });
+    router.push("/create-campaign/supported-ad-platforms");
   };
 
   const toggleChecked = (id: string) => {

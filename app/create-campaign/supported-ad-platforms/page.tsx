@@ -6,16 +6,21 @@ import React, { useEffect, useState } from "react";
 import Toggle from "@/app/ui/Toggle";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
-import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
+import GooglePostSM from "@/public/google_post_sm.webp";
+import GooglePostLG from "@/public/google_post_lg.webp";
+import IGPostSM from "@/public/ig_post_sm.webp";
+import IGPostLG from "@/public/ig_post_lg.webp";
+import FacebookPostSM from "@/public/facebook_post_sm.webp";
+import FacebookPostLG from "@/public/facebook_post_lg.webp";
 import { useModal } from "@/app/lib/hooks/useModal";
-import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
+// import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
   const { productSelection, supportedAdPlatforms, actions } =
     useCreateCampaignStore((state) => state);
 
-  const { initialGeneration, loading } = useGenerateCreatives();
+  // const { initialGeneration, loading } = useGenerateCreatives();
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -48,10 +53,9 @@ const SupportedAdPlatforms = () => {
     supportedAdPlatforms.Facebook;
 
   const handleProceed = () => {
-    // actions.completeAdsPlatform();
-    initialGeneration();
+    actions.completeAdsPlatform();
 
-    // router.push("/create-campaign/campaign-snapshots");
+    router.push("/create-campaign/campaign-snapshots");
 
     // setTimeout(() => {
     //   if (canProceed) {
@@ -81,16 +85,13 @@ const SupportedAdPlatforms = () => {
           <div className="flex w-full items-center  justify-center  rounded-3xl">
             <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={isMobile ? "/google_post_sm.webp" : "/google_post_lg.webp"}
+                src={isMobile ? GooglePostSM : GooglePostLG}
                 alt="google ads platform"
                 layout="fill"
                 objectFit="cover"
-                loading="eager"
-                priority
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Google ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={"/google_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -115,16 +116,13 @@ const SupportedAdPlatforms = () => {
           <div className="flex w-full items-center  justify-center  rounded-3xl">
             <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={isMobile ? "/ig_post_sm.webp" : "/ig_post_lg.webp"}
+                src={isMobile ? IGPostSM : IGPostLG}
                 alt="instagram ads platform"
                 layout="fill"
                 objectFit="cover"
-                loading="eager"
-                priority
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Instagram ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={"/ig_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -151,18 +149,13 @@ const SupportedAdPlatforms = () => {
           <div className="flex w-full items-center  justify-center  rounded-3xl">
             <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={
-                  isMobile ? "/facebook_post_sm.webp" : "/facebook_post_lg.webp"
-                }
+                src={isMobile ? FacebookPostSM : FacebookPostLG}
                 alt="facebook ads platform"
                 layout="fill"
                 objectFit="cover"
-                loading="eager"
-                priority
                 className={`duration-300 transition-all rounded-3xl ${
                   supportedAdPlatforms.Facebook ? "" : "grayscale opacity-70"
                 }`}
-                blurDataURL={"/facebook_post_lg_compressed.webp"}
                 placeholder="blur"
               />
             </div>
@@ -198,7 +191,7 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {loading && <CircleLoaderModal text="Generating Ad Creatives..." />}
+      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 };

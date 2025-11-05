@@ -39,6 +39,20 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
+        <link
+          href="https://fonts.cdnfonts.com/css/sf-pro-display"
+          rel="stylesheet"
+        />
+        <link
+          href="https://db.onlinewebfonts.com/c/826e807c7cd21cd70d47bb789cc6354c?family=Proxima+Nova+Lt+Regular"
+          rel="stylesheet"
+          type="text/css"
+        />
+        <link
+          href="https://db.onlinewebfonts.com/c/461b610b52e5f2020d4450abdbbecb73?family=ProximaNova-Semibold"
+          rel="stylesheet"
+          type="text/css"
+        />
       </head>
       <body className={`antialiased ${inter.className} ${rubik.variable}`}>
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>

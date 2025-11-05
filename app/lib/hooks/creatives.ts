@@ -8,33 +8,55 @@ import {
 } from "../api/ai/creatives";
 import { useAuthStore } from "../stores/authStore";
 // import useUIStore from "../stores/uiStore";
-import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import { useSetupStore } from "../stores/setupStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import useCreativesStore from "../stores/creativesStore";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Platform } from "@/type";
-import useCampaignsStore from "../stores/campaignsStore";
+
+import useUIStore from "../stores/uiStore";
 
 export const useGenerateCreatives = () => {
   const token = useAuthStore((state) => state.token);
-  const primaryBrandColor = useBrandAssetStore((state) => state.primaryColor);
-  const brandAccent = useBrandAssetStore((state) => state.secondaryColor);
+  const primaryBrandColor = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.brandColor
+  );
+  const brandAccent = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.accentColor
+  );
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const toneOfVoice = useBrandAssetStore((state) => state.toneOfVoice);
-  const campaignType = useCampaignsStore((state) => state.type);
+  const campaignType = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.campaignType
+  );
+  // const campaignName = useCreateCampaignStore(
+  //   (state) => state.campaignSnapshots.campaignName
+  // );
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
+
+  const creativeLoadingRef = useRef<Record<string, Record<Platform, boolean>>>(
+    {}
+  );
+
+  const setCreativeLoadingStates = useUIStore(
+    (state) => state.actions.setCreativeLoadingState
+  );
+
   const [, setCurrentProductId] = useState<string | null>(null);
-  const router = useRouter();
+  // const router = useRouter();
   const generate = useCreativesStore((state) => state.actions.generate);
   const supportedAdPlatforms = useCreateCampaignStore(
     (state) => state.supportedAdPlatforms
   );
-  const [isCreativeSetLoading, setIsCreativeSetLoading] = useState(false);
+
+  const [isCreativeSetLoading] = useState(false);
   // const products = useUIStore((state) => state.products);
   const { productSelection } = useCreateCampaignStore((state) => state);
-  const actions = useCreateCampaignStore((state) => state.actions);
-  // const;
+
+  // const actions = useCreateCampaignStore((state) => state.actions);
   const { mutateAsync: googleMutate, isPending: googleCreativeIsPending } =
     useMutation({
       mutationFn: generateGoogleCreatives,
@@ -73,6 +95,7 @@ export const useGenerateCreatives = () => {
     productId: string,
     platforms?: Platform[]
   ) => {
+    console.log("Generating creatives for product:", productId);
     const product = productSelection.products.find(
       (p) => p.node.id === productId
     );
@@ -133,101 +156,130 @@ export const useGenerateCreatives = () => {
     };
 
     const generateForGoogleAds = async () => {
-      if (platforms?.length && platforms.includes("GOOGLE ADS")) {
+      const isLoading =
+        creativeLoadingRef.current[productId]?.["GOOGLE ADS"] === true;
+      console.log("Google Ads loading state for", productId, ":", isLoading);
+      if (!isLoading && platforms?.length && platforms.includes("GOOGLE ADS")) {
+        if (platforms.includes("GOOGLE ADS")) {
+          creativeLoadingRef.current[productId]["GOOGLE ADS"] = true;
+          setCreativeLoadingStates(
+            productId,
+            creativeLoadingRef.current[productId]
+          );
+        }
+
         return googleMutate({ token, googleCreativesProduct: creativeProduct });
       }
+      // creativeLoadingRef.current[productId]["GOOGLE ADS"] = false;
+      // setCreativeLoadingStates(
+      //   productId,
+      //   creativeLoadingRef.current[productId]
+      // );
       return Promise.resolve(null);
     };
     const generateForInstagram = async () => {
+      const isLoading =
+        creativeLoadingRef.current[productId]?.["INSTAGRAM"] === true;
+      console.log("Instagram loading state for", productId, ":", isLoading);
       if (
+        !isLoading &&
         platforms?.length &&
         (platforms.includes("INSTAGRAM") || platforms.includes("FACEBOOK"))
       ) {
+        if (platforms.includes("INSTAGRAM")) {
+          creativeLoadingRef.current[productId]["INSTAGRAM"] = true;
+        }
+        if (platforms.includes("FACEBOOK")) {
+          creativeLoadingRef.current[productId]["FACEBOOK"] = true;
+        }
+        setCreativeLoadingStates(
+          productId,
+          creativeLoadingRef.current[productId]
+        );
         return mediaMutate({
           token,
           product: { ...mediaCreativeProduct, channel: "INSTAGRAM" },
         });
       }
+      // if (platforms?.includes("INSTAGRAM")) {
+      //   creativeLoadingRef.current[productId]["INSTAGRAM"] = false;
+      // }
+      // if (platforms?.includes("FACEBOOK")) {
+      //   creativeLoadingRef.current[productId]["FACEBOOK"] = false;
+      // }
+      // setCreativeLoadingStates(
+      //   productId,
+      //   creativeLoadingRef.current[productId]
+      // );
       return Promise.resolve(null);
     };
 
-    // const generateForFacebook = async () => {
-    //   if (platforms?.length && platforms.includes("FACEBOOK")) {
-    //     mediaCreativeProduct.channel = "INSTAGRAM";
-    //     return mediaMutate({
-    //       token,
-    //       product: { ...mediaCreativeProduct, channel: "FACEBOOK" },
-    //     });
-    //   }
-    //   return Promise.resolve(null);
-    // };
-
     if (platforms?.length) {
-      // const [googleResult, instagramResult, facebookResult] = await Promise.all(
-      //   [generateForGoogleAds(), generateForInstagram(), generateForFacebook()]
-      // );
-      const [googleResult, instagramResult] = await Promise.all([
+      const loadingStates: Record<Platform, boolean> = {
+        "GOOGLE ADS": false,
+        FACEBOOK: false,
+        INSTAGRAM: false,
+      };
+
+      creativeLoadingRef.current[productId] = loadingStates;
+      setCreativeLoadingStates(productId, loadingStates);
+      console.log("Starting generation for platforms:", platforms);
+      const [googleResult, mediaResult] = await Promise.allSettled([
         generateForGoogleAds(),
         generateForInstagram(),
-        //  generateForFacebook(),
       ]);
 
       console.log("Results:", {
         googleResult,
-        instagramResult,
-        // facebookResult,
+        mediaResult,
       });
-      let arrLen = 0;
-      if (platforms.includes("GOOGLE ADS")) arrLen += 1;
-      if (platforms.includes("FACEBOOK") || platforms.includes("GOOGLE ADS"))
-        arrLen += 1;
-      const isLoading: boolean[] = new Array(arrLen).fill(true);
-      setIsCreativeSetLoading(true);
 
-      if (googleResult) {
-        console.log("Google Creative Result:", googleResult.data);
-        generate("GOOGLE ADS", productId, googleResult.data);
-        isLoading[0] = false;
+      if (googleResult.status === "fulfilled" && googleResult.value?.data) {
+        console.log("Google Creative Result:", googleResult.value);
+        generate("GOOGLE ADS", productId, googleResult.value?.data);
+        loadingStates["GOOGLE ADS"] = false;
       }
 
-      if (instagramResult) {
+      console.log("Platforms to generate:", platforms);
+
+      setCreativeLoadingStates(productId, loadingStates);
+      creativeLoadingRef.current[productId] = loadingStates;
+      // const isInstagram = platforms.includes("INSTAGRAM");
+      // const isFacebook = platforms.includes("FACEBOOK");
+
+      if (mediaResult.status === "fulfilled" && mediaResult.value) {
         for (let i = 0; i < 10; i++) {
-          setIsCreativeSetLoading(true);
-          // if (facebookResult && isLoading[1]) {
-          //   const creativeSet = await getCreativeSet({
-          //     creativeSetId: facebookResult.creativeSetId,
-          //     token,
-          //   });
-          //   console.log("Facebook Creative Set Status:", creativeSet.status);
-          //   if (creativeSet.status === "completed") {
-          //     isLoading[1] = false;
-          //     generate("FACEBOOK", productId, creativeSet.urls);
-          //   }
-          // }
-          if (instagramResult && isLoading[1]) {
-            const creativeSet = await getCreativeSet({
-              creativeSetId: instagramResult.creativeSetId,
-              token,
-            });
-            console.log("Media Creative Set Status:", creativeSet.status);
-            if (creativeSet.status === "completed") {
-              isLoading[1] = false;
-              if (supportedAdPlatforms.Instagram)
-                generate("INSTAGRAM", productId, creativeSet.urls);
-              if (supportedAdPlatforms.Facebook)
-                generate("FACEBOOK", productId, creativeSet.urls);
-            }
+          const creativeSet = await getCreativeSet({
+            creativeSetId: mediaResult.value.creativeSetId,
+            token,
+          });
+          console.log("Media Creative Set Status:", creativeSet.status);
+          if (creativeSet.status === "completed") {
+            if (platforms.includes("INSTAGRAM"))
+              loadingStates["INSTAGRAM"] = false;
+            generate("INSTAGRAM", productId, creativeSet.urls);
+            if (platforms.includes("FACEBOOK"))
+              loadingStates["FACEBOOK"] = false;
+            generate("FACEBOOK", productId, creativeSet.urls);
           }
-          if (isLoading.every((loading) => loading === false)) {
+          if (
+            creativeSet.status === "completed" ||
+            creativeSet.status === "failed"
+          ) {
             break;
           }
           await new Promise((resolve) => setTimeout(resolve, 10000));
         }
       }
+      loadingStates["INSTAGRAM"] = false;
+      loadingStates["FACEBOOK"] = false;
+      loadingStates["GOOGLE ADS"] = false;
+      console.log("Generation completed for product:", productId);
+      // actions.completeAdsPlatform();
+      creativeLoadingRef.current[productId] = loadingStates;
+      setCreativeLoadingStates(productId, loadingStates);
 
-      actions.completeAdsPlatform();
-      setIsCreativeSetLoading(false);
-      router.push("/create-campaign/campaign-snapshots");
+      // router.push("/create-campaign/campaign-snapshots");
     }
   };
   const initialGeneration = () => {
@@ -249,5 +301,7 @@ export const useGenerateCreatives = () => {
     loading:
       googleCreativeIsPending || mediaCreativeIsPending || isCreativeSetLoading,
     initialGeneration,
+    creativeLoadingStates,
+    creativeLoadingRef: creativeLoadingRef.current,
   };
 };

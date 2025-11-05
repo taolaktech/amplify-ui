@@ -13,6 +13,9 @@ export default function CheckoutSuccessPage() {
   const isSubscriptionSuccess = useUIStore(
     (state) => state.isSubscriptionSuccess
   );
+  const setIsSubscriptionSuccess = useUIStore(
+    (state) => state.actions.setSubscriptionSuccess
+  );
   const { navigateToCreateCampaign } = useCampaignsActions();
 
   const handleContinueCreateCampaign = () => {
@@ -23,7 +26,11 @@ export default function CheckoutSuccessPage() {
     if (!isSubscriptionSuccess) {
       router.push("/");
     }
-  }, [isSubscriptionSuccess, router]);
+    console.log("isSubscriptionSuccess:", isSubscriptionSuccess);
+    return () => {
+      setIsSubscriptionSuccess(false);
+    };
+  }, []);
 
   return (
     <SuccessScreen
