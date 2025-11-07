@@ -62,14 +62,16 @@ function ConnectStore({
         completeConnectStore(true);
         closeModal();
 
-        // ✅ UPDATED: Redirect to setup completion page
+        // ✅ UPDATED: Redirect to dashboard after successful store connection
         if (isRouteToCampaigns) {
+          // If they came from campaign creation, take them to create campaign
           router.push("/create-campaign");
         } else if (isIntegrations) {
+          // If they came from integrations, take them back to integrations
           router.push("/settings/integrations");
         } else {
-          // ✅ Redirect to the new completion page
-          router.push("/setup/completion");
+          // Default: redirect to dashboard
+          router.push("/");
         }
       }, 2000);
     }
@@ -175,7 +177,7 @@ function ConnectStore({
                             ? "/settings/integrations"
                             : isRouteToCampaigns
                             ? "/setup?linked_store=true&redirect=create-campaign"
-                            : "/setup/completion"
+                            : "/setup?linked_store=true"
                         )
                       }
                       hasIconOrLoader
