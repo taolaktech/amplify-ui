@@ -24,10 +24,11 @@ export default function useGetCampaigns() {
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken?: string) => {
+  const fetchCampaigns = async (authToken?: string, showLoader?: boolean) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
     actions.setIsLoading(true);
+    if (showLoader) actions.setShowLoader(true);
     const requestData: any = {
       token,
     };
@@ -49,6 +50,7 @@ export default function useGetCampaigns() {
       setError(error.message || "Unknown error");
     } finally {
       actions.setIsLoading(false);
+      actions.setShowLoader(false);
     }
   };
 
@@ -247,4 +249,18 @@ export const useLaunchCampaign = (
     handleLaunchCampaign,
     isPending,
   };
+};
+
+export const useCampaignPageActions = () => {
+  const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+
+  const { fetchCampaigns } = useGetCampaigns();
+
+  const navigateToCampaignPage = () => {
+    if (token) fetchCampaigns(token, true);
+    router.push(`/campaigns`);
+  };
+
+  return { navigateToCampaignPage };
 };

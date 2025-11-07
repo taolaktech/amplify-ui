@@ -20,6 +20,7 @@ export default function useRefreshInitialize() {
       setLoading(false);
       return;
     }
+    console.log("Refreshing initialization with token:", token);
     const isConnected = await getMe(token);
     await Promise.all([
       getShopifyAccount(token, isConnected),
