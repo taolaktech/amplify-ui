@@ -61,11 +61,18 @@ function ConnectStore({
         setFetchingInfo(false);
         completeConnectStore(true);
         closeModal();
+
+        // ✅ UPDATED: Redirect to dashboard after successful store connection
         if (isRouteToCampaigns) {
-          router.push("/setup/business-details?redirect=create-campaign");
-          return;
+          // If they came from campaign creation, take them to create campaign
+          router.push("/create-campaign");
+        } else if (isIntegrations) {
+          // If they came from integrations, take them back to integrations
+          router.push("/settings/integrations");
+        } else {
+          // Default: redirect to dashboard
+          router.push("/");
         }
-        router.push("/setup/business-details");
       }, 2000);
     }
   }, [retrieveStoreDetails.isSuccess]);
