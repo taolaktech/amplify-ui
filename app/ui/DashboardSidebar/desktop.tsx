@@ -26,6 +26,7 @@ import SettingsIcon from "@/public/setting-2.svg";
 import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
+import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -66,6 +67,8 @@ export default function DesktopSideBar({
   toggleIsCompanyTabOpen,
 }: DesktopSideBarProps) {
   // const router = useRouter();
+  const { navigateToCampaignPage } = useCampaignPageActions();
+
   return (
     <>
       <div
@@ -152,8 +155,8 @@ export default function DesktopSideBar({
             </li>
 
             <li>
-              <Link
-                href="/campaigns"
+              <button
+                onClick={navigateToCampaignPage}
                 className={`flex items-center rounded-xl  gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
@@ -175,7 +178,7 @@ export default function DesktopSideBar({
                     Campaigns
                   </span>
                 )}
-              </Link>
+              </button>
             </li>
 
             <li>

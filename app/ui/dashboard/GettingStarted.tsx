@@ -7,11 +7,13 @@ import Button from "../Button";
 import Link from "next/link";
 import Image from "next/image";
 import Steps2 from "./Steps2";
+import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
 
 function GettingStarted() {
   const user = useAuthStore((state) => state.user);
   const [cancelNotification, setCancelNotification] = useState(false);
   const { navigateToCreateCampaign } = useCampaignsActions();
+  const { isSetupComplete, link } = useGetSetupComplete();
 
   const firstName = user?.name?.split(" ")[0] || "Unknown";
   return (
@@ -20,37 +22,41 @@ function GettingStarted() {
         <p className="font-semibold text-lg lg:text-2xl">
           Welcome {firstName} 👋
         </p>
-        <p className="text-sm lg:text-base">Let's get you setup</p>
+        <p className="text-sm lg:text-base">
+          Let's start growing your business.
+        </p>
       </div>
-      <div
-        className={`${
-          cancelNotification
-            ? "h-0 opacity-0"
-            : "h-[112px] sm:h-[84px] lg:h-[108px] opacity-100"
-        } transition-all duration-300`}
-      >
-        <div className="bg-[#FEF5EA] p-5 lg:p-7 rounded-2xl flex flex-row w-full items-center justify-between gap-3 lg:gap-0">
-          <div className="flex w-full gap-3 lg:gap-4 items-start lg:items-center">
-            <span className="w-[44px] h-[44px] flex-shrink-0 bg-[#FDE0BD] flex items-center justify-center rounded-full">
-              <Notification size={24} color="#FA9B0C" variant="Bold" />
-            </span>
-            <div>
-              <p className="text-[#C67B22] text-sm lg:text-xl font-medium mb-1">
-                You're almost there!
-              </p>
-              <p className="text-xs lg:text-sm w-full">
-                <Link href="/setup" className="underline font-medium">
-                  Complete your campaign setup
-                </Link>{" "}
-                to start running ads and reach your audience effectively.
-              </p>
+      {!isSetupComplete && (
+        <div
+          className={`${
+            cancelNotification
+              ? "h-0 opacity-0"
+              : "h-[112px] sm:h-[84px] lg:h-[108px] opacity-100"
+          } transition-all duration-300`}
+        >
+          <div className="bg-[#FEF5EA] p-5 lg:p-7 rounded-2xl flex flex-row w-full items-center justify-between gap-3 lg:gap-0">
+            <div className="flex w-full gap-3 lg:gap-4 items-start lg:items-center">
+              <span className="w-[44px] h-[44px] flex-shrink-0 bg-[#FDE0BD] flex items-center justify-center rounded-full">
+                <Notification size={24} color="#FA9B0C" variant="Bold" />
+              </span>
+              <div>
+                <p className="text-[#C67B22] text-sm lg:text-xl font-medium mb-1">
+                  You're almost there!
+                </p>
+                <p className="text-xs lg:text-sm w-full">
+                  <Link href={link} className="underline font-medium">
+                    Complete your campaign setup
+                  </Link>{" "}
+                  to start running ads and reach your audience effectively.
+                </p>
+              </div>
             </div>
+            <button onClick={() => setCancelNotification(true)} className="">
+              <CloseCircle size={24} color="#333" />
+            </button>
           </div>
-          <button onClick={() => setCancelNotification(true)} className="">
-            <CloseCircle size={24} color="#333" />
-          </button>
         </div>
-      </div>
+      )}
       <div className="h-[377px] md:h-[416px] flex gap-2  ">
         <div className="w-[100%] h-full">
           <Steps2 />

@@ -139,7 +139,7 @@ export default function StaticPost({
         }}
         className="flex items-center justify-center bg-black"
       >
-        {photoUrl && photoUrlLoaded && (
+        {photoUrl && photoUrl?.trim()?.length > 0 && photoUrlLoaded && (
           <Image
             src={photoUrl}
             alt="Post Image"

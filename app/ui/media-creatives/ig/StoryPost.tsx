@@ -66,7 +66,7 @@ export default function StoryPost({
         }}
         className="bg-black relative flex items-center justify-center"
       >
-        {photoUrl && (
+        {photoUrl && photoUrl?.trim()?.length > 0 && (
           <Image
             src={photoUrl}
             alt="Story Image"
