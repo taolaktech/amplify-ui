@@ -7,7 +7,7 @@ export function ProductOptions({
 }) {
   return (
     <div
-      className={`h-[208px] absolute left-[-100px]${
+      className={`h-[208px] z-5 absolute more-dropdown left-[-140px] ${
         dropdownPosition === "bottom" ? " bottom-[-184px]" : " top-[-208px]"
       } w-[199px] bg-white shadow-[0_0px_3px_rgba(0,0,0,0.1)] rounded-[10px] border-[#B6B3B9]`}
     >

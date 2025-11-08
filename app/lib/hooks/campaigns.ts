@@ -24,10 +24,11 @@ export default function useGetCampaigns() {
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken?: string) => {
+  const fetchCampaigns = async (authToken?: string, showLoader?: boolean) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
     actions.setIsLoading(true);
+    if (showLoader) actions.setShowLoader(true);
     const requestData: any = {
       token,
     };
@@ -40,7 +41,8 @@ export default function useGetCampaigns() {
       const data = await getCampaigns(requestData);
       console.log("Fetched campaigns data:", data);
       if (data.data) {
-        actions.setData(data.data);
+        actions.setData(data.data.campaigns);
+        actions.setPaginationInfo(data.data.pagination);
       }
       setError(null); // Clear any previous errors
     } catch (error: any) {
@@ -48,6 +50,7 @@ export default function useGetCampaigns() {
       setError(error.message || "Unknown error");
     } finally {
       actions.setIsLoading(false);
+      actions.setShowLoader(false);
     }
   };
 
@@ -65,6 +68,8 @@ export const useCampaignsActions = () => {
   const { isSetupComplete } = useGetSetupComplete();
 
   const navigateToCreateCampaign = () => {
+    console.log("campaigns data in actions hook:", data);
+
     if (!isSetupComplete) {
       router.push("/setup?redirect=create-campaign");
       return;
@@ -73,7 +78,7 @@ export const useCampaignsActions = () => {
       subscriptionType?.name?.toLowerCase() === "free" ||
       !subscriptionType ||
       !data ||
-      data.length === 0
+      data?.length === 0
     ) {
       router.push("/pricing");
     } else {
@@ -244,4 +249,18 @@ export const useLaunchCampaign = (
     handleLaunchCampaign,
     isPending,
   };
+};
+
+export const useCampaignPageActions = () => {
+  const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+
+  const { fetchCampaigns } = useGetCampaigns();
+
+  const navigateToCampaignPage = () => {
+    if (token) fetchCampaigns(token, true);
+    router.push(`/campaigns`);
+  };
+
+  return { navigateToCampaignPage };
 };

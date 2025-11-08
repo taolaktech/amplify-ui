@@ -21,10 +21,16 @@ export const useGetSetupComplete = () => {
     } else if (!marketingGoals.complete) {
       setLink("/setup/marketing-goals");
     } else {
-      setLink("/settings");
+      setLink("/settings/integrations");
     }
   }, [businessDetails, marketingGoals, connectStore, preferredSalesLocation]);
 
+  console.log("setup steps status:", {
+    connectStore: connectStore.complete,
+    businessDetails: businessDetails.complete,
+    marketingGoals: marketingGoals.complete,
+    preferredSalesLocation: preferredSalesLocation.complete,
+  });
   const isSetupComplete =
     connectStore.complete &&
     businessDetails.complete &&

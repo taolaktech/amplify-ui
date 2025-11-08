@@ -57,7 +57,7 @@ export default function CarouselPost({
           <Skeleton width="100%" height="100%" />
         </div>
       )} */}
-      {photoUrl && (
+      {photoUrl && photoUrl?.trim()?.length > 0 && (
         <Image
           src={photoUrl}
           alt="Carousel Post"

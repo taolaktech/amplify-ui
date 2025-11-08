@@ -12,6 +12,7 @@ import useRefreshInitialize from "../hooks/useRefreshInitialize";
 import { useDashboardPath } from "../hooks/useDashboardPath";
 import DashboardSideBar from "@/app/ui/DashboardSidebar";
 import DashboardChildren from "@/app/ui/dashboard/DashboardChildren";
+import useClickOutside from "../hooks/useClickOutside";
 
 const queryClient = new QueryClient();
 const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
@@ -40,6 +41,8 @@ export default function ClientLayoutWrapper({
     onIdle,
     debounce: 500,
   });
+
+  useClickOutside();
 
   return (
     <QueryClientProvider client={queryClient}>

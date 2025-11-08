@@ -28,6 +28,7 @@ import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
 import useUIStore from "@/app/lib/stores/uiStore";
+import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -74,6 +75,7 @@ export default function MobileSideBar({
   useModal(isSidebarOpen);
 
   const { setSidebarOpen } = useUIStore((state) => state.actions);
+  const { navigateToCampaignPage } = useCampaignPageActions();
 
   const closeSidebar = () => {
     setSidebarOpen(false);
@@ -158,9 +160,11 @@ export default function MobileSideBar({
               </Link>
             </li>
             <li>
-              <Link
-                onClick={closeSidebar}
-                href="/campaigns"
+              <button
+                onClick={() => {
+                  closeSidebar();
+                  navigateToCampaignPage();
+                }}
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
                   isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
@@ -177,7 +181,7 @@ export default function MobileSideBar({
                 >
                   Campaigns
                 </span>
-              </Link>
+              </button>
             </li>
             <li>
               <span

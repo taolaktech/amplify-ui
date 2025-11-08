@@ -18,6 +18,7 @@ import Button from "../Button";
 import { priceId } from "@/app/lib/pricingPlans";
 import { useSearchParams } from "next/navigation";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function Checkout({
   isAddCardPage,
@@ -34,6 +35,9 @@ export default function Checkout({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >(null);
+  const hasActiveSubscription = useAuthStore(
+    (state) => state.hasActiveSubscription
+  );
   const selectedPaymentFromStore = useCreateCampaignStore(
     (state) => state.fundCampaign.cardDetails
   );
@@ -122,10 +126,12 @@ export default function Checkout({
 
   const putInContainer =
     isAddCardPage || customerPaymentMethods?.data?.length > 0;
+  console.log("hasActiveSubscription from stripe:", hasActiveSubscription);
 
   const handleSubscribeOrUpgrade = (price: string, paymentMethodId: string) => {
     console.log("price:", price);
-    if (isUpgrade) {
+    console.log("hasActiveSubscription from stripe:", hasActiveSubscription);
+    if ((isUpgrade || isDowngrade) && hasActiveSubscription) {
       handleUpgrade({
         newPriceId: price,
       });
@@ -194,7 +200,9 @@ export default function Checkout({
             <CheckoutForm
               amount={1000}
               isAddCardPage={isAddCardPage}
-              isUpgrade={isUpgrade}
+              isUpgrade={isUpgrade || isDowngrade}
+              isDowngrade={isDowngrade}
+              hasActiveSubscription={hasActiveSubscription}
               fetchCustomerCards={refetch}
             />
           </Elements>
@@ -207,8 +215,10 @@ export default function Checkout({
               text={
                 isAddCardPage
                   ? "Add card"
-                  : isUpgrade
-                  ? `${isDowngrade ? "Downgrade" : "Upgrade"} now`
+                  : isUpgrade && hasActiveSubscription
+                  ? "Upgrade now"
+                  : isDowngrade && hasActiveSubscription
+                  ? "Downgrade now"
                   : "Subscribe now"
               }
               hasIconOrLoader

@@ -15,7 +15,10 @@ import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
 import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
 import { Platform } from "@/type";
-import { useLaunchCampaign } from "@/app/lib/hooks/campaigns";
+import {
+  useCampaignPageActions,
+  useLaunchCampaign,
+} from "@/app/lib/hooks/campaigns";
 
 const countries = {
   usa: "United States",
@@ -54,6 +57,8 @@ export default function ReviewPage() {
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
     productSelection.products[0] ?? null
   );
+
+  const { navigateToCampaignPage } = useCampaignPageActions();
 
   useEffect(() => {
     setHighlightedProduct(productSelection.products[0]);
@@ -134,7 +139,7 @@ export default function ReviewPage() {
           subText="Amplify AI is now optimizing your campaign for the best results."
           primaryActionText="View Campaigns"
           primaryButtonWidth={160}
-          primaryAction={() => router.push("/campaigns")}
+          primaryAction={navigateToCampaignPage}
         />
       </div>
     );

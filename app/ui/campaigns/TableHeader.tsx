@@ -1,7 +1,9 @@
 import useCampaignsStore, {
   CampaignTab,
 } from "@/app/lib/stores/campaignsStore";
-import { SearchNormal, FilterEdit } from "iconsax-react";
+import { SearchNormal } from "iconsax-react";
+import ToggleHeader from "./ToggleHeader";
+import Filter from "./Filter";
 
 export const tableTabs = [
   CampaignTab.ALL,
@@ -14,7 +16,26 @@ export const tableTabs = [
 
 export default function TableHeader() {
   const activeTab = useCampaignsStore((state) => state.activeTab);
+  const paginationInfo = useCampaignsStore((state) => state.paginationInfo);
   const { setActiveTab } = useCampaignsStore((state) => state.actions);
+
+  const numFormatter = (num: string) => {
+    if (num.length < 2) {
+      return num.padStart(2, "0");
+    }
+    return num;
+  };
+
+  const getCount = (tab: CampaignTab) => {
+    if (!paginationInfo) return "0";
+    switch (tab) {
+      case CampaignTab.ALL:
+        return numFormatter(paginationInfo.total.toString());
+      default:
+        return "0";
+    }
+  };
+
   return (
     <div className="flex justify-between flex-shrink-0 items-center">
       <div className="flex h-[48px]">
@@ -22,10 +43,10 @@ export default function TableHeader() {
           <div
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 rounded-t-xl  h-[48px] flex gap-2 items-center cursor-pointer font-medium text-sm
+            className={`px-6 rounded-t-xl h-[48px] flex gap-2 items-center cursor-pointer font-medium text-sm
                 ${
                   activeTab === tab
-                    ? "bg-[#F3EFF6] border-b border-[#A755FF] "
+                    ? "bg-[#F3EFF6] border-b border-[#A755FF]"
                     : "text-[#8C8C8C] border-b border-transparent"
                 } 
                 `}
@@ -44,7 +65,7 @@ export default function TableHeader() {
                   : "text-[#928F94] bg-[#DBD7DD]"
               }`}
             >
-              09
+              {getCount(tab)}
             </span>
           </div>
         ))}
@@ -60,10 +81,8 @@ export default function TableHeader() {
             <SearchNormal size={16} color="#928F94" />
           </span>
         </div>
-        <button className="w-[73px] h-[32px] bg-[#F3EFF6] rounded-xl flex items-center justify-center gap-1 ">
-          <FilterEdit size={16} color="#1D0B30" />
-          <span className="text-primary text-xs">Filter</span>
-        </button>
+        <ToggleHeader dropdownPosition={"bottom"} />
+        <Filter dropdownPosition={"bottom"} />
       </div>
     </div>
   );

@@ -21,6 +21,10 @@ import { FieldErrors } from "react-hook-form";
 import useGetCampaigns from "./campaigns";
 import { useIntegrationStore } from "../stores/integrationStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
+import { getCurrentSubscriptionPlan } from "../api/wallet";
+import { Cycle } from "@/app/ui/pricing/ModelHeader";
+
+import { planIdToName } from "../pricingPlans";
 // import { stat } from "fs";
 
 export const useInitialize = () => {
@@ -30,6 +34,7 @@ export const useInitialize = () => {
   const { setShopifyStoreConnected } = useIntegrationStore(
     (state) => state.actions
   );
+  // const { fetchCampaigns } = useGetCampaigns();
   const reset = useSetupStore((state) => state.reset);
   // const businessDetails = useSetupStore((state) => state.businessDetails);
   const {
@@ -54,6 +59,13 @@ export const useInitialize = () => {
     storeMarketingGoals,
     storePreferredSalesLocation,
   } = useSetupStore((state) => state);
+
+  const setHasActiveSubscription = useAuthStore(
+    (state) => state.setHasActiveSubscription
+  );
+  const setSubscriptionType = useAuthStore(
+    (state) => state.setSubscriptionType
+  );
 
   async function getMe(token: string) {
     // tun this to async
@@ -93,6 +105,27 @@ export const useInitialize = () => {
     if (data.secondaryFont) setSecondaryFont(data.secondaryFont);
     if (data.brandGuideUrl) setBrandGuide(data.brandGuideUrl);
     if (data.brandGuideName) setBrandGuideName(data.brandGuideName);
+  }
+
+  async function handleGetCurrentSubscriptionPlan(token: string) {
+    if (!token) return;
+    try {
+      const response = await getCurrentSubscriptionPlan(token);
+      setHasActiveSubscription(response?.data?.hasActiveSubscription);
+      const currentPlanId = response?.data?.activeStripePriceId;
+      const currentPlan = currentPlanId
+        ? planIdToName[currentPlanId as keyof typeof planIdToName]
+        : {
+            name: "Free",
+            cycle: "monthly" as Cycle,
+          };
+
+      if (currentPlan) setSubscriptionType(currentPlan);
+      console.log("Current subscription plan response:", response);
+      return response;
+    } catch (error) {
+      console.error("Error fetching current subscription plan:", error);
+    }
   }
 
   async function getShopifyAccount(token: string, isConnected: boolean) {
@@ -206,17 +239,6 @@ export const useInitialize = () => {
     }
   }
 
-  async function handleGetCampaigns(token: string) {
-    if (!token) {
-      return;
-    }
-    try {
-      const response = await handleGetCampaigns(token);
-      console.log("Campaigns fetched:", response);
-    } catch (error) {
-      console.error("Error fetching campaigns:", error);
-    }
-  }
   return {
     loading,
     getMe,
@@ -224,7 +246,8 @@ export const useInitialize = () => {
     getStoreDetails,
     setLoading,
     handleGetBrandAssets,
-    handleGetCampaigns,
+    // fetchCampaigns,
+    handleGetCurrentSubscriptionPlan,
   };
 };
 
@@ -248,6 +271,7 @@ export const useEmailLogin = (
     getStoreDetails,
     setLoading,
     handleGetBrandAssets,
+    handleGetCurrentSubscriptionPlan,
   } = useInitialize();
   const { fetchCampaigns } = useGetCampaigns();
 
@@ -267,6 +291,7 @@ export const useEmailLogin = (
             getStoreDetails(response.data?.access_token, isConnected),
             fetchCampaigns(response.data?.access_token),
             handleGetBrandAssets(response.data?.access_token),
+            handleGetCurrentSubscriptionPlan(response.data?.access_token),
           ]);
           login(response.data?.access_token, response.data?.user);
           router.push("/");
@@ -321,6 +346,7 @@ export const useGoogleLogin = (
     getStoreDetails,
     setLoading,
     handleGetBrandAssets,
+    handleGetCurrentSubscriptionPlan,
   } = useInitialize();
 
   const { fetchCampaigns } = useGetCampaigns();
@@ -349,6 +375,7 @@ export const useGoogleLogin = (
               getStoreDetails(response.data?.access_token, isConnected),
               fetchCampaigns(response.data?.access_token),
               handleGetBrandAssets(response.data?.access_token),
+              handleGetCurrentSubscriptionPlan(response.data?.access_token),
             ]);
             login(response.data?.access_token, response.data?.user);
 
