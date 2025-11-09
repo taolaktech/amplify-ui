@@ -286,6 +286,44 @@ import { useUIStore } from './stores/uiStore';
 const {isToggled} = useUIStore((state) => state.actions.isToggled);
 const toggle = useUIStore((state) => state.toggle);
 ```
+### Icons
+Most icons referenced in Figma designs leverage the Iconsax library [(@iconsax/react)](https://iconsax-react.pages.dev), which is pre-installed in the project. Iconsax provides a comprehensive, customizable set of 1,200+ line icons optimized for React, ensuring consistency in stroke weight, alignment, and theming.
+
+#### Guidelines
+
+- Check Iconsax First: Before importing external or custom icons (e.g., from react-icons or SVGs), search the Iconsax library for an equivalent. This promotes design system consistency, reduces bundle size, and simplifies maintenance.
+
+#### Usage
+Import icons directly and render them as React components. No additional setup required.
+Example:
+
+```
+.tsx
+import { Home, Heart, SearchNormal1 } from '@iconsax/react';
+
+// Basic usage
+<Home size={24} color="currentColor" variant="Linear" />
+
+// In a component (e.g., Button)
+<Button
+  text="Home"
+  icon={<Home size={18} color="white" variant="Bold" />}
+  iconPosition="left"
+  action={() => navigate('/home')}
+/>
+
+// Conditional rendering
+{isFavorite ? (
+  <Heart size={20} color="#ff6b6b" variant="TwoTone" />
+) : (
+  <Heart size={20} color="#9ca3af" variant="Outline" />
+)}
+
+```
+If an icon isn't available in Iconsax and must be custom:
+
+Add it to ./public as an SVG.
+
 
 ## Contributing
 
