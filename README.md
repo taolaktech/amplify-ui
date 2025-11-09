@@ -11,7 +11,7 @@ Key features:
 
 ## Prerequisites
 
-- Node.js (v18+ recommended)
+- Node.js (v22.18.0 recommended)
 - npm or yarn
 
 ## Installation
@@ -289,7 +289,7 @@ const toggle = useUIStore((state) => state.toggle);
 
 ## Contributing
 
-1. clone the repo and create a feature branch.
+1. Clone the repo and create a feature branch.
 2. Make changes and run tests.
 3. Submit a PR with a clear description.
 
