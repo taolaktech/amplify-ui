@@ -49,22 +49,21 @@ function GettingStarted() {
         </p>
       </div>
 
-      {/* Main Layout - Different structure based on completion */}
+      {/* SETUP INCOMPLETE - Show both cards side by side on desktop, stacked on mobile */}
       {!allCompleted ? (
-        // SETUP INCOMPLETE LAYOUT
-        <div className="flex flex-col xl:flex-row gap-4 xl:gap-6">
-          {/* Steps2 - Always takes full width on mobile, 2/3 on desktop */}
-          <div className="w-full xl:w-2/3">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Steps2 - Setup Progress Card */}
+          <div className="w-full lg:w-2/3">
             <Steps2 />
           </div>
 
-          {/* Right Card - Only shows on xl screens when setup incomplete */}
-          <div className="hidden xl:flex xl:w-1/3">
-            <div className="relative w-full bg-[#1D0B30] rounded-3xl p-6">
+          {/* Right Card - Campaign Card - Shows on ALL screens when setup incomplete */}
+          <div className="w-full lg:w-1/3">
+            <div className="relative w-full bg-[#1D0B30] rounded-3xl p-6 h-full">
               <div className="flex flex-col h-full">
                 <div className="flex-1">
                   <HomeTrendIcon width={34} height={34} />
-                  <h1 className="text-2xl xl:text-3xl mt-3 font-extrabold bg-gradient-to-r from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
+                  <h1 className="text-2xl lg:text-3xl mt-3 font-extrabold bg-gradient-to-r from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
                     Ready to Amplify Your Sales?
                   </h1>
                   <p className="text-sm text-white mt-2">
@@ -85,39 +84,24 @@ function GettingStarted() {
           </div>
         </div>
       ) : (
-        // SETUP COMPLETE LAYOUT
-        <div className="flex flex-col">
-          {/* Empty state message for large screens */}
-          <div className="hidden xl:flex items-center justify-center py-12 bg-gray-50 rounded-2xl">
-            <div className="text-center">
-              <p className="text-lg font-medium text-gray-600 mb-2">
-                🎉 Setup Complete!
-              </p>
-              <p className="text-gray-500">
-                You're all set to start creating campaigns.
-              </p>
-            </div>
-          </div>
-
-          {/* Campaign Card for small/medium screens - Centered and prominent */}
-          <div className=" lg:hidden w-full bg-[#1D0B30] rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col items-center text-center">
-              <HomeTrendIcon width={48} height={48} className="mb-4" />
-              <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent mb-2">
-                Ready to Amplify Your Sales?
-              </h1>
-              <p className="text-sm text-white mb-6 max-w-md">
-                Your setup is complete! Start your first campaign now and watch
-                your business grow.
-              </p>
-              <div className="w-full max-w-[200px]">
-                <Button
-                  text="Start Campaign"
-                  height={50}
-                  action={navigateToCreateCampaign}
-                  secondary
-                />
-              </div>
+        // SETUP COMPLETE - Show only the campaign card on mobile, nothing on desktop
+        <div className="lg:hidden w-full bg-[#1D0B30] rounded-3xl p-6 md:p-8">
+          <div className="flex flex-col items-center text-center">
+            <HomeTrendIcon width={48} height={48} className="mb-4" />
+            <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent mb-2">
+              Ready to Amplify Your Sales?
+            </h1>
+            <p className="text-sm text-white mb-6 max-w-md">
+              Your setup is complete! Start your first campaign now and watch
+              your business grow.
+            </p>
+            <div className="w-full max-w-[200px]">
+              <Button
+                text="Start Campaign"
+                height={50}
+                action={navigateToCreateCampaign}
+                secondary
+              />
             </div>
           </div>
         </div>
