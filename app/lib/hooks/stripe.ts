@@ -13,6 +13,7 @@ import { Cycle } from "@/app/ui/pricing/ModelHeader";
 import { useRouter } from "next/navigation";
 import useUIStore from "../stores/uiStore";
 import { useEffect, useState } from "react";
+import { useToastStore } from "../stores/toastStore";
 
 export const useGetCustomerPaymentMethods = () => {
   const token = useAuthStore((state) => state.token);
@@ -25,10 +26,28 @@ export const useGetCustomerPaymentMethods = () => {
 
 export const useSubscribeToPlan = () => {
   const token = useAuthStore((state) => state.token);
+  const router = useRouter();
+  const setIsSubscriptionSuccess = useUIStore(
+    (state) => state.actions.setSubscriptionSuccess
+  );
+  const setToast = useToastStore((state) => state.setToast);
   const { mutate, isPending } = useMutation({
     mutationFn: subscribeToPlan,
     onError: (error) => {
       console.log(error);
+      setToast({
+        type: "error",
+        message:
+          "There was an error processing your subscription. Please try again.",
+        title: "Subscription Error",
+      });
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      setIsSubscriptionSuccess(true);
+      setTimeout(() => {
+        router.push("/pricing/checkout/success");
+      }, 1000);
     },
   });
 
@@ -80,7 +99,8 @@ export const useUpgradePlan = () => {
     (state) => state.setSubscriptionType
   );
   const [planId, setPlanId] = useState<string | null>(null);
-  const setSubscriptionSuccess = useUIStore(
+
+  const setIsSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
   );
   const router = useRouter();
@@ -89,7 +109,7 @@ export const useUpgradePlan = () => {
 
     onSuccess: (data) => {
       console.log(data);
-      setSubscriptionSuccess(true);
+      setIsSubscriptionSuccess(true);
       const newPlan = planId
         ? planIdToName[planId as keyof typeof planIdToName]
         : {
@@ -97,7 +117,9 @@ export const useUpgradePlan = () => {
             cycle: "monthly" as Cycle,
           };
       if (newPlan) setSubscriptionType(newPlan);
-      router.push("/pricing/checkout/success");
+      setTimeout(() => {
+        router.push("/pricing/checkout/success");
+      }, 1000);
     },
 
     onError: (error) => {

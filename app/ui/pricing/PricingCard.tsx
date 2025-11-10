@@ -45,7 +45,7 @@ function PricingCard({
   const handlePlanSelection = () => {
     if (isCurrentPlan) {
       if (isDashboard) return;
-      router.push("/create-Campaign");
+      router.push("/create-campaign");
       return;
     }
     // if (isCurrentPlan) return;
@@ -66,7 +66,9 @@ function PricingCard({
   return (
     <div
       className={`p-8 rounded-lg h-screen max-h-[467px] xl:max-h-[567px]
-        ${isCurrentPlan ? "cursor-not-allowed" : "cursor-pointer"}
+        ${
+          isCurrentPlan && isDashboard ? "cursor-not-allowed" : "cursor-pointer"
+        }
         ${!isCurrentPlan ? `bg-[#FBFAFC]` : "bg-[#F0E6FB]"}`}
       onClick={handlePlanSelection}
     >

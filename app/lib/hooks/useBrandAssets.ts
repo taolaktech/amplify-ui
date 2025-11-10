@@ -31,12 +31,19 @@ export default function useBrandAssets() {
     secondaryFont: currentSecondaryFont,
     brandGuide: currentBrandGuide,
     brandGuideName: currentBrandGuideName,
+    brandGuideFile,
   } = useBrandAssetStore();
   const brandActions = useBrandAssetStore((state) => state.actions);
   const {
     setPrimaryLogo,
     setSecondaryLogo,
     setBrandGuide: storeBrandGuide,
+    setBrandGuideFile,
+    setPrimaryColor: storePrimaryColor,
+    setSecondaryColor: storeSecondaryColor,
+    setToneOfVoice: storeToneOfVoice,
+    setPrimaryFont: storePrimaryFont,
+    setSecondaryFont: storeSecondaryFont,
   } = brandActions;
 
   const {
@@ -109,6 +116,12 @@ export default function useBrandAssets() {
         ...(secondaryLogoFile ? { secondaryLogo: secondaryLogoFile } : {}),
       },
     });
+    setBrandGuideFile(brandGuide);
+    storePrimaryColor(primaryColor);
+    storeSecondaryColor(secondaryColor);
+    storeToneOfVoice(toneOfVoice);
+    storePrimaryFont(primaryFont);
+    storeSecondaryFont(secondaryFont);
   }
 
   const [primaryColor, setPrimaryColor] = useState<string>(currentPrimaryColor);
@@ -134,12 +147,14 @@ export default function useBrandAssets() {
     setPrimaryFont(currentPrimaryFont);
     setSecondaryFont(currentSecondaryFont);
     setToneOfVoice(currentToneOfVoice);
+    if (brandGuideFile) setBrandGuide(brandGuideFile);
   }, [
     currentPrimaryColor,
     currentSecondaryColor,
     currentPrimaryFont,
     currentSecondaryFont,
     currentToneOfVoice,
+    brandGuideFile,
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

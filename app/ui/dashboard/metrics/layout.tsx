@@ -20,7 +20,7 @@ export default function MetricsLayout({}) {
         <span className="font-medium text-xs">KEY METRICS</span>
         <InfoCircle size="18" color="#333" />
       </div>
-      <div className="hidden md:flex items-center gap-3">
+      <div className="hidden xl:flex items-center gap-3">
         <div className="flex items-center text-xs gap-3 bg-[#FBFAFC] rounded-lg py-3 px-4">
           <div>Filter by</div>
           <button

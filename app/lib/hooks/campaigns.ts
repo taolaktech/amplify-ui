@@ -24,30 +24,36 @@ export default function useGetCampaigns() {
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken?: string) => {
+  const fetchCampaigns = async (authToken?: string, showLoader?: boolean) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
+
     actions.setIsLoading(true);
-    const requestData: any = {
-      token,
-    };
+    if (showLoader) actions.setShowLoader(true);
+
+    const requestData: any = { token };
     if (page) requestData.page = page;
     if (sortBy) requestData.sortBy = sortBy;
     if (type) requestData.type = type;
     if (status) requestData.status = status;
     if (platforms) requestData.platforms = platforms;
+
     try {
       const data = await getCampaigns(requestData);
       console.log("Fetched campaigns data:", data);
+
       if (data.data) {
-        actions.setData(data.data);
+        actions.setData(data.data.campaigns);
+        actions.setPaginationInfo(data.data.pagination);
       }
-      setError(null); // Clear any previous errors
+
+      setError(null);
     } catch (error: any) {
       console.error("Error fetching campaigns:", error);
       setError(error.message || "Unknown error");
     } finally {
       actions.setIsLoading(false);
+      actions.setShowLoader(false);
     }
   };
 
@@ -65,13 +71,27 @@ export const useCampaignsActions = () => {
   const { isSetupComplete } = useGetSetupComplete();
 
   const navigateToCreateCampaign = () => {
-    // ✅ UPDATED: Only route to /create-campaign when setup is complete
-    // Otherwise, redirect to setup with create-campaign redirect parameter
-    if (isSetupComplete) {
-      router.push("/create-campaign");
-    } else {
+    console.log("campaigns data in actions hook:", data);
+
+    // 1️⃣ Setup incomplete → redirect to setup
+    if (!isSetupComplete) {
       router.push("/setup?redirect=create-campaign");
+      return;
     }
+
+    // 2️⃣ Free plan or missing subscription or no campaign data → pricing
+    if (
+      subscriptionType?.name?.toLowerCase() === "free" ||
+      !subscriptionType ||
+      !data ||
+      data.length === 0
+    ) {
+      router.push("/pricing");
+      return;
+    }
+
+    // 3️⃣ Setup complete + valid subscription → create campaign
+    router.push("/create-campaign");
   };
 
   return {
@@ -107,6 +127,7 @@ export const useLaunchCampaign = (
     brandColor,
     accentColor,
   } = useCreateCampaignStore((state) => state.campaignSnapshots);
+
   const { Facebook, Instagram, Google } = useCreativesStore((state) => state);
   const setToast = useToastStore((state) => state.setToast);
 
@@ -114,11 +135,6 @@ export const useLaunchCampaign = (
     mutationFn: launchCampaign,
     onSuccess: () => {
       setIsLaunchCampaign(true);
-      // setToast({
-      //   title: "Campaign Launched 🎉",
-      //   message: "Your campaign has been launched successfully.",
-      //   type: "success",
-      // });
     },
     onError: (error: any) => {
       console.error("Error launching campaign:", error);
@@ -133,6 +149,7 @@ export const useLaunchCampaign = (
 
   const handleLaunchCampaign = () => {
     if (!authToken || !businessDetails.id || !products.length) return;
+
     const campaignPlatforms: CampaignPlatformsTitle[] = [];
     if (supportedAdPlatforms.Facebook)
       campaignPlatforms.push(CampaignPlatformsTitle.FACEBOOK);
@@ -143,6 +160,7 @@ export const useLaunchCampaign = (
 
     const productsPayload = products.map((product) => {
       const creatives = [];
+
       if (supportedAdPlatforms.Facebook && Facebook?.[product.node.id]) {
         creatives.push({
           channel: "facebook",
@@ -153,6 +171,7 @@ export const useLaunchCampaign = (
             ].creatives || [],
         });
       }
+
       if (supportedAdPlatforms.Instagram && Instagram?.[product.node.id]) {
         creatives.push({
           channel: "instagram",
@@ -162,6 +181,7 @@ export const useLaunchCampaign = (
             ].creatives || [],
         });
       }
+
       if (supportedAdPlatforms.Google && Google?.[product.node.id]) {
         const formatCreatives =
           Google?.[product.node.id]?.[Google?.[product.node.id].length - 1]
@@ -170,12 +190,14 @@ export const useLaunchCampaign = (
         const creativesData = formatCreatives?.map((creative: string) =>
           JSON.stringify(creative)
         );
+
         creatives.push({
           channel: "google",
           budget: amount / products.length / campaignPlatforms.length,
           data: creativesData || [],
         });
       }
+
       return {
         shopifyId: product.node.id,
         id: product.node.id,
@@ -190,11 +212,12 @@ export const useLaunchCampaign = (
           product.node?.handle || "",
         ],
         category: product.node.productType || "General",
-        imageLink: product.node.media.edges[0]?.node.preview.image.url || "",
+        imageLinks: [product.node.media.edges[0]?.node.preview.image.url || ""],
         productLink: product.node.onlineStorePreviewUrl || "",
         creatives,
       };
     });
+
     const campaignData: LaunchCampaignPayload = {
       businessId: businessDetails.id,
       name: campaignName ?? "Campaign",
@@ -222,6 +245,7 @@ export const useLaunchCampaign = (
         };
       }),
     };
+
     const idempotencyKey = crypto.randomUUID();
 
     mutate({
@@ -237,4 +261,17 @@ export const useLaunchCampaign = (
     handleLaunchCampaign,
     isPending,
   };
+};
+
+export const useCampaignPageActions = () => {
+  const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+  const { fetchCampaigns } = useGetCampaigns();
+
+  const navigateToCampaignPage = () => {
+    if (token) fetchCampaigns(token, true);
+    router.push(`/campaigns`);
+  };
+
+  return { navigateToCampaignPage };
 };

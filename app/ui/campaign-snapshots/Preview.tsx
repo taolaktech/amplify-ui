@@ -5,10 +5,16 @@ import { ArrowForward, Magicpen } from "iconsax-react";
 import GradientCheckbox from "../form/GradientCheckbox2";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { SocialSettingsKey } from "@/app/lib/stores/createCampaignStore";
-// import { useRef } from "react";
 import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
+import useUIStore from "@/app/lib/stores/uiStore";
+import { useMemo } from "react";
+import IGStaticPostView from "../media-creatives/ig/StaticPostView";
+import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
+import CircleLoader from "../loaders/CircleLoader";
+import DragScrollContainer from "../DragScrollContainer";
+import StoryPostView from "../media-creatives/ig/StoryPostView";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Google";
 
@@ -32,10 +38,13 @@ const Preview = ({
   loading: boolean;
 }) => {
   const settings: { label: string; key: SocialSettingsKey }[] = [
-    { label: "Static Post (1:1)", key: "staticPost" },
+    { label: "Static Post", key: "staticPost" },
     { label: "Carousel Post", key: "carouselPost" },
     { label: "Story Post", key: "storyPost" },
   ];
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
 
   // const { generateCreatives, loading } = useGenerateCreatives();
 
@@ -48,7 +57,7 @@ const Preview = ({
     <div className="flex flex-col gap-12">
       {adPlatforms?.map((item) => (
         <div className="flex flex-col w-full " key={item.title}>
-          <div className="flex justify-between items-center">
+          <div className="flex px-5 lg:pl-0 lg:pr-5  justify-between items-center">
             <div className="flex gap-16 items-center">
               <p className="text-sm flex gap-2 items-center">
                 <span className="font-bold ">
@@ -80,67 +89,70 @@ const Preview = ({
                 </span>
               </p>
               {/* {!isReview && ( */}
-              <>
+              <div className="hidden md:block">
                 {item.title !== "Google" && (
-                  <div className="flex gap-6 items-center">
-                    {settings.map((setting) => (
-                      <div
-                        onClick={() => {
-                          if (item.title === "Instagram") {
-                            toggleInstagramSettings(setting.key);
-                          } else if (item.title === "Facebook") {
-                            toggleFacebookSettings(setting.key);
-                          }
-                        }}
-                        key={setting.key}
-                        className="flex flex-row-reverse gap-1 items-center cursor-pointer"
-                      >
-                        <div>
-                          <p className="text-sm font-medium tracking-100">
-                            {setting.label}
-                          </p>
-                        </div>
-                        <div>
-                          <GradientCheckbox
-                            ticked={item.settings[setting.key]}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <MediaSettingBox
+                    item={item}
+                    settings={settings}
+                    toggleInstagramSettings={toggleInstagramSettings}
+                    toggleFacebookSettings={toggleFacebookSettings}
+                  />
                 )}
-              </>
-              {/* )} */}
+              </div>
             </div>
 
             {!isReview && (
               <div className="flex gap-2 items-center">
                 {item.creatives && item.creatives?.length > 1 && (
                   <button
+                    disabled={
+                      creativeLoadingStates?.[highlightedProductId]?.[
+                        item.platform
+                      ]
+                    }
                     onClick={() => undo(item.platform, highlightedProductId)}
-                    className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                    className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                   >
                     <ArrowForward
-                      size={16}
+                      size={12}
                       color="#000"
                       className="-mt-[2px] -scale-x-100"
                     />
-                    <span className="text-sm"> Undo</span>
+                    <span className="text-xs"> Undo</span>
                   </button>
                 )}
                 <button
+                  disabled={
+                    creativeLoadingStates?.[highlightedProductId]?.[
+                      item.platform
+                    ]
+                  }
                   onClick={() =>
                     generateCreatives(highlightedProductId, [item.platform])
                   }
-                  className="flex gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                  className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                 >
                   <Magicpen size={12} color="#000" />
-                  <span className="text-xs tracking-100">Generate</span>
+                  <span className="text-xs tracking-100">Regenerate</span>
                 </button>
               </div>
             )}
           </div>
-          <PreviewContainer item={item} />
+          <div className="md:hidden mt-4">
+            {item.title !== "Google" && (
+              <MediaSettingBox
+                item={item}
+                settings={settings}
+                toggleInstagramSettings={toggleInstagramSettings}
+                toggleFacebookSettings={toggleFacebookSettings}
+              />
+            )}
+          </div>
+          <PreviewContainer
+            item={item}
+            highlightedProductId={highlightedProductId}
+            platform={item.platform}
+          />
         </div>
       ))}
     </div>
@@ -149,18 +161,50 @@ const Preview = ({
 
 export default Preview;
 
-const PreviewContainer = ({ item }: { item: any }) => {
+const PreviewContainer = ({
+  item,
+  highlightedProductId,
+  platform,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  settings,
+}: {
+  item: any;
+  highlightedProductId: string;
+  platform: Platform;
+  settings?: { label: string; key: SocialSettingsKey }[];
+}) => {
   // const containerRef = useRef<HTMLDivElement>(null);
   console.log("PreviewContainer item:", item);
 
-  // const width = 350;
+  const creativeLoadingStates = useUIStore(
+    (state) => state.creativeLoadingState
+  );
 
-  // const scrollBy = (offset: number) => {
-  //   console.log("called");
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollBy({ left: offset, behavior: "smooth" });
-  //   }
-  // };
+  const instagramSettings = useCreateCampaignStore(
+    (state) => state.instagramSettings
+  );
+
+  // const instagramSettingsCount = useMemo(() => {
+  //   return Object.values(instagramSettings).filter((value) => value).length;
+  // }, [instagramSettings]);
+
+  const isLoading = useMemo(() => {
+    console.log("highlightedProductId:", highlightedProductId);
+    console.log("item.platform:", item?.platform);
+    console.log(
+      "creativeLoadingStates:",
+      creativeLoadingStates?.[highlightedProductId]
+    );
+    console.log(
+      "isLoading:",
+      creativeLoadingStates?.[highlightedProductId]?.[item.platform]
+    );
+    return creativeLoadingStates?.[highlightedProductId]?.[item.platform];
+  }, [
+    highlightedProductId,
+    creativeLoadingStates,
+    creativeLoadingStates?.[highlightedProductId],
+  ]);
 
   const lastIndex = item?.creatives?.length - 1 || 0;
   const creativesAvailable = item?.creatives?.length > 0;
@@ -170,43 +214,104 @@ const PreviewContainer = ({ item }: { item: any }) => {
   console.log("isMediaCreative:", isMediaCreative);
   console.log(isMediaCreative[mediaCreative]?.creatives);
   // if (!item?.creatives?.length) return null;
+  const isGoogleAds = platform === "GOOGLE ADS";
+  const isInstagram = platform === "INSTAGRAM";
+  // const isFacebook = platform === "FACEBOOK";
   return (
-    <div className="bg-[#f1f1f1] max-w-full relative rounded-xl md:rounded-3xl mt-5">
-      {/* Carousel arrows */}
-
-      {creativesAvailable ? (
-        <>
-          {item.title === "Google" ? (
-            <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
-              <GoogleAdsCreatives
-                creatives={item.creatives[lastIndex]?.creatives}
-              />
-            </div>
-          ) : (
-            <div className="flex flex-1 h-[350px] flex-row gap-2 sm:h-[350px] md:h-[650px] items-center justify-center">
-              {isMediaCreative[mediaCreative]?.creatives.map(
-                (creative: string, index: number) => (
-                  <img
-                    key={creative}
-                    src={isMediaCreative[mediaCreative]?.creatives[index]}
-                    alt={`${item.title} ad preview`}
-                    width={300}
-                    height={600}
-                    className="object-contain w-[150px] h-[300px] lg:w-[200px] lg:h-[500px] xl:w-[300px] xl:h-[600px] rounded-2xl"
+    <>
+      {isGoogleAds && (
+        <div className="px-5 lg:pl-0 lg:pr-5">
+          <div className="bg-[#f1f1f1]  max-w-full relative rounded-xl md:rounded-3xl mt-5">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-[518px] md:h-[600px]">
+                <CircleLoader />
+              </div>
+            ) : creativesAvailable ? (
+              <>
+                <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
+                  <GoogleAdsCreatives
+                    creatives={item.creatives[lastIndex]?.creatives}
                   />
-                )
-              )}
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-[518px] md:h-[600px]">
-          <div className="flex flex-col gap-1 items-center">
-            <ImageIcon size="48" color="#DADADA" variant="Bold" />
-            <p className="text-sm text-[#BFBFBF] font-medium">No Preview</p>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-[518px] md:h-[600px]">
+                <div className="flex flex-col gap-1 items-center">
+                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
+                  <p className="text-sm text-[#BFBFBF] font-medium">
+                    No Preview
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {isInstagram && (
+        <DragScrollContainer>
+          <div className="mt-5 pl-5 flex gap-4 max-w-full items-center">
+            {instagramSettings.staticPost && (
+              <div className="w-[25%] min-w-[308.6px]">
+                <IGStaticPostView
+                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0]}
+                />
+              </div>
+            )}
+            {instagramSettings.carouselPost && (
+              <div className="w-[50%] min-w-[529.6px]">
+                <IGCarouselPostView
+                  photoUrls={isMediaCreative[mediaCreative]?.creatives || []}
+                />
+              </div>
+            )}
+            {instagramSettings.storyPost && (
+              <div className="w-[25%] min-w-[308.6px]">
+                <StoryPostView
+                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0] || []}
+                />
+              </div>
+            )}
+          </div>
+        </DragScrollContainer>
+      )}
+    </>
+  );
+};
+
+const MediaSettingBox = ({
+  item,
+  settings,
+  toggleInstagramSettings,
+  toggleFacebookSettings,
+}: {
+  item: any;
+  toggleInstagramSettings: (key: SocialSettingsKey) => void;
+  toggleFacebookSettings: (key: SocialSettingsKey) => void;
+  settings: { label: string; key: SocialSettingsKey }[];
+}) => {
+  return (
+    <div className="flex px-5 lg:px-0 gap-3 md:gap-6 items-center">
+      {settings.map((setting) => (
+        <div
+          onClick={() => {
+            if (item.title === "Instagram") {
+              toggleInstagramSettings(setting.key);
+            } else if (item.title === "Facebook") {
+              toggleFacebookSettings(setting.key);
+            }
+          }}
+          key={setting.key}
+          className="flex flex-row-reverse gap-1 items-center cursor-pointer"
+        >
+          <div>
+            <p className="text-sm font-medium tracking-100">{setting.label}</p>
+          </div>
+          <div>
+            <GradientCheckbox ticked={item.settings[setting.key]} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

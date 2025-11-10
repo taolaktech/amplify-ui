@@ -1,29 +1,31 @@
-import { Minus, More } from "iconsax-react";
-import CheckIcon from "@/public/custom-check.svg";
+import { Minus } from "iconsax-react";
 import SelectedCampaignsNav from "./SelectedCampaignsNav";
-import { useEffect, useRef, useState } from "react";
-import { ProductOptions } from "./Settings";
+import { useEffect, useMemo, useRef, useState } from "react";
+import useCampaignsStore from "@/app/lib/stores/campaignsStore";
+import TableData from "./TableData";
 
 export default function Table() {
-  const [moreOpen, setMoreOpen] = useState<null | number>(null);
+  const moreOpen = useCampaignsStore((state) => state.moreOpen);
+  const setMoreOpen = useCampaignsStore((state) => state.actions.setMoreOpen);
   const [dropdownPosition, setDropdownPosition] = useState<"top" | "bottom">(
     "bottom"
   );
+  const [campaignOpen, setCampaignOpen] = useState<null | number>(null);
 
+  const campaignData = useCampaignsStore((state) => state.data);
+
+  const isAllCampaignsSelected = useCampaignsStore(
+    (state) => state.isAllCampaignsSelected
+  );
+  const excludeDataIds = useCampaignsStore((state) => state.excludeDataIds);
+  const { toggleSelectAllData } = useCampaignsStore((state) => state.actions);
+  console.log("Campaign Data in Table:", campaignData);
   const moreRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        event.target &&
-        !(event.target as HTMLElement).closest(".more-dropdown")
-      ) {
-        setMoreOpen(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const toggleCampaignOpen = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    setCampaignOpen(campaignOpen === index ? null : index);
+  };
 
   useEffect(() => {
     if (moreOpen != null && moreRef.current) {
@@ -40,18 +42,35 @@ export default function Table() {
   }, [moreOpen]);
 
   const handleMoreClick = (e: any, index: number) => {
+    e.stopPropagation();
     setMoreOpen(moreOpen === index ? null : index);
     moreRef.current = e.currentTarget;
   };
 
+  const allSelectedCheck = useMemo(() => {
+    return isAllCampaignsSelected && excludeDataIds.length === 0;
+  }, [isAllCampaignsSelected, excludeDataIds]);
+
   return (
     <div className="mt-[2px] relative">
-      <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_0.5fr] text-sm">
+      <div className="grid grid-cols-[1.2fr_2fr_repeat(8,1fr)_0.3fr] text-sm">
         {/* <!-- Header --> */}
-        <div className="contents [&>*]:bg-[rgba(243,239,246,0.8)] [&>*]:text-sm  [&>*]:text-[#928F94] [&>*]:font-medium [&>*]:h-[44px] [&>*]:flex [&>*]:items-center [&>*]:justify-center">
-          <div className="">
-            <button className="bg-gradient w-[16px] h-[16px] rounded-[4px] flex items-center justify-center">
-              <Minus size="14" color="#FFF" />
+        <div className="contents [&>*]:bg-[rgba(243,239,246,0.8)] [&>*]:text-sm  [&>*]:text-[#928F94] [&>*]:font-medium [&>*]:h-[44px] [&>*]:flex [&>*]:items-center [&>*]:justify-start">
+          <div
+            onClick={toggleSelectAllData}
+            className="px-5 border-l-4 border-transparent "
+          >
+            <button
+              onClick={() => {
+                console.log("Select all clicked");
+              }}
+              className={`${
+                allSelectedCheck
+                  ? "bg-gradient "
+                  : "bg-transparent border-[#CFCFCF] border-[1.5px]"
+              } w-[16px] h-[16px] rounded-[4px] flex items-center justify-center`}
+            >
+              {allSelectedCheck && <Minus size="14" color="#FFF" />}
             </button>
           </div>
           <div className=" ">Products & Campaigns</div>
@@ -66,47 +85,21 @@ export default function Table() {
           <div className=""></div>
         </div>
         {/* Row 2 */}
-        <div className="contents [&>*]:text-sm  [&>*]:text-[#5B5B5B] [&>*]:font-medium [&>*]:h-[76px] [&>*]:flex [&>*]:items-center [&>*]:justify-center">
-          <div className="border-l-4 rounded-tl-[3px] rounded-bl-[3px] border-[#A755FF]">
-            <button className="bg-gradient w-[16px] h-[16px] rounded-[4px] flex items-center justify-center">
-              <CheckIcon width={9} height={9} fill="#FFF" />
-            </button>
-          </div>
-          <div className="">
-            <div className="flex items-center gap-2">
-              <img
-                width={36}
-                height={36}
-                alt="Product Image"
-                className="rounded-lg w-[36px] h-[36px] object-cover"
-                src={
-                  "https://store-images.s-microsoft.com/image/apps.52397.13510798882606697.1816f804-e7fd-4295-9275-23dec3563baf.2ef7ec2d-2e37-489e-b6ac-b5f5e44d429c?q=90&w=480&h=270"
-                }
-              />
-              <span>Summer Promo Sales</span>
-            </div>
-          </div>
-          <div>Active</div>
-          <div>$320</div>
-          <div>$320</div>
-          <div>$320</div>
-          <div>725</div>
-          <div>20.5k</div>
-          <div>3.8x</div>
-          <div></div>
-          <div className="relative">
-            <button
-              onClick={(e) => handleMoreClick(e, 1)}
-              className="-rotate-90 cursor-pointer"
-            >
-              <More size="16" color="#5B5B5B" />
-            </button>
-            {moreOpen === 1 && (
-              <ProductOptions dropdownPosition={dropdownPosition} />
-            )}
-          </div>
-        </div>
+        {campaignData?.map((campaign, index) => (
+          <TableData
+            key={index}
+            campaign={campaign}
+            index={index}
+            moreRef={moreRef}
+            moreOpen={moreOpen}
+            dropdownPosition={dropdownPosition}
+            handleMoreClick={handleMoreClick}
+            campaignOpen={campaignOpen}
+            toggleCampaignOpen={toggleCampaignOpen}
+          />
+        ))}
       </div>
+      <div className="h-[100px]" />
       <SelectedCampaignsNav />
     </div>
   );

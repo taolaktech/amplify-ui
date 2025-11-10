@@ -47,41 +47,120 @@ type CampaignsStore = {
   type: CampaignType | null;
   platforms: CampaignPlatforms | null;
   data: any[] | null;
+  isAllCampaignsSelected: boolean;
+  excludeDataIds: string[];
+  paginationInfo?: any;
   isLoading: boolean;
   sortBy: CampaignSortBy | null;
+  showLoader: boolean;
   activeTab: CampaignTab;
+  moreOpen: null | number;
+  toggleHeaderOpen: boolean;
+  filterOpen: boolean;
 
   actions: {
     setPage: (page: number) => void;
+    setFilterOpen: (filterOpen: boolean) => void;
     setStatus: (status: CampaignStatus | null) => void;
+    setShowLoader: (showLoader: boolean) => void;
     setType: (type: CampaignType | null) => void;
     setPlatforms: (platforms: CampaignPlatforms | null) => void;
+    setPaginationInfo: (paginationInfo: any) => void;
+    checkIfIsAllDataSelected: () => boolean;
+    setMoreOpen: (moreOpen: null | number) => void;
+    setToggleHeaderOpen: (toggleHeaderOpen: boolean) => void;
     setData: (data: any[] | null) => void;
+    checkIfIsDataSelected: (id: string) => boolean;
+    clearSelectedData: () => void;
+    toggleSelectedData: (id: string) => void;
+    toggleSelectAllData: () => void;
     setSortBy: (sortBy: CampaignSortBy) => void;
     setActiveTab: (tab: CampaignTab) => void;
     setIsLoading: (isLoading: boolean) => void;
   };
 };
 
-const useCampaignsStore = create<CampaignsStore>((set) => ({
+const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   page: 1,
   status: null,
+  filterOpen: false,
   type: null,
   platforms: null,
+  excludeDataIds: [],
+  isAllCampaignsSelected: false,
   data: null,
   isLoading: false,
   sortBy: CampaignSortBy.Desc,
   activeTab: CampaignTab.ALL,
+  showLoader: true,
+  moreOpen: null,
+  toggleHeaderOpen: false,
 
   actions: {
     setPage: (page: number) => {
       set({ page });
     },
+    setFilterOpen: (filterOpen: boolean) => {
+      set({ filterOpen });
+    },
+    setMoreOpen: (moreOpen: null | number) => {
+      set({ moreOpen });
+    },
+    setToggleHeaderOpen: (toggleHeaderOpen: boolean) => {
+      set({ toggleHeaderOpen });
+    },
+    setShowLoader: (showLoader: boolean) => {
+      set({ showLoader });
+    },
     setIsLoading: (isLoading: boolean) => {
       set({ isLoading });
     },
+    clearSelectedData: () => {
+      set({
+        isAllCampaignsSelected: false,
+        excludeDataIds: get().data?.map((item) => item._id) || [],
+      });
+    },
+    toggleSelectedData: (id: string) => {
+      set((state) => {
+        const excludeDataIds = state.excludeDataIds;
+        const isSelected = !excludeDataIds.includes(id);
+        if (isSelected) {
+          return {
+            excludeDataIds: [...excludeDataIds, id],
+          };
+        } else {
+          return {
+            excludeDataIds: excludeDataIds.filter(
+              (excludedId) => excludedId !== id
+            ),
+          };
+        }
+      });
+    },
+    toggleSelectAllData: () => {
+      console.log("Toggling select all data");
+      if (get().isAllCampaignsSelected && get().excludeDataIds.length === 0) {
+        set({
+          isAllCampaignsSelected: false,
+          excludeDataIds: get().data?.map((item) => item._id),
+        });
+      } else {
+        console.log("");
+        set({ isAllCampaignsSelected: true, excludeDataIds: [] });
+      }
+    },
+    checkIfIsAllDataSelected: () => {
+      return get().isAllCampaignsSelected && get().excludeDataIds.length === 0;
+    },
+    checkIfIsDataSelected: (id: string) => {
+      return get().excludeDataIds.includes(id) ? false : true;
+    },
     setActiveTab: (tab: CampaignTab) => {
       set({ activeTab: tab });
+    },
+    setPaginationInfo: (paginationInfo: any) => {
+      set({ paginationInfo });
     },
     setSortBy: (sortBy: CampaignSortBy) => {
       set({ sortBy });
@@ -97,6 +176,11 @@ const useCampaignsStore = create<CampaignsStore>((set) => ({
     },
     setData: (data: any[] | null) => {
       set({ data });
+      const excludeDataIds = get().excludeDataIds;
+      if (!get().isAllCampaignsSelected) {
+        excludeDataIds.push(...(data ? data.map((item) => item._id) : []));
+        set({ excludeDataIds });
+      }
     },
   },
 }));

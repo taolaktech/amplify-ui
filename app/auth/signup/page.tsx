@@ -12,6 +12,7 @@ import { useCreateUserStore } from "@/app/lib/stores/authStore";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useGoogleLogin } from "@/app/lib/hooks/useLoginHooks";
+import SignupImg from "@/public/signup.webp";
 
 const defaultFormValues = {
   email: "",
@@ -67,7 +68,7 @@ export default function Signup() {
       <div className="w-full md:max-w-[1170px] md:flex bg-white md:min-h-[667px] rounded-2xl relative">
         <div className="hidden md:block w-[50%] lg:w-[59.83%] relative">
           <Image
-            src={"/signup.webp"}
+            src={SignupImg}
             alt="creator"
             layout="fill"
             objectFit="cover"
