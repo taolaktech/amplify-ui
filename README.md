@@ -297,8 +297,7 @@ Most icons referenced in Figma designs leverage the Iconsax library [(@iconsax/r
 Import icons directly and render them as React components. No additional setup required.
 Example:
 
-```
-.tsx
+```tsx
 import { Home, Heart, SearchNormal1 } from '@iconsax/react';
 
 // Basic usage
