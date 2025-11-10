@@ -37,16 +37,6 @@ export default function BrandAssetsPage() {
     handlePrimaryLogoRemove,
     handleSecondaryLogoRemove,
   } = useBrandAssets();
-  // const { handleGetBrandAssets } = useInitialize();
-  // const [loading, setLoading] = useState(false);
-
-  // useEffect(() => {
-  //   if (!token) return;
-  //   setLoading(true);
-  //   handleGetBrandAssets(token).finally(() => setLoading(false));
-  // }, [token]);
-
-  // if (loading) return <div>Loading...</div>;
 
   return (
     <div className="pb-4">
