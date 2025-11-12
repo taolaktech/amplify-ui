@@ -13,6 +13,8 @@ export type BusinessDetails = {
   website: string;
   industry: string;
   companyRole: string;
+  contactEmail: string;
+  contactPhone: string;
   teamSize: {
     min: number;
     max: number;
@@ -20,7 +22,6 @@ export type BusinessDetails = {
   estimatedMonthlyBudget: number;
   estimatedAnnualRevenue: number;
 };
-
 export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;

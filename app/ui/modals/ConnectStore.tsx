@@ -61,11 +61,16 @@ function ConnectStore({
         setFetchingInfo(false);
         completeConnectStore(true);
         closeModal();
+
+        // ✅ UPDATED: Redirect to setup completion page
         if (isRouteToCampaigns) {
-          router.push("/setup/business-details?redirect=create-campaign");
-          return;
+          router.push("/create-campaign");
+        } else if (isIntegrations) {
+          router.push("/settings/integrations");
+        } else {
+          // ✅ Redirect to the new completion page
+          router.push("/setup/completion");
         }
-        router.push("/setup/business-details");
       }, 2000);
     }
   }, [retrieveStoreDetails.isSuccess]);
@@ -170,7 +175,7 @@ function ConnectStore({
                             ? "/settings/integrations"
                             : isRouteToCampaigns
                             ? "/setup?linked_store=true&redirect=create-campaign"
-                            : "/setup?linked_store=true"
+                            : "/setup/completion"
                         )
                       }
                       hasIconOrLoader

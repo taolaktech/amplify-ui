@@ -50,7 +50,7 @@ export default function Fonts({
         <div className="w-full">
           <SelectInput
             placeholder="Select primary font"
-            label="Primary Font"
+            label="Primary Font (Optional)"
             options={fontList}
             background="rgba(230, 230, 230, 0.25)"
             borderless

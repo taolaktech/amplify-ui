@@ -94,13 +94,42 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     handleSubmit(handleNext)(); // Notice the additional ()
   };
 
-  const handleNext = (data: typeof defaultBusinessDetails) => {
-    const businessDetails = {
-      ...data,
-      industry: productCategory ?? "",
+  const transformToBackendPayload = (
+    formData: typeof defaultBusinessDetails
+  ) => {
+    return {
+      companyName: formData.storeName, // Transform storeName → companyName
+      description: formData.description,
+      website: formData.storeUrl, // Transform storeUrl → website
+      industry: productCategory ?? "", // Use productCategory as industry
       companyRole: companyRole ?? "",
+      contactEmail: formData.contactEmail, // This should now exist in your form
+      contactPhone: formData.contactPhone, // This should now exist in your form
       teamSize: teamSizeValue[teamSizeSelected as number],
+      estimatedMonthlyBudget: Number(formData.adSpendBudget), // Transform adSpendBudget → estimatedMonthlyBudget
+      estimatedAnnualRevenue: Number(formData.annualRevenue), // Transform annualRevenue → estimatedAnnualRevenue
     };
+  };
+
+  const handleNext = (data: typeof defaultBusinessDetails) => {
+    // Transform the form data to match backend API schema
+    const backendPayload = transformToBackendPayload(data);
+
+    console.log("=== DEBUG: Payload being sent to backend ===");
+    console.log("Full payload:", JSON.stringify(backendPayload, null, 2));
+    console.log("Data types:", {
+      companyName: typeof backendPayload.companyName,
+      description: typeof backendPayload.description,
+      website: typeof backendPayload.website,
+      industry: typeof backendPayload.industry,
+      companyRole: typeof backendPayload.companyRole,
+      contactEmail: typeof backendPayload.contactEmail,
+      contactPhone: typeof backendPayload.contactPhone,
+      estimatedMonthlyBudget: typeof backendPayload.estimatedMonthlyBudget,
+      estimatedAnnualRevenue: typeof backendPayload.estimatedAnnualRevenue,
+      teamSize: backendPayload.teamSize,
+    });
+    console.log("============================================");
 
     if (file && token) {
       updateLogo({
@@ -108,7 +137,9 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
         businessLogo: file,
       });
     }
-    handleSubmitBusinessDetails(businessDetails);
+
+    // Send the transformed data to the backend
+    handleSubmitBusinessDetails(backendPayload);
   };
 
   // const handleCompanyRoleChange = (role: string) => {

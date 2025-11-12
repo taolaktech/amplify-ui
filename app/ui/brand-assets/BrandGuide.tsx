@@ -41,7 +41,7 @@ export default function brandGuide({
         <div className="w-full">
           <SelectInput
             placeholder="Select brand tone of voice"
-            label="Tone of Voice"
+            label="Tone of Voice (Optional)"
             options={toneList}
             background="rgba(230, 230, 230, 0.25)"
             borderless
@@ -52,7 +52,7 @@ export default function brandGuide({
         </div>
         <div className="w-full max-w-full">
           <p className="text-xs tracking-tight block mb-2">
-            Brand Book or Brand Guidelines
+            Brand Book or Brand Guidelines (Optional)
           </p>
           <div
             style={{
