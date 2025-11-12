@@ -156,22 +156,31 @@ export const useLaunchCampaign = (
     const productsPayload = products.map((product) => {
       const creatives = [];
       if (supportedAdPlatforms.Facebook && Facebook?.[product.node.id]) {
+        const formatCreatives =
+          Facebook?.[product.node.id]?.[Facebook?.[product.node.id].length - 1]
+            .creatives || [];
+
         creatives.push({
           channel: "facebook",
           budget: amount / products.length / campaignPlatforms.length,
           data:
-            Facebook?.[product.node.id]?.[
-              Facebook?.[product.node.id].length - 1
-            ].creatives || [],
+            formatCreatives.map((creative: string) =>
+              JSON.stringify({ url: creative })
+            ) || [],
         });
       }
       if (supportedAdPlatforms.Instagram && Instagram?.[product.node.id]) {
+        const formatCreatives =
+          Instagram?.[product.node.id]?.[
+            Instagram?.[product.node.id].length - 1
+          ].creatives || [];
+
         creatives.push({
           channel: "instagram",
-          data:
-            Instagram?.[product.node.id]?.[
-              Instagram?.[product.node.id].length - 1
-            ].creatives || [],
+          data: formatCreatives.map((creative: string) =>
+            JSON.stringify({ url: creative })
+          ),
+          budget: amount / products.length / campaignPlatforms.length,
         });
       }
       if (supportedAdPlatforms.Google && Google?.[product.node.id]) {

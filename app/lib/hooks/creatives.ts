@@ -257,10 +257,16 @@ export const useGenerateCreatives = () => {
           if (creativeSet.status === "completed") {
             if (platforms.includes("INSTAGRAM"))
               loadingStates["INSTAGRAM"] = false;
-            generate("INSTAGRAM", productId, creativeSet.urls);
+            generate("INSTAGRAM", productId, {
+              creativeSetId: mediaResult.value.creativeSetId,
+              urls: creativeSet.urls,
+            });
             if (platforms.includes("FACEBOOK"))
               loadingStates["FACEBOOK"] = false;
-            generate("FACEBOOK", productId, creativeSet.urls);
+            generate("FACEBOOK", productId, {
+              creativeSetId: mediaResult.value.creativeSetId,
+              urls: creativeSet.urls,
+            });
           }
           if (
             creativeSet.status === "completed" ||

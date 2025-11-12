@@ -13,6 +13,7 @@ import CommentIcon from "@/public/media-creatives/Comment.png";
 import BookmarkIcon from "@/public/media-creatives/Bookmark.png";
 import ChevronRight from "@/public/chevron-right-white.svg";
 import CircleLoader from "../../loaders/CircleLoader";
+import { roboto } from "../../fonts";
 // import { inter, roboto } from "@/app/ui/fonts";
 // import CircleLoader from "../../loaders/CircleLoader";
 
@@ -46,7 +47,7 @@ export default function StaticPost({
         const calculatedHeight = isBigScreen
           ? screenHeight * 0.7
           : screenHeight * 0.65;
-        const calculatedWidth = calculatedHeight * (260.74 / 413);
+        const calculatedWidth = calculatedHeight * (260 / 415.78);
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
       }
@@ -65,21 +66,21 @@ export default function StaticPost({
   return (
     <div
       style={{
-        width: maximized ? maximizedWidth : "260.74px",
-        height: maximized ? maximizedHeight : "413px",
+        width: maximized ? maximizedWidth : "260px",
+        height: maximized ? maximizedHeight : "415.78px",
       }}
       className={` rounded-[12.5px]`}
     >
       <div
         style={{
-          height: maximized ? maximizedHeight! * (45.5 / 413) : "45.5px",
+          height: maximized ? maximizedHeight! * (86.91 / 415.78) : "86.91px",
         }}
         className="bg-white px-3 rounded-t-[12.25px] flex items-center gap-2"
       >
         <div
           style={{
-            width: maximized ? maximizedHeight! * (28 / 413) : "28px",
-            height: maximized ? maximizedHeight! * (28 / 413) : "28px",
+            width: maximized ? maximizedHeight! * (28 / 415.78) : "28px",
+            height: maximized ? maximizedHeight! * (28 / 415.78) : "28px",
           }}
           className="rounded-full relative overflow-hidden"
         >
@@ -87,13 +88,13 @@ export default function StaticPost({
             <span className="absolute top-0 left-0 inset-0 flex items-center justify-center">
               <Skeleton
                 width={
-                  maximized ? `${maximizedHeight! * (28 / 413)}px` : "28px"
+                  maximized ? `${maximizedHeight! * (28 / 415.78)}px` : "28px"
                 }
                 height={
-                  maximized ? `${maximizedHeight! * (28 / 413)}px` : "28px"
+                  maximized ? `${maximizedHeight! * (28 / 415.78)}px` : "28px"
                 }
                 borderRadius={
-                  maximized ? `${maximizedHeight! * (14 / 413)}px` : "14px"
+                  maximized ? `${maximizedHeight! * (14 / 415.78)}px` : "14px"
                 }
               />
             </span>
@@ -102,11 +103,11 @@ export default function StaticPost({
             src={primaryLogo || "/logo.svg"}
             onLoad={() => setImgLoaded(true)}
             alt="Primary Logo"
-            width={maximized ? maximizedHeight! * (28 / 413) : 28}
-            height={maximized ? maximizedHeight! * (28 / 413) : 28}
+            width={maximized ? maximizedHeight! * (28 / 415.78) : 28}
+            height={maximized ? maximizedHeight! * (28 / 415.78) : 28}
             style={{
-              width: maximized ? maximizedHeight! * (28 / 413) : 28,
-              height: maximized ? maximizedHeight! * (28 / 413) : 28,
+              width: maximized ? maximizedHeight! * (28 / 415.78) : 28,
+              height: maximized ? maximizedHeight! * (28 / 415.78) : 28,
             }}
             className={`${
               imgLoaded ? "opacity-100" : "opacity-0"
@@ -116,15 +117,15 @@ export default function StaticPost({
         <div>
           <div
             style={{
-              fontSize: maximized ? maximizedHeight! * (10 / 413) : "10px",
+              fontSize: maximized ? maximizedHeight! * (10 / 415.78) : "10px",
             }}
-            className={` pxn-semibold tracking-normal `}
+            className={` ${roboto.className} font-medium tracking-normal text-[#395996] `}
           >
             {brandName}
           </div>
           <div
             style={{
-              fontSize: maximized ? maximizedHeight! * (8 / 413) : "8px",
+              fontSize: maximized ? maximizedHeight! * (8 / 415.78) : "8px",
             }}
             className={`${
               maximized ? "-mt-[2px]" : "-mt-[1px]"
@@ -136,62 +137,70 @@ export default function StaticPost({
       </div>
       <div
         style={{
-          height: maximized ? maximizedHeight! * (260.74 / 413) : "260.74px",
+          height: maximized ? maximizedHeight! * (260 / 415.78) : "260px",
         }}
-        className="flex items-center relative justify-center bg-black"
+        className="flex items-center justify-center bg-white"
       >
-        {photoUrl && photoUrl?.trim()?.length > 0 && (
-          <Image
-            src={photoUrl}
-            alt="Post Image"
-            width={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
-            height={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
-            style={{
-              width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              objectFit: "contain",
-              opacity: photoUrlLoaded ? 1 : 0,
-            }}
-            objectFit="fill"
-            unoptimized
-            onLoad={() => setPhotoUrlLoaded(true)}
-            // placeholder="blur"
-          />
-        )}
-        {(!photoUrl || !photoUrlLoaded) && (
-          <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
-            <CircleLoader black />
-          </div>
-        )}
+        <div
+          style={{
+            width: maximized ? maximizedHeight! * (250 / 415.78) : "250px",
+            height: maximized ? maximizedHeight! * (250 / 415.78) : "250px",
+          }}
+          className="flex items-center relative justify-center bg-black"
+        >
+          {photoUrl && photoUrl?.trim()?.length > 0 && (
+            <Image
+              src={photoUrl}
+              alt="Post Image"
+              width={maximized ? maximizedHeight! * (250 / 415.78) : 250}
+              height={maximized ? maximizedHeight! * (250 / 415.78) : 250}
+              style={{
+                width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
+                height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
+                objectFit: "contain",
+                opacity: photoUrlLoaded ? 1 : 0,
+              }}
+              objectFit="fill"
+              unoptimized
+              onLoad={() => setPhotoUrlLoaded(true)}
+              // placeholder="blur"
+            />
+          )}
+          {(!photoUrl || !photoUrlLoaded) && (
+            <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
+              <CircleLoader black />
+            </div>
+          )}
+        </div>
         {/* <Skeleton
           width="100%"
-          height={maximized ? `${maximizedHeight! * (260 / 413)}px` : "260px"}
+          height={maximized ? `${maximizedHeight! * (260 / 415.78)}px` : "260px"}
           borderRadius="0px"
         /> */}
       </div>
       <div
         style={{
-          height: maximized ? maximizedHeight! * (26.74 / 413) : "26.74px",
+          height: maximized ? maximizedHeight! * (26.74 / 415.78) : "26.74px",
         }}
-        className="bg-[#1FA1FF] flex justify-between items-center px-2"
+        // className="bg-[#1FA1FF] flex justify-between items-center px-2"
       >
         <div
           style={{
-            fontSize: maximized ? maximizedHeight! * (10 / 413) : "10px",
+            fontSize: maximized ? maximizedHeight! * (10 / 415.78) : "10px",
           }}
           className="font-medium text-white tracking-normal pxn-semibold"
         >
           Shop Now
         </div>
         <ChevronRight
-          width={maximized ? maximizedHeight! * (12 / 413) : 12}
+          width={maximized ? maximizedHeight! * (12 / 415.78) : 12}
           fill="white"
         />
       </div>
       <div
         style={{
-          height: maximized ? maximizedHeight! * (45 / 413) : "45px",
-          fontSize: maximized ? maximizedHeight! * (9 / 413) : "9px",
+          height: maximized ? maximizedHeight! * (45 / 415.78) : "45px",
+          fontSize: maximized ? maximizedHeight! * (9 / 415.78) : "9px",
         }}
         className="text-left bg-white pxn-regular tracking-wide px-2 flex items-center overflow-hidden"
       >
@@ -200,34 +209,34 @@ export default function StaticPost({
       </div>
       <div
         style={{
-          height: maximized ? maximizedHeight! * (35 / 413) : "35px",
+          height: maximized ? maximizedHeight! * (35 / 415.78) : "35px",
         }}
         className="h-[35px] bg-white rounded-b-[12.25px] flex items-center px-3 justify-between"
       >
         <div
           style={{
-            gap: maximized ? maximizedHeight! * (8 / 413) : 8,
+            gap: maximized ? maximizedHeight! * (8 / 415.78) : 8,
           }}
           className="flex items-center"
         >
           <Image
             src={HeartIcon}
-            width={maximized ? maximizedHeight! * (13 / 413) : 13}
-            height={maximized ? maximizedHeight! * (13 / 413) : 13}
+            width={maximized ? maximizedHeight! * (13 / 415.78) : 13}
+            height={maximized ? maximizedHeight! * (13 / 415.78) : 13}
             alt="Heart Icon"
             placeholder="blur"
           />
           <Image
             src={CommentIcon}
-            width={maximized ? maximizedHeight! * (13 / 413) : 13}
-            height={maximized ? maximizedHeight! * (13 / 413) : 13}
+            width={maximized ? maximizedHeight! * (13 / 415.78) : 13}
+            height={maximized ? maximizedHeight! * (13 / 415.78) : 13}
             alt="Comment Icon"
             placeholder="blur"
           />
           <Image
             src={SendIcon}
-            width={maximized ? maximizedHeight! * (13 / 413) : 13}
-            height={maximized ? maximizedHeight! * (13 / 413) : 13}
+            width={maximized ? maximizedHeight! * (13 / 415.78) : 13}
+            height={maximized ? maximizedHeight! * (13 / 415.78) : 13}
             alt="Send Icon"
             placeholder="blur"
           />
@@ -235,8 +244,8 @@ export default function StaticPost({
         <div>
           <Image
             src={BookmarkIcon}
-            width={maximized ? maximizedHeight! * (14 / 413) : 14}
-            height={maximized ? maximizedHeight! * (14 / 413) : 14}
+            width={maximized ? maximizedHeight! * (14 / 415.78) : 14}
+            height={maximized ? maximizedHeight! * (14 / 415.78) : 14}
             alt="Send Icon"
             placeholder="blur"
           />
