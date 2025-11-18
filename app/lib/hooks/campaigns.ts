@@ -14,6 +14,7 @@ import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import { useToastStore } from "../stores/toastStore";
 import { useGetSetupComplete } from "./useGetSetupComplete";
+import { title } from "process";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
@@ -163,9 +164,17 @@ export const useLaunchCampaign = (
         creatives.push({
           channel: "facebook",
           budget: amount / products.length / campaignPlatforms.length,
+          id: formatCreatives[0]?.id,
           data:
-            formatCreatives.map((creative: string) =>
-              JSON.stringify({ url: creative })
+            formatCreatives.map((creative: any) =>
+              JSON.stringify({
+                url: creative?.url,
+                bodyText: creative?.bodyText,
+                productUrl: creative?.productUrl,
+                key: creative?.key,
+                description: creative?.description,
+                title: creative?.title,
+              })
             ) || [],
         });
       }
@@ -177,8 +186,14 @@ export const useLaunchCampaign = (
 
         creatives.push({
           channel: "instagram",
-          data: formatCreatives.map((creative: string) =>
-            JSON.stringify({ url: creative })
+          id: formatCreatives[0]?.id,
+          data: formatCreatives.map((creative: any) =>
+            JSON.stringify({
+              url: creative?.url,
+              caption: creative?.bodyText,
+              productUrl: creative?.productUrl,
+              key: creative?.key,
+            })
           ),
           budget: amount / products.length / campaignPlatforms.length,
         });

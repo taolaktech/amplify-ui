@@ -6,9 +6,11 @@ import CircleLoader from "../../loaders/CircleLoader";
 export default function CarouselPost({
   photoUrl,
   maximized,
+  isLoading,
 }: {
   photoUrl?: string;
   maximized?: boolean;
+  isLoading?: boolean;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -51,7 +53,7 @@ export default function CarouselPost({
           : "10.43px",
         overflow: "hidden",
       }}
-      className="bg-black rounded-[10.43px]  relative"
+      className="bg-black rounded-[10.43px] relative"
     >
       {/* {(!imgLoaded || !photoUrl) && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -65,11 +67,11 @@ export default function CarouselPost({
           layout="fill"
           objectFit="contain"
           unoptimized
-          style={{ opacity: imgLoaded ? 1 : 0 }}
+          style={{ opacity: imgLoaded && !isLoading ? 1 : 0 }}
           onLoad={() => setImgLoaded(true)}
         />
       )}
-      {(!photoUrl || !imgLoaded) && (
+      {(!photoUrl || !imgLoaded || isLoading) && (
         <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
           <CircleLoader black />
         </div>

@@ -7,6 +7,7 @@ import XIcon from "@/public/media-creatives/x.png";
 import ArrowIcon from "@/public/media-creatives/story-arrow.png";
 import StorySendIcon from "@/public/media-creatives/story-send.png";
 import CircleLoader from "../../loaders/CircleLoader";
+import { useImgTracker } from "@/app/lib/hooks/useImgTracker";
 
 export default function StoryPost({
   brandName,
@@ -14,16 +15,17 @@ export default function StoryPost({
   location,
   photoUrl,
   maximized,
+  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl?: string;
   maximized?: boolean;
+  isLoading?: boolean;
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
-
-  const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
+  const { imgLoaded, imgError, setImgError, setImgLoaded } = useImgTracker();
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,14 +80,15 @@ export default function StoryPost({
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
               // objectFit: "fill",
               objectFit: "contain",
-              opacity: photoUrlLoaded ? 1 : 0,
+              opacity: imgLoaded && !isLoading ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
             }}
-            onLoad={() => setPhotoUrlLoaded(true)}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
             unoptimized
           />
         )}
-        {(!photoUrl || !photoUrlLoaded) && (
+        {(!photoUrl || !imgLoaded || imgError || isLoading) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>
@@ -202,7 +205,7 @@ const Avatar = ({
   maximized?: boolean;
 }) => {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const { imgError, imgLoaded, setImgError, setImgLoaded } = useImgTracker();
   return (
     <div
       style={{
@@ -211,7 +214,7 @@ const Avatar = ({
       }}
       className="rounded-full relative overflow-hidden"
     >
-      {!imgLoaded && (
+      {(!imgLoaded || imgError) && (
         <span className="absolute top-0 left-0 inset-0 flex items-center justify-center">
           <Skeleton
             width={
@@ -229,6 +232,7 @@ const Avatar = ({
       <Image
         src={primaryLogo || "/logo.svg"}
         onLoad={() => setImgLoaded(true)}
+        onError={() => setImgError(true)}
         alt="Primary Logo"
         width={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
         height={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
@@ -237,7 +241,7 @@ const Avatar = ({
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
         }}
         className={`${
-          imgLoaded ? "opacity-100" : "opacity-0"
+          imgLoaded && !imgError ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300 rounded-full`}
       />
     </div>

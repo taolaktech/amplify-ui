@@ -23,19 +23,24 @@ export default function StaticPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
+  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl: string;
   caption?: string;
   maximized?: boolean;
+  isLoading?: boolean;
 }) {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
 
   const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,7 +88,7 @@ export default function StaticPost({
           }}
           className="rounded-full relative overflow-hidden"
         >
-          {!imgLoaded && (
+          {(!imgLoaded || imgError) && (
             <span className="absolute top-0 left-0 inset-0 flex items-center justify-center">
               <Skeleton
                 width={
@@ -101,6 +106,7 @@ export default function StaticPost({
           <Image
             src={primaryLogo || "/logo.svg"}
             onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
             alt="Primary Logo"
             width={maximized ? maximizedHeight! * (28 / 413) : 28}
             height={maximized ? maximizedHeight! * (28 / 413) : 28}
@@ -109,7 +115,7 @@ export default function StaticPost({
               height: maximized ? maximizedHeight! * (28 / 413) : 28,
             }}
             className={`${
-              imgLoaded ? "opacity-100" : "opacity-0"
+              imgLoaded && !imgError ? "opacity-100" : "opacity-0"
             } transition-opacity duration-300 rounded-full`}
           />
         </div>
@@ -150,15 +156,16 @@ export default function StaticPost({
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               objectFit: "contain",
-              opacity: photoUrlLoaded ? 1 : 0,
+              opacity: photoUrlLoaded && !isLoading ? 1 : 0,
             }}
             objectFit="fill"
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
+            onError={() => setPhotoError(true)}
             // placeholder="blur"
           />
         )}
-        {(!photoUrl || !photoUrlLoaded) && (
+        {(!photoUrl || !photoUrlLoaded || isLoading) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>
@@ -193,10 +200,26 @@ export default function StaticPost({
           height: maximized ? maximizedHeight! * (45 / 413) : "45px",
           fontSize: maximized ? maximizedHeight! * (9 / 413) : "9px",
         }}
-        className="text-left bg-white pxn-regular tracking-wide px-2 flex items-center overflow-hidden"
+        title={caption ?? ""}
+        className="text-left cursor-help bg-white pxn-regular tracking-wide px-2 flex items-center overflow-hidden"
       >
-        Username Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        eiusmod tempor incididunt... more
+        {caption ? (
+          <div
+            title={caption ?? ""}
+            className="text-left cursor-help bg-white pxn-regular tracking-wide"
+            dangerouslySetInnerHTML={{
+              __html:
+                caption && caption?.length > 100
+                  ? caption?.slice(0, 100) +
+                    "<span className='text-[#6E6E6E]'> ...more</span>"
+                  : caption
+                  ? caption
+                  : "",
+            }}
+          ></div>
+        ) : (
+          <Skeleton width="100%" height="20px" borderRadius="4px" />
+        )}
       </div>
       <div
         style={{

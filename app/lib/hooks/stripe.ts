@@ -1,3 +1,5 @@
+"use client";
+
 import {
   getCurrentSubscriptionPlan,
   getCustomerPaymentMethods,
@@ -27,8 +29,13 @@ export const useGetCustomerPaymentMethods = () => {
 export const useSubscribeToPlan = () => {
   const token = useAuthStore((state) => state.token);
   const router = useRouter();
+  const [planId, setPlanId] = useState<string | null>(null);
+
   const setIsSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
+  );
+  const setSubscriptionType = useAuthStore(
+    (state) => state.setSubscriptionType
   );
   const setToast = useToastStore((state) => state.setToast);
   const { mutate, isPending } = useMutation({
@@ -36,18 +43,26 @@ export const useSubscribeToPlan = () => {
     onError: (error) => {
       console.log(error);
       setToast({
-        type: "error",
+        title: "Something went wrong",
         message:
-          "There was an error processing your subscription. Please try again.",
-        title: "Subscription Error",
+          "We couldn’t process your payment method. Please check your connection or try again in a few minutes",
+        type: "error",
       });
     },
     onSuccess: (data) => {
       console.log(data);
       setIsSubscriptionSuccess(true);
-      setTimeout(() => {
-        router.push("/pricing/checkout/success");
-      }, 1000);
+      const newPlan = planId
+        ? planIdToName[planId as keyof typeof planIdToName]
+        : {
+            name: "Free",
+            cycle: "monthly" as Cycle,
+          };
+      console.log("new plan from subscribe:", newPlan);
+      if (newPlan) setSubscriptionType(newPlan);
+      // setTimeout(() => {
+      router.push("/pricing/checkout/success");
+      // }, 500);
     },
   });
 
@@ -55,7 +70,8 @@ export const useSubscribeToPlan = () => {
     price: string;
     paymentMethodId: string;
   }) => {
-    console.log("data:", data);
+    console.log("data from subscribe:", data);
+    setPlanId(data.price);
     mutate({
       token: token || "",
       ...data,
@@ -73,6 +89,11 @@ export const useGetCurrentSubscriptionPlan = () => {
   const { data, isLoading, error, isSuccess } = useQuery({
     queryKey: ["current-subsctiption-plan"],
     queryFn: () => getCurrentSubscriptionPlan(token || ""),
+    staleTime: 0,
+    gcTime: 0, // (or cacheTime: 0 for React Query v4)
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
   useEffect(() => {
     console.log("current plan data:", data);
@@ -85,6 +106,8 @@ export const useGetCurrentSubscriptionPlan = () => {
             name: "Free",
             cycle: "monthly" as Cycle,
           };
+
+      console.log("current plan:");
 
       if (currentPlan) setSubscriptionType(currentPlan);
     }
@@ -103,6 +126,7 @@ export const useUpgradePlan = () => {
   const setIsSubscriptionSuccess = useUIStore(
     (state) => state.actions.setSubscriptionSuccess
   );
+  const setToast = useToastStore((state) => state.setToast);
   const router = useRouter();
   const { mutate, isPending } = useMutation({
     mutationFn: upgradePlan,
@@ -116,19 +140,28 @@ export const useUpgradePlan = () => {
             name: "Free",
             cycle: "monthly" as Cycle,
           };
+
+      console.log("new plan for upgrade:", newPlan);
       if (newPlan) setSubscriptionType(newPlan);
-      setTimeout(() => {
-        router.push("/pricing/checkout/success");
-      }, 1000);
+      // setTimeout(() => {
+      router.push("/pricing/checkout/success");
+      // }, 500);
     },
 
     onError: (error) => {
       console.log(error);
+      setToast({
+        title: "Something went wrong",
+        message:
+          "We couldn’t process your payment method. Please check your connection or try again in a few minutes",
+        type: "error",
+      });
     },
   });
 
   const handleUpgrade = (data: { newPriceId: string }) => {
-    console.log("data:", data);
+    console.log("data for upgrade:", data);
+
     setPlanId(data.newPriceId);
     mutate({
       token: token || "",

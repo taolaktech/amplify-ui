@@ -69,7 +69,7 @@ function GettingStarted() {
             </div>
           </div>
         </div> */}
-        <div className="hidden relative flex-col xl:flex w-full max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
+        <div className="hidden relative flex-col xl:flex w-full overflow-hidden max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
           <div>
             <HomeTrendIcon width={34} height={34} />
             <span className="absolute bottom-0 z-[1] right-0">

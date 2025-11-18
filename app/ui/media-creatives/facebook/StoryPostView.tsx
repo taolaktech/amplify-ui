@@ -4,22 +4,27 @@ import { useState } from "react";
 import MaximizeButton from "../MaximizeButton";
 import StoryPost from "./StoryPost";
 import XIcon from "@/public/x.svg";
+import useUIStore from "@/app/lib/stores/uiStore";
 
 export default function StoryPostView({
-  photoUrl,
-  caption,
+  creative,
+  isLoading,
 }: {
-  photoUrl: string;
-  caption?: string;
+  creative: any;
+  isLoading?: boolean;
 }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
     (state) => state.adsShow.location[0] || "Location"
   );
   const [maximize, setMaximize] = useState(false);
+  const toggleIsPreviewMaximized = useUIStore(
+    (state) => state.actions.toggleIsPreviewMaximized
+  );
 
   const toggleMaximize = () => {
     setMaximize(!maximize);
+    toggleIsPreviewMaximized();
   };
   return (
     <div className="bg-[#F1F1F1] h-[520px] flex flex-col gap-4 p-6 rounded-3xl">
@@ -31,14 +36,16 @@ export default function StoryPostView({
         <StoryPost
           brandName={brandName}
           location={location}
-          photoUrl={photoUrl}
+          photoUrl={creative?.url}
+          isLoading={isLoading}
         />
       </div>
       {maximize && (
         <StoryPostViewMaximized
           toggleMaximize={toggleMaximize}
-          photoUrl={photoUrl}
-          caption={caption}
+          photoUrl={creative?.url}
+          caption={creative?.caption}
+          isLoading={isLoading}
         />
       )}
     </div>
@@ -50,10 +57,12 @@ const StoryPostViewMaximized = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   toggleMaximize,
+  isLoading,
 }: {
   photoUrl?: string;
   toggleMaximize: () => void;
   caption?: string;
+  isLoading?: boolean;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -76,6 +85,7 @@ const StoryPostViewMaximized = ({
             location={location}
             photoUrl={photoUrl}
             maximized
+            isLoading={isLoading}
           />
         </div>
       </div>

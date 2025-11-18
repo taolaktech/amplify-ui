@@ -198,7 +198,7 @@ export const useGenerateCreatives = () => {
         );
         return mediaMutate({
           token,
-          product: { ...mediaCreativeProduct, channel: "INSTAGRAM" },
+          product: { ...mediaCreativeProduct, channel: "FACEBOOK" },
         });
       }
       // if (platforms?.includes("INSTAGRAM")) {
@@ -249,32 +249,47 @@ export const useGenerateCreatives = () => {
 
       if (mediaResult.status === "fulfilled" && mediaResult.value) {
         for (let i = 0; i < 10; i++) {
-          const creativeSet = await getCreativeSet({
-            creativeSetId: mediaResult.value.creativeSetId,
-            token,
-          });
-          console.log("Media Creative Set Status:", creativeSet.status);
-          if (creativeSet.status === "completed") {
-            if (platforms.includes("INSTAGRAM"))
-              loadingStates["INSTAGRAM"] = false;
-            generate("INSTAGRAM", productId, {
+          try {
+            const creativeSet = await getCreativeSet({
               creativeSetId: mediaResult.value.creativeSetId,
-              urls: creativeSet.urls,
+              token,
             });
-            if (platforms.includes("FACEBOOK"))
-              loadingStates["FACEBOOK"] = false;
-            generate("FACEBOOK", productId, {
-              creativeSetId: mediaResult.value.creativeSetId,
-              urls: creativeSet.urls,
-            });
-          }
-          if (
-            creativeSet.status === "completed" ||
-            creativeSet.status === "failed"
-          ) {
+            console.log("Media Creative Set Status:", creativeSet.status);
+            if (
+              creativeSet.status === "completed" &&
+              creativeSet.creatives.length > 2
+            ) {
+              const creatives = creativeSet.creatives.map((creative: any) => ({
+                ...creative,
+                id: mediaResult.value.creativeSetId,
+                caption: creative.bodyText,
+              }));
+              console.log("formatted creatives: ", creatives);
+              if (platforms.includes("INSTAGRAM")) {
+                loadingStates["INSTAGRAM"] = false;
+                generate("INSTAGRAM", productId, creatives);
+              }
+              if (platforms.includes("FACEBOOK")) {
+                loadingStates["FACEBOOK"] = false;
+                generate("FACEBOOK", productId, creatives);
+              }
+            }
+            if (
+              (creativeSet.creatives.length >= 2 &&
+                creativeSet.status === "completed") ||
+              creativeSet.status === "failed"
+            ) {
+              break;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+          } catch (error) {
+            console.error("Error fetching creative set:", error);
+            loadingStates["INSTAGRAM"] = false;
+            loadingStates["FACEBOOK"] = false;
+            creativeLoadingRef.current[productId] = loadingStates;
             break;
           }
-          await new Promise((resolve) => setTimeout(resolve, 10000));
         }
       }
       loadingStates["INSTAGRAM"] = false;

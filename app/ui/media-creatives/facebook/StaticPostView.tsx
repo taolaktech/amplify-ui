@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import XIcon from "@/public/x.svg";
+import useUIStore from "@/app/lib/stores/uiStore";
 
 export default function StaticPostView({
-  photoUrl,
-  caption,
+  creative,
+  isLoading,
 }: {
-  photoUrl: string;
-  caption?: string;
+  creative: any;
+  isLoading?: boolean;
 }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -18,10 +19,14 @@ export default function StaticPostView({
   );
   const [maximize, setMaximize] = useState(false);
 
-  console.log("photoUrl in StaticPostView:", photoUrl);
+  console.log("photoUrl in StaticPostView:", creative?.url);
+  const toggleIsPreviewMaximized = useUIStore(
+    (state) => state.actions.toggleIsPreviewMaximized
+  );
 
   const toggleMaximize = () => {
     setMaximize(!maximize);
+    toggleIsPreviewMaximized();
   };
   return (
     <div className="bg-[#F1F1F1] h-[520px] flex flex-col gap-4 p-6 rounded-3xl">
@@ -33,15 +38,17 @@ export default function StaticPostView({
         <StaticPost
           brandName={brandName}
           location={location}
-          photoUrl={photoUrl}
-          caption={caption}
+          photoUrl={creative?.url}
+          caption={creative?.caption}
+          isLoading={isLoading}
         />
       </div>
       {maximize && (
         <StaticPostViewMaximized
           toggleMaximize={toggleMaximize}
-          photoUrl={photoUrl}
-          caption={caption}
+          photoUrl={creative?.url}
+          caption={creative?.caption}
+          isLoading={isLoading}
         />
       )}
     </div>
@@ -52,10 +59,12 @@ const StaticPostViewMaximized = ({
   photoUrl,
   caption,
   toggleMaximize,
+  isLoading,
 }: {
   photoUrl: string;
   toggleMaximize: () => void;
   caption?: string;
+  isLoading?: boolean;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -79,6 +88,7 @@ const StaticPostViewMaximized = ({
             photoUrl={photoUrl}
             caption={caption}
             maximized
+            isLoading={isLoading}
           />
         </div>
       </div>
