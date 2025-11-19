@@ -79,8 +79,6 @@ export default function StoryPost({
             style={{
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
-              // objectFit: "fill",
-              objectFit: "contain",
               opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
             }}

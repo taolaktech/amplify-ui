@@ -156,14 +156,11 @@ export default function StaticPost({
             style={{
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              objectFit: "contain",
               opacity: photoUrlLoaded && !isLoading && !photoError ? 1 : 0,
             }}
-            objectFit="fill"
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoError(true)}
-            // placeholder="blur"
           />
         )}
         {(!photoUrl || !photoUrlLoaded || isLoading || photoError) && (
