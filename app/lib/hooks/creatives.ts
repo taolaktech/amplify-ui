@@ -266,16 +266,16 @@ export const useGenerateCreatives = () => {
               }));
               console.log("formatted creatives: ", creatives);
               if (platforms.includes("INSTAGRAM")) {
-                loadingStates["INSTAGRAM"] = false;
                 generate("INSTAGRAM", productId, creatives);
+                loadingStates["INSTAGRAM"] = false;
               }
               if (platforms.includes("FACEBOOK")) {
-                loadingStates["FACEBOOK"] = false;
                 generate("FACEBOOK", productId, creatives);
+                loadingStates["FACEBOOK"] = false;
               }
             }
             if (
-              (creativeSet.creatives.length >= 2 &&
+              (creativeSet.creatives.length > 2 &&
                 creativeSet.status === "completed") ||
               creativeSet.status === "failed"
             ) {
@@ -285,16 +285,20 @@ export const useGenerateCreatives = () => {
             await new Promise((resolve) => setTimeout(resolve, 10000));
           } catch (error) {
             console.error("Error fetching creative set:", error);
-            loadingStates["INSTAGRAM"] = false;
-            loadingStates["FACEBOOK"] = false;
+            if (platforms.includes("INSTAGRAM")) {
+              loadingStates["INSTAGRAM"] = false;
+            }
+            if (platforms.includes("FACEBOOK")) {
+              loadingStates["FACEBOOK"] = false;
+            }
             creativeLoadingRef.current[productId] = loadingStates;
             break;
           }
         }
       }
-      loadingStates["INSTAGRAM"] = false;
-      loadingStates["FACEBOOK"] = false;
-      loadingStates["GOOGLE ADS"] = false;
+      if (platforms.includes("INSTAGRAM")) loadingStates["INSTAGRAM"] = false;
+      if (platforms.includes("FACEBOOK")) loadingStates["FACEBOOK"] = false;
+      if (platforms.includes("GOOGLE ADS")) loadingStates["GOOGLE ADS"] = false;
       console.log("Generation completed for product:", productId);
       // actions.completeAdsPlatform();
       creativeLoadingRef.current[productId] = loadingStates;
