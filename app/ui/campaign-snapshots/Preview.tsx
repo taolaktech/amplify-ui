@@ -177,7 +177,6 @@ const PreviewContainer = ({
   settings?: { label: string; key: SocialSettingsKey }[];
 }) => {
   // const containerRef = useRef<HTMLDivElement>(null);
-  console.log("PreviewContainer item:", item);
 
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
@@ -195,17 +194,6 @@ const PreviewContainer = ({
   // }, [instagramSettings]);
 
   const isLoading = useMemo(() => {
-    console.log("highlightedProductId:", highlightedProductId);
-    console.log("item.platform:", item?.platform);
-    console.log(
-      "creativeLoadingStates:",
-      creativeLoadingStates?.[highlightedProductId]
-    );
-    console.log(
-      "isLoading for item.platform :",
-      item.platform,
-      creativeLoadingStates?.[highlightedProductId]?.[item.platform]
-    );
     return creativeLoadingStates?.[highlightedProductId]?.[item.platform];
   }, [
     highlightedProductId,
@@ -218,7 +206,6 @@ const PreviewContainer = ({
 
   const mediaCreative = item.creatives?.length - 1 || 0;
   const isMediaCreative = item?.creatives;
-  console.log("isMediaCreative:", isMediaCreative);
   console.log(isMediaCreative[mediaCreative]?.creatives);
   // if (!item?.creatives?.length) return null;
   const isGoogleAds = platform === "GOOGLE ADS";
@@ -265,9 +252,6 @@ const PreviewContainer = ({
       settings.carouselPost = 50;
       settings.storyPost = 25;
     }
-
-    console.log("facebookWidthSize settings:", settings);
-
     return settings;
   }, [
     facebookSettings.carouselPost,
@@ -316,8 +300,6 @@ const PreviewContainer = ({
       settings.carouselPost = 50;
       settings.storyPost = 25;
     }
-
-    console.log("facebookWidthSize settings:", settings);
 
     return settings;
   }, [
