@@ -257,7 +257,7 @@ export const useGenerateCreatives = () => {
             console.log("Media Creative Set Status:", creativeSet.status);
             if (
               creativeSet.status === "completed" &&
-              creativeSet.creatives.length == 3
+              creativeSet.creatives.length > 2
             ) {
               const creatives = creativeSet.creatives.map((creative: any) => ({
                 ...creative,
@@ -275,7 +275,7 @@ export const useGenerateCreatives = () => {
               }
             }
             if (
-              (creativeSet.creatives.length == 3 &&
+              (creativeSet.creatives.length > 2 &&
                 creativeSet.status === "completed") ||
               creativeSet.status === "failed"
             ) {
