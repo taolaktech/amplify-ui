@@ -286,7 +286,7 @@ export const useEmailLogin = (
         try {
           const isConnected = await getMe(response.data?.access_token);
 
-          await Promise.all([
+          await Promise.allSettled([
             getShopifyAccount(response.data?.access_token, isConnected),
             getStoreDetails(response.data?.access_token, isConnected),
             fetchCampaigns(response.data?.access_token),
@@ -370,7 +370,7 @@ export const useGoogleLogin = (
           completeConnectStore(isShopifyAccountConnected);
           try {
             const isConnected = await getMe(response.data?.access_token);
-            await Promise.all([
+            await Promise.allSettled([
               getShopifyAccount(response.data?.access_token, isConnected),
               getStoreDetails(response.data?.access_token, isConnected),
               fetchCampaigns(response.data?.access_token),
