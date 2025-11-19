@@ -207,6 +207,7 @@ const Avatar = ({
 }) => {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div
       style={{
@@ -215,7 +216,7 @@ const Avatar = ({
       }}
       className="rounded-full relative overflow-hidden"
     >
-      {!imgLoaded && (
+      {(!imgLoaded || imgError) && (
         <span className="absolute top-0 left-0 inset-0 flex items-center justify-center">
           <Skeleton
             width={
@@ -233,6 +234,7 @@ const Avatar = ({
       <Image
         src={primaryLogo || "/logo.svg"}
         onLoad={() => setImgLoaded(true)}
+        onError={() => setImgError(true)}
         alt="Primary Logo"
         width={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
         height={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
@@ -241,7 +243,7 @@ const Avatar = ({
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
         }}
         className={`${
-          imgLoaded ? "opacity-100" : "opacity-0"
+          imgLoaded && !imgError ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300 rounded-full`}
       />
     </div>
