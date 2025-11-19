@@ -39,7 +39,7 @@ export default function Steps2() {
   };
 
   return (
-    <div className=" bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl flex-1 h-full">
+    <div className="flex flex-col bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl flex-1 h-full">
       <h2 className="font-medium md:text-xl">Complete your Setup</h2>
       <div className="flex flex-row mt-2 items-center flex-shrink-0">
         <div className="text-xs font-medium text-[#787779] w-[70px]">
@@ -56,17 +56,17 @@ export default function Steps2() {
           ></div>
         </div>
       </div>
-      <div className="flex flex-col gap-1 mt-5">
+      <div className="flex flex-col gap-1 flex-1 justify-center">
         <StepsItem
           text="Connect your Store"
           connected={isSetupComplete!}
           action={() => router.push(link!)}
         />
-        <StepsItem
+        {/* <StepsItem
           text="Connect to Google Ads"
           connected={google}
           action={() => router.push("/settings/integrations")}
-        />
+        /> */}
         <StepsItem
           text="Connect your Instagram account"
           connected={instagram}
@@ -124,7 +124,11 @@ const StepsItem = ({
             {text}
           </span>
           {isOptional && (
-            <span className="text-xs ml-2 font-normal text-[9px]">
+            <span
+              className={`text-xs ml-2 font-normal text-[9px] ${
+                connected ? " text-[#BFBFBF]" : ""
+              } `}
+            >
               Optional
             </span>
           )}

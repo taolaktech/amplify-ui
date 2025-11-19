@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstanceBase from "./axios";
 // import axios from "axios";
 
@@ -19,6 +20,19 @@ export type BusinessDetails = {
   };
   estimatedMonthlyBudget: number;
   estimatedAnnualRevenue: number;
+};
+
+const INTEGRATION_HOST = process.env.NEXT_PUBLIC_API_INTEGRATION_HOST;
+export const facebookAuth = async (data: { token: string }) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/facebook-auth?platforms=facebook`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
 };
 
 export const handleShopifyAuth = async (data: {

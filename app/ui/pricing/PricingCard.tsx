@@ -15,6 +15,7 @@ function PricingCard({
   cycle,
   isDashboard,
   price,
+  index,
   features,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePlanChange,
@@ -27,6 +28,7 @@ function PricingCard({
     | null;
   isCurrentPlan?: boolean;
   planSelected: Plan | null;
+  index: number;
   cycle: Cycle;
   isDashboard?: boolean;
   features: string[];
@@ -65,7 +67,13 @@ function PricingCard({
 
   return (
     <div
-      className={`p-8 rounded-lg h-screen max-h-[467px] xl:max-h-[567px]
+      className={`p-8 
+        ${
+          index === 2
+            ? "md:col-span-2 md:max-w-[50%] md:mx-auto lg:col-span-1 lg:max-w-none lg:mx-0"
+            : ""
+        }
+        rounded-lg h-screen max-h-[467px] xl:max-h-[567px]
         ${
           isCurrentPlan && isDashboard ? "cursor-not-allowed" : "cursor-pointer"
         }

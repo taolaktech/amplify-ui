@@ -2,11 +2,14 @@
 import IntegrationCard from "@/app/ui/Integrations";
 import FolderConnectionIcon from "@/public/folder-connection.svg";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
+import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
+
+  const { handleFacebookAuth } = useIntegrationsAuth();
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
@@ -36,7 +39,7 @@ export default function IntegrationLayout() {
       image: "/facebook.svg",
       writeUp:
         "Connect your Facebook account to manage your product and orders.",
-      toggleOn: () => actions.toggleFacebook(),
+      toggleOn: handleFacebookAuth,
       on: facebook,
     },
   ];

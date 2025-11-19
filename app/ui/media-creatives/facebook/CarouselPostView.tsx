@@ -34,14 +34,14 @@ export default function CarouselPostView({
   };
   return (
     <div>
-      <div className="bg-[#F1F1F1] max-w-full w-full h-[520px] flex flex-col gap-4 py-6 rounded-3xl">
+      <div className="bg-[#F1F1F1] max-w-full w-full h-[520px]  flex flex-col gap-4 py-6 rounded-3xl">
         <div className="flex items-center justify-between pl-6 pr-6">
           <div className="font-medium text-sm">Carousel</div>
           <MaximizeButton onClick={toggleMaximize} />
         </div>
         <DragScrollContainer>
           <div className="flex flex-shrink-0 overflow-hidden  justify-center items-center gap-4">
-            <div className="w-[260.74px] flex-shrink-0  ml-6">
+            <div className="w-[260.74px] flex-shrink-0 ml-6 ">
               <StaticPost
                 brandName={brandName}
                 location={location}
@@ -91,8 +91,8 @@ const CarouselPostViewMaximized = ({
   brandName: string;
   location: string;
   photoUrls: string[];
-  isLoading?: boolean;
   caption?: string;
+  isLoading?: boolean;
 }) => {
   return (
     <div className="z-30">
@@ -166,43 +166,45 @@ const CarouselContent = ({
         >
           <ArrowRight2 size={24} color="#101214" />
         </div>
-        <Carousel
-          showIndicators={false}
-          selectedItem={currentSlide}
-          showStatus={false}
-          showArrows={false}
-          onChange={(index) => setCurrentSlide(index)}
-          infiniteLoop={true}
-          animationHandler={"fade"}
-          autoPlay
-          autoFocus
-          swipeable={false}
-        >
-          <div className="flex items-center h-full justify-center">
-            <StaticPost
-              brandName={brandName}
-              location={location}
-              photoUrl={photoUrls[0]}
-              caption={caption}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="flex items-center h-[70vh] justify-center">
-            <CarouselPost
-              photoUrl={photoUrls[1]}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="flex items-center h-[70vh] justify-center">
-            <CarouselPost
-              photoUrl={photoUrls[2]}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
-        </Carousel>
+        <div>
+          <Carousel
+            showIndicators={false}
+            selectedItem={currentSlide}
+            showStatus={false}
+            showArrows={false}
+            onChange={(index) => setCurrentSlide(index)}
+            infiniteLoop={true}
+            animationHandler={"fade"}
+            autoPlay
+            autoFocus
+            swipeable={false}
+          >
+            <div className="flex items-center h-full justify-center">
+              <StaticPost
+                brandName={brandName}
+                location={location}
+                photoUrl={photoUrls[0]}
+                caption={caption}
+                maximized
+                isLoading={isLoading}
+              />
+            </div>
+            <div className="flex items-center h-[70vh] justify-center">
+              <CarouselPost
+                photoUrl={photoUrls[1]}
+                maximized
+                isLoading={isLoading}
+              />
+            </div>
+            <div className="flex items-center h-[70vh] justify-center">
+              <CarouselPost
+                photoUrl={photoUrls[2]}
+                maximized
+                isLoading={isLoading}
+              />
+            </div>
+          </Carousel>
+        </div>
       </div>
     </div>
   );
