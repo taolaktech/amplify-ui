@@ -87,7 +87,7 @@ export const useGetCurrentSubscriptionPlan = () => {
     (state) => state.setSubscriptionType
   );
   const { data, isLoading, error, isSuccess } = useQuery({
-    queryKey: ["current-subsctiption-plan"],
+    queryKey: ["current-subscription-plan"],
     queryFn: () => getCurrentSubscriptionPlan(token || ""),
     staleTime: 0,
     gcTime: 0, // (or cacheTime: 0 for React Query v4)
