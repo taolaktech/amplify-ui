@@ -7,6 +7,7 @@ import InboxIcon from "@/public/direct-inbox.svg";
 import InboxSMIcon from "@/public/direct-inbox-sm.svg";
 import { useForm } from "react-hook-form";
 import { useForgotPassword } from "@/app/lib/hooks/useLoginHooks";
+import Link from "next/link"; // ✅ ADD THIS IMPORT
 
 const defaultFormValues = {
   email: "",
@@ -76,6 +77,19 @@ export default function ForgotPassword() {
                     disabled={forgotPasswordMutation.isPending}
                   />
                 </div>
+
+                {/* ✅ ADDED: Sign in link */}
+                <div className="text-center mt-4">
+                  <p className="text-sm text-[#595959]">
+                    Remember your password?{" "}
+                    <Link
+                      href="/auth/login"
+                      className="text-gradient font-medium hover:underline"
+                    >
+                      Sign in here
+                    </Link>
+                  </p>
+                </div>
               </form>
             </div>
           </div>
@@ -114,6 +128,16 @@ export default function ForgotPassword() {
                         </span>
                       </button>
                     </div>
+                  </div>
+
+                  {/* ✅ ADDED: Sign in link for success state */}
+                  <div className="text-center mt-6">
+                    <Link
+                      href="/auth/login"
+                      className="text-gradient font-medium hover:underline text-sm"
+                    >
+                      Back to sign in
+                    </Link>
                   </div>
                 </div>
               </div>
