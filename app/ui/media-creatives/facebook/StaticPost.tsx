@@ -119,6 +119,7 @@ export default function StaticPost({
                 width: maximized ? maximizedHeight! * (28 / 415.78) : 28,
                 height: maximized ? maximizedHeight! * (28 / 415.78) : 28,
               }}
+              unoptimized
               className={`${
                 imgLoaded && !imgError ? "opacity-100" : "opacity-0"
               } transition-opacity duration-300 rounded-full`}
@@ -239,10 +240,9 @@ export default function StaticPost({
               style={{
                 width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
-                objectFit: "contain",
                 opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
               }}
-              objectFit="fill"
+              // objectFit="fill"
               unoptimized
               onLoad={() => setPhotoUrlLoaded(true)}
               onError={() => setPhotoUrlError(true)}

@@ -242,6 +242,7 @@ const Avatar = ({
           width: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
         }}
+        unoptimized
         className={`${
           imgLoaded && !imgError ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300 rounded-full`}

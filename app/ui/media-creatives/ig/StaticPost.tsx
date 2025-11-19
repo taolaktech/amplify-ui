@@ -114,6 +114,7 @@ export default function StaticPost({
               width: maximized ? maximizedHeight! * (28 / 413) : 28,
               height: maximized ? maximizedHeight! * (28 / 413) : 28,
             }}
+            unoptimized
             className={`${
               imgLoaded && !imgError ? "opacity-100" : "opacity-0"
             } transition-opacity duration-300 rounded-full`}
