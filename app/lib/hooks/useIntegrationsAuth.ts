@@ -7,7 +7,7 @@ export default function useIntegrationsAuth() {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
   const actions = useIntegrationStore((state) => state.actions);
-  const { instagram, facebook } = useIntegrationStore((state) => state);
+  const { facebook } = useIntegrationStore((state) => state);
 
   const handleFacebookAuth = async () => {
     if (facebook) {

@@ -1,6 +1,4 @@
-import useCampaignsStore, {
-  CampaignStatus,
-} from "@/app/lib/stores/campaignsStore";
+import useCampaignsStore from "@/app/lib/stores/campaignsStore";
 import { ProductOptions } from "./Settings";
 import Image from "next/image";
 import { ArrowDown2, More } from "iconsax-react";

@@ -14,7 +14,6 @@ import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import { useToastStore } from "../stores/toastStore";
 import { useGetSetupComplete } from "./useGetSetupComplete";
-import { title } from "process";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);

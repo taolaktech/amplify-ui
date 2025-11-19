@@ -17,6 +17,7 @@ import FBExampleLike from "@/public/media-creatives/fb_example_like.jpg";
 
 export default function StaticPost({
   brandName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   location,
   photoUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,8 +39,8 @@ export default function StaticPost({
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
 
-  const captionExample =
-    "Lorem ipsum dolor sit amet consectetur. Id at amet condimentum urna amet feugiat massa condimentum. Ultricies justo odio scelerisque at adipiscing.";
+  // const captionExample =
+  //   "Lorem ipsum dolor sit amet consectetur. Id at amet condimentum urna amet feugiat massa condimentum. Ultricies justo odio scelerisque at adipiscing.";
 
   const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
   const [photoUrlError, setPhotoUrlError] = useState(false);

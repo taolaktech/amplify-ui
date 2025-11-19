@@ -9,7 +9,7 @@ import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import useUIStore from "@/app/lib/stores/uiStore";
-import { use, useMemo } from "react";
+import { useMemo } from "react";
 import IGStaticPostView from "../media-creatives/ig/StaticPostView";
 import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
 import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
@@ -225,7 +225,6 @@ const PreviewContainer = ({
   const isInstagram = platform === "INSTAGRAM";
 
   const facebookWidthSize = useMemo(() => {
-    let width = 100;
     let count = 0;
     if (facebookSettings.staticPost) count += 1;
     if (facebookSettings.carouselPost) count += 1;
@@ -278,7 +277,6 @@ const PreviewContainer = ({
   ]);
 
   const instagramWidthSize = useMemo(() => {
-    let width = 100;
     let count = 0;
     if (instagramSettings.staticPost) count += 1;
     if (instagramSettings.carouselPost) count += 1;
