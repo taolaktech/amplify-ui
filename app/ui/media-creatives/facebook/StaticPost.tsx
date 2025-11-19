@@ -119,6 +119,7 @@ export default function StaticPost({
                 width: maximized ? maximizedHeight! * (28 / 415.78) : 28,
                 height: maximized ? maximizedHeight! * (28 / 415.78) : 28,
               }}
+              unoptimized
               className={`${
                 imgLoaded && !imgError ? "opacity-100" : "opacity-0"
               } transition-opacity duration-300 rounded-full`}
@@ -239,14 +240,11 @@ export default function StaticPost({
               style={{
                 width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
-                objectFit: "contain",
                 opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
               }}
-              objectFit="fill"
               unoptimized
               onLoad={() => setPhotoUrlLoaded(true)}
               onError={() => setPhotoUrlError(true)}
-              // placeholder="blur"
             />
           )}
           {(!photoUrl || !photoUrlLoaded || isLoading || photoUrlError) && (
@@ -259,7 +257,7 @@ export default function StaticPost({
       <div className="bg-white flex justify-center">
         <div
           style={{
-            height: maximized ? maximizedHeight! * (27.94 / 415.78) : "27,94px",
+            height: maximized ? maximizedHeight! * (27.94 / 415.78) : "27.94px",
             backgroundColor: "#F2F3F5",
             width: maximized ? maximizedHeight! * (250 / 415.78) : "250px",
             borderWidth: 0.63,

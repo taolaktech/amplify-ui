@@ -114,6 +114,7 @@ export default function StaticPost({
               width: maximized ? maximizedHeight! * (28 / 413) : 28,
               height: maximized ? maximizedHeight! * (28 / 413) : 28,
             }}
+            unoptimized
             className={`${
               imgLoaded && !imgError ? "opacity-100" : "opacity-0"
             } transition-opacity duration-300 rounded-full`}
@@ -155,14 +156,11 @@ export default function StaticPost({
             style={{
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              objectFit: "contain",
               opacity: photoUrlLoaded && !isLoading && !photoError ? 1 : 0,
             }}
-            objectFit="fill"
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoError(true)}
-            // placeholder="blur"
           />
         )}
         {(!photoUrl || !photoUrlLoaded || isLoading || photoError) && (
