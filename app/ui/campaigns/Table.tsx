@@ -52,8 +52,8 @@ export default function Table() {
   }, [isAllCampaignsSelected, excludeDataIds]);
 
   return (
-    <div className="mt-[2px] relative">
-      <div className="grid grid-cols-[1.2fr_2fr_repeat(8,1fr)_0.3fr] text-sm">
+    <div className="mt-[2px] relative overflow-x-scroll">
+      <div className="grid grid-cols-[1.2fr_2fr_repeat(4,1fr)_repeat(3,0.7fr)_0.85fr_1fr_0.3fr] text-sm">
         {/* <!-- Header --> */}
         <div className="contents [&>*]:bg-[rgba(243,239,246,0.8)] [&>*]:text-sm  [&>*]:text-[#928F94] [&>*]:font-medium [&>*]:h-[44px] [&>*]:flex [&>*]:items-center [&>*]:justify-start">
           <div
@@ -82,6 +82,7 @@ export default function Table() {
           <div className=" ">Clicks</div>
           <div className=" ">ROAS</div>
           <div className="">Channels</div>
+          <div className="">Start Date</div>
           <div className=""></div>
         </div>
         {/* Row 2 */}

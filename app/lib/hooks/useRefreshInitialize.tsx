@@ -22,7 +22,7 @@ export default function useRefreshInitialize() {
     }
     console.log("Refreshing initialization with token:", token);
     const isConnected = await getMe(token);
-    await Promise.all([
+    await Promise.allSettled([
       getShopifyAccount(token, isConnected),
       getStoreDetails(token, isConnected),
       fetchCampaigns(token),

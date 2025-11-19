@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 // import Skeleton from "../../Skeleton";
 import Image from "next/image";
 import CircleLoader from "../../loaders/CircleLoader";
-import { useImgTracker } from "@/app/lib/hooks/useImgTracker";
 
 export default function CarouselPost({
   photoUrl,
@@ -14,10 +13,11 @@ export default function CarouselPost({
   isLoading?: boolean;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { imgLoaded, imgError, setImgError, setImgLoaded } = useImgTracker();
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [maximizedWidth, setMaximizedWidth] = useState(0);
+  const [photoError, setPhotoError] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [maximizedHeight, setMaximizedHeight] = useState(0);
+  const [, setMaximizedHeight] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -68,12 +68,12 @@ export default function CarouselPost({
           layout="fill"
           objectFit="contain"
           unoptimized
-          style={{ opacity: imgLoaded && !imgError && !isLoading ? 1 : 0 }}
+          style={{ opacity: imgLoaded && !isLoading && !photoError ? 1 : 0 }}
           onLoad={() => setImgLoaded(true)}
-          onError={() => setImgError(true)}
+          onError={() => setPhotoError(true)}
         />
       )}
-      {(!photoUrl || !imgLoaded || imgError || isLoading) && (
+      {(!photoUrl || !imgLoaded || isLoading || photoError) && (
         <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
           <CircleLoader black />
         </div>

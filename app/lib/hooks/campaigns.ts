@@ -156,22 +156,45 @@ export const useLaunchCampaign = (
     const productsPayload = products.map((product) => {
       const creatives = [];
       if (supportedAdPlatforms.Facebook && Facebook?.[product.node.id]) {
+        const formatCreatives =
+          Facebook?.[product.node.id]?.[Facebook?.[product.node.id].length - 1]
+            .creatives || [];
+
         creatives.push({
           channel: "facebook",
           budget: amount / products.length / campaignPlatforms.length,
+          id: formatCreatives[0]?.id,
           data:
-            Facebook?.[product.node.id]?.[
-              Facebook?.[product.node.id].length - 1
-            ].creatives || [],
+            formatCreatives.map((creative: any) =>
+              JSON.stringify({
+                url: creative?.url,
+                bodyText: creative?.bodyText,
+                productUrl: creative?.productUrl,
+                key: creative?.key,
+                description: creative?.description,
+                title: creative?.title,
+              })
+            ) || [],
         });
       }
       if (supportedAdPlatforms.Instagram && Instagram?.[product.node.id]) {
+        const formatCreatives =
+          Instagram?.[product.node.id]?.[
+            Instagram?.[product.node.id].length - 1
+          ].creatives || [];
+
         creatives.push({
           channel: "instagram",
-          data:
-            Instagram?.[product.node.id]?.[
-              Instagram?.[product.node.id].length - 1
-            ].creatives || [],
+          id: formatCreatives[0]?.id,
+          data: formatCreatives.map((creative: any) =>
+            JSON.stringify({
+              url: creative?.url,
+              caption: creative?.bodyText,
+              productUrl: creative?.productUrl,
+              key: creative?.key,
+            })
+          ),
+          budget: amount / products.length / campaignPlatforms.length,
         });
       }
       if (supportedAdPlatforms.Google && Google?.[product.node.id]) {

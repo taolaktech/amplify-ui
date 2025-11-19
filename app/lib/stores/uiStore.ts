@@ -11,6 +11,7 @@ type UIStore = {
   currentProgressStep: number;
   startCursor: string;
   endCursor: string;
+  isPreviewMaximized: boolean;
   currentPage: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -36,6 +37,7 @@ type UIStore = {
     toggleSidebar: () => void;
     setOnboardingCompleted: (completed: boolean) => void;
     setSubscriptionSuccess: (success: boolean) => void;
+    toggleIsPreviewMaximized: () => void;
   };
 };
 
@@ -47,6 +49,7 @@ const defaultSidebarOpen =
 const useUIStore = create<UIStore>((set) => ({
   products: [],
   creativeLoadingState: {},
+  isPreviewMaximized: false,
   productCount: 0,
   currentPage: 1,
   startCursor: "",
@@ -89,6 +92,12 @@ const useUIStore = create<UIStore>((set) => ({
       })),
     setProgressStep: (current, total = 6) =>
       set({ currentProgressStep: current, totalProgressStep: total }),
+    toggleIsPreviewMaximized: () => {
+      set((state) => ({
+        ...state,
+        isPreviewMaximized: !state.isPreviewMaximized,
+      }));
+    },
     setSidebarOpen: (open) => set({ isSidebarOpen: open }),
     toggleSidebar: () => {
       set((state) => ({ isSidebarOpen: !state.isSidebarOpen }));

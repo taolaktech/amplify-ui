@@ -37,7 +37,7 @@ export default function TableHeader() {
   };
 
   return (
-    <div className="flex justify-between flex-shrink-0 items-center">
+    <div className="lg:flex justify-between flex-shrink-0 items-center">
       <div className="flex h-[48px]">
         {tableTabs.map((tab) => (
           <div
@@ -70,7 +70,7 @@ export default function TableHeader() {
           </div>
         ))}
       </div>
-      <div className="items-center flex gap-3">
+      <div className="items-center my-3 lg:my-0 flex gap-3">
         <div className="relative">
           <input
             type="text"

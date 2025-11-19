@@ -159,6 +159,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           return countries;
         },
         toggleInstagramSettings: (setting: SocialSettingsKey) => {
+          const settingValue = get().instagramSettings[setting];
+          if (
+            settingValue &&
+            Object.values(get().instagramSettings).filter(Boolean).length === 1
+          ) {
+            // Prevent disabling the last enabled setting
+            return;
+          }
           set((state) => ({
             instagramSettings: {
               ...state.instagramSettings,
@@ -167,6 +175,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           }));
         },
         toggleFacebookSettings: (setting: keyof FacebookSettings) => {
+          const settingValue = get().facebookSettings[setting];
+          if (
+            settingValue &&
+            Object.values(get().facebookSettings).filter(Boolean).length === 1
+          ) {
+            // Prevent disabling the last enabled setting
+            return;
+          }
           set((state) => ({
             facebookSettings: {
               ...state.facebookSettings,

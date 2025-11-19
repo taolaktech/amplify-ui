@@ -6,6 +6,7 @@ import CheckIcon from "@/public/custom-check.svg";
 import { useMemo } from "react";
 import Platforms from "./Platforms";
 import Status from "./Status";
+import { campaignStatus } from "@/app/lib/utils";
 
 export default function TableData({
   campaign,
@@ -96,20 +97,20 @@ export default function TableData({
               title={campaign.name}
               className="max-w-[120px] truncate overflow-hidden whitespace-nowrap"
             >
-              {campaign.name}
+              {campaign?.name}
             </span>
           </div>
         </div>
         <div>
-          <Status status={campaign?.status} />
+          <Status status={campaignStatus[campaign?.status]?.toUpperCase()} />
         </div>
-        <div>${campaign.totalBudget}</div>
+        <div>${campaign?.totalBudget}</div>
         <div
           style={{
             textAlign: campaign.metrics?.totalRevenue ? "left" : "center",
           }}
         >
-          ${campaign.metrics?.totalCost ?? "-"}
+          ${campaign.metrics?.totalCost ?? "0"}
         </div>
         <div
           style={{
@@ -129,6 +130,9 @@ export default function TableData({
         </div>
         <div>
           <Platforms platform={campaign?.platforms} />
+        </div>
+        <div className="text-sm">
+          {new Date(campaign?.startDate)?.toLocaleDateString()}
         </div>
         <div
           className="relative pr-2"
@@ -181,7 +185,7 @@ function ProductData({
         className={`border-l-4 flex items-center justify-between w-full  px-5 ${
           isSelected
             ? `border-[#A755FF] ${"rounded-tl-[0px]"} ${
-                index === campaign.products.length - 1
+                index === campaign?.products?.length - 1
                   ? "rounded-bl-[3px]"
                   : "rounded-bl-[0px]"
               }`
@@ -198,42 +202,45 @@ function ProductData({
             src={product?.imageLinks[0]}
           />
           <span
-            title={product.title}
+            title={product?.title}
             className="max-w-[120px] truncate overflow-hidden whitespace-nowrap"
           >
-            {product.title}
+            {product?.title}
           </span>
         </div>
       </div>
       <div>
-        <Status status={campaign?.status} />
+        <Status status={campaignStatus[campaign?.status]?.toUpperCase()} />
       </div>
-      <div>${campaign?.totalBudget}</div>
+      <div>${campaign?.totalBudget ?? "0"}</div>
       <div
         style={{
           textAlign: campaign.metrics?.totalRevenue ? "left" : "center",
         }}
       >
-        ${campaign.metrics?.totalCost ?? "-"}
+        ${campaign.metrics?.totalCost ?? "0"}
       </div>
       <div
         style={{
-          textAlign: campaign.metrics?.totalRevenue ? "left" : "center",
+          textAlign: campaign?.metrics?.totalRevenue ? "left" : "center",
         }}
       >
         ${campaign.metrics?.totalRevenue ?? "0"}
       </div>
-      <div>{campaign.metrics?.totalOrders ?? "0"}</div>
-      <div style={{}}>{campaign.metrics?.totalClicks ?? "0"}</div>
+      <div>{campaign?.metrics?.totalOrders ?? "0"}</div>
+      <div style={{}}>{campaign?.metrics?.totalClicks ?? "0"}</div>
       <div
         style={{
-          textAlign: campaign.metrics?.totalRevenue ? "left" : "center",
+          textAlign: campaign?.metrics?.totalRevenue ? "left" : "center",
         }}
       >
         {campaign.metrics?.roas ?? "0.0"}x
       </div>
       <div>
-        <Platforms platform={campaign.platforms} />
+        <Platforms platform={campaign?.platforms} />
+      </div>
+      <div className="text-sm">
+        {new Date(campaign?.startDate)?.toLocaleDateString()}
       </div>
       {/* <div className="relative" onClick={(e) => handleMoreClick(e, index)}> */}
       <div>

@@ -30,3 +30,21 @@ export const generateAvatar = (name: string) => {
 export const normalize = (obj: any) => {
   return JSON.parse(JSON.stringify(obj));
 };
+
+export const campaignStatus: { [key: string]: string } = {
+  CREATING: "pending",
+  ACTIVE: "active",
+  PAUSED: "paused",
+  DELETED: "archived",
+  PENDING_REVIEW: "pending",
+  DISAPPROVED: "archived",
+  COMPLETED: "completed",
+  ARCHIVED: "archived",
+  UNSPECIFIED: "pending",
+  READY_TO_LAUNCH: "pending",
+  UNKNOWN: "pending",
+  ENABLED: "active",
+  REMOVED: "archived",
+  PROCESSED: "pending",
+  LIVE: "active",
+};
