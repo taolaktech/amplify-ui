@@ -68,7 +68,7 @@ export default function CarouselPost({
           layout="fill"
           objectFit="contain"
           unoptimized
-          style={{ opacity: (imgLoaded || imgError) && !isLoading ? 1 : 0 }}
+          style={{ opacity: imgLoaded && !imgError && !isLoading ? 1 : 0 }}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
         />

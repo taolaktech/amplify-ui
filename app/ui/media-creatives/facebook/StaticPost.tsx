@@ -249,7 +249,7 @@ export default function StaticPost({
               // placeholder="blur"
             />
           )}
-          {(!photoUrl || !photoUrlLoaded || isLoading) && (
+          {(!photoUrl || !photoUrlLoaded || isLoading || photoUrlError) && (
             <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
               <CircleLoader black />
             </div>

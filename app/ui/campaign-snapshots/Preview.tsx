@@ -273,7 +273,6 @@ const PreviewContainer = ({
     facebookSettings.carouselPost,
     facebookSettings.staticPost,
     facebookSettings.storyPost,
-    platform,
   ]);
 
   const instagramWidthSize = useMemo(() => {
@@ -325,7 +324,6 @@ const PreviewContainer = ({
     instagramSettings.carouselPost,
     instagramSettings.staticPost,
     instagramSettings.storyPost,
-    platform,
   ]);
 
   const isFacebook = platform === "FACEBOOK";
