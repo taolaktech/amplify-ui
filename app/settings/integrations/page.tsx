@@ -3,13 +3,15 @@ import IntegrationCard from "@/app/ui/Integrations";
 import FolderConnectionIcon from "@/public/folder-connection.svg";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
+import AuthLoading from "@/app/ui/AuthLoading";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
 
-  const { handleFacebookAuth } = useIntegrationsAuth();
+  const { handleFacebookAuth, loading, fetchingProgress, subText } =
+    useIntegrationsAuth();
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
@@ -31,7 +33,7 @@ export default function IntegrationLayout() {
       image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
-      toggleOn: () => actions.toggleInstagram(),
+      toggleOn: () => handleFacebookAuth("INSTAGRAM"),
       on: instagram,
     },
     {
@@ -39,7 +41,7 @@ export default function IntegrationLayout() {
       image: "/facebook.svg",
       writeUp:
         "Connect your Facebook account to manage your product and orders.",
-      toggleOn: handleFacebookAuth,
+      toggleOn: () => handleFacebookAuth("FACEBOOK"),
       on: facebook,
     },
   ];
@@ -59,6 +61,13 @@ export default function IntegrationLayout() {
           <IntegrationCard key={integration.heading} {...integration} />
         ))}
       </div>
+      {loading && (
+        <AuthLoading
+          fetchingProgress={fetchingProgress}
+          headingText="Just a moment…"
+          subText={subText}
+        />
+      )}
     </div>
   );
 }

@@ -35,6 +35,18 @@ export const facebookAuth = async (data: { token: string }) => {
   return response.data;
 };
 
+export const instagramAuth = async (data: { token: string }) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/facebook-auth?platforms=instagram`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;
