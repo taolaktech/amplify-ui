@@ -202,17 +202,8 @@ export default function CampaignSnapshotsPage() {
   const { generateCreatives, loading, creativeLoadingRef } =
     useGenerateCreatives();
 
-  // const [creatives, setCreatives] = useState<any | null>({
-
-  // });
   const router = useRouter();
 
-  // const adPlatforms: {
-  //   title: "Instagram" | "Facebook" | "Google";
-  //   image: string;
-  //   settings: any;
-  //   creatives: any[];
-  // }[]
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState

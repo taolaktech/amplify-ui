@@ -143,11 +143,9 @@ export const useGenerateCreatives = () => {
       ],
       tone: toneOfVoice || "friendly",
       brandName,
-      productImages: [
-        product.node.media.edges[0]?.node.preview.image.url || "",
-        product.node.media.edges[0]?.node.preview.image.url || "",
-        product.node.media.edges[0]?.node.preview.image.url || "",
-      ],
+      productImages: new Array(5).fill(
+        product.node.media.edges[0]?.node.preview.image.url || ""
+      ),
       campaignType: campaignType || "Product Launch",
       type: "IMAGE",
       brandColor: primaryBrandColor || "#000000",
@@ -248,7 +246,7 @@ export const useGenerateCreatives = () => {
       // const isFacebook = platforms.includes("FACEBOOK");
 
       if (mediaResult.status === "fulfilled" && mediaResult.value) {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 15; i++) {
           try {
             const creativeSet = await getCreativeSet({
               creativeSetId: mediaResult.value.creativeSetId,
@@ -257,7 +255,7 @@ export const useGenerateCreatives = () => {
             console.log("Media Creative Set Status:", creativeSet.status);
             if (
               creativeSet.status === "completed" &&
-              creativeSet.creatives.length > 2
+              creativeSet.creatives.length > 4
             ) {
               const creatives = creativeSet.creatives.map((creative: any) => ({
                 ...creative,
@@ -275,7 +273,7 @@ export const useGenerateCreatives = () => {
               }
             }
             if (
-              (creativeSet.creatives.length > 2 &&
+              (creativeSet.creatives.length > 4 &&
                 creativeSet.status === "completed") ||
               creativeSet.status === "failed"
             ) {

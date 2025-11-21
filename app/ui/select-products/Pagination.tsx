@@ -20,7 +20,7 @@ export default function Pagination() {
     setFetchingProgress(20);
     if (!hasPreviousPage) return;
     setIsLoading(true);
-    await fetchProducts({ before: startCursor }, false);
+    await fetchProducts({ before: startCursor });
     setFetchingProgress(100);
     setTimeout(() => {
       setIsLoading(false);
@@ -32,7 +32,7 @@ export default function Pagination() {
     if (!hasNextPage) return;
     setIsLoading(true);
 
-    await fetchProducts({ after: endCursor }, false);
+    await fetchProducts({ after: endCursor });
     setFetchingProgress(100);
 
     setTimeout(() => {

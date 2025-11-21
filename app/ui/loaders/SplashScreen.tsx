@@ -16,6 +16,7 @@ export default function SplashScreen({
 
   useEffect(() => {
     if (isRefreshing) return;
+
     const maybeHydrated =
       typeof window !== "undefined" && !!localStorage.getItem("auth-storage");
 
@@ -35,37 +36,41 @@ export default function SplashScreen({
     return () => {
       if (typeof unsub === "function") unsub();
     };
-  }, []);
+  }, [isRefreshing]);
 
   useEffect(() => {
-    if (isRefreshing) return;
-
-    if (hasHydrated) {
-      // Step 1: Start fade out
-      const fadeTimer = setTimeout(() => {
-        setIsFadingOut(true); // triggers opacity-0
-      }, 100); // short delay before fade
-
-      // Step 2: Remove from DOM after fade completes
-      const hideTimer = setTimeout(() => {
-        setShowSplash(false);
-      }, 600); // match transition duration (500ms + buffer)
-
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(hideTimer);
-      };
+    // Keep splash visible if still refreshing
+    if (isRefreshing) {
+      setIsFadingOut(false);
+      setShowSplash(true);
+      return;
     }
-  }, [hasHydrated]);
+
+    // Only fade out when hydrated AND not refreshing
+    if (!hasHydrated) return;
+
+    // Step 1: Start fade out after showing splash briefly
+    const fadeTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 500); // show splash for at least 500ms
+
+    // Step 2: Remove from DOM after fade completes
+    const hideTimer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1000); // 500ms delay + 500ms fade duration
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [hasHydrated, isRefreshing]);
 
   if (!showSplash) return null;
 
   return (
     <div
       className={`fixed top-0 z-50 flex items-center justify-center flex-col h-screen w-screen bg-white md:bg-background-2 transition-opacity duration-500 ${
-        !isRefreshing || isFadingOut
-          ? "opacity-0 pointer-events-none"
-          : "opacity-100"
+        isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       <div className="hidden md:block">
