@@ -43,7 +43,6 @@ export default function AdsLocationPage() {
       type: "warning",
     });
     setTimeout(() => {
-      // setIsDoneLoading(true);
       router.push("/settings/integrations");
     }, 1500);
     return;

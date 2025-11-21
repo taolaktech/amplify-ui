@@ -52,7 +52,6 @@ export const useGetShopifyProducts = () => {
         message: "Something went wrong. Please try again later",
         type: "error",
       });
-      // if (onError) onError();
     } finally {
       setLoading(false);
     }
