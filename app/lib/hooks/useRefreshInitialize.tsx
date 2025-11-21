@@ -20,16 +20,25 @@ export default function useRefreshInitialize() {
       setLoading(false);
       return;
     }
+
+    setLoading(true); // Ensure loading is true when starting
     console.log("Refreshing initialization with token:", token);
-    const isConnected = await getMe(token);
-    await Promise.allSettled([
-      getShopifyAccount(token, isConnected),
-      getStoreDetails(token, isConnected),
-      fetchCampaigns(token),
-      handleGetBrandAssets(token),
-      handleGetCurrentSubscriptionPlan(token),
-    ]);
-    setLoading(false);
+
+    try {
+      const isConnected = await getMe(token);
+      await Promise.allSettled([
+        getShopifyAccount(token, isConnected),
+        getStoreDetails(token, isConnected),
+        fetchCampaigns(token),
+        handleGetBrandAssets(token),
+        handleGetCurrentSubscriptionPlan(token),
+      ]);
+    } catch (error) {
+      console.error("Error during refresh initialization:", error);
+    } finally {
+      // Only set loading to false when operations are actually complete
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
