@@ -6,7 +6,7 @@ import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
 import Button from "../Button";
 import Link from "next/link";
 import Image from "next/image";
-import Steps2 from "./Steps2";
+import Steps from "./Steps";
 import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
 
 function GettingStarted() {
@@ -59,7 +59,7 @@ function GettingStarted() {
       )}
       <div className="h-[377px] md:h-[416px] flex gap-2  ">
         <div className="w-[100%] h-full">
-          <Steps2 />
+          <Steps />
         </div>
         {/* <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
           <Steps />

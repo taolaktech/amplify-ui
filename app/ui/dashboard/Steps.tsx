@@ -1,193 +1,176 @@
-import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
+import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
+import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import { TickCircle } from "iconsax-react";
-// import RightArrowIcon from "@/public/arrow-right-gradient.svg";
+import ArrowRightIcon from "@/public/arrow-right-gradient-alt.svg";
 import { useEffect, useState } from "react";
-// import Button from "../DefaultLink";
+import { useRouter } from "next/navigation";
+import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
+import AuthLoading from "../AuthLoading";
 
-export default function Steps() {
-  const [step, setStep] = useState(3);
-  const [stepText, setStepText] = useState("Getting Started");
-  const [, setLink] = useState("/setup");
-  const {
-    connectStore,
-    businessDetails,
-    preferredSalesLocation,
-    marketingGoals,
-  } = useSetupStore();
+export default function Steps2() {
+  const { isSetupComplete, link } = useGetSetupComplete();
+  const [step, setStep] = useState(1);
+  const { handleFacebookAuth, loading, fetchingProgress, subText } =
+    useIntegrationsAuth();
+
+  const { primaryLogo, brandGuide, brandGuideName } = useBrandAssetStore(
+    (state) => state
+  );
+  const router = useRouter();
+
+  const { google, instagram, facebook } = useIntegrationStore((state) => state);
 
   useEffect(() => {
-    // if (marketingGoals.complete) {
-    //   setStep(4);
-    //   setLink("/setup/marketing-goals");
-    //   setStepText("Upload Brand Kit");
-    // } else if (preferredSalesLocation.complete) {
-    //   setStep(3);
-    //   setLink("/setup/marketing-goals");
-    //   setStepText("Set Marketing Goal");
-    // } else if (businessDetails.complete) {
-    //   setStep(2);
-    //   setLink("/setup/preferred-sales-location");
-    //   setStepText("Select Preferred Sales Location");
-    if (connectStore.complete) {
-      setStep(1);
-      // setLink("/setup/business-details");
-      setStepText("Connect Facebook Account");
-    } else {
-      setLink("/setup");
-      setStep(0);
-      setStepText("Getting Started");
+    console.log("isSetupComplete", isSetupComplete, link);
+    let step = 1;
+    if (primaryLogo && (brandGuide || brandGuideName)) {
+      step += 1;
     }
-  }, [connectStore, businessDetails, preferredSalesLocation, marketingGoals]);
+    if (instagram) step += 1;
 
-  const progress = step / 5;
-  const circumference = 2 * Math.PI * 13;
-  const offset = circumference * (1 - progress);
+    if (facebook) step += 1;
+
+    if (google) step += 1;
+
+    if (isSetupComplete) step += 1;
+    console.log("step", step);
+
+    setStep(step);
+  }, [isSetupComplete, link]);
+
+  const handleUploadBrandKit = () => {
+    router.push("/company/brand-assets");
+  };
 
   return (
-    <div className="max-w-[566px] h-[390px] lg:h-[326px] p-5 py-7 lg:p-0 mx-auto flex-col lg:flex-row flex w-full lg:justify-between lg:items-center">
-      <div>
-        <div className="">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative size-14 md:size-16">
-              <svg
-                className="size-full -rotate-90"
-                viewBox="0 0 30 30"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="15"
-                  cy="15"
-                  r="13"
-                  fill="none"
-                  className="stroke-current text-[#FBFAFC]"
-                  strokeWidth="2"
-                ></circle>
-                <circle
-                  cx="15"
-                  cy="15"
-                  r="13"
-                  fill="none"
-                  className="stroke-current text-[#FA9B0C]"
-                  strokeWidth="2"
-                  // strokeDasharray="100"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                  strokeLinecap="round"
-                ></circle>
-              </svg>
-              <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                <span className="text-center text-sm text-base text-white num">
-                  {step}/4
-                </span>
-              </div>
-            </div>
-            <div className="text-lg md:text-xl font-medium text-white">
-              {stepText}
-            </div>
+    <>
+      <div className="flex flex-col bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl flex-1 h-full">
+        <h2 className="font-medium md:text-xl">Complete your Setup</h2>
+        <div className="flex flex-row mt-2 items-center flex-shrink-0">
+          <div className="text-xs font-medium text-[#787779] w-[70px]">
+            {step} / 5 Steps
           </div>
-          <div className="ml-4 txt-sm">
-            {/* Step 1 */}
-            <div className="">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 1 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1">
-                  <div className={`text-white text-sm`}>Connect your Store</div>
-                </div>
-              </div>
-              <div className="w-[24px] flex justify-center py-1">
-                <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 2 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1">
-                  <div className={`text-white text-sm`}>
-                    Connect Your Facebook Account
-                  </div>
-                </div>
-              </div>
-              <div className="w-[24px] flex justify-center py-1">
-                <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className=" w-full">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 3 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1">
-                  <div className={`text-white text-sm`}>
-                    Connect Your Instagram Account
-                  </div>
-                </div>
-              </div>
-              <div className="w-[24px] flex justify-center py-1">
-                <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
-              </div>
-            </div>
-            {/* Step 4 */}
-            {/* <div className=" w-full">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 4 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1">
-                  <div className={`text-white text-sm`}>
-                    Connect Your Google Account
-                  </div>
-                </div>
-              </div>
-              <div className="w-[24px] flex justify-center py-1">
-                <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
-              </div>
-            </div> */}
-            {/* Step 4 */}
-            <div className=" w-full">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 5 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1 text-sm">
-                  <div className={`text-white flex items-start gap-1`}>
-                    <span>Upload Brand Kit</span>
-                    <span className="text-[8px]">Optional</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="w-full bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
+            <div
+              style={{
+                width: `${(step / 5) * 100}%`,
+                backgroundColor: "#27AE60",
+                borderRadius: 2.5,
+                height: 3,
+              }}
+            ></div>
           </div>
         </div>
+        <div className="flex flex-col gap-1 flex-1 justify-center">
+          <StepsItem
+            text="Connect your Store"
+            connected={isSetupComplete!}
+            action={() => router.push(link!)}
+          />
+          {/* <StepsItem
+          text="Connect to Google Ads"
+          connected={google}
+          action={() => router.push("/settings/integrations")}
+        /> */}
+          <StepsItem
+            text="Connect your Instagram account"
+            connected={instagram}
+            action={() => handleFacebookAuth("INSTAGRAM")}
+          />
+          <StepsItem
+            text="Connect your Facebook account"
+            connected={facebook}
+            action={() => handleFacebookAuth("FACEBOOK")}
+          />
+          <StepsItem
+            text="Upload Brand Kit"
+            connected={
+              Boolean(primaryLogo) &&
+              (Boolean(brandGuide) || Boolean(brandGuideName))
+            }
+            isOptional
+            action={handleUploadBrandKit}
+          />
+        </div>
       </div>
-      {/* <div className="w-[167px] ml-auto lg:ml-0 mt-auto lg:mt-0 z-2">
-        <Button
-          text="Complete Setup"
-          secondary
-          height={48}
-          hasIconOrLoader
-          iconPosition="right"
-          href={link}
-          icon={<RightArrowIcon width="16" height="16" />}
+      {loading && (
+        <AuthLoading
+          fetchingProgress={fetchingProgress}
+          headingText="Just a moment…"
+          subText={subText}
         />
-      </div> */}
-    </div>
+      )}
+    </>
   );
 }
+
+const StepsItem = ({
+  text,
+  connected,
+  action,
+  isOptional,
+}: {
+  text: string;
+  connected: boolean;
+  action: () => void;
+  isOptional?: boolean;
+}) => {
+  return (
+    <div className="h-[48px] md:h-[56px] px-4 bg-[#F1F1F1] flex justify-between items-center rounded-xl">
+      <div className="flex gap-2 items-center">
+        <span className="hidden md:block">
+          <TickCircle
+            size={connected ? "17.5" : "16"}
+            color={connected ? "#BFBFBF" : "#101214"}
+            variant={connected ? "Bold" : "Outline"}
+          />
+        </span>
+        <span className="md:hidden">
+          <TickCircle
+            size={connected ? "12.5" : "12"}
+            color={connected ? "#BFBFBF" : "#101214"}
+            variant={connected ? "Bold" : "Outline"}
+          />
+        </span>
+        <span className="text-xs md:text-sm font-medium">
+          <span className={connected ? "line-through text-[#BFBFBF]" : ""}>
+            {text}
+          </span>
+          {isOptional && (
+            <span
+              className={`text-xs ml-2 font-normal text-[9px] ${
+                connected ? " text-[#BFBFBF]" : ""
+              } `}
+            >
+              Optional
+            </span>
+          )}
+        </span>
+      </div>
+      {!connected && (
+        <button
+          onClick={action}
+          className="w-[85px] md:w-[92px] h-[32px] bg-[#1D0B30] gap-1 rounded-full flex items-center justify-center"
+        >
+          <span className="text-white text-xs">
+            {text === "Upload Brand Kit" ? "Upload" : "Connect"}
+          </span>
+          <ArrowRightIcon />
+        </button>
+      )}
+      {connected && (
+        <div
+          className={`w-[92px] h-[32px] justify-center rounded-full flex items-center gap-1 ${
+            connected ? "bg-[#EAF7EF]" : "bg-[#FFECED]"
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full bg-[#27AE60]`}></span>{" "}
+          <span className={`text-xs font-medium text-[#27AE60]`}>
+            Connected
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
