@@ -200,7 +200,7 @@ export default function StaticPost({
               style={{
                 fontSize: maximized ? maximizedHeight! * (8 / 415.78) : "8px",
               }}
-              className={` text-left leading-[136%] cursor-help text-[#000] tracking-[0.10%] ${roboto.className}`}
+              className={`text-left leading-[136%] cursor-help text-[#000] tracking-[0.10%] ${roboto.className}`}
             >
               {caption && caption?.length > 130
                 ? caption.slice(0, 130) + " ..."
@@ -214,7 +214,7 @@ export default function StaticPost({
             style={{
               fontSize: maximized ? maximizedHeight! * (7 / 415.78) : "7px",
             }}
-            className={`${roboto.className} text-left text-[#395996] max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap tracking-[0.10%] ${roboto.className}`}
+            className={`text-left text-[#395996] max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap tracking-[0.10%] ${roboto.className}`}
           >
             https://link
           </div>
