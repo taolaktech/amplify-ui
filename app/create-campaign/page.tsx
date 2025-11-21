@@ -12,6 +12,7 @@ import { useModal } from "../lib/hooks/useModal";
 import { useGetShopifyProducts } from "../lib/hooks/shopify";
 import { useSetupStore } from "../lib/stores/setupStore";
 import { useToastStore } from "../lib/stores/toastStore";
+import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
 
 export default function AdsLocationPage() {
   const {
@@ -26,57 +27,24 @@ export default function AdsLocationPage() {
 
   const storeUrl = useSetupStore((state) => state.connectStore?.storeUrl);
 
-  // useEffect(() => {
-  //   if (salesLocationFromStore.length === 0 || !salesLocationFromStore) {
-  //     setSalesLocation(
-  //       defaultPreferredSalesLocation?.localShippingLocations || []
-  //     );
-  //   }
-  // }, [
-  //   defaultPreferredSalesLocation?.localShippingLocations,
-  //   salesLocationFromStore,
-  // ]);
-
   const [fetchingProgress, setFetchingProgress] = useState(20);
   // const [isAutoFetching, setIsAutoFetching] = useState(false);
-  const { fetchProducts } = useGetShopifyProducts();
+  // const { fetchProducts } = useGetShopifyProducts();
   const setToast = useToastStore((state) => state.setToast);
   const [isDoneLoading, setIsDoneLoading] = useState(true);
+  const actions = useCreateCampaignStore((state) => state.actions);
 
   const router = useRouter();
-  useModal(isDoneLoading);
-  // useEffect(() => {
-  //   setSalesLocation(salesLocationFromStore);
-  // }, []);
-
-  // const doneFetching = () => {
-  //   setTimeout(() => {
-  //     setFetchingProgress(100);
-  //     setIsDoneLoading(true);
-  //     router.push("/create-campaign/product-selection");
-  //   }, 1500);
-  // };
-
-  // const onErrorFetching = () => {
-  //   setIsDoneLoading(true);
-  // };
 
   const handleProceed = async () => {
     setIsDoneLoading(false);
-    if (storeUrl) {
-      await fetchProducts(
-        { location: salesLocation },
-        true,
-        false
-        // doneFetching,
-        // onErrorFetching
-      );
-      setFetchingProgress(100);
-      setTimeout(() => {
-        setIsDoneLoading(true);
 
-        router.push("/create-campaign/product-selection");
-      }, 1500);
+    if (storeUrl) {
+      actions.storeAdsShow({
+        complete: true,
+        location: salesLocation,
+      });
+      router.push("/create-campaign/product-selection");
       return;
     }
     setToast({
@@ -86,7 +54,7 @@ export default function AdsLocationPage() {
       type: "warning",
     });
     setTimeout(() => {
-      setIsDoneLoading(true);
+      // setIsDoneLoading(true);
       router.push("/settings/integrations");
     }, 1500);
     return;
@@ -130,9 +98,9 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {!isDoneLoading && (
+      {/* {!isDoneLoading && (
         <AutoFetchingProduct fetchingProgress={fetchingProgress} />
-      )}
+      )} */}
     </div>
   );
 }

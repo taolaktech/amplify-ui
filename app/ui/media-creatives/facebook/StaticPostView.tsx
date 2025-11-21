@@ -41,6 +41,7 @@ export default function StaticPostView({
           photoUrl={creative?.url}
           caption={creative?.caption}
           isLoading={isLoading}
+          title={creative?.title}
         />
       </div>
       {maximize && (
@@ -49,6 +50,7 @@ export default function StaticPostView({
           photoUrl={creative?.url}
           caption={creative?.caption}
           isLoading={isLoading}
+          title={creative?.title}
         />
       )}
     </div>
@@ -60,11 +62,13 @@ const StaticPostViewMaximized = ({
   caption,
   toggleMaximize,
   isLoading,
+  title,
 }: {
   photoUrl: string;
   toggleMaximize: () => void;
   caption?: string;
   isLoading?: boolean;
+  title?: string;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -88,6 +92,7 @@ const StaticPostViewMaximized = ({
             photoUrl={photoUrl}
             caption={caption}
             maximized
+            title={title}
             isLoading={isLoading}
           />
         </div>

@@ -50,18 +50,18 @@ export default function CarouselPostView({
                 isLoading={isLoading}
               />
             </div>
-            <div className="w-[260.74px] mb-[56px] flex-shrink-0">
-              <CarouselPost
-                photoUrl={creatives?.[1]?.url}
-                isLoading={isLoading}
-              />
-            </div>
-            <div className="w-[260.74px] mb-[56px] flex-shrink-0 mr-6">
-              <CarouselPost
-                photoUrl={creatives?.[2]?.url}
-                isLoading={isLoading}
-              />
-            </div>
+            {new Array(4).fill(0).map((_, index) => (
+              <div
+                className="w-[260.74px] mb-[56px] flex-shrink-0"
+                key={index}
+                style={{ marginRight: index === 3 ? "24px" : "0" }}
+              >
+                <CarouselPost
+                  photoUrl={creatives?.[index + 1]?.url}
+                  isLoading={isLoading}
+                />
+              </div>
+            ))}
           </div>
         </DragScrollContainer>
       </div>
@@ -133,11 +133,11 @@ const CarouselContent = ({
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? 2 : prev - 1));
+    setCurrentSlide((prev) => (prev === 0 ? 4 : prev - 1));
   };
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev === 2 ? 0 : prev + 1));
+    setCurrentSlide((prev) => (prev === 4 ? 0 : prev + 1));
   };
   return (
     <div className="relative">
@@ -188,20 +188,18 @@ const CarouselContent = ({
               isLoading={isLoading}
             />
           </div>
-          <div className="flex items-center h-[70vh] justify-center">
-            <CarouselPost
-              photoUrl={photoUrls[1]}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="flex items-center h-[70vh] justify-center">
-            <CarouselPost
-              photoUrl={photoUrls[2]}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
+          {new Array(4).fill(0).map((_, index) => (
+            <div
+              className="flex items-center h-[70vh] justify-center"
+              key={index}
+            >
+              <CarouselPost
+                photoUrl={photoUrls[index + 1]}
+                maximized
+                isLoading={isLoading}
+              />
+            </div>
+          ))}
         </Carousel>
       </div>
     </div>

@@ -24,6 +24,7 @@ export default function StaticPost({
   caption,
   maximized,
   isLoading,
+  title,
 }: {
   brandName: string;
   location: string;
@@ -31,6 +32,7 @@ export default function StaticPost({
   caption?: string;
   maximized?: boolean;
   isLoading?: boolean;
+  title?: string;
 }) {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -212,7 +214,7 @@ export default function StaticPost({
             style={{
               fontSize: maximized ? maximizedHeight! * (7 / 415.78) : "7px",
             }}
-            className={` text-left text-[#395996] max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap tracking-[0.10%] ${roboto.className}`}
+            className={`${roboto.className} text-left text-[#395996] max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap tracking-[0.10%] ${roboto.className}`}
           >
             https://link
           </div>
@@ -272,17 +274,32 @@ export default function StaticPost({
                 ? maximizedHeight! * (2 / 415.78)
                 : "2px",
             }}
-            className="flex-1 px-[4px]"
+            className="flex-1 px-[4px] flex flex-col justify-center"
           >
             <div
               style={{
-                fontSize: maximized ? maximizedHeight! * (7 / 415.78) : "7px",
+                fontSize: maximized
+                  ? maximizedHeight! * (6.23 / 415.78)
+                  : "6.23px",
               }}
-              className={`w-full text-left max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap  text-[#606770]`}
+              className={`w-full text-left max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap ${roboto.className}  text-[#606770]`}
             >
               {brandName?.toUpperCase()}
             </div>
-            <div></div>
+            <div>
+              {title ? (
+                <div
+                  className={`font-medium text-left text-[#1C1E21] max-w-[95%] overflow-hidden text-ellipsis text-nowrap whitespace-nowrap ${roboto.className}`}
+                  style={{
+                    fontSize: maximized
+                      ? maximizedHeight! * (7.6 / 415.78)
+                      : "7.6px",
+                  }}
+                >
+                  {title}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

@@ -240,6 +240,8 @@ export default function CampaignSnapshotsPage() {
 
     if (isLoading) return;
 
+    console.log("Generating creatives for product:", Instagram?.[productId]);
+
     const hasCreative =
       (supportedAdPlatforms.Google && Google?.[productId]) ||
       (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
