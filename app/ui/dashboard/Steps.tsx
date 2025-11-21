@@ -7,12 +7,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "../AuthLoading";
+import { useModal } from "@/app/lib/hooks/useModal";
 
 export default function Steps2() {
   const { isSetupComplete, link } = useGetSetupComplete();
   const [step, setStep] = useState(1);
   const { handleFacebookAuth, loading, fetchingProgress, subText } =
     useIntegrationsAuth();
+
+  useModal(loading);
 
   const { primaryLogo, brandGuide, brandGuideName } = useBrandAssetStore(
     (state) => state

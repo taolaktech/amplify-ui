@@ -4,6 +4,7 @@ import FolderConnectionIcon from "@/public/folder-connection.svg";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "@/app/ui/AuthLoading";
+import { useModal } from "@/app/lib/hooks/useModal";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
@@ -12,6 +13,7 @@ export default function IntegrationLayout() {
 
   const { handleFacebookAuth, loading, fetchingProgress, subText } =
     useIntegrationsAuth();
+  useModal(loading);
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
