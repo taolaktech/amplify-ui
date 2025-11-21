@@ -87,9 +87,6 @@ export default function AdsLocationPage() {
           />
         </div>
       </div>
-      {/* {!isDoneLoading && (
-        <AutoFetchingProduct fetchingProgress={fetchingProgress} />
-      )} */}
     </div>
   );
 }

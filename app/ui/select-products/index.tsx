@@ -50,7 +50,7 @@ export default function Products() {
     };
 
     loadProducts();
-  }, [products]);
+  }, []);
 
   const router = useRouter();
 

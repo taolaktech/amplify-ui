@@ -57,7 +57,7 @@ export default function SplashScreen({
     // Step 2: Remove from DOM after fade completes
     const hideTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 1000); // 500ms delay + 1000ms fade duration
+    }, 1000); // 500ms delay + 500ms fade duration
 
     return () => {
       clearTimeout(fadeTimer);
@@ -69,7 +69,7 @@ export default function SplashScreen({
 
   return (
     <div
-      className={`fixed top-0 z-50 flex items-center justify-center flex-col h-screen w-screen bg-white md:bg-background-2 transition-opacity duration-5000 ${
+      className={`fixed top-0 z-50 flex items-center justify-center flex-col h-screen w-screen bg-white md:bg-background-2 transition-opacity duration-500 ${
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
