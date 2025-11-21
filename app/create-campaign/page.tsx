@@ -1,15 +1,10 @@
 "use client";
-import { useState } from "react";
 import useLocalSalesLocation from "../lib/hooks/useLocalSalesLocation";
-// import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
 import SalesLocationInput from "../ui/form/SalesLocationInput";
-import AutoFetchingProduct from "../ui/AutoFetchingProduct";
 import SalesLocationView from "../ui/SalesLocationView";
 import Button from "../ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
-import { useModal } from "../lib/hooks/useModal";
-import { useGetShopifyProducts } from "../lib/hooks/shopify";
 import { useSetupStore } from "../lib/stores/setupStore";
 import { useToastStore } from "../lib/stores/toastStore";
 import { useCreateCampaignStore } from "../lib/stores/createCampaignStore";
@@ -27,18 +22,12 @@ export default function AdsLocationPage() {
 
   const storeUrl = useSetupStore((state) => state.connectStore?.storeUrl);
 
-  const [fetchingProgress, setFetchingProgress] = useState(20);
-  // const [isAutoFetching, setIsAutoFetching] = useState(false);
-  // const { fetchProducts } = useGetShopifyProducts();
   const setToast = useToastStore((state) => state.setToast);
-  const [isDoneLoading, setIsDoneLoading] = useState(true);
   const actions = useCreateCampaignStore((state) => state.actions);
 
   const router = useRouter();
 
   const handleProceed = async () => {
-    setIsDoneLoading(false);
-
     if (storeUrl) {
       actions.storeAdsShow({
         complete: true,
