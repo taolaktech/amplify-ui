@@ -35,7 +35,7 @@ export default function Button({
     e.preventDefault();
     action();
   };
-  const right = iconPosition === "right";
+  // const right = iconPosition === "right";
   const isSmall = buttonSize === "small";
   // const isMedium = buttonSize === "medium";
   // const isLarge = buttonSize === "large";
