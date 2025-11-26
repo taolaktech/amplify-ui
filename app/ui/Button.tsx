@@ -70,7 +70,7 @@ export default function Button({
             !loading ? "opacity-100 delay-75" : "opacity-0 "
           }`}
         >
-          {hasIconOrLoader && (
+          {icon && (
             <span style={{ width: iconSize }}>{!loading && <>{icon}</>}</span>
           )}
           <span
