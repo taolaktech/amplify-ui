@@ -72,7 +72,6 @@ export const useInitialize = () => {
     try {
       if (token) {
         const response = await handleGetMe(token);
-        console.log("getMe response:", response);
         if (!response.onboarding) return false;
         completeConnectStore(response.onboarding?.shopifyAccountConnected);
         completeBusinessDetails(
@@ -122,7 +121,6 @@ export const useInitialize = () => {
           };
 
       if (currentPlan) setSubscriptionType(currentPlan);
-      console.log("Current subscription plan response:", response);
       return response;
     } catch (error) {
       console.error("Error fetching current subscription plan:", error);
@@ -133,7 +131,6 @@ export const useInitialize = () => {
     try {
       if (token && isConnected) {
         const response = await handleGetShopifyAccount(token);
-        console.log("getShopifyAccount response:", response);
 
         if (!response.account.shop) {
           console.error("No Shopify account found");
@@ -358,7 +355,6 @@ export const useGoogleLogin = (
     mutationFn: handleGoogleLogin,
     onSuccess: async (response: AxiosResponse<any, any>) => {
       setLoading(true);
-      console.log("Google login response:", response);
       if (response.status === 200 || response.status === 201) {
         if (response.data?.userCreated) {
           storeEmail(response.data?.user.email);

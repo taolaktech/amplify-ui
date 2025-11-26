@@ -40,7 +40,6 @@ export default function CheckoutPage() {
 
   let price = plan - (plan * (billingCyclePlan?.discount / 100) || 0);
   price = Number(price.toFixed(2)); // keeps it as a number
-  console.log("price", price);
 
   const oldPlan = subscriptionType ?? {
     name: "FREE",

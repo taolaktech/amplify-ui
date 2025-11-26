@@ -72,9 +72,7 @@ export default function Button({
             !loading ? "opacity-100 delay-75" : "opacity-0 "
           }`}
         >
-          {icon && (
-            <span style={{ width: iconSize }}>{!loading && <>{icon}</>}</span>
-          )}
+          {icon && <span style={{ width: iconSize }}>{icon}</span>}
           <span
             className={`text-sm text-center tracking-100 whitespace-nowrap ${
               secondary
