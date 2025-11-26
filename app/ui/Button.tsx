@@ -59,12 +59,14 @@ export default function Button({
       } rounded-xl flex items-center justify-center gap-[6px] ${
         !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"
       } min-w-[90px] font-medium`}
-      style={{ height: height ?? height }}
+      // style={{ height: height ?? height }}
+      {...(height !== undefined ? { style: { height } } : {})}
     >
       {/* Non-loading content */}
-      <div className="relative w-full">
+      <div className="relative w-full h-full">
         <div
-          className={`absolute inset-0 left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
+          aria-hidden={loading}
+          className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
             iconPosition === "right" ? "flex-row-reverse" : ""
           } transition-opacity duration-300 ${
             !loading ? "opacity-100 delay-75" : "opacity-0 "
@@ -88,11 +90,12 @@ export default function Button({
 
         {/* Loading content */}
         <div
-          className={`absolute inset-0 left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
+          className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
             iconPosition === "right" ? "flex-row-reverse" : ""
           } transition-opacity duration-300  ${
             loading ? "opacity-100 delay-400" : "opacity-0 "
           }`}
+          aria-hidden={!loading}
         >
           {hasIconOrLoader && (
             <span style={{ width: iconSize }}>
