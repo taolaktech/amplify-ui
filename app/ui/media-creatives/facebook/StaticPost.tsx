@@ -121,7 +121,7 @@ export default function StaticPost({
                 width: maximized ? maximizedHeight! * (28 / 415.78) : 28,
                 height: maximized ? maximizedHeight! * (28 / 415.78) : 28,
               }}
-              // unoptimized
+              unoptimized
               className={`${
                 imgLoaded && !imgError ? "opacity-100" : "opacity-0"
               } transition-opacity duration-300 rounded-full`}
@@ -244,7 +244,7 @@ export default function StaticPost({
                 height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
               }}
-              // unoptimized
+              unoptimized
               onLoad={() => setPhotoUrlLoaded(true)}
               onError={() => setPhotoUrlError(true)}
             />

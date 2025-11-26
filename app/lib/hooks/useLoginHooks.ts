@@ -72,6 +72,7 @@ export const useInitialize = () => {
     try {
       if (token) {
         const response = await handleGetMe(token);
+        console.log("getMe response:", response);
         if (!response.onboarding) return false;
         completeConnectStore(response.onboarding?.shopifyAccountConnected);
         completeBusinessDetails(
@@ -132,6 +133,8 @@ export const useInitialize = () => {
     try {
       if (token && isConnected) {
         const response = await handleGetShopifyAccount(token);
+        console.log("getShopifyAccount response:", response);
+
         if (!response.account.shop) {
           console.error("No Shopify account found");
           storeConnectStore({
