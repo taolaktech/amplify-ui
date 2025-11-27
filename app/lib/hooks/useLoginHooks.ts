@@ -121,7 +121,6 @@ export const useInitialize = () => {
           };
 
       if (currentPlan) setSubscriptionType(currentPlan);
-      console.log("Current subscription plan response:", response);
       return response;
     } catch (error) {
       console.error("Error fetching current subscription plan:", error);
@@ -132,6 +131,7 @@ export const useInitialize = () => {
     try {
       if (token && isConnected) {
         const response = await handleGetShopifyAccount(token);
+
         if (!response.account.shop) {
           console.error("No Shopify account found");
           storeConnectStore({
@@ -355,7 +355,6 @@ export const useGoogleLogin = (
     mutationFn: handleGoogleLogin,
     onSuccess: async (response: AxiosResponse<any, any>) => {
       setLoading(true);
-      console.log("Google login response:", response);
       if (response.status === 200 || response.status === 201) {
         if (response.data?.userCreated) {
           storeEmail(response.data?.user.email);
