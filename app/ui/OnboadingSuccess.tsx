@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import TickCircle from "@/public/tick-circle.svg";
 import Button from "@/app/ui/DefaultLink";
 import CompletionBackground from "@/app/ui/CompletionBackground";
