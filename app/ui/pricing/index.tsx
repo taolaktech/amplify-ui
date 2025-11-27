@@ -74,6 +74,7 @@ export default function Pricing({
         {pricingPlans.map((plan, index) => (
           <PricingCard
             key={index}
+            index={index}
             plan={plan.name as Plan}
             price={plan.price}
             isDashboard={isDashboard}

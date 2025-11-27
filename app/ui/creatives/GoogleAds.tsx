@@ -82,7 +82,7 @@ export default function GoogleAdsCreatives({
         </Carousel>
       </div>
 
-      <div className="grid grid-cols-3 max-w-[750px] flex-shrink-0 flex-1 w-full gap-2 md:gap-4 px-5 items-center justify-center ">
+      <div className="grid grid-cols-3 max-w-[400px] md:max-w-[750px] flex-shrink-0 flex-1 w-full gap-2 md:gap-4 px-5 items-center justify-center ">
         {creatives?.map((creative, index) => (
           <div
             className={`w-full md:max-w-full rounded-[3px] md:rounded-[9px] cursor-pointer ${

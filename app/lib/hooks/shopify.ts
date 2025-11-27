@@ -2,8 +2,6 @@ import { useState } from "react";
 import { getProducts } from "../api/integrations";
 import { useAuthStore } from "../stores/authStore";
 import useUIStore from "../stores/uiStore";
-import { useCreateCampaignStore } from "../stores/createCampaignStore";
-import { useRouter } from "next/navigation";
 import { useToastStore } from "../stores/toastStore";
 
 export const useGetShopifyProducts = () => {
@@ -12,24 +10,15 @@ export const useGetShopifyProducts = () => {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
   const [error, setError] = useState<any>(null);
-  const actions = useCreateCampaignStore((state) => state.actions);
-  const router = useRouter();
 
-  const fetchProducts = async (
-    data: {
-      first?: number;
-      after?: string;
-      before?: string;
-      location?: string[];
-      page?: number;
-      currentPage?: number;
-    },
-    isAdShow: boolean,
-    shouldRoute: boolean = true,
-    onSuccess?: () => void,
-    onError?: () => void
-  ) => {
-    // const isAhead: boolean = data.page > data.currentPage;
+  const fetchProducts = async (data: {
+    first?: number;
+    after?: string;
+    before?: string;
+    location?: string[];
+    page?: number;
+    currentPage?: number;
+  }) => {
     setLoading(true);
     try {
       const response = await getProducts({
@@ -48,7 +37,6 @@ export const useGetShopifyProducts = () => {
           products.pageInfo.hasPreviousPage,
           data.page || 1
         );
-        // if (onSuccess) onSuccess();
       } catch (error) {
         console.log("error", error);
         setToast({
@@ -57,14 +45,6 @@ export const useGetShopifyProducts = () => {
           type: "error",
         });
       }
-
-      if (isAdShow) {
-        actions.storeAdsShow({
-          complete: true,
-          location: data.location || [],
-        });
-        if (shouldRoute) router.push("/create-campaign/product-selection");
-      }
     } catch (error: any) {
       setError(error);
       setToast({
@@ -72,7 +52,6 @@ export const useGetShopifyProducts = () => {
         message: "Something went wrong. Please try again later",
         type: "error",
       });
-      if (onError) onError();
     } finally {
       setLoading(false);
     }

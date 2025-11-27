@@ -1,12 +1,12 @@
+import StaticPost from "./StaticPost";
+import MaximizeButton from "../MaximizeButton";
+import { useState } from "react";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useState } from "react";
-import MaximizeButton from "../MaximizeButton";
-import StoryPost from "./StoryPost";
 import XIcon from "@/public/x.svg";
 import useUIStore from "@/app/lib/stores/uiStore";
 
-export default function StoryPostView({
+export default function StaticPostView({
   creative,
   isLoading,
 }: {
@@ -18,6 +18,8 @@ export default function StoryPostView({
     (state) => state.adsShow.location[0] || "Location"
   );
   const [maximize, setMaximize] = useState(false);
+
+  console.log("photoUrl in StaticPostView:", creative?.url);
   const toggleIsPreviewMaximized = useUIStore(
     (state) => state.actions.toggleIsPreviewMaximized
   );
@@ -29,40 +31,44 @@ export default function StoryPostView({
   return (
     <div className="bg-[#F1F1F1] h-[520px] flex flex-col gap-4 p-6 rounded-3xl">
       <div className="flex items-center justify-between">
-        <div className="font-medium text-sm">Story Post</div>
+        <div className="font-medium text-sm">Static Post (1:1)</div>
         <MaximizeButton onClick={toggleMaximize} />
       </div>
       <div className="flex justify-center">
-        <StoryPost
+        <StaticPost
           brandName={brandName}
           location={location}
           photoUrl={creative?.url}
+          caption={creative?.caption}
           isLoading={isLoading}
+          title={creative?.title}
         />
       </div>
       {maximize && (
-        <StoryPostViewMaximized
+        <StaticPostViewMaximized
           toggleMaximize={toggleMaximize}
           photoUrl={creative?.url}
           caption={creative?.caption}
           isLoading={isLoading}
+          title={creative?.title}
         />
       )}
     </div>
   );
 }
 
-const StoryPostViewMaximized = ({
+const StaticPostViewMaximized = ({
   photoUrl,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   toggleMaximize,
   isLoading,
+  title,
 }: {
-  photoUrl?: string;
+  photoUrl: string;
   toggleMaximize: () => void;
   caption?: string;
   isLoading?: boolean;
+  title?: string;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -80,11 +86,13 @@ const StoryPostViewMaximized = ({
               <XIcon width={24} height={24} fill="white" />
             </button>
           </div>
-          <StoryPost
+          <StaticPost
             brandName={brandName}
             location={location}
             photoUrl={photoUrl}
+            caption={caption}
             maximized
+            title={title}
             isLoading={isLoading}
           />
         </div>

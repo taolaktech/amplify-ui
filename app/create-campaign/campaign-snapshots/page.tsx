@@ -1,5 +1,10 @@
 "use client";
-import { ArrowCircleRight2, ArrowDown2, Magicpen } from "iconsax-react";
+import {
+  ArrowCircleRight2,
+  ArrowDown2,
+  ArrowForward,
+  Magicpen,
+} from "iconsax-react";
 import UndoIcon from "@/public/undo.png";
 import RegenerateIcon from "@/public/magicpen.png";
 import {
@@ -126,10 +131,23 @@ const MainActions = ({
       )} */}
       {canUndo(highlightedProduct?.node?.id) && (
         <button
+          disabled={isLoading}
           onClick={() => generalUndo(highlightedProduct?.node?.id)}
-          className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px] bg-[#F0E6FB] border-[#D0B0F3] border justify-center "
+          className={`flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  border justify-center ${
+            !isLoading
+              ? "bg-[#F0E6FB] border-[#D0B0F3] border"
+              : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
+          }`}
         >
-          <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+          {isLoading ? (
+            <ArrowForward
+              size={18}
+              color="#000"
+              className="-mt-[2px] -scale-x-100"
+            />
+          ) : (
+            <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+          )}
           <span className="text-sm font-medium">Undo</span>
         </button>
       )}
@@ -184,17 +202,8 @@ export default function CampaignSnapshotsPage() {
   const { generateCreatives, loading, creativeLoadingRef } =
     useGenerateCreatives();
 
-  // const [creatives, setCreatives] = useState<any | null>({
-
-  // });
   const router = useRouter();
 
-  // const adPlatforms: {
-  //   title: "Instagram" | "Facebook" | "Google";
-  //   image: string;
-  //   settings: any;
-  //   creatives: any[];
-  // }[]
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
@@ -357,7 +366,7 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       )}
-      <div className="lg:w-[calc(100%-248px)] max-w-full">
+      <div className="w-full lg:w-[calc(100%-248px)] max-w-full">
         <div className="flex px-5 lg:pl-0 lg:pr-5 flex-col lg:flex-row gap-3 justify-between">
           <div className="flex flex-col lg:flex-row gap-3 justify-between">
             <div>

@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 import MoreIcon from "@/public/media-creatives/more.png";
 import XIcon from "@/public/media-creatives/x.png";
-import ArrowIcon from "@/public/media-creatives/story-arrow.png";
-import StorySendIcon from "@/public/media-creatives/story-send.png";
+import ArrowIcon from "@/public/media-creatives/fb_to_arrow.png";
+import StorySendIcon from "@/public/media-creatives/fb_story_send.png";
 import CircleLoader from "../../loaders/CircleLoader";
-import { useImgTracker } from "@/app/lib/hooks/useImgTracker";
 
 export default function StoryPost({
   brandName,
@@ -25,7 +24,9 @@ export default function StoryPost({
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
-  const { imgLoaded, imgError, setImgError, setImgLoaded } = useImgTracker();
+
+  const [photoUrlLoaded, setPhotoUrlLoaded] = useState(false);
+  const [photoUrlError, setPhotoUrlError] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,15 +79,15 @@ export default function StoryPost({
             style={{
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
-              opacity: imgLoaded && !isLoading && !imgError ? 1 : 0,
+              opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
             }}
-            onLoad={() => setImgLoaded(true)}
-            onError={() => setImgError(true)}
+            onLoad={() => setPhotoUrlLoaded(true)}
+            onError={() => setPhotoUrlError(true)}
             // unoptimized
           />
         )}
-        {(!photoUrl || !imgLoaded || imgError || isLoading) && (
+        {(!photoUrl || !photoUrlLoaded || isLoading || photoUrlError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>
@@ -161,7 +162,7 @@ export default function StoryPost({
             ? `${maximizedHeight! * (37.42 / 413)}px`
             : "37.42px",
         }}
-        className="bg-white px-3"
+        className="bg-[#1B1C1D] px-3"
       >
         <div className="h-full relative flex items-center justify-center">
           <div className="flex flex-col justify-center items-center">
@@ -176,7 +177,7 @@ export default function StoryPost({
                 fontSize: maximized ? maximizedHeight * (8 / 413) : 8,
                 width: maximized ? maximizedHeight * (58.56 / 413) : 58.56,
               }}
-              className="mt-[2.6px] pxn-semibold tracking-normal flex items-center justify-center  h-[20.92px] bg-[#1FA1FF] rounded-full text-white "
+              className="mt-[2.6px] pxn-semibold tracking-normal flex items-center justify-center  h-[20.92px] bg-[#fff] rounded-full text-black "
             >
               Shop Now
             </div>
@@ -203,7 +204,8 @@ const Avatar = ({
   maximized?: boolean;
 }) => {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
-  const { imgError, imgLoaded, setImgError, setImgLoaded } = useImgTracker();
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div
       style={{

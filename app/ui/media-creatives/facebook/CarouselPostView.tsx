@@ -34,20 +34,21 @@ export default function CarouselPostView({
   };
   return (
     <div>
-      <div className="bg-[#F1F1F1] max-w-full w-full h-[520px] flex flex-col gap-4 py-6 rounded-3xl">
+      <div className="bg-[#F1F1F1] max-w-full w-full h-[520px]  flex flex-col gap-4 py-6 rounded-3xl">
         <div className="flex items-center justify-between pl-6 pr-6">
           <div className="font-medium text-sm">Carousel</div>
           <MaximizeButton onClick={toggleMaximize} />
         </div>
         <DragScrollContainer>
           <div className="flex flex-shrink-0 overflow-hidden  justify-center items-center gap-4">
-            <div className="w-[260.74px] flex-shrink-0  ml-6">
+            <div className="w-[260.74px] flex-shrink-0 ml-6 ">
               <StaticPost
                 brandName={brandName}
                 location={location}
                 photoUrl={creatives?.[0]?.url}
                 caption={creatives?.[0]?.caption}
                 isLoading={isLoading}
+                title={creatives?.[0]?.title}
               />
             </div>
             {new Array(4).fill(0).map((_, index) => (
@@ -73,6 +74,7 @@ export default function CarouselPostView({
           brandName={brandName}
           location={location}
           isLoading={isLoading}
+          title={creatives?.[0]?.title}
         />
       )}
     </div>
@@ -86,13 +88,15 @@ const CarouselPostViewMaximized = ({
   brandName,
   location,
   isLoading,
+  title,
 }: {
   toggleMaximize: () => void;
   brandName: string;
   location: string;
   photoUrls: string[];
-  isLoading?: boolean;
   caption?: string;
+  isLoading?: boolean;
+  title?: string;
 }) => {
   return (
     <div className="z-30">
@@ -110,6 +114,7 @@ const CarouselPostViewMaximized = ({
             caption={caption}
             photoUrls={photoUrls}
             isLoading={isLoading}
+            title={title}
           />
         </div>
       </div>
@@ -123,12 +128,14 @@ const CarouselContent = ({
   photoUrls,
   caption,
   isLoading,
+  title,
 }: {
   brandName: string;
   location: string;
   photoUrls: string[];
   caption?: string;
   isLoading?: boolean;
+  title?: string;
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -166,41 +173,44 @@ const CarouselContent = ({
         >
           <ArrowRight2 size={24} color="#101214" />
         </div>
-        <Carousel
-          showIndicators={false}
-          selectedItem={currentSlide}
-          showStatus={false}
-          showArrows={false}
-          onChange={(index) => setCurrentSlide(index)}
-          infiniteLoop={true}
-          animationHandler={"fade"}
-          autoPlay
-          autoFocus
-          swipeable={false}
-        >
-          <div className="flex items-center h-full justify-center">
-            <StaticPost
-              brandName={brandName}
-              location={location}
-              photoUrl={photoUrls[0]}
-              caption={caption}
-              maximized
-              isLoading={isLoading}
-            />
-          </div>
-          {new Array(4).fill(0).map((_, index) => (
-            <div
-              className="flex items-center h-[70vh] justify-center"
-              key={index}
-            >
-              <CarouselPost
-                photoUrl={photoUrls[index + 1]}
+        <div>
+          <Carousel
+            showIndicators={false}
+            selectedItem={currentSlide}
+            showStatus={false}
+            showArrows={false}
+            onChange={(index) => setCurrentSlide(index)}
+            infiniteLoop={true}
+            animationHandler={"fade"}
+            autoPlay
+            autoFocus
+            swipeable={false}
+          >
+            <div className="flex items-center h-full justify-center">
+              <StaticPost
+                brandName={brandName}
+                location={location}
+                photoUrl={photoUrls[0]}
+                caption={caption}
                 maximized
                 isLoading={isLoading}
+                title={title}
               />
             </div>
-          ))}
-        </Carousel>
+            {new Array(4).fill(0).map((_, index) => (
+              <div
+                className="flex items-center h-[70vh] justify-center"
+                key={index}
+              >
+                <CarouselPost
+                  photoUrl={photoUrls[index + 1]}
+                  maximized
+                  isLoading={isLoading}
+                />
+              </div>
+            ))}
+          </Carousel>
+        </div>
       </div>
     </div>
   );

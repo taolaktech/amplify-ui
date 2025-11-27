@@ -2,17 +2,19 @@ import { capitalize } from "lodash";
 
 export default function Status({ status }: { status: string }) {
   const statusColors: { [key: string]: string } = {
-    Active: "bg-green-100 text-green-800",
-    Paused: "bg-yellow-100 text-yellow-800",
-    Completed: "bg-gray-100 text-gray-800",
-    Draft: "bg-blue-100 text-blue-800",
+    ACTIVE: "bg-[#EAF7EF] text-[#27AE60]",
+    PENDING: "bg-[#FEF5EA] text-[#FA9B0C]",
+    COMPLETED: "bg-[#F0E6FB] text-[#6800D7]",
+    DRAFT: "bg-blue-100 text-blue-800",
+    ARCHIVED: "bg-red-100 text-red-700",
   };
 
   const tagColors: { [key: string]: string } = {
-    Active: "bg-green-800",
-    Paused: "bg-yellow-800",
-    Completed: "bg-gray-800",
-    Draft: "bg-blue-800",
+    ACTIVE: "bg-[#27AE60]",
+    PENDING: "bg-[#FA9B0C]",
+    COMPLETED: "bg-[#6800D7]",
+    DRAFT: "bg-blue-800",
+    ARCHIVED: "bg-red-700",
   };
   const colorClasses = statusColors[status] || "bg-gray-100 text-gray-800";
   const tagClasses = tagColors[status] || "bg-gray-800";

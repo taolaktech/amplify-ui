@@ -143,11 +143,9 @@ export const useGenerateCreatives = () => {
       ],
       tone: toneOfVoice || "friendly",
       brandName,
-      productImages: [
-        product.node.media.edges[0]?.node.preview.image.url || "",
-        product.node.media.edges[0]?.node.preview.image.url || "",
-        product.node.media.edges[0]?.node.preview.image.url || "",
-      ],
+      productImages: new Array(5).fill(
+        product.node.media.edges[0]?.node.preview.image.url || ""
+      ),
       campaignType: campaignType || "Product Launch",
       type: "IMAGE",
       brandColor: primaryBrandColor || "#000000",
@@ -198,7 +196,7 @@ export const useGenerateCreatives = () => {
         );
         return mediaMutate({
           token,
-          product: { ...mediaCreativeProduct, channel: "INSTAGRAM" },
+          product: { ...mediaCreativeProduct, channel: "FACEBOOK" },
         });
       }
       // if (platforms?.includes("INSTAGRAM")) {
@@ -248,32 +246,57 @@ export const useGenerateCreatives = () => {
       // const isFacebook = platforms.includes("FACEBOOK");
 
       if (mediaResult.status === "fulfilled" && mediaResult.value) {
-        for (let i = 0; i < 10; i++) {
-          const creativeSet = await getCreativeSet({
-            creativeSetId: mediaResult.value.creativeSetId,
-            token,
-          });
-          console.log("Media Creative Set Status:", creativeSet.status);
-          if (creativeSet.status === "completed") {
-            if (platforms.includes("INSTAGRAM"))
+        for (let i = 0; i < 15; i++) {
+          try {
+            const creativeSet = await getCreativeSet({
+              creativeSetId: mediaResult.value.creativeSetId,
+              token,
+            });
+            console.log("Media Creative Set Status:", creativeSet.status);
+            if (
+              creativeSet.status === "completed" &&
+              creativeSet.creatives.length > 4
+            ) {
+              const creatives = creativeSet.creatives.map((creative: any) => ({
+                ...creative,
+                id: mediaResult.value.creativeSetId,
+                caption: creative.bodyText,
+              }));
+              console.log("formatted creatives: ", creatives);
+              if (platforms.includes("INSTAGRAM")) {
+                generate("INSTAGRAM", productId, creatives);
+                loadingStates["INSTAGRAM"] = false;
+              }
+              if (platforms.includes("FACEBOOK")) {
+                generate("FACEBOOK", productId, creatives);
+                loadingStates["FACEBOOK"] = false;
+              }
+            }
+            if (
+              (creativeSet.creatives.length > 4 &&
+                creativeSet.status === "completed") ||
+              creativeSet.status === "failed"
+            ) {
+              break;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+          } catch (error) {
+            console.error("Error fetching creative set:", error);
+            if (platforms.includes("INSTAGRAM")) {
               loadingStates["INSTAGRAM"] = false;
-            generate("INSTAGRAM", productId, creativeSet.urls);
-            if (platforms.includes("FACEBOOK"))
+            }
+            if (platforms.includes("FACEBOOK")) {
               loadingStates["FACEBOOK"] = false;
-            generate("FACEBOOK", productId, creativeSet.urls);
-          }
-          if (
-            creativeSet.status === "completed" ||
-            creativeSet.status === "failed"
-          ) {
+            }
+            creativeLoadingRef.current[productId] = loadingStates;
             break;
           }
-          await new Promise((resolve) => setTimeout(resolve, 10000));
         }
       }
-      loadingStates["INSTAGRAM"] = false;
-      loadingStates["FACEBOOK"] = false;
-      loadingStates["GOOGLE ADS"] = false;
+      if (platforms.includes("INSTAGRAM")) loadingStates["INSTAGRAM"] = false;
+      if (platforms.includes("FACEBOOK")) loadingStates["FACEBOOK"] = false;
+      if (platforms.includes("GOOGLE ADS")) loadingStates["GOOGLE ADS"] = false;
       console.log("Generation completed for product:", productId);
       // actions.completeAdsPlatform();
       creativeLoadingRef.current[productId] = loadingStates;

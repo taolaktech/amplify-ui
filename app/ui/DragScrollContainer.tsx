@@ -1,5 +1,6 @@
 // DragScrollContainer.js
 import React, { useRef, useState } from "react";
+import useUIStore from "../lib/stores/uiStore";
 
 export default function DragScrollContainer({
   children,
@@ -13,18 +14,20 @@ export default function DragScrollContainer({
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (isPreviewMaximized) return;
     setIsDragging(true);
     if (!containerRef.current) return;
     setStartX(e.pageX - containerRef.current?.offsetLeft);
     setScrollLeft(containerRef.current.scrollLeft);
   };
+  const isPreviewMaximized = useUIStore((state) => state.isPreviewMaximized);
 
   const onMouseLeave = () => setIsDragging(false);
   const onMouseUp = () => setIsDragging(false);
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (!isDragging) return;
+    if (!isDragging || isPreviewMaximized) return;
     if (!containerRef.current) return;
     const x = e.pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1; // scroll speed multiplier
@@ -42,8 +45,8 @@ export default function DragScrollContainer({
         display: "flex",
         overflowX: "auto",
         overflowY: "hidden",
-        cursor: isDragging ? "grabbing" : "grab",
-        userSelect: "none",
+        cursor: isPreviewMaximized ? "auto" : isDragging ? "grabbing" : "grab",
+        userSelect: isPreviewMaximized ? "auto" : "none",
         scrollBehavior: "smooth",
       }}
       className="no-scrollbar"

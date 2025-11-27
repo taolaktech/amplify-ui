@@ -40,6 +40,7 @@ export default async function getCampaigns(data: {
 type CampaignProductCreative = {
   channel: string;
   data: any[]; // URLs or text
+  id?: string;
 };
 
 export enum CampaignPlatformsTitle {

@@ -12,6 +12,9 @@ import useUIStore from "@/app/lib/stores/uiStore";
 import { useMemo } from "react";
 import IGStaticPostView from "../media-creatives/ig/StaticPostView";
 import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
+import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
+import FBCarouselPostView from "../media-creatives/facebook/CarouselPostView";
+import FBStoryPostView from "../media-creatives/facebook/StoryPostView";
 import CircleLoader from "../loaders/CircleLoader";
 import DragScrollContainer from "../DragScrollContainer";
 import StoryPostView from "../media-creatives/ig/StoryPostView";
@@ -174,7 +177,6 @@ const PreviewContainer = ({
   settings?: { label: string; key: SocialSettingsKey }[];
 }) => {
   // const containerRef = useRef<HTMLDivElement>(null);
-  console.log("PreviewContainer item:", item);
 
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
@@ -183,22 +185,15 @@ const PreviewContainer = ({
   const instagramSettings = useCreateCampaignStore(
     (state) => state.instagramSettings
   );
+  const facebookSettings = useCreateCampaignStore(
+    (state) => state.facebookSettings
+  );
 
   // const instagramSettingsCount = useMemo(() => {
   //   return Object.values(instagramSettings).filter((value) => value).length;
   // }, [instagramSettings]);
 
   const isLoading = useMemo(() => {
-    console.log("highlightedProductId:", highlightedProductId);
-    console.log("item.platform:", item?.platform);
-    console.log(
-      "creativeLoadingStates:",
-      creativeLoadingStates?.[highlightedProductId]
-    );
-    console.log(
-      "isLoading:",
-      creativeLoadingStates?.[highlightedProductId]?.[item.platform]
-    );
     return creativeLoadingStates?.[highlightedProductId]?.[item.platform];
   }, [
     highlightedProductId,
@@ -211,12 +206,117 @@ const PreviewContainer = ({
 
   const mediaCreative = item.creatives?.length - 1 || 0;
   const isMediaCreative = item?.creatives;
-  console.log("isMediaCreative:", isMediaCreative);
   console.log(isMediaCreative[mediaCreative]?.creatives);
   // if (!item?.creatives?.length) return null;
   const isGoogleAds = platform === "GOOGLE ADS";
   const isInstagram = platform === "INSTAGRAM";
-  // const isFacebook = platform === "FACEBOOK";
+
+  const facebookWidthSize = useMemo(() => {
+    let count = 0;
+    if (facebookSettings.staticPost) count += 1;
+    if (facebookSettings.carouselPost) count += 1;
+    if (facebookSettings.storyPost) count += 1;
+
+    const settings = {
+      staticPost: 0,
+      carouselPost: 0,
+      storyPost: 0,
+    };
+
+    if (count === 1) {
+      if (facebookSettings.staticPost) {
+        settings.staticPost = 100;
+      }
+      if (facebookSettings.carouselPost) {
+        settings.carouselPost = 100;
+      }
+      if (facebookSettings.storyPost) {
+        settings.storyPost = 100;
+      }
+    } else if (count === 2) {
+      if (facebookSettings.carouselPost) {
+        settings.carouselPost = 66.66;
+
+        if (facebookSettings.staticPost) {
+          settings.staticPost = 33.33;
+        }
+        if (facebookSettings.storyPost) {
+          settings.storyPost = 33.33;
+        }
+      } else if (facebookSettings.staticPost && facebookSettings.storyPost) {
+        settings.staticPost = 50;
+        settings.storyPost = 50;
+      }
+    } else if (count === 3) {
+      settings.staticPost = 25;
+      settings.carouselPost = 50;
+      settings.storyPost = 25;
+    }
+    return settings;
+  }, [
+    facebookSettings.carouselPost,
+    facebookSettings.staticPost,
+    facebookSettings.storyPost,
+  ]);
+
+  const instagramWidthSize = useMemo(() => {
+    let count = 0;
+    if (instagramSettings.staticPost) count += 1;
+    if (instagramSettings.carouselPost) count += 1;
+    if (instagramSettings.storyPost) count += 1;
+
+    const settings = {
+      staticPost: 0,
+      carouselPost: 0,
+      storyPost: 0,
+    };
+
+    if (count === 1) {
+      if (instagramSettings.staticPost) {
+        settings.staticPost = 100;
+      }
+      if (instagramSettings.carouselPost) {
+        settings.carouselPost = 100;
+      }
+      if (instagramSettings.storyPost) {
+        settings.storyPost = 100;
+      }
+    } else if (count === 2) {
+      if (instagramSettings.carouselPost) {
+        settings.carouselPost = 66.66;
+
+        if (instagramSettings.staticPost) {
+          settings.staticPost = 33.33;
+        }
+        if (instagramSettings.storyPost) {
+          settings.storyPost = 33.33;
+        }
+      } else if (instagramSettings.staticPost && instagramSettings.storyPost) {
+        settings.staticPost = 50;
+        settings.storyPost = 50;
+      }
+    } else if (count === 3) {
+      settings.staticPost = 25;
+      settings.carouselPost = 50;
+      settings.storyPost = 25;
+    }
+
+    return settings;
+  }, [
+    instagramSettings.carouselPost,
+    instagramSettings.staticPost,
+    instagramSettings.storyPost,
+  ]);
+
+  const isFacebook = platform === "FACEBOOK";
+
+  const notHaveMediaCreative = useMemo(() => {
+    return (
+      (!isMediaCreative[mediaCreative]?.creatives ||
+        isMediaCreative[mediaCreative]?.creatives.length == 0) &&
+      !isLoading
+    );
+  }, [isMediaCreative, mediaCreative, isLoading]);
   return (
     <>
       {isGoogleAds && (
@@ -249,31 +349,125 @@ const PreviewContainer = ({
       )}
 
       {isInstagram && (
-        <DragScrollContainer>
-          <div className="mt-5 pl-5 flex gap-4 max-w-full items-center">
-            {instagramSettings.staticPost && (
-              <div className="w-[25%] min-w-[308.6px]">
-                <IGStaticPostView
-                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0]}
-                />
+        <>
+          {!notHaveMediaCreative ? (
+            <DragScrollContainer>
+              <div className="mt-5 pl-5 flex gap-4 w-full items-center">
+                {instagramSettings.staticPost && (
+                  <div
+                    style={{ width: `${instagramWidthSize.staticPost}%` }}
+                    className="min-w-[308.6px] transition-all duration-300"
+                  >
+                    <IGStaticPostView
+                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+                {instagramSettings.carouselPost && (
+                  <div
+                    style={{
+                      width: `${instagramWidthSize.carouselPost}%`,
+                    }}
+                    className="min-w-[529.6px] transition-all duration-300"
+                  >
+                    <IGCarouselPostView
+                      creatives={
+                        isMediaCreative[mediaCreative]?.creatives || []
+                      }
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+                {instagramSettings.storyPost && (
+                  <div
+                    style={{
+                      width: `${instagramWidthSize.storyPost}%`,
+                    }}
+                    className="min-w-[308.6px] transition-all duration-300"
+                  >
+                    <StoryPostView
+                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-            {instagramSettings.carouselPost && (
-              <div className="w-[50%] min-w-[529.6px]">
-                <IGCarouselPostView
-                  photoUrls={isMediaCreative[mediaCreative]?.creatives || []}
-                />
+            </DragScrollContainer>
+          ) : (
+            <div className="px-5 lg:pl-0 lg:pr-5">
+              <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
+                <div className="flex flex-col gap-1 items-center">
+                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
+                  <p className="text-sm text-[#BFBFBF] font-medium">
+                    No Preview
+                  </p>
+                </div>
               </div>
-            )}
-            {instagramSettings.storyPost && (
-              <div className="w-[25%] min-w-[308.6px]">
-                <StoryPostView
-                  photoUrl={isMediaCreative[mediaCreative]?.creatives[0] || []}
-                />
+            </div>
+          )}
+        </>
+      )}
+
+      {isFacebook && (
+        <>
+          {!notHaveMediaCreative ? (
+            <DragScrollContainer>
+              <div className="mt-5 pl-5 flex gap-4 w-full items-center">
+                {facebookSettings.staticPost && (
+                  <div
+                    style={{ width: `${facebookWidthSize.staticPost}%` }}
+                    className="min-w-[308.6px] transition-all duration-300"
+                  >
+                    <FBStaticPostView
+                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+                {facebookSettings.carouselPost && (
+                  <div
+                    style={{
+                      width: `${facebookWidthSize.carouselPost}%`,
+                    }}
+                    className="min-w-[529.6px] transition-all duration-300"
+                  >
+                    <FBCarouselPostView
+                      creatives={
+                        isMediaCreative[mediaCreative]?.creatives || []
+                      }
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+                {facebookSettings.storyPost && (
+                  <div
+                    style={{
+                      width: `${facebookWidthSize.storyPost}%`,
+                    }}
+                    className="min-w-[308.6px] transition-all duration-300"
+                  >
+                    <FBStoryPostView
+                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </DragScrollContainer>
+            </DragScrollContainer>
+          ) : (
+            <div className="px-5 lg:pl-0 lg:pr-5">
+              <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
+                <div className="flex flex-col gap-1 items-center">
+                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
+                  <p className="text-sm text-[#BFBFBF] font-medium">
+                    No Preview
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   );

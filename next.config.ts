@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    allowedDevOrigins: ["http://172.20.10.6:3000"], // <-- 🔥 This is what you need
+    allowedDevOrigins: ["http://172.20.10.6:3000", "http://192.168.1.168:3000"], // <-- 🔥 This is what you need
     turbo: {
       rules: {
         "*.svg": {
