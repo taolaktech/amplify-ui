@@ -21,7 +21,7 @@ export const useGetSetupComplete = () => {
     } else if (!marketingGoals.complete) {
       setLink("/setup/marketing-goals");
     } else {
-      setLink("/settings/integrations");
+      setLink("/setup/completion");
     }
   }, [businessDetails, marketingGoals, connectStore, preferredSalesLocation]);
 

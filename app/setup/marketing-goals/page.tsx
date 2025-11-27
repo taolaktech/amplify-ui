@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import GradientCheckbox from "@/app/ui/form/GradientCheckbox";
 import { ArrowRight } from "iconsax-react";
 import { GreenCheckbox } from "@/app/ui/form/GreenCheckbox";
@@ -13,7 +14,11 @@ type MarketingGoalKey =
   | "Boost Repeated Purchases";
 
 export default function BusinessGoalPage() {
+  const router = useRouter();
   const marketingGoalFromStore = useSetupStore((state) => state.marketingGoals);
+  const completeMarketingGoals = useSetupStore(
+    (state) => state.completeMarketingGoals
+  );
   const [selectMarketingGoal, setSelectMarketingGoal] = useState<
     Record<MarketingGoalKey, boolean>
   >({
@@ -38,6 +43,17 @@ export default function BusinessGoalPage() {
     }
   }, []);
 
+  // ✅ ADDED: Redirect to success page when mutation is successful
+  useEffect(() => {
+    if (submitMarketingGoalsMutation.isSuccess) {
+      // Mark this step as complete in the store
+      completeMarketingGoals(true);
+
+      // Redirect to the actual onboarding success page
+      router.push("/setup/completion");
+    }
+  }, [submitMarketingGoalsMutation.isSuccess, completeMarketingGoals, router]);
+
   const handleSelectMarketingGoal = (key: MarketingGoalKey) => {
     const goals = {
       ...selectMarketingGoal,
@@ -57,6 +73,7 @@ export default function BusinessGoalPage() {
       boostRepeatPurchases: selectMarketingGoal["Boost Repeated Purchases"],
     });
   };
+
   return (
     <div>
       <div>

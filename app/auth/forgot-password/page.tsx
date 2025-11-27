@@ -86,7 +86,7 @@ export default function ForgotPassword() {
                       href="/auth/login"
                       className="text-gradient font-medium hover:underline"
                     >
-                      Sign in here
+                      Sign in
                     </Link>
                   </p>
                 </div>

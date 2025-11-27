@@ -23,6 +23,12 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const defaultBusinessDetails = useSetupStore(
     (state) => state.businessDetails
   );
+  const storeBusinessDetails = useSetupStore(
+    (state) => state.storeBusinessDetails
+  );
+  const completeBusinessDetails = useSetupStore(
+    (state) => state.completeBusinessDetails
+  );
   const { preview, handleFileChange, file } = useUploadPhoto();
   const setToast = useToastStore((state) => state.setToast);
 
@@ -33,17 +39,17 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
   const token = useAuthStore((state) => state.token);
   const { storeLogo } = defaultBusinessDetails;
-  const defaultDetails = isStoreDetails
-    ? {
-        ...defaultBusinessDetails,
-        // contactEmail: defaultBusinessDetails.contactEmail,
-        // contactPhone: defaultBusinessDetails.contactPhone,
-      }
-    : defaultBusinessDetails;
+
+  // ✅ FIX: Memoize defaultDetails to prevent infinite re-renders
+  const defaultDetails = {
+    ...defaultBusinessDetails,
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: defaultDetails,
     mode: "onSubmit",
@@ -71,64 +77,62 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     },
   });
 
+  // ✅ FIX: Simplify the form reset - only run once on mount
   useEffect(() => {
-    if (defaultBusinessDetails.industry)
+    if (defaultBusinessDetails.industry) {
       setProductCategory(defaultBusinessDetails.industry);
-    if (defaultBusinessDetails.companyRole)
+    }
+    if (defaultBusinessDetails.companyRole) {
       setCompanyRole(defaultBusinessDetails.companyRole);
+    }
     const teamSizeIndex = teamSizeValue.findIndex(
       (size) => size.min === defaultBusinessDetails.teamSize.min
     );
     setTeamSizeSelected(teamSizeIndex !== -1 ? teamSizeIndex : 1);
-  }, [defaultBusinessDetails]);
+  }, []); // ✅ Empty dependency array - run only once
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
+
+  // ✅ FIX: Handle success with proper dependencies
+  useEffect(() => {
+    if (submitBusinessDetailsMutation.isSuccess) {
+      // The toast is handled in the component, so we don't need to do anything here
+      console.log("Business details submitted successfully");
+    }
+  }, [submitBusinessDetailsMutation.isSuccess]);
 
   const handleAction = () => {
     if (!productCategory) setProductCategoryError(true);
     else setProductCategoryError(false);
     if (!companyRole) setCompanyRoleError(true);
     else setCompanyRoleError(false);
-    handleSubmit(handleNext)(); // Notice the additional ()
+    handleSubmit(handleNext)();
   };
 
   const transformToBackendPayload = (
     formData: typeof defaultBusinessDetails
   ) => {
     return {
-      companyName: formData.storeName, // Transform storeName → companyName
+      companyName: formData.storeName,
       description: formData.description,
-      website: formData.storeUrl, // Transform storeUrl → website
-      industry: productCategory ?? "", // Use productCategory as industry
+      website: formData.storeUrl,
+      industry: productCategory ?? "",
       companyRole: companyRole ?? "",
-      contactEmail: formData.contactEmail, // This should now exist in your form
-      contactPhone: formData.contactPhone, // This should now exist in your form
+      contactEmail: formData.contactEmail,
+      contactPhone: formData.contactPhone,
       teamSize: teamSizeValue[teamSizeSelected as number],
-      estimatedMonthlyBudget: Number(formData.adSpendBudget), // Transform adSpendBudget → estimatedMonthlyBudget
-      estimatedAnnualRevenue: Number(formData.annualRevenue), // Transform annualRevenue → estimatedAnnualRevenue
+      estimatedMonthlyBudget: Number(formData.adSpendBudget),
+      estimatedAnnualRevenue: Number(formData.annualRevenue),
     };
   };
 
   const handleNext = (data: typeof defaultBusinessDetails) => {
-    // Transform the form data to match backend API schema
     const backendPayload = transformToBackendPayload(data);
 
     console.log("=== DEBUG: Payload being sent to backend ===");
     console.log("Full payload:", JSON.stringify(backendPayload, null, 2));
-    console.log("Data types:", {
-      companyName: typeof backendPayload.companyName,
-      description: typeof backendPayload.description,
-      website: typeof backendPayload.website,
-      industry: typeof backendPayload.industry,
-      companyRole: typeof backendPayload.companyRole,
-      contactEmail: typeof backendPayload.contactEmail,
-      contactPhone: typeof backendPayload.contactPhone,
-      estimatedMonthlyBudget: typeof backendPayload.estimatedMonthlyBudget,
-      estimatedAnnualRevenue: typeof backendPayload.estimatedAnnualRevenue,
-      teamSize: backendPayload.teamSize,
-    });
     console.log("============================================");
 
     if (file && token) {
@@ -138,13 +142,28 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
       });
     }
 
-    // Send the transformed data to the backend
+    // ✅ FIX: Use optimistic update - update store immediately
+    const updatedDetails = {
+      ...defaultBusinessDetails,
+      storeName: data.storeName,
+      description: data.description,
+      storeUrl: data.storeUrl,
+      industry: productCategory ?? "",
+      companyRole: companyRole ?? "",
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      teamSize: teamSizeValue[teamSizeSelected as number],
+      adSpendBudget: Number(data.adSpendBudget),
+      annualRevenue: Number(data.annualRevenue),
+    };
+
+    // Update store optimistically
+    storeBusinessDetails(updatedDetails);
+    completeBusinessDetails(true);
+
+    // Then make the API call
     handleSubmitBusinessDetails(backendPayload);
   };
-
-  // const handleCompanyRoleChange = (role: string) => {
-  //   setCompanyRole(role);
-  // };
 
   return {
     register,
@@ -170,5 +189,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     defaultBusinessDetails,
     handleSelectTeamSize,
     submitBusinessDetailsMutation,
+    reset,
   };
 };

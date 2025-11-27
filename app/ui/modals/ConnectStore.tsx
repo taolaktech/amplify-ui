@@ -23,9 +23,7 @@ function ConnectStore({
   isIntegrations?: boolean;
   isOpen: boolean;
 }) {
-  const completeConnectStore = useSetupStore(
-    (state) => state.completeConnectStore
-  );
+  const storeConnectStore = useSetupStore((state) => state.storeConnectStore);
   const isRouteToCampaigns =
     useSearchParams().get("redirect") === "create-campaign";
   const storeUrl = useSetupStore((state) => state.connectStore.storeUrl);
@@ -59,21 +57,32 @@ function ConnectStore({
       setFetchingProgress(100);
       setTimeout(() => {
         setFetchingInfo(false);
-        completeConnectStore(true);
+
+        // ✅ CORRECT: Only store the URL, don't mark as complete yet
+        storeConnectStore({ storeUrl: shopifyStore });
+
         closeModal();
 
-        // ✅ UPDATED: Redirect to setup completion page
+        // ✅ CORRECT: Redirect to the NEXT step (Business Details)
         if (isRouteToCampaigns) {
           router.push("/create-campaign");
         } else if (isIntegrations) {
           router.push("/settings/integrations");
         } else {
-          // ✅ Redirect to the new completion page
-          router.push("/setup/completion");
+          // This takes users to Business Details (step 2)
+          router.push("/setup/business-details");
         }
       }, 2000);
     }
-  }, [retrieveStoreDetails.isSuccess]);
+  }, [
+    retrieveStoreDetails.isSuccess,
+    storeConnectStore,
+    shopifyStore,
+    isRouteToCampaigns,
+    isIntegrations,
+    router,
+    closeModal,
+  ]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
@@ -175,7 +184,7 @@ function ConnectStore({
                             ? "/settings/integrations"
                             : isRouteToCampaigns
                             ? "/setup?linked_store=true&redirect=create-campaign"
-                            : "/setup/completion"
+                            : "/setup?linked_store=true"
                         )
                       }
                       hasIconOrLoader
