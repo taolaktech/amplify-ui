@@ -407,23 +407,16 @@ const CheckoutForm = ({
 
           <div
             className={`w-full ${
-              isAddCardPage ? "w-full" : "md:max-w-[150px]"
+              isAddCardPage ? "w-full" : "md:max-w-[180px]"
             } mx-auto mt-9`}
           >
             <Button
-              text={
-                isAddCardPage
-                  ? "Add card"
-                  : isUpgrade && hasActiveSubscription
-                  ? "Upgrade now"
-                  : isDowngrade && hasActiveSubscription
-                  ? "Downgrade now"
-                  : "Subscribe now"
-              }
+              text={"Subscribe Now"}
               hasIconOrLoader
               action={() => handleSubmit(new Event("submit") as any)}
               // action={test}
               loading={loading}
+              // loading={true}
               tertiary={isAddCardPage}
               disabled={!stripe || loading}
               height={48}

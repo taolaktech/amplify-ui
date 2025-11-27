@@ -83,7 +83,7 @@ export default function StoryPost({
             }}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
-            // unoptimized
+            unoptimized
           />
         )}
         {(!photoUrl || !imgLoaded || imgError || isLoading) && (
@@ -238,7 +238,7 @@ const Avatar = ({
           width: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
         }}
-        // unoptimized
+        unoptimized
         className={`${
           imgLoaded && !imgError ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300 rounded-full`}

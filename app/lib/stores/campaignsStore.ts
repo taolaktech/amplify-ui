@@ -139,7 +139,6 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       });
     },
     toggleSelectAllData: () => {
-      console.log("Toggling select all data");
       if (get().isAllCampaignsSelected && get().excludeDataIds.length === 0) {
         set({
           isAllCampaignsSelected: false,
