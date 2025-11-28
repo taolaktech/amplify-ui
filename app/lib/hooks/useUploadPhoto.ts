@@ -7,7 +7,7 @@ type UseUploadPhotoReturn = {
   uploading: boolean;
   error: string | null;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  uploadPhoto: (uploadUrl: string) => Promise<void>;
+  uploadPhoto: (uploadUrl: string) => Promise<string | null>;
   reset: () => void;
 };
 
@@ -42,12 +42,12 @@ export function useUploadPhoto(): UseUploadPhotoReturn {
     reader.readAsDataURL(selectedFile);
   };
 
-  const uploadPhoto = async (uploadUrl: string) => {
+  const uploadPhoto = async (uploadUrl: string): Promise<string | null> => {
     if (!file) {
       setError("No file selected");
-      return;
+      return null;
     }
-    if (!isDirty) return;
+    if (!isDirty) return null;
 
     setUploading(true);
     setError(null);
@@ -67,7 +67,23 @@ export function useUploadPhoto(): UseUploadPhotoReturn {
           message: "Upload failed.",
           type: "error",
         });
-        return;
+        return null;
+      }
+
+      // ✅ FIX: Get the uploaded image URL from response
+      const result = await response.json();
+      const imageUrl = result.url || result.imageUrl || result.data?.url;
+
+      if (imageUrl) {
+        setToast({
+          title: "Upload successful!",
+          message: "Image uploaded successfully.",
+          type: "success",
+        });
+        return imageUrl;
+      } else {
+        // If no URL in response, return the base64 preview as fallback
+        return preview;
       }
     } catch (err: any) {
       setToast({
@@ -76,6 +92,8 @@ export function useUploadPhoto(): UseUploadPhotoReturn {
         type: "error",
       });
       console.log(err);
+      // Return preview as fallback if upload fails
+      return preview;
     } finally {
       setUploading(false);
     }
