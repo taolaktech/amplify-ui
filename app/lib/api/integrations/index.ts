@@ -47,6 +47,26 @@ export const instagramAuth = async (data: { token: string }) => {
   return response.data;
 };
 
+export const facebookCallback = async (data: {
+  code: string;
+  state: string;
+  token: string;
+}) => {
+  const response = await axios.post(
+    `${INTEGRATION_HOST}/api/facebook-auth/callback`,
+    {
+      code: data.code,
+      state: data.state,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;
