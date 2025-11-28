@@ -29,7 +29,7 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const completeBusinessDetails = useSetupStore(
     (state) => state.completeBusinessDetails
   );
-  const { preview, handleFileChange, file } = useUploadPhoto();
+  const { preview, handleFileChange, file, uploadPhoto } = useUploadPhoto();
   const setToast = useToastStore((state) => state.setToast);
 
   const [productCategory, setProductCategory] = useState<string | null>(null);
@@ -40,7 +40,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const token = useAuthStore((state) => state.token);
   const { storeLogo } = defaultBusinessDetails;
 
-  // ✅ FIX: Memoize defaultDetails to prevent infinite re-renders
   const defaultDetails = {
     ...defaultBusinessDetails,
   };
@@ -49,7 +48,7 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
+    reset: resetForm,
   } = useForm({
     defaultValues: defaultDetails,
     mode: "onSubmit",
@@ -67,6 +66,14 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const { mutate: updateLogo, isPending } = useMutation({
     mutationFn: updateStoreLogo,
     mutationKey: ["updateStoreLogo"],
+    onSuccess: (data) => {
+      console.log("Logo updated successfully:", data);
+      setToast({
+        type: "success",
+        title: "Logo Updated",
+        message: "Store logo has been updated successfully.",
+      });
+    },
     onError: (error) => {
       console.error("Error updating logo:", error);
       setToast({
@@ -77,7 +84,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     },
   });
 
-  // ✅ FIX: Simplify the form reset - only run once on mount
   useEffect(() => {
     if (defaultBusinessDetails.industry) {
       setProductCategory(defaultBusinessDetails.industry);
@@ -89,19 +95,22 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
       (size) => size.min === defaultBusinessDetails.teamSize.min
     );
     setTeamSizeSelected(teamSizeIndex !== -1 ? teamSizeIndex : 1);
-  }, []); // ✅ Empty dependency array - run only once
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  // ✅ FIX: Handle success with proper dependencies
   useEffect(() => {
     if (submitBusinessDetailsMutation.isSuccess) {
-      // The toast is handled in the component, so we don't need to do anything here
+      setToast({
+        type: "success",
+        message: "Store details saved successfully!",
+        title: "Saved",
+      });
       console.log("Business details submitted successfully");
     }
-  }, [submitBusinessDetailsMutation.isSuccess]);
+  }, [submitBusinessDetailsMutation.isSuccess, setToast]);
 
   const handleAction = () => {
     if (!productCategory) setProductCategoryError(true);
@@ -128,21 +137,21 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     };
   };
 
-  const handleNext = (data: typeof defaultBusinessDetails) => {
+  const handleNext = async (data: typeof defaultBusinessDetails) => {
     const backendPayload = transformToBackendPayload(data);
 
     console.log("=== DEBUG: Payload being sent to backend ===");
     console.log("Full payload:", JSON.stringify(backendPayload, null, 2));
     console.log("============================================");
 
-    if (file && token) {
-      updateLogo({
-        token,
-        businessLogo: file,
-      });
+    let storeLogoUrl = defaultBusinessDetails.storeLogo;
+
+    // Use the preview (base64) as the store logo if a file was selected
+    if (preview) {
+      storeLogoUrl = preview;
     }
 
-    // ✅ FIX: Use optimistic update - update store immediately
+    // ✅ FIX: Update store with ALL data including the logo
     const updatedDetails = {
       ...defaultBusinessDetails,
       storeName: data.storeName,
@@ -155,11 +164,20 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
       teamSize: teamSizeValue[teamSizeSelected as number],
       adSpendBudget: Number(data.adSpendBudget),
       annualRevenue: Number(data.annualRevenue),
+      storeLogo: storeLogoUrl, // ✅ Save the image (either base64 or existing URL)
     };
 
     // Update store optimistically
     storeBusinessDetails(updatedDetails);
     completeBusinessDetails(true);
+
+    // Upload file if exists
+    if (file && token) {
+      updateLogo({
+        token,
+        businessLogo: file,
+      });
+    }
 
     // Then make the API call
     handleSubmitBusinessDetails(backendPayload);
@@ -189,6 +207,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     defaultBusinessDetails,
     handleSelectTeamSize,
     submitBusinessDetailsMutation,
-    reset,
+    reset: resetForm,
   };
 };
