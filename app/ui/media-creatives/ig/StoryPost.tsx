@@ -15,13 +15,11 @@ export default function StoryPost({
   location,
   photoUrl,
   maximized,
-  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
@@ -78,7 +76,7 @@ export default function StoryPost({
             style={{
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
-              opacity: imgLoaded && !isLoading && !imgError ? 1 : 0,
+              opacity: imgLoaded && !imgError ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
             }}
             onLoad={() => setImgLoaded(true)}
@@ -86,7 +84,7 @@ export default function StoryPost({
             unoptimized
           />
         )}
-        {(!photoUrl || !imgLoaded || imgError || isLoading) && (
+        {(!photoUrl || !imgLoaded || imgError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>
