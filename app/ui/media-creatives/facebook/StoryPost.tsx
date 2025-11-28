@@ -79,7 +79,7 @@ export default function StoryPost({
             style={{
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
-              opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
+              opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
             }}
             onLoad={() => setPhotoUrlLoaded(true)}
@@ -87,7 +87,7 @@ export default function StoryPost({
             unoptimized
           />
         )}
-        {(!photoUrl || !photoUrlLoaded || isLoading || photoUrlError) && (
+        {(!photoUrl || !photoUrlLoaded || photoUrlError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>

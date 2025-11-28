@@ -27,6 +27,8 @@ import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 import { getCampaignTypes } from "@/app/lib/campaignTypes";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import { isAllProductGenerated } from "@/app/lib/utils";
 
 const ProductContainer = ({
   products,
@@ -38,7 +40,7 @@ const ProductContainer = ({
   handleSetHighlightedProduct: (product: ShopifyProduct) => void;
 }) => {
   return (
-    <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+    <div className="w-[224px] sticky custom-shadow-sm top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
       <div className="flex justify-between gap-2 px-3">
         <span className="text-sm font-medium">Products</span>
         <span>
@@ -290,6 +292,8 @@ export default function CampaignSnapshotsPage() {
     Facebook?.[highlightedProduct?.node.id || ""],
   ]);
 
+  const setToast = useToastStore((state) => state.setToast);
+
   const campaignDetails = useCreateCampaignStore(
     (state) => state.campaignSnapshots
   );
@@ -320,10 +324,44 @@ export default function CampaignSnapshotsPage() {
     setCampaignDetails({ ...campaignDetails, [key]: value });
   };
 
+  const isLoading = useMemo(() => {
+    console.log("Creative Loading States:", creativeLoadingStates);
+    return productSelection.products.some((product) => {
+      return (
+        creativeLoadingStates?.[product?.node.id]?.["GOOGLE ADS"] ||
+        creativeLoadingStates?.[product?.node.id]?.["FACEBOOK"] ||
+        creativeLoadingStates?.[product?.node.id]?.["INSTAGRAM"]
+      );
+    });
+  }, [highlightedProduct, productSelection.products, creativeLoadingStates]);
+
   const handleProceed = () => {
     if (campaignDetails.campaignName.trim() === "") {
       setError(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    } else if (isLoading) {
+      setToast({
+        type: "warning",
+        message: "Please wait for the creatives to finish generating.",
+        title: "Generation in Progress",
+      });
+      return;
+    } else if (
+      isAllProductGenerated(
+        supportedAdPlatforms,
+        productSelection.products,
+        Facebook,
+        Google,
+        Instagram
+      ) === false
+    ) {
+      setToast({
+        type: "error",
+        message:
+          "Some selected products don’t have creatives yet. Please generate creatives for all selected products to continue.",
+        title: "Creatives Missing",
+      });
       return;
     } else {
       setError(false);
@@ -354,11 +392,12 @@ export default function CampaignSnapshotsPage() {
   const handleSetHighlightedProduct = (product: ShopifyProduct) => {
     setHighlightedProduct(product);
   };
+
   const products = productSelection.products;
   return (
     <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="hidden w-[224px] lg:block">
+        <div className="hidden w-[224px] lg:block sticky top-20 flex-shrink-0">
           <ProductContainer
             highlightedProduct={highlightedProduct}
             products={products}

@@ -48,3 +48,33 @@ export const campaignStatus: { [key: string]: string } = {
   PROCESSED: "pending",
   LIVE: "active",
 };
+
+export const isAllProductGenerated = (
+  supportedAdPlatforms: any,
+  products: any[],
+  Facebook: any,
+  Google: any,
+  Instagram: any
+) => {
+  console.log("Checking if all products are generated...", products);
+  console.log("Supported Ad Platforms:", supportedAdPlatforms);
+  console.log("Facebook creatives:", Facebook);
+  console.log("Google creatives:", Google?.[products[0]?.node.id]);
+  console.log("Instagram creatives:", Instagram);
+  return products.every((product) => {
+    const { node } = product;
+    if (supportedAdPlatforms.Facebook) {
+      const fbCreatives = Facebook?.[node.id] || [];
+      if (fbCreatives.length === 0) return false;
+    }
+    if (supportedAdPlatforms.Google) {
+      const googleCreatives = Google?.[node.id] || [];
+      if (googleCreatives.length === 0) return false;
+    }
+    if (supportedAdPlatforms.Instagram) {
+      const instaCreatives = Instagram?.[node.id] || [];
+      if (instaCreatives.length === 0) return false;
+    }
+    return true;
+  });
+};

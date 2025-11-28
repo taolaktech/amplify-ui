@@ -52,7 +52,7 @@ export const useGenerateCreatives = () => {
     (state) => state.supportedAdPlatforms
   );
 
-  const [isCreativeSetLoading] = useState(false);
+  // const [isCreativeSetLoading] = useState(false);
   // const products = useUIStore((state) => state.products);
   const { productSelection } = useCreateCampaignStore((state) => state);
 
@@ -99,6 +99,8 @@ export const useGenerateCreatives = () => {
     const product = productSelection.products.find(
       (p) => p.node.id === productId
     );
+
+    const generatorId = `gen-${Math.random().toString(36).substring(2, 15)}`;
     if (!token || !productSelection.products || !product) return;
     setCurrentProductId(productId);
     const creativeProduct: GoogleCreativesProduct = {
@@ -186,9 +188,11 @@ export const useGenerateCreatives = () => {
       ) {
         if (platforms.includes("INSTAGRAM")) {
           creativeLoadingRef.current[productId]["INSTAGRAM"] = true;
+          generate("INSTAGRAM", productId, null, generatorId);
         }
         if (platforms.includes("FACEBOOK")) {
           creativeLoadingRef.current[productId]["FACEBOOK"] = true;
+          generate("FACEBOOK", productId, null, generatorId);
         }
         setCreativeLoadingStates(
           productId,
@@ -234,7 +238,12 @@ export const useGenerateCreatives = () => {
 
       if (googleResult.status === "fulfilled" && googleResult.value?.data) {
         console.log("Google Creative Result:", googleResult.value);
-        generate("GOOGLE ADS", productId, googleResult.value?.data);
+        generate(
+          "GOOGLE ADS",
+          productId,
+          googleResult.value?.data,
+          generatorId
+        );
         loadingStates["GOOGLE ADS"] = false;
       }
 
@@ -246,30 +255,28 @@ export const useGenerateCreatives = () => {
       // const isFacebook = platforms.includes("FACEBOOK");
 
       if (mediaResult.status === "fulfilled" && mediaResult.value) {
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 10; i++) {
           try {
             const creativeSet = await getCreativeSet({
               creativeSetId: mediaResult.value.creativeSetId,
               token,
             });
             console.log("Media Creative Set Status:", creativeSet.status);
-            if (
-              creativeSet.status === "completed" &&
-              creativeSet.creatives.length > 4
-            ) {
+
+            if (creativeSet.creatives && creativeSet.creatives.length > 0) {
               const creatives = creativeSet.creatives.map((creative: any) => ({
                 ...creative,
                 id: mediaResult.value.creativeSetId,
                 caption: creative.bodyText,
               }));
+
               console.log("formatted creatives: ", creatives);
+
               if (platforms.includes("INSTAGRAM")) {
-                generate("INSTAGRAM", productId, creatives);
-                loadingStates["INSTAGRAM"] = false;
+                generate("INSTAGRAM", productId, creatives, generatorId);
               }
               if (platforms.includes("FACEBOOK")) {
-                generate("FACEBOOK", productId, creatives);
-                loadingStates["FACEBOOK"] = false;
+                generate("FACEBOOK", productId, creatives, generatorId);
               }
             }
             if (
@@ -321,8 +328,7 @@ export const useGenerateCreatives = () => {
 
   return {
     generateCreatives,
-    loading:
-      googleCreativeIsPending || mediaCreativeIsPending || isCreativeSetLoading,
+    loading: googleCreativeIsPending || mediaCreativeIsPending,
     initialGeneration,
     creativeLoadingStates,
     creativeLoadingRef: creativeLoadingRef.current,

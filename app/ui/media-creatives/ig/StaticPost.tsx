@@ -156,14 +156,14 @@ export default function StaticPost({
             style={{
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              opacity: photoUrlLoaded && !isLoading && !photoError ? 1 : 0,
+              opacity: photoUrlLoaded && !photoError ? 1 : 0,
             }}
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoError(true)}
           />
         )}
-        {(!photoUrl || !photoUrlLoaded || isLoading || photoError) && (
+        {(!photoUrl || !photoUrlLoaded || photoError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>

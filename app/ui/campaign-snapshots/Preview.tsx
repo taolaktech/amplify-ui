@@ -1,4 +1,3 @@
-// import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Image as ImageIcon } from "iconsax-react";
 import { ArrowForward, Magicpen } from "iconsax-react";
@@ -26,8 +25,7 @@ const Preview = ({
   isReview,
   highlightedProductId,
   generateCreatives,
-}: // loading,
-{
+}: {
   adPlatforms: {
     title: PreviewTitle;
     platform: Platform;
@@ -48,8 +46,6 @@ const Preview = ({
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
   );
-
-  // const { generateCreatives, loading } = useGenerateCreatives();
 
   const { toggleFacebookSettings, toggleInstagramSettings } =
     useCreateCampaignStore((state) => state.actions);
@@ -91,7 +87,6 @@ const Preview = ({
                   {item.title === "Google" ? "Google Ads" : item.title}
                 </span>
               </p>
-              {/* {!isReview && ( */}
               <div className="hidden md:block">
                 {item.title !== "Google" && (
                   <MediaSettingBox
@@ -103,43 +98,49 @@ const Preview = ({
                 )}
               </div>
             </div>
-
-            {!isReview && (
-              <div className="flex gap-2 items-center">
-                {item.creatives && item.creatives?.length > 1 && (
-                  <button
-                    disabled={
-                      creativeLoadingStates?.[highlightedProductId]?.[
-                        item.platform
-                      ]
-                    }
-                    onClick={() => undo(item.platform, highlightedProductId)}
-                    className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
-                  >
-                    <ArrowForward
-                      size={12}
-                      color="#000"
-                      className="-mt-[2px] -scale-x-100"
-                    />
-                    <span className="text-xs"> Undo</span>
-                  </button>
+            <div className="h-[32px]">
+              {!isReview &&
+                !creativeLoadingStates?.[highlightedProductId]?.[
+                  item.platform
+                ] && (
+                  <div className="flex gap-2 items-center">
+                    {item.creatives && item.creatives?.length > 1 && (
+                      <button
+                        disabled={
+                          creativeLoadingStates?.[highlightedProductId]?.[
+                            item.platform
+                          ]
+                        }
+                        onClick={() =>
+                          undo(item.platform, highlightedProductId)
+                        }
+                        className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                      >
+                        <ArrowForward
+                          size={12}
+                          color="#000"
+                          className="-mt-[2px] -scale-x-100"
+                        />
+                        <span className="text-xs"> Undo</span>
+                      </button>
+                    )}
+                    <button
+                      disabled={
+                        creativeLoadingStates?.[highlightedProductId]?.[
+                          item.platform
+                        ]
+                      }
+                      onClick={() =>
+                        generateCreatives(highlightedProductId, [item.platform])
+                      }
+                      className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                    >
+                      <Magicpen size={12} color="#000" />
+                      <span className="text-xs tracking-100">Regenerate</span>
+                    </button>
+                  </div>
                 )}
-                <button
-                  disabled={
-                    creativeLoadingStates?.[highlightedProductId]?.[
-                      item.platform
-                    ]
-                  }
-                  onClick={() =>
-                    generateCreatives(highlightedProductId, [item.platform])
-                  }
-                  className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
-                >
-                  <Magicpen size={12} color="#000" />
-                  <span className="text-xs tracking-100">Regenerate</span>
-                </button>
-              </div>
-            )}
+            </div>
           </div>
           <div className="md:hidden mt-4">
             {item.title !== "Google" && (
@@ -168,16 +169,12 @@ const PreviewContainer = ({
   item,
   highlightedProductId,
   platform,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  settings,
 }: {
   item: any;
   highlightedProductId: string;
   platform: Platform;
   settings?: { label: string; key: SocialSettingsKey }[];
 }) => {
-  // const containerRef = useRef<HTMLDivElement>(null);
-
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState
   );
@@ -189,27 +186,19 @@ const PreviewContainer = ({
     (state) => state.facebookSettings
   );
 
-  // const instagramSettingsCount = useMemo(() => {
-  //   return Object.values(instagramSettings).filter((value) => value).length;
-  // }, [instagramSettings]);
-
   const isLoading = useMemo(() => {
     return creativeLoadingStates?.[highlightedProductId]?.[item.platform];
-  }, [
-    highlightedProductId,
-    creativeLoadingStates,
-    creativeLoadingStates?.[highlightedProductId],
-  ]);
+  }, [highlightedProductId, creativeLoadingStates, item.platform]);
 
   const lastIndex = item?.creatives?.length - 1 || 0;
   const creativesAvailable = item?.creatives?.length > 0;
 
   const mediaCreative = item.creatives?.length - 1 || 0;
   const isMediaCreative = item?.creatives;
-  console.log(isMediaCreative[mediaCreative]?.creatives);
-  // if (!item?.creatives?.length) return null;
+
   const isGoogleAds = platform === "GOOGLE ADS";
   const isInstagram = platform === "INSTAGRAM";
+  const isFacebook = platform === "FACEBOOK";
 
   const facebookWidthSize = useMemo(() => {
     let count = 0;
@@ -308,58 +297,89 @@ const PreviewContainer = ({
     instagramSettings.storyPost,
   ]);
 
-  const isFacebook = platform === "FACEBOOK";
-
-  const notHaveMediaCreative = useMemo(() => {
+  const hasMediaCreatives = useMemo(() => {
     return (
-      (!isMediaCreative[mediaCreative]?.creatives ||
-        isMediaCreative[mediaCreative]?.creatives.length == 0) &&
-      !isLoading
+      isMediaCreative?.[mediaCreative]?.creatives &&
+      isMediaCreative[mediaCreative]?.creatives.length > 0
     );
-  }, [isMediaCreative, mediaCreative, isLoading]);
+  }, [isMediaCreative, mediaCreative]);
+
+  const showNoPreview = !hasMediaCreatives && !isLoading;
+
+  // No Preview component - reusable
+  const NoPreviewPlaceholder = () => (
+    <div className="flex flex-col gap-1 items-center">
+      <ImageIcon size="48" color="#DADADA" variant="Bold" />
+      <p className="text-sm text-[#BFBFBF] font-medium">No Preview</p>
+    </div>
+  );
+
   return (
     <>
+      {/* Google Ads */}
       {isGoogleAds && (
         <div className="px-5 lg:pl-0 lg:pr-5">
-          <div className="bg-[#f1f1f1]  max-w-full relative rounded-xl md:rounded-3xl mt-5">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-[518px] md:h-[600px]">
-                <CircleLoader />
-              </div>
-            ) : creativesAvailable ? (
-              <>
-                <div className="flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center">
-                  <GoogleAdsCreatives
-                    creatives={item.creatives[lastIndex]?.creatives}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center h-[518px] md:h-[600px]">
-                <div className="flex flex-col gap-1 items-center">
-                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
-                  <p className="text-sm text-[#BFBFBF] font-medium">
-                    No Preview
-                  </p>
-                </div>
-              </div>
-            )}
+          <div className="bg-[#f1f1f1] max-w-full relative rounded-xl md:rounded-3xl mt-5 min-h-[518px] md:min-h-[600px]">
+            {/* Loading State */}
+            <div
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <CircleLoader />
+            </div>
+
+            {/* Content State */}
+            <div
+              className={`flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center transition-opacity duration-300 ${
+                creativesAvailable && !isLoading
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              }`}
+            >
+              {creativesAvailable && (
+                <GoogleAdsCreatives
+                  creatives={item.creatives[lastIndex]?.creatives}
+                />
+              )}
+            </div>
+
+            {/* No Preview State */}
+            <div
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                !creativesAvailable && !isLoading
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <NoPreviewPlaceholder />
+            </div>
           </div>
         </div>
       )}
 
+      {/* Instagram */}
       {isInstagram && (
-        <>
-          {!notHaveMediaCreative ? (
+        <div className="relative min-h-[518px]">
+          {/* Content with creatives */}
+          <div
+            className={`transition-opacity duration-300 ${
+              !showNoPreview
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none absolute inset-0"
+            }`}
+          >
             <DragScrollContainer>
-              <div className="mt-5 pl-5 flex gap-4 w-full items-center">
+              <div className="mt-5 pl-5 lg:pl-0 flex gap-4 w-full items-center">
                 {instagramSettings.staticPost && (
                   <div
                     style={{ width: `${instagramWidthSize.staticPost}%` }}
                     className="min-w-[308.6px] transition-all duration-300"
                   >
                     <IGStaticPostView
-                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      creative={
+                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                      }
                       isLoading={isLoading}
                     />
                   </div>
@@ -373,7 +393,7 @@ const PreviewContainer = ({
                   >
                     <IGCarouselPostView
                       creatives={
-                        isMediaCreative[mediaCreative]?.creatives || []
+                        isMediaCreative?.[mediaCreative]?.creatives || []
                       }
                       isLoading={isLoading}
                     />
@@ -387,40 +407,54 @@ const PreviewContainer = ({
                     className="min-w-[308.6px] transition-all duration-300"
                   >
                     <StoryPostView
-                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      creative={
+                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                      }
                       isLoading={isLoading}
                     />
                   </div>
                 )}
               </div>
             </DragScrollContainer>
-          ) : (
-            <div className="px-5 lg:pl-0 lg:pr-5">
-              <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
-                <div className="flex flex-col gap-1 items-center">
-                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
-                  <p className="text-sm text-[#BFBFBF] font-medium">
-                    No Preview
-                  </p>
-                </div>
-              </div>
+          </div>
+
+          {/* No Preview State */}
+          <div
+            className={`px-5 lg:pl-0 lg:pr-5 transition-opacity duration-300 ${
+              showNoPreview
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none absolute inset-0"
+            }`}
+          >
+            <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
+              <NoPreviewPlaceholder />
             </div>
-          )}
-        </>
+          </div>
+        </div>
       )}
 
+      {/* Facebook */}
       {isFacebook && (
-        <>
-          {!notHaveMediaCreative ? (
+        <div className="relative min-h-[518px] md:min-h-[600px]">
+          {/* Content with creatives */}
+          <div
+            className={`transition-opacity duration-300 ${
+              !showNoPreview
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none absolute inset-0"
+            }`}
+          >
             <DragScrollContainer>
-              <div className="mt-5 pl-5 flex gap-4 w-full items-center">
+              <div className="mt-5 pl-5 lg:pl-0 flex gap-4 w-full items-center">
                 {facebookSettings.staticPost && (
                   <div
                     style={{ width: `${facebookWidthSize.staticPost}%` }}
                     className="min-w-[308.6px] transition-all duration-300"
                   >
                     <FBStaticPostView
-                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      creative={
+                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                      }
                       isLoading={isLoading}
                     />
                   </div>
@@ -434,7 +468,7 @@ const PreviewContainer = ({
                   >
                     <FBCarouselPostView
                       creatives={
-                        isMediaCreative[mediaCreative]?.creatives || []
+                        isMediaCreative?.[mediaCreative]?.creatives || []
                       }
                       isLoading={isLoading}
                     />
@@ -448,26 +482,30 @@ const PreviewContainer = ({
                     className="min-w-[308.6px] transition-all duration-300"
                   >
                     <FBStoryPostView
-                      creative={isMediaCreative[mediaCreative]?.creatives?.[0]}
+                      creative={
+                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                      }
                       isLoading={isLoading}
                     />
                   </div>
                 )}
               </div>
             </DragScrollContainer>
-          ) : (
-            <div className="px-5 lg:pl-0 lg:pr-5">
-              <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
-                <div className="flex flex-col gap-1 items-center">
-                  <ImageIcon size="48" color="#DADADA" variant="Bold" />
-                  <p className="text-sm text-[#BFBFBF] font-medium">
-                    No Preview
-                  </p>
-                </div>
-              </div>
+          </div>
+
+          {/* No Preview State */}
+          <div
+            className={`px-5 lg:pl-0 lg:pr-5 transition-opacity duration-300 ${
+              showNoPreview
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none absolute inset-0"
+            }`}
+          >
+            <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
+              <NoPreviewPlaceholder />
             </div>
-          )}
-        </>
+          </div>
+        </div>
       )}
     </>
   );

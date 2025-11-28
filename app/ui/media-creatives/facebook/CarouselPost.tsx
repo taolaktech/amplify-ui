@@ -67,12 +67,12 @@ export default function CarouselPost({
           alt="Carousel Post"
           layout="fill"
           unoptimized
-          style={{ opacity: imgLoaded && !isLoading && !photoError ? 1 : 0 }}
+          style={{ opacity: imgLoaded && !photoError ? 1 : 0 }}
           onLoad={() => setImgLoaded(true)}
           onError={() => setPhotoError(true)}
         />
       )}
-      {(!photoUrl || !imgLoaded || isLoading || photoError) && (
+      {(!photoUrl || !imgLoaded || photoError) && (
         <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
           <CircleLoader black />
         </div>
