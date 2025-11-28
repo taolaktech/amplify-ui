@@ -22,6 +22,8 @@ export default function IntegrationLayout() {
     fetchingProgress,
     subText,
     handleFacebookCallback,
+    selectedAdAccount,
+    setSelectedAdAccount,
     metaAccountChooser,
     setMetaAccountChooser,
     metaAccounts,
@@ -102,6 +104,8 @@ export default function IntegrationLayout() {
         <ChooseMetaAccount
           adAccounts={metaAccounts}
           handleClose={() => setMetaAccountChooser(false)}
+          selectedAdAccount={selectedAdAccount}
+          setSelectedAdAccount={setSelectedAdAccount}
         />
       )}
     </div>

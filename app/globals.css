@@ -384,6 +384,11 @@ a.tertiary:not(:disabled):hover {
   transition: box-shadow 0.3s ease-in-out;
 }
 
+.hover-custom-shadow-sm:hover {
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; /* stronger on hover */
+  transition: box-shadow 0.3s ease-in-out;
+}
+
 .custom-shadow-sm:hover {
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; /* stronger on hover */
 }

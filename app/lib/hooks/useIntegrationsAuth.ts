@@ -20,6 +20,7 @@ export default function useIntegrationsAuth() {
   const [subText, setSubText] = useState("");
   const [metaAccountChooser, setMetaAccountChooser] = useState(false);
   const [metaAccounts, setMetaAccounts] = useState<any[]>([]);
+  const [selectedAdAccount, setSelectedAdAccount] = useState<any>(null);
 
   const facebookCallbackMutation = useMutation({
     mutationFn: facebookCallback,
@@ -32,7 +33,8 @@ export default function useIntegrationsAuth() {
       setFetchingProgress(100);
       setTimeout(() => {
         setLoading(false);
-        setMetaAccounts(data.adAccounts || []);
+        setSelectedAdAccount(data.data.adAccounts[0] || null);
+        setMetaAccounts(data.data.adAccounts || []);
         setMetaAccountChooser(true);
       }, 1500);
     },
@@ -105,5 +107,7 @@ export default function useIntegrationsAuth() {
     metaAccountChooser,
     setMetaAccountChooser,
     metaAccounts,
+    selectedAdAccount,
+    setSelectedAdAccount,
   };
 }
