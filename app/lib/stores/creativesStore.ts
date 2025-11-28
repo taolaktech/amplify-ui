@@ -2,6 +2,7 @@ import { Platform } from "@/type";
 import { create } from "zustand";
 
 type Creatives = {
+  generatorId: string;
   creatives: any[];
   createdAt: Date;
   kind: Platform;
@@ -14,7 +15,12 @@ type CreativesStore = {
 
   actions: {
     undo: (kind: Platform, productId: string) => void;
-    generate: (kind: Platform, productId: string, creative: any) => void;
+    generate: (
+      kind: Platform,
+      productId: string,
+      creative: any,
+      generatorId: string
+    ) => void;
     generalUndo: (productId: string) => void;
     canUndo: (productId: string) => boolean;
   };
@@ -24,6 +30,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
   Google: {
     "1": [
       {
+        generatorId: "gen-123",
         creatives: [
           {
             headline: "Amplify Creatives",
@@ -121,9 +128,13 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       );
     },
 
-    generate: (kind: Platform, productId: string, creatives: any) => {
+    generate: (
+      kind: Platform,
+      productId: string,
+      creatives: any,
+      generatorId: string
+    ) => {
       const { Google, Instagram, Facebook } = get();
-      console.log("Generating creatives for", { kind, productId, creatives });
       if (kind === "GOOGLE ADS") {
         const subGoogle = Google || {};
         if (!subGoogle[productId]) {
@@ -131,32 +142,93 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         }
         subGoogle[productId].push({
           creatives: creatives,
+          generatorId: generatorId,
           kind: "GOOGLE ADS",
           createdAt: new Date(),
         });
         set({ Google: subGoogle });
       } else if (kind === "INSTAGRAM") {
         const subInstagram = Instagram || {};
+
         if (!subInstagram[productId]) {
           subInstagram[productId] = [];
         }
-        subInstagram[productId].push({
-          creatives: creatives,
-          kind: "INSTAGRAM",
-          createdAt: new Date(),
-        });
+
+        const foundCreative = subInstagram[productId].find(
+          (c) => c.generatorId === generatorId
+        );
+        if (
+          foundCreative &&
+          foundCreative.creatives?.length === creatives.length &&
+          creatives.length > 0
+        ) {
+          return;
+        } else if (!foundCreative && (!creatives || creatives.length === 0)) {
+          subInstagram[productId].push({
+            creatives: [],
+            kind: "INSTAGRAM",
+            createdAt: new Date(),
+            generatorId: generatorId,
+          });
+        } else if (
+          foundCreative &&
+          foundCreative.creatives?.length !== creatives.length
+        ) {
+          subInstagram[productId] = subInstagram[productId].map((c) =>
+            c.generatorId === generatorId
+              ? {
+                  creatives: creatives,
+                  kind: "INSTAGRAM",
+                  createdAt: new Date(),
+                  generatorId: generatorId,
+                }
+              : c
+          );
+        }
+
         set({ Instagram: subInstagram });
+        return;
       } else if (kind === "FACEBOOK") {
         const subFacebook = Facebook || {};
+
         if (!subFacebook[productId]) {
           subFacebook[productId] = [];
         }
-        subFacebook[productId].push({
-          creatives: creatives,
-          kind: "FACEBOOK",
-          createdAt: new Date(),
-        });
+
+        const foundCreative = subFacebook[productId].find(
+          (c) => c.generatorId === generatorId
+        );
+        if (
+          foundCreative &&
+          foundCreative.creatives?.length === creatives.length &&
+          creatives.length > 0
+        ) {
+          return;
+        } else if (!foundCreative && (!creatives || creatives.length === 0)) {
+          subFacebook[productId].push({
+            creatives: [],
+            kind: "FACEBOOK",
+            createdAt: new Date(),
+            generatorId: generatorId,
+          });
+        } else if (
+          foundCreative &&
+          foundCreative.creatives?.length !== creatives.length
+        ) {
+          subFacebook[productId] = subFacebook[productId].map((c) =>
+            c.generatorId === generatorId
+              ? {
+                  creatives: creatives,
+                  kind: "FACEBOOK",
+                  createdAt: new Date(),
+                  generatorId: generatorId,
+                }
+              : c
+          );
+        }
+
         set({ Facebook: subFacebook });
+        return;
       }
     },
   },

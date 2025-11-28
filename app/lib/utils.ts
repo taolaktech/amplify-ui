@@ -48,3 +48,45 @@ export const campaignStatus: { [key: string]: string } = {
   PROCESSED: "pending",
   LIVE: "active",
 };
+
+export const isAllProductGenerated = (
+  supportedAdPlatforms: any,
+  products: any[],
+  facebook: any,
+  google: any,
+  instagram: any
+) => {
+  return products.every((product) => {
+    const { node } = product;
+
+    if (supportedAdPlatforms.Facebook) {
+      const fbCreatives = facebook?.[node.id] || [];
+      if (
+        fbCreatives.length === 0 ||
+        !fbCreatives[fbCreatives.length - 1]?.creatives ||
+        fbCreatives[fbCreatives.length - 1].creatives.length === 0
+      )
+        return false;
+    }
+
+    if (supportedAdPlatforms.Google) {
+      const googleCreatives = google?.[node.id] || [];
+      if (
+        googleCreatives.length === 0 ||
+        !googleCreatives[googleCreatives.length - 1]?.creatives ||
+        googleCreatives[googleCreatives.length - 1].creatives.length === 0
+      )
+        return false;
+    }
+    if (supportedAdPlatforms.Instagram) {
+      const instaCreatives = instagram?.[node.id] || [];
+      if (
+        instaCreatives.length === 0 ||
+        !instaCreatives[instaCreatives.length - 1]?.creatives ||
+        instaCreatives[instaCreatives.length - 1].creatives.length === 0
+      )
+        return false;
+    }
+    return true;
+  });
+};

@@ -7,11 +7,9 @@ import { useImgTracker } from "@/app/lib/hooks/useImgTracker";
 export default function CarouselPost({
   photoUrl,
   maximized,
-  isLoading,
 }: {
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { imgLoaded, imgError, setImgError, setImgLoaded } = useImgTracker();
@@ -67,12 +65,12 @@ export default function CarouselPost({
           alt="Carousel Post"
           layout="fill"
           unoptimized
-          style={{ opacity: imgLoaded && !imgError && !isLoading ? 1 : 0 }}
+          style={{ opacity: imgLoaded && !imgError ? 1 : 0 }}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
         />
       )}
-      {(!photoUrl || !imgLoaded || imgError || isLoading) && (
+      {(!photoUrl || !imgLoaded || imgError) && (
         <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
           <CircleLoader black />
         </div>
