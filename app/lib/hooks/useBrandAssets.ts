@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
 import { useUploadPhoto } from "./useUploadPhoto";
-// import { useToastStore } from "../stores/toastStore";
-// import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-// import "react-pdf/dist/esm/Page/TextLayer.css";
 import { pdfjs } from "react-pdf";
 import { useMutation } from "@tanstack/react-query";
 import { postBrandAssets } from "../api/base";
 import { useAuthStore } from "../stores/authStore";
 import { useToastStore } from "../stores/toastStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
-// import { useMutation } from "@tanstack/react-query";
-// import { postBrandAssets } from "../api/base";
+import { useSetupStore } from "../stores/setupStore";
 
-// import type { PDFDocumentProxy } from "pdfjs-dist";
 export type PDFFile = string | File | null;
-
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   "pdfjs-dist/build/pdf.worker.min.mjs",
-//   import.meta.url
-// ).toString();
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -27,13 +17,10 @@ export const options = {
   standardFontDataUrl: "/standard_fonts/",
 };
 
-// const resizeObserverOptions = {};
-
-// const maxWidth = 800;
-
 export default function useBrandAssets() {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
+  const { completeBrandAssets } = useSetupStore();
   const {
     primaryLogo: currentPrimaryLogo,
     secondaryLogo: currentSecondaryLogo,
@@ -93,6 +80,9 @@ export default function useBrandAssets() {
     mutationFn: postBrandAssets,
     mutationKey: ["postBrandAssets"],
     onSuccess: () => {
+      // ✅ MARK BRAND ASSETS AS COMPLETE
+      completeBrandAssets(true);
+
       setToast({
         title: "Brand Assets Updated.",
         message: "Your brand assets has been updated.",
@@ -139,9 +129,6 @@ export default function useBrandAssets() {
     currentSecondaryColor
   );
 
-  // const setToast = useToastStore((state) => state.setToast);
-  // const [numPages, setNumPages] = useState<number | null>(null);
-
   const [primaryFont, setPrimaryFont] = useState<string | null>(
     currentPrimaryFont
   );
@@ -167,6 +154,7 @@ export default function useBrandAssets() {
     currentPrimaryFont,
     currentSecondaryFont,
     currentToneOfVoice,
+    brandGuideFile,
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,14 +193,7 @@ export default function useBrandAssets() {
   const handleRemoveBrandGuide = () => {
     setBrandGuide(null);
     storeBrandGuide(null);
-    // setRemoveBrandGuide(true);
   };
-
-  // function onDocumentLoadSuccess({
-  //   numPages: nextNumPages,
-  // }: PDFDocumentProxy): void {
-  //   setNumPages(nextNumPages);
-  // }
 
   return {
     primaryLogoFile,
@@ -251,8 +232,5 @@ export default function useBrandAssets() {
     isPending,
     currentPrimaryLogo,
     currentSecondaryLogo,
-    // onDocumentLoadSuccess,
   };
 }
-
-// export default function useSubmitBr

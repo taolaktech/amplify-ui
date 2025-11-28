@@ -1,8 +1,6 @@
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 import { TickCircle } from "iconsax-react";
-// import RightArrowIcon from "@/public/arrow-right-gradient.svg";
 import { useEffect, useState } from "react";
-// import Button from "../DefaultLink";
 
 export default function Steps() {
   const [step, setStep] = useState(3);
@@ -16,21 +14,8 @@ export default function Steps() {
   } = useSetupStore();
 
   useEffect(() => {
-    // if (marketingGoals.complete) {
-    //   setStep(4);
-    //   setLink("/setup/marketing-goals");
-    //   setStepText("Upload Brand Kit");
-    // } else if (preferredSalesLocation.complete) {
-    //   setStep(3);
-    //   setLink("/setup/marketing-goals");
-    //   setStepText("Set Marketing Goal");
-    // } else if (businessDetails.complete) {
-    //   setStep(2);
-    //   setLink("/setup/preferred-sales-location");
-    //   setStepText("Select Preferred Sales Location");
     if (connectStore.complete) {
       setStep(1);
-      // setLink("/setup/business-details");
       setStepText("Connect Facebook Account");
     } else {
       setLink("/setup");
@@ -69,7 +54,6 @@ export default function Steps() {
                   fill="none"
                   className="stroke-current text-[#FA9B0C]"
                   strokeWidth="2"
-                  // strokeDasharray="100"
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
                   strokeLinecap="round"
@@ -140,24 +124,7 @@ export default function Steps() {
                 <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
               </div>
             </div>
-            {/* Step 4 */}
-            {/* <div className=" w-full">
-              <div className="flex items-center">
-                <TickCircle
-                  size={24}
-                  color="#ffffff"
-                  variant={step >= 4 ? "Bold" : "Linear"}
-                />
-                <div className="ml-1">
-                  <div className={`text-white text-sm`}>
-                    Connect Your Google Account
-                  </div>
-                </div>
-              </div>
-              <div className="w-[24px] flex justify-center py-1">
-                <div className="w-[1.5px] h-2 rounded-full bg-white"></div>
-              </div>
-            </div> */}
+
             {/* Step 4 */}
             <div className=" w-full">
               <div className="flex items-center">
@@ -169,6 +136,7 @@ export default function Steps() {
                 <div className="ml-1 text-sm">
                   <div className={`text-white flex items-start gap-1`}>
                     <span>Upload Brand Kit</span>
+
                     <span className="text-[8px]">Optional</span>
                   </div>
                 </div>
@@ -177,17 +145,6 @@ export default function Steps() {
           </div>
         </div>
       </div>
-      {/* <div className="w-[167px] ml-auto lg:ml-0 mt-auto lg:mt-0 z-2">
-        <Button
-          text="Complete Setup"
-          secondary
-          height={48}
-          hasIconOrLoader
-          iconPosition="right"
-          href={link}
-          icon={<RightArrowIcon width="16" height="16" />}
-        />
-      </div> */}
     </div>
   );
 }

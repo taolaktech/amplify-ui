@@ -23,7 +23,13 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const defaultBusinessDetails = useSetupStore(
     (state) => state.businessDetails
   );
-  const { preview, handleFileChange, file } = useUploadPhoto();
+  const storeBusinessDetails = useSetupStore(
+    (state) => state.storeBusinessDetails
+  );
+  const completeBusinessDetails = useSetupStore(
+    (state) => state.completeBusinessDetails
+  );
+  const { preview, handleFileChange, file, uploadPhoto } = useUploadPhoto();
   const setToast = useToastStore((state) => state.setToast);
 
   const [productCategory, setProductCategory] = useState<string | null>(null);
@@ -33,17 +39,16 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const [teamSizeSelected, setTeamSizeSelected] = useState<number | null>(1);
   const token = useAuthStore((state) => state.token);
   const { storeLogo } = defaultBusinessDetails;
-  const defaultDetails = isStoreDetails
-    ? {
-        ...defaultBusinessDetails,
-        // contactEmail: defaultBusinessDetails.contactEmail,
-        // contactPhone: defaultBusinessDetails.contactPhone,
-      }
-    : defaultBusinessDetails;
+
+  const defaultDetails = {
+    ...defaultBusinessDetails,
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset: resetForm,
   } = useForm({
     defaultValues: defaultDetails,
     mode: "onSubmit",
@@ -61,6 +66,14 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   const { mutate: updateLogo, isPending } = useMutation({
     mutationFn: updateStoreLogo,
     mutationKey: ["updateStoreLogo"],
+    onSuccess: (data) => {
+      console.log("Logo updated successfully:", data);
+      setToast({
+        type: "success",
+        title: "Logo Updated",
+        message: "Store logo has been updated successfully.",
+      });
+    },
     onError: (error) => {
       console.error("Error updating logo:", error);
       setToast({
@@ -72,48 +85,103 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
   });
 
   useEffect(() => {
-    if (defaultBusinessDetails.industry)
+    if (defaultBusinessDetails.industry) {
       setProductCategory(defaultBusinessDetails.industry);
-    if (defaultBusinessDetails.companyRole)
+    }
+    if (defaultBusinessDetails.companyRole) {
       setCompanyRole(defaultBusinessDetails.companyRole);
+    }
     const teamSizeIndex = teamSizeValue.findIndex(
       (size) => size.min === defaultBusinessDetails.teamSize.min
     );
     setTeamSizeSelected(teamSizeIndex !== -1 ? teamSizeIndex : 1);
-  }, [defaultBusinessDetails]);
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
+
+  useEffect(() => {
+    if (submitBusinessDetailsMutation.isSuccess) {
+      setToast({
+        type: "success",
+        message: "Store details saved successfully!",
+        title: "Saved",
+      });
+      console.log("Business details submitted successfully");
+    }
+  }, [submitBusinessDetailsMutation.isSuccess, setToast]);
 
   const handleAction = () => {
     if (!productCategory) setProductCategoryError(true);
     else setProductCategoryError(false);
     if (!companyRole) setCompanyRoleError(true);
     else setCompanyRoleError(false);
-    handleSubmit(handleNext)(); // Notice the additional ()
+    handleSubmit(handleNext)();
   };
 
-  const handleNext = (data: typeof defaultBusinessDetails) => {
-    const businessDetails = {
-      ...data,
+  const transformToBackendPayload = (
+    formData: typeof defaultBusinessDetails
+  ) => {
+    return {
+      companyName: formData.storeName,
+      description: formData.description,
+      website: formData.storeUrl,
       industry: productCategory ?? "",
       companyRole: companyRole ?? "",
+      contactEmail: formData.contactEmail,
+      contactPhone: formData.contactPhone,
       teamSize: teamSizeValue[teamSizeSelected as number],
+      estimatedMonthlyBudget: Number(formData.adSpendBudget),
+      estimatedAnnualRevenue: Number(formData.annualRevenue),
+    };
+  };
+
+  const handleNext = async (data: typeof defaultBusinessDetails) => {
+    const backendPayload = transformToBackendPayload(data);
+
+    console.log("=== DEBUG: Payload being sent to backend ===");
+    console.log("Full payload:", JSON.stringify(backendPayload, null, 2));
+    console.log("============================================");
+
+    let storeLogoUrl = defaultBusinessDetails.storeLogo;
+
+    // Use the preview (base64) as the store logo if a file was selected
+    if (preview) {
+      storeLogoUrl = preview;
+    }
+
+    // ✅ FIX: Update store with ALL data including the logo
+    const updatedDetails = {
+      ...defaultBusinessDetails,
+      storeName: data.storeName,
+      description: data.description,
+      storeUrl: data.storeUrl,
+      industry: productCategory ?? "",
+      companyRole: companyRole ?? "",
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      teamSize: teamSizeValue[teamSizeSelected as number],
+      adSpendBudget: Number(data.adSpendBudget),
+      annualRevenue: Number(data.annualRevenue),
+      storeLogo: storeLogoUrl, // ✅ Save the image (either base64 or existing URL)
     };
 
+    // Update store optimistically
+    storeBusinessDetails(updatedDetails);
+    completeBusinessDetails(true);
+
+    // Upload file if exists
     if (file && token) {
       updateLogo({
         token,
         businessLogo: file,
       });
     }
-    handleSubmitBusinessDetails(businessDetails);
-  };
 
-  // const handleCompanyRoleChange = (role: string) => {
-  //   setCompanyRole(role);
-  // };
+    // Then make the API call
+    handleSubmitBusinessDetails(backendPayload);
+  };
 
   return {
     register,
@@ -139,5 +207,6 @@ export const useBusinessDetails = (isStoreDetails?: boolean) => {
     defaultBusinessDetails,
     handleSelectTeamSize,
     submitBusinessDetailsMutation,
+    reset: resetForm,
   };
 };

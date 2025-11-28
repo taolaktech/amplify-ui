@@ -23,9 +23,7 @@ function ConnectStore({
   isIntegrations?: boolean;
   isOpen: boolean;
 }) {
-  const completeConnectStore = useSetupStore(
-    (state) => state.completeConnectStore
-  );
+  const storeConnectStore = useSetupStore((state) => state.storeConnectStore);
   const isRouteToCampaigns =
     useSearchParams().get("redirect") === "create-campaign";
   const storeUrl = useSetupStore((state) => state.connectStore.storeUrl);
@@ -59,16 +57,32 @@ function ConnectStore({
       setFetchingProgress(100);
       setTimeout(() => {
         setFetchingInfo(false);
-        completeConnectStore(true);
+
+        // ✅ CORRECT: Only store the URL, don't mark as complete yet
+        storeConnectStore({ storeUrl: shopifyStore });
+
         closeModal();
+
+        // ✅ CORRECT: Redirect to the NEXT step (Business Details)
         if (isRouteToCampaigns) {
-          router.push("/setup/business-details?redirect=create-campaign");
-          return;
+          router.push("/create-campaign");
+        } else if (isIntegrations) {
+          router.push("/settings/integrations");
+        } else {
+          // This takes users to Business Details (step 2)
+          router.push("/setup/business-details");
         }
-        router.push("/setup/business-details");
       }, 2000);
     }
-  }, [retrieveStoreDetails.isSuccess]);
+  }, [
+    retrieveStoreDetails.isSuccess,
+    storeConnectStore,
+    shopifyStore,
+    isRouteToCampaigns,
+    isIntegrations,
+    router,
+    closeModal,
+  ]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;

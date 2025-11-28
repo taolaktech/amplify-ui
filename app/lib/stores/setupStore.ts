@@ -65,6 +65,10 @@ const defaultMarketingGoals = {
   complete: false,
 };
 
+const defaultBrandAssets = {
+  complete: false,
+};
+
 type SetupState = {
   connectStore: {
     storeUrl: string;
@@ -73,6 +77,9 @@ type SetupState = {
   businessDetails: BusinessDetails;
   preferredSalesLocation: PreferredSalesLocation;
   marketingGoals: MarketingGoals;
+  brandAssets: {
+    complete: boolean;
+  };
 };
 
 type SetupActions = {
@@ -88,6 +95,7 @@ type SetupActions = {
   completePreferredSalesLocation: (complete: boolean) => void;
   storeMarketingGoals: (marketingGoals: MarketingGoals) => void;
   completeMarketingGoals: (complete: boolean) => void;
+  completeBrandAssets: (complete: boolean) => void;
 };
 
 export type SetupStore = SetupState & SetupActions;
@@ -102,6 +110,7 @@ export const useSetupStore = create<SetupStore>()(
       businessDetails: defaultBusinessDetails,
       preferredSalesLocation: defaultPreferredSalesLocation,
       marketingGoals: defaultMarketingGoals,
+      brandAssets: defaultBrandAssets,
       storeConnectStore: (connectStore) => {
         set({ connectStore: { ...get().connectStore, ...connectStore } });
         set({
@@ -132,6 +141,7 @@ export const useSetupStore = create<SetupStore>()(
         set({ businessDetails: defaultBusinessDetails });
         set({ preferredSalesLocation: defaultPreferredSalesLocation });
         set({ marketingGoals: defaultMarketingGoals });
+        set({ brandAssets: defaultBrandAssets });
       },
 
       storeBusinessDetails: (businessDetails) => {
@@ -177,6 +187,9 @@ export const useSetupStore = create<SetupStore>()(
         if (get().preferredSalesLocation.complete) {
           set({ marketingGoals: { ...get().marketingGoals, complete } });
         }
+      },
+      completeBrandAssets: (complete) => {
+        set({ brandAssets: { complete } });
       },
     }),
     {

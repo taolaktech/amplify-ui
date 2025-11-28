@@ -37,6 +37,8 @@ export default function BusinessDetails() {
         <p className="text-[#595959] text-sm md:text-base mt-1 md:mt-2">
           1. Tell us about your business
         </p>
+
+        {/* Keep using storeName but we'll transform it to companyName in the hook */}
         <div>
           <Input
             type="text"
@@ -67,6 +69,8 @@ export default function BusinessDetails() {
             error={errors.description?.message}
           />
         </div>
+
+        {/* Keep using storeUrl but we'll transform it to website in the hook */}
         <div>
           <URLInput
             label="Website or Store URL"
@@ -84,10 +88,12 @@ export default function BusinessDetails() {
             visibility
           />
         </div>
+
+        {/* Keep using productCategory but we'll use it as industry in the hook */}
         <div>
           <SelectInput
             placeholder="Select product category"
-            label="Category of products"
+            label="Industry"
             options={[
               "Fashion & Apparel",
               "Beauty & Personal Care",
@@ -107,9 +113,46 @@ export default function BusinessDetails() {
           />
         </div>
 
+        {/* NEW: Added Contact Email field */}
+        <div>
+          <Input
+            type="email"
+            label="Contact Email"
+            placeholder="Enter your business email"
+            large
+            {...register("contactEmail", {
+              required: "Enter your contact email",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Enter a valid email address",
+              },
+            })}
+            showErrorMessage
+            error={errors.contactEmail?.message}
+            visibility
+          />
+        </div>
+
+        {/* NEW: Added Contact Phone field */}
+        <div>
+          <Input
+            type="tel"
+            label="Contact Phone"
+            placeholder="Enter your business phone number"
+            large
+            {...register("contactPhone", {
+              required: "Enter your contact phone number",
+            })}
+            showErrorMessage
+            error={errors.contactPhone?.message}
+            visibility
+          />
+        </div>
+
         <p className="text-[#595959] mt-3 text-sm md:text-base md:mt-14">
           2. Tell us more about your business
         </p>
+
         <div>
           <SelectInput
             placeholder="Select your company role"
@@ -154,20 +197,7 @@ export default function BusinessDetails() {
           </div>
         </div>
 
-        {/* <div>
-          <Input
-            type="text"
-            label="Company or Store Name"
-            placeholder="Enter your company or store name"
-            large
-            {...register("storeName", {
-              required: "Enter your store name",
-            })}
-            showErrorMessage
-            error={errors.storeName?.message}
-            visibility
-          />
-        </div> */}
+        {/* Keep using adSpendBudget but we'll transform it to estimatedMonthlyBudget in the hook */}
         <div>
           <Input
             type="number"
@@ -187,6 +217,8 @@ export default function BusinessDetails() {
             visibility
           />
         </div>
+
+        {/* Keep using annualRevenue but we'll transform it to estimatedAnnualRevenue in the hook */}
         <div>
           <Input
             type="number"
@@ -206,6 +238,7 @@ export default function BusinessDetails() {
             visibility
           />
         </div>
+
         <div className="sm:max-w-[94px] mx-auto my-4 md:my-10">
           <DefaultButton
             hasIconOrLoader
