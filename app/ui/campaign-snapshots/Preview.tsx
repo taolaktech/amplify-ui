@@ -380,7 +380,6 @@ const PreviewContainer = ({
                       creative={
                         isMediaCreative?.[mediaCreative]?.creatives?.[0]
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}
@@ -395,7 +394,6 @@ const PreviewContainer = ({
                       creatives={
                         isMediaCreative?.[mediaCreative]?.creatives || []
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}
@@ -410,7 +408,6 @@ const PreviewContainer = ({
                       creative={
                         isMediaCreative?.[mediaCreative]?.creatives?.[0]
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}
@@ -455,7 +452,6 @@ const PreviewContainer = ({
                       creative={
                         isMediaCreative?.[mediaCreative]?.creatives?.[0]
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}
@@ -470,7 +466,6 @@ const PreviewContainer = ({
                       creatives={
                         isMediaCreative?.[mediaCreative]?.creatives || []
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}
@@ -485,7 +480,6 @@ const PreviewContainer = ({
                       creative={
                         isMediaCreative?.[mediaCreative]?.creatives?.[0]
                       }
-                      isLoading={isLoading}
                     />
                   </div>
                 )}

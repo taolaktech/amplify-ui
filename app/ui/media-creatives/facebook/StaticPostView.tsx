@@ -6,13 +6,7 @@ import { useSetupStore } from "@/app/lib/stores/setupStore";
 import XIcon from "@/public/x.svg";
 import useUIStore from "@/app/lib/stores/uiStore";
 
-export default function StaticPostView({
-  creative,
-  isLoading,
-}: {
-  creative: any;
-  isLoading?: boolean;
-}) {
+export default function StaticPostView({ creative }: { creative: any }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
     (state) => state.adsShow.location[0] || "Location"
@@ -40,7 +34,6 @@ export default function StaticPostView({
           location={location}
           photoUrl={creative?.url}
           caption={creative?.caption}
-          isLoading={isLoading}
           title={creative?.title}
         />
       </div>
@@ -49,7 +42,6 @@ export default function StaticPostView({
           toggleMaximize={toggleMaximize}
           photoUrl={creative?.url}
           caption={creative?.caption}
-          isLoading={isLoading}
           title={creative?.title}
         />
       )}
@@ -61,13 +53,11 @@ const StaticPostViewMaximized = ({
   photoUrl,
   caption,
   toggleMaximize,
-  isLoading,
   title,
 }: {
   photoUrl: string;
   toggleMaximize: () => void;
   caption?: string;
-  isLoading?: boolean;
   title?: string;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
@@ -93,7 +83,6 @@ const StaticPostViewMaximized = ({
             caption={caption}
             maximized
             title={title}
-            isLoading={isLoading}
           />
         </div>
       </div>

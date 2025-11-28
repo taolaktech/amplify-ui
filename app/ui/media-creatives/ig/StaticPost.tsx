@@ -23,14 +23,12 @@ export default function StaticPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
-  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl: string;
   caption?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const [imgLoaded, setImgLoaded] = useState(false);

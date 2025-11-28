@@ -7,11 +7,9 @@ import { useImgTracker } from "@/app/lib/hooks/useImgTracker";
 export default function CarouselPost({
   photoUrl,
   maximized,
-  isLoading,
 }: {
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { imgLoaded, imgError, setImgError, setImgLoaded } = useImgTracker();

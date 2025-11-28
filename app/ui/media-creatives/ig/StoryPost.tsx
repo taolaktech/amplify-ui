@@ -15,13 +15,11 @@ export default function StoryPost({
   location,
   photoUrl,
   maximized,
-  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
