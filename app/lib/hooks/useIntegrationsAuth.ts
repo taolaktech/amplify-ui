@@ -1,9 +1,14 @@
 import { useState } from "react";
-import { facebookAuth, instagramAuth } from "../api/integrations";
+import {
+  facebookAuth,
+  facebookCallback,
+  instagramAuth,
+} from "../api/integrations";
 import { useAuthStore } from "../stores/authStore";
 import { useIntegrationStore } from "../stores/integrationStore";
 import { useToastStore } from "../stores/toastStore";
 import { capitalize } from "lodash";
+import { useMutation } from "@tanstack/react-query";
 
 export default function useIntegrationsAuth() {
   const token = useAuthStore((state) => state.token);
@@ -13,6 +18,29 @@ export default function useIntegrationsAuth() {
   const [fetchingProgress, setFetchingProgress] = useState(20);
   const { facebook, instagram } = useIntegrationStore((state) => state);
   const [subText, setSubText] = useState("");
+
+  const facebookCallbackMutation = useMutation({
+    mutationFn: facebookCallback,
+    onMutate: () => {
+      setLoading(true);
+      setSubText("Finalizing Facebook authentication...");
+    },
+    onSuccess: (data) => {
+      console.log("Facebook callback data:", data);
+      setFetchingProgress(100);
+      setLoading(false);
+    },
+    onError: (error) => {
+      setLoading(false);
+      setToast({
+        type: "error",
+        message: `Failed to complete Facebook authentication.`,
+        title: "Integration Error",
+      });
+      console.error("Error during Facebook callback:", error);
+      setFetchingProgress(20);
+    },
+  });
 
   const handleFacebookAuth = async (platform: "FACEBOOK" | "INSTAGRAM") => {
     setSubText(
@@ -56,5 +84,17 @@ export default function useIntegrationsAuth() {
     }
   };
 
-  return { handleFacebookAuth, loading, fetchingProgress, subText };
+  const handleFacebookCallback = async (code: string, state: string) => {
+    if (loading || !token) return;
+    setFetchingProgress(40);
+    facebookCallbackMutation.mutate({ code, state, token: token! });
+  };
+
+  return {
+    handleFacebookAuth,
+    handleFacebookCallback,
+    loading,
+    fetchingProgress,
+    subText,
+  };
 }

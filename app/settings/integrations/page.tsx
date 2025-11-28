@@ -5,15 +5,34 @@ import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "@/app/ui/AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
+  const token = useAuthStore((state) => state.token);
 
-  const { handleFacebookAuth, loading, fetchingProgress, subText } =
-    useIntegrationsAuth();
+  const {
+    handleFacebookAuth,
+    loading,
+    fetchingProgress,
+    subText,
+    handleFacebookCallback,
+  } = useIntegrationsAuth();
   useModal(loading);
+
+  const params = useSearchParams();
+
+  useEffect(() => {
+    const code = params.get("code");
+    const state = params.get("state");
+    if (code && state && token) {
+      handleFacebookCallback(code, state);
+    }
+  }, [params, token]);
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
