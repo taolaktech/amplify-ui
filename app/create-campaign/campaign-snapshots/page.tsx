@@ -325,7 +325,6 @@ export default function CampaignSnapshotsPage() {
   };
 
   const isLoading = useMemo(() => {
-    console.log("Creative Loading States:", creativeLoadingStates);
     return productSelection.products.some((product) => {
       return (
         creativeLoadingStates?.[product?.node.id]?.["GOOGLE ADS"] ||
@@ -333,7 +332,7 @@ export default function CampaignSnapshotsPage() {
         creativeLoadingStates?.[product?.node.id]?.["INSTAGRAM"]
       );
     });
-  }, [highlightedProduct, productSelection.products, creativeLoadingStates]);
+  }, [productSelection.products, creativeLoadingStates]);
 
   const handleProceed = () => {
     if (campaignDetails.campaignName.trim() === "") {
@@ -348,13 +347,13 @@ export default function CampaignSnapshotsPage() {
       });
       return;
     } else if (
-      isAllProductGenerated(
+      !isAllProductGenerated(
         supportedAdPlatforms,
         productSelection.products,
         Facebook,
         Google,
         Instagram
-      ) === false
+      )
     ) {
       setToast({
         type: "error",
