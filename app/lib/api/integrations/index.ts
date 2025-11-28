@@ -52,13 +52,13 @@ export const facebookCallback = async (data: {
   state: string;
   token: string;
 }) => {
-  const response = await axios.post(
-    `${INTEGRATION_HOST}/api/facebook-auth/callback`,
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/facebook-auth/callback`,
     {
-      code: data.code,
-      state: data.state,
-    },
-    {
+      params: {
+        code: data.code,
+        state: data.state,
+      },
       headers: {
         Authorization: `Bearer ${data.token}`,
       },

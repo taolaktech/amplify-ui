@@ -6,8 +6,9 @@ import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "@/app/ui/AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
+import { ChooseMetaAccount } from "@/app/ui/ChooseMetaAccount";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
@@ -21,16 +22,24 @@ export default function IntegrationLayout() {
     fetchingProgress,
     subText,
     handleFacebookCallback,
+    metaAccountChooser,
+    setMetaAccountChooser,
+    metaAccounts,
   } = useIntegrationsAuth();
-  useModal(loading);
+
+  useModal(loading || metaAccountChooser);
 
   const params = useSearchParams();
+
+  const hasRun = useRef(false);
 
   useEffect(() => {
     const code = params.get("code");
     const state = params.get("state");
+    if (hasRun.current) return;
     if (code && state && token) {
       handleFacebookCallback(code, state);
+      hasRun.current = true;
     }
   }, [params, token]);
 
@@ -87,6 +96,12 @@ export default function IntegrationLayout() {
           fetchingProgress={fetchingProgress}
           headingText="Just a moment…"
           subText={subText}
+        />
+      )}
+      {metaAccountChooser && (
+        <ChooseMetaAccount
+          adAccounts={metaAccounts}
+          handleClose={() => setMetaAccountChooser(false)}
         />
       )}
     </div>

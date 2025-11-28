@@ -18,6 +18,8 @@ export default function useIntegrationsAuth() {
   const [fetchingProgress, setFetchingProgress] = useState(20);
   const { facebook, instagram } = useIntegrationStore((state) => state);
   const [subText, setSubText] = useState("");
+  const [metaAccountChooser, setMetaAccountChooser] = useState(false);
+  const [metaAccounts, setMetaAccounts] = useState<any[]>([]);
 
   const facebookCallbackMutation = useMutation({
     mutationFn: facebookCallback,
@@ -28,7 +30,11 @@ export default function useIntegrationsAuth() {
     onSuccess: (data) => {
       console.log("Facebook callback data:", data);
       setFetchingProgress(100);
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+        setMetaAccounts(data.adAccounts || []);
+        setMetaAccountChooser(true);
+      }, 1500);
     },
     onError: (error) => {
       setLoading(false);
@@ -96,5 +102,8 @@ export default function useIntegrationsAuth() {
     loading,
     fetchingProgress,
     subText,
+    metaAccountChooser,
+    setMetaAccountChooser,
+    metaAccounts,
   };
 }
