@@ -349,6 +349,13 @@ export default function CampaignSnapshotsPage() {
     }
   }, []);
 
+  const toLocalDateString = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+  };
+
   const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
 
   const handleSetHighlightedProduct = (product: ShopifyProduct) => {
@@ -465,13 +472,17 @@ export default function CampaignSnapshotsPage() {
             />
           )}
         </div>
+
         <div className="px-5 lg:pl-0 lg:pr-5">
           <DateSelection
             setStartDate={(date: Date) =>
-              handleCampaignDetails("campaignStartDate", date.toISOString())
+              handleCampaignDetails(
+                "campaignStartDate",
+                toLocalDateString(date)
+              )
             }
             setEndDate={(date: Date) =>
-              handleCampaignDetails("campaignEndDate", date.toISOString())
+              handleCampaignDetails("campaignEndDate", toLocalDateString(date))
             }
           />
         </div>

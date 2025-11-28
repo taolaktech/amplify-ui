@@ -8,6 +8,7 @@ export default function DateSelection({
   setStartDate: (date: Date) => void;
   setEndDate: (date: Date) => void;
 }) {
+  const today = dayjs().add(0, "day");
   const tomorrow = dayjs().add(1, "day");
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-12 mt-5 w-full">
@@ -23,11 +24,13 @@ export default function DateSelection({
               border: "0px solid #BFBFBF",
             }}
             format="MMMM D YYYY"
-            minDate={tomorrow}
-            defaultValue={tomorrow}
+            minDate={today}
+            defaultValue={today}
+            // defaultValue={tomorrow}
             onChange={(date) => {
-              console.log(date);
-              setStartDate(date ? date?.toDate() : new Date());
+              console.log(date?.startOf("day")?.toDate());
+
+              setStartDate(date?.startOf("day")?.toDate());
             }}
             // needConfirm
           />
@@ -45,10 +48,11 @@ export default function DateSelection({
               backgroundColor: "rgba(232,232,232,0.35)",
               border: "0px solid #BFBFBF",
             }}
+            minDate={tomorrow}
             defaultValue={dayjs(new Date().setMonth(new Date().getMonth() + 1))}
             format="MMMM D YYYY"
             placement="bottomLeft"
-            onChange={(date) => setEndDate(date ? date.toDate() : new Date())}
+            onChange={(date) => setEndDate(date?.startOf("day")?.toDate())}
             // needConfirm
           />
         </div>
