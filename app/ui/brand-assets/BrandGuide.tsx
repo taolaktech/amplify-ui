@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import SelectInput from "../form/SelectInput";
 import PdfIcon from "@/public/pdf.svg";
 import { CloseCircle, DocumentDownload } from "iconsax-react";
@@ -23,6 +23,7 @@ export default function brandGuide({
   currentBrandGuideName,
   currentBrandGuide,
   handleRemoveBrandGuide,
+  isBrandGuideRemoved,
 }: {
   tone: string | null;
   brandGuide: File | null;
@@ -31,6 +32,7 @@ export default function brandGuide({
   handleRemoveBrandGuide: () => void;
   handleToneChange: Dispatch<SetStateAction<string | null>>;
   handleBrandGuideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isBrandGuideRemoved: boolean;
 }) {
   return (
     <div className="">
@@ -56,7 +58,10 @@ export default function brandGuide({
           </p>
           <div
             style={{
-              display: brandGuide || currentBrandGuide ? "block" : "none",
+              display:
+                (brandGuide || currentBrandGuide) && !isBrandGuideRemoved
+                  ? "block"
+                  : "none",
             }}
           >
             <BrandGuidePreview
@@ -69,7 +74,10 @@ export default function brandGuide({
 
           <div
             style={{
-              display: brandGuide || currentBrandGuide ? "none" : "block",
+              display:
+                (brandGuide || currentBrandGuide) && !isBrandGuideRemoved
+                  ? "none"
+                  : "block",
             }}
           >
             <NoBrand handleBrandGuideChange={handleBrandGuideChange} />
@@ -104,16 +112,39 @@ const BrandGuidePreview = ({
     e.stopPropagation();
     handleRemoveBrandGuide();
   };
+
+  const [useGoogleViewer, setUseGoogleViewer] = useState(false);
+
+  useEffect(() => {
+    setUseGoogleViewer(typeof brandGuide === "string");
+    console.log(brandGuide);
+    console.log("brandGuide: ", typeof brandGuide);
+  }, [brandGuide]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   return (
     <div
       onClick={handleUploadBtnClick}
       className="w-full relative cursor-pointer h-[278px] flex flex-col gap-3 bg-[rgba(230,230,230,0.25)] rounded-[8px] p-4"
     >
-      <div className="w-full h-[169px] bg-white max-h-[167px] max-w-full overflow-hidden relative">
+      <div
+        ref={containerRef}
+        className="w-full h-[169px] bg-white max-h-[167px] max-w-full overflow-hidden relative"
+      >
         {/* <img src={null} id="pdf-thumbnail" alt="" height={200} /> */}
-        <Document file={brandGuide} options={options} className="w-[100px]">
-          <Page pageNumber={1} />
-        </Document>
+        {useGoogleViewer ? (
+          <iframe
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(
+              brandGuide as string
+            )}&embedded=true`}
+            className="w-full h-full border-0"
+            title="PDF Preview"
+          />
+        ) : (
+          <Document file={brandGuide} options={options}>
+            <Page pageNumber={1} />
+          </Document>
+        )}
       </div>
       <div className="h-[69px] px-6 bg-white rounded-xl flex justify-between items-center">
         <div className="flex items-center gap-2">
@@ -140,7 +171,7 @@ const BrandGuidePreview = ({
         onChange={handleBrandGuideChange}
       />
       <button
-        className="absolute top-4 right-4 cursor-pointer"
+        className="absolute top-5 right-3 cursor-pointer bg-white rounded-full flex items-center justify-center w-[30px] h-[30px]"
         onClick={removeBrandGuide}
       >
         <CloseCircle size="32" color="#101214" variant="Bold" />

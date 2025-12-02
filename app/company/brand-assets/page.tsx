@@ -29,6 +29,7 @@ export default function BrandAssetsPage() {
     brandGuide,
     currentBrandGuide,
     handleRemoveBrandGuide,
+    isBrandGuideRemoved,
     setToneOfVoice,
     currentBrandGuideName,
     currentPrimaryLogo,
@@ -97,6 +98,7 @@ export default function BrandAssetsPage() {
           brandGuide={brandGuide}
           handleToneChange={setToneOfVoice}
           handleBrandGuideChange={handleBrandGuideChange}
+          isBrandGuideRemoved={isBrandGuideRemoved}
         />
       </div>
 
