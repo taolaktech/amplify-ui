@@ -91,7 +91,7 @@ export default function Button({
           className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
             iconPosition === "right" ? "flex-row-reverse" : ""
           } transition-opacity duration-300  ${
-            loading ? "opacity-100 delay-400" : "opacity-0 "
+            loading ? "opacity-100 delay-300" : "opacity-0 "
           }`}
           aria-hidden={!loading}
         >
