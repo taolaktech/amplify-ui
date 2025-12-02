@@ -171,7 +171,7 @@ const BrandGuidePreview = ({
         onChange={handleBrandGuideChange}
       />
       <button
-        className="absolute top-5 right-3 cursor-pointer bg-white rounded-full flex items-center justify-center w-[30px] h-[30px]"
+        className="absolute top-4 right-4 cursor-pointer bg-white rounded-full flex items-center justify-center w-[32px] h-[32px]"
         onClick={removeBrandGuide}
       >
         <CloseCircle size="32" color="#101214" variant="Bold" />
