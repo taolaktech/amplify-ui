@@ -526,6 +526,7 @@ export default function CampaignSnapshotsPage() {
             text="Proceed"
             action={handleProceed}
             hasIconOrLoader
+            disabled={isLoading}
             icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
             iconPosition="right"
             iconSize={16}

@@ -7,6 +7,8 @@ import { useRef } from "react";
 type LogoProps = {
   primaryLogoPreview: string | null;
   primaryLogoHandleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isPrimaryLogoRemoved: boolean;
+  isSecondaryLogoRemoved: boolean;
   primaryLogoReset: () => void;
   currentPrimaryLogo: string | null;
   currentSecondaryLogo: string | null;
@@ -26,10 +28,11 @@ export default function Logo({
   secondaryLogoPreview,
   secondaryLogoHandleFileChange,
   secondaryLogoReset,
+  isPrimaryLogoRemoved,
+  isSecondaryLogoRemoved,
 }: LogoProps) {
   console.log("primaryLogoPreview: ", primaryLogoPreview);
 
-  
   return (
     <div className="">
       <div className="text-heading font-medium text-sm">1. Logos</div>
@@ -37,7 +40,8 @@ export default function Logo({
         <div className="flex-1">
           <div className="text-xs text-[#595959]">Primary Logo</div>
           <div className="mt-2 bg-[rgba(230,230,230,0.25)] rounded-lg h-[320px] w-full flex flex-col items-center justify-center">
-            {primaryLogoPreview || currentPrimaryLogo ? (
+            {(primaryLogoPreview || currentPrimaryLogo) &&
+            !isPrimaryLogoRemoved ? (
               <Preview
                 isPrimary
                 preview={primaryLogoPreview || currentPrimaryLogo!}
@@ -55,7 +59,8 @@ export default function Logo({
         <div className="flex-1">
           <div className="text-xs text-[#595959]">Secondary Logo</div>
           <div className="mt-2 bg-[rgba(230,230,230,0.25)] rounded-lg h-[320px] w-full flex flex-col items-center justify-center">
-            {secondaryLogoPreview || currentSecondaryLogo ? (
+            {(secondaryLogoPreview || currentSecondaryLogo) &&
+            !isSecondaryLogoRemoved ? (
               <Preview
                 preview={secondaryLogoPreview || currentSecondaryLogo!}
                 handleReset={secondaryLogoReset}

@@ -36,6 +36,8 @@ export default function BrandAssetsPage() {
     handleBrandGuideChange,
     handlePrimaryLogoRemove,
     handleSecondaryLogoRemove,
+    isPrimaryLogoRemoved,
+    isSecondaryLogoRemoved,
   } = useBrandAssets();
   // const { handleGetBrandAssets } = useInitialize();
   // const [loading, setLoading] = useState(false);
@@ -67,6 +69,8 @@ export default function BrandAssetsPage() {
           secondaryLogoReset={handleSecondaryLogoRemove}
           currentPrimaryLogo={currentPrimaryLogo}
           currentSecondaryLogo={currentSecondaryLogo}
+          isPrimaryLogoRemoved={isPrimaryLogoRemoved}
+          isSecondaryLogoRemoved={isSecondaryLogoRemoved}
         />
       </div>
       <div className="mt-12">

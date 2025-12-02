@@ -9,6 +9,7 @@ import { postBrandAssets } from "../api/base";
 import { useAuthStore } from "../stores/authStore";
 import { useToastStore } from "../stores/toastStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
+import { set } from "lodash";
 // import { useMutation } from "@tanstack/react-query";
 // import { postBrandAssets } from "../api/base";
 
@@ -69,13 +70,16 @@ export default function useBrandAssets() {
     reset: primaryLogoReset,
   } = useUploadPhoto();
 
+  const [isPrimaryLogoRemoved, setIsPrimaryLogoRemoved] = useState(false);
+  const [isSecondaryLogoRemoved, setIsSecondaryLogoRemoved] = useState(false);
+
   const handlePrimaryLogoRemove = () => {
-    setPrimaryLogo(null);
+    setIsPrimaryLogoRemoved(true);
     primaryLogoReset();
   };
 
   const handleSecondaryLogoRemove = () => {
-    setSecondaryLogo(null);
+    setIsSecondaryLogoRemoved(true);
     secondaryLogoReset();
   };
 
@@ -98,6 +102,18 @@ export default function useBrandAssets() {
         message: "Your brand assets has been updated.",
         type: "success",
       });
+      setBrandGuideFile(brandGuide);
+      storePrimaryColor(primaryColor);
+      storeSecondaryColor(secondaryColor);
+      storeToneOfVoice(toneOfVoice);
+      storePrimaryFont(primaryFont);
+      storeSecondaryFont(secondaryFont);
+      if (primaryLogoPreview) setPrimaryLogo(primaryLogoPreview);
+      if (isPrimaryLogoRemoved) setPrimaryLogo(null);
+      if (isSecondaryLogoRemoved) setSecondaryLogo(null);
+      if (secondaryLogoPreview) setSecondaryLogo(secondaryLogoPreview);
+      setIsPrimaryLogoRemoved(false);
+      setIsSecondaryLogoRemoved(false);
     },
     onError: (error) => {
       console.error("Error posting brand assets:", error);
@@ -106,6 +122,8 @@ export default function useBrandAssets() {
         message: "Something went wrong while updating brand assets.",
         type: "error",
       });
+      setIsPrimaryLogoRemoved(false);
+      setIsSecondaryLogoRemoved(false);
     },
   });
 
@@ -113,8 +131,8 @@ export default function useBrandAssets() {
     mutate({
       token: token ?? "",
       assets: {
-        removePrimaryLogo: !currentPrimaryLogo && !primaryLogoPreview,
-        removeSecondaryLogo: !currentSecondaryLogo && !secondaryLogoPreview,
+        removePrimaryLogo: isPrimaryLogoRemoved,
+        removeSecondaryLogo: isSecondaryLogoRemoved,
         removeBrandGuide: !currentBrandGuide && !brandGuide,
         primaryColor: primaryColor || currentPrimaryColor,
         secondaryColor: secondaryColor || currentSecondaryColor,
@@ -126,12 +144,6 @@ export default function useBrandAssets() {
         ...(secondaryLogoFile ? { secondaryLogo: secondaryLogoFile } : {}),
       },
     });
-    setBrandGuideFile(brandGuide);
-    storePrimaryColor(primaryColor);
-    storeSecondaryColor(secondaryColor);
-    storeToneOfVoice(toneOfVoice);
-    storePrimaryFont(primaryFont);
-    storeSecondaryFont(secondaryFont);
   }
 
   const [primaryColor, setPrimaryColor] = useState<string>(currentPrimaryColor);
@@ -241,6 +253,8 @@ export default function useBrandAssets() {
     setBrandGuide,
     setPrimaryColor,
     setSecondaryColor,
+    isPrimaryLogoRemoved,
+    isSecondaryLogoRemoved,
     toneOfVoice,
     currentBrandGuide,
     setToneOfVoice,

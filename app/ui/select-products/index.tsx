@@ -26,7 +26,7 @@ export default function Products() {
   const [isDoneLoading, setIsDoneLoading] = useState(false);
   const [fetchingProgress, setFetchingProgress] = useState(20);
   // const [currentPage, setCurrentPage] = useState(1);
-  useModal(isDoneLoading);
+  useModal(!isDoneLoading);
   const [, setPageCount] = useState(1);
 
   useEffect(() => {
@@ -43,9 +43,7 @@ export default function Products() {
         }, 1200);
       } else {
         setFetchingProgress(100);
-        setTimeout(() => {
-          setIsDoneLoading(true);
-        }, 1200);
+        setIsDoneLoading(true);
       }
     };
 
