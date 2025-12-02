@@ -42,6 +42,7 @@ export function useUploadPhoto(
       setPreview(reader.result as string);
     };
     reader.readAsDataURL(selectedFile);
+    onFileChange?.();
   };
 
   const uploadPhoto = async (uploadUrl: string): Promise<string | null> => {
