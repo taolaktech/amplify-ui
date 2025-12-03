@@ -236,6 +236,7 @@ const Avatar = ({
         width={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
         height={maximized ? maximizedHeight! * (17.69 / 413) : 17.69}
         style={{
+          width: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           objectFit: "contain",
         }}
