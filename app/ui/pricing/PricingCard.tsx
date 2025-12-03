@@ -96,6 +96,7 @@ function PricingCard({
           />
         ) : (
           <button
+            aria-disabled={isDashboard}
             disabled={isDashboard}
             className="h-[52px] w-full text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
             onClick={handlePlanSelection}
