@@ -240,7 +240,6 @@ const Avatar = ({
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           objectFit: "contain",
         }}
-        objectFit="contain"
         unoptimized
         className={`${
           imgLoaded && !imgError ? "opacity-100" : "opacity-0"
