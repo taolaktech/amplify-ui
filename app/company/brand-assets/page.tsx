@@ -29,6 +29,7 @@ export default function BrandAssetsPage() {
     brandGuide,
     currentBrandGuide,
     handleRemoveBrandGuide,
+    isBrandGuideRemoved,
     setToneOfVoice,
     currentBrandGuideName,
     currentPrimaryLogo,
@@ -36,6 +37,8 @@ export default function BrandAssetsPage() {
     handleBrandGuideChange,
     handlePrimaryLogoRemove,
     handleSecondaryLogoRemove,
+    isPrimaryLogoRemoved,
+    isSecondaryLogoRemoved,
   } = useBrandAssets();
   // const { handleGetBrandAssets } = useInitialize();
   // const [loading, setLoading] = useState(false);
@@ -67,6 +70,8 @@ export default function BrandAssetsPage() {
           secondaryLogoReset={handleSecondaryLogoRemove}
           currentPrimaryLogo={currentPrimaryLogo}
           currentSecondaryLogo={currentSecondaryLogo}
+          isPrimaryLogoRemoved={isPrimaryLogoRemoved}
+          isSecondaryLogoRemoved={isSecondaryLogoRemoved}
         />
       </div>
       <div className="mt-12">
@@ -93,6 +98,7 @@ export default function BrandAssetsPage() {
           brandGuide={brandGuide}
           handleToneChange={setToneOfVoice}
           handleBrandGuideChange={handleBrandGuideChange}
+          isBrandGuideRemoved={isBrandGuideRemoved}
         />
       </div>
 
