@@ -85,21 +85,6 @@ function PricingCard({
         </span>
       </div>
       <div>
-        {/* <Button
-          height={52}
-          // disabled={isCurrentPlan}
-          action={handlePlanSelection}
-          showShadow={isCurrentPlan ? false : true}
-          text={
-            isCurrentPlan
-              ? isDashboard
-                ? "Current Plan"
-                : "Create Campaign"
-              : `Choose Plan`
-          }
-          secondary={isCurrentPlan}
-          gradientBorder={isDashboard ? !isCurrentPlan : true}
-        /> */}
         {!isCurrentPlan ? (
           <Button
             height={52}
