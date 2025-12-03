@@ -157,7 +157,6 @@ export default function StaticPost({
               opacity: photoUrlLoaded && !photoError ? 1 : 0,
               objectFit: "contain",
             }}
-            objectFit="contain"
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoError(true)}
