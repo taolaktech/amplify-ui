@@ -374,7 +374,7 @@ const PreviewContainer = ({
                 {instagramSettings.staticPost && (
                   <div
                     style={{ width: `${instagramWidthSize.staticPost}%` }}
-                    className="min-w-[308.6px] transition-all duration-300"
+                    className="min-w-[318.6px] transition-all duration-300"
                   >
                     <IGStaticPostView
                       creative={
@@ -402,7 +402,7 @@ const PreviewContainer = ({
                     style={{
                       width: `${instagramWidthSize.storyPost}%`,
                     }}
-                    className="min-w-[308.6px] transition-all duration-300"
+                    className="min-w-[318.6px] transition-all duration-300"
                   >
                     <StoryPostView
                       creative={
@@ -446,7 +446,7 @@ const PreviewContainer = ({
                 {facebookSettings.staticPost && (
                   <div
                     style={{ width: `${facebookWidthSize.staticPost}%` }}
-                    className="min-w-[308.6px] transition-all duration-300"
+                    className="min-w-[318.6px] transition-all duration-300"
                   >
                     <FBStaticPostView
                       creative={
@@ -474,7 +474,7 @@ const PreviewContainer = ({
                     style={{
                       width: `${facebookWidthSize.storyPost}%`,
                     }}
-                    className="min-w-[308.6px] transition-all duration-300"
+                    className="min-w-[318.6px] transition-all duration-300"
                   >
                     <FBStoryPostView
                       creative={
