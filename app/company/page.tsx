@@ -12,8 +12,7 @@ import URLInput from "@/app/ui/form/URLInput";
 import { Gallery, TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
 import Image from "next/image";
-import { useRef, useEffect } from "react";
-import { useToastStore } from "@/app/lib/stores/toastStore";
+import { useRef } from "react";
 
 export default function StoreDetails() {
   const {
@@ -37,44 +36,11 @@ export default function StoreDetails() {
     submitBusinessDetailsMutation,
   } = useBusinessDetails(true);
 
-  const { setToast } = useToastStore(); // ✅ CORRECT: Use setToast method
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ✅ ADD SUCCESS TOAST WHEN SAVE IS SUCCESSFUL
-  useEffect(() => {
-    if (submitBusinessDetailsMutation.isSuccess) {
-      setToast({
-        title: "Success",
-        message: "Store details saved successfully!",
-        type: "success",
-      });
-    }
-  }, [submitBusinessDetailsMutation.isSuccess, setToast]);
-
-  // ✅ ADD ERROR TOAST IF SAVE FAILS
-  useEffect(() => {
-    if (submitBusinessDetailsMutation.isError) {
-      setToast({
-        title: "Error",
-        message: "Failed to save store details. Please try again.",
-        type: "error",
-      });
-    }
-  }, [submitBusinessDetailsMutation.isError, setToast]);
 
   const handleUploadBtnClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
-    }
-  };
-
-  // ✅ MODIFIED: Wrap handleAction to ensure feedback
-  const handleSaveWithFeedback = async () => {
-    try {
-      await handleAction();
-      // Toast will be shown by the useEffect above
-    } catch (error) {
-      // Error toast will be shown by the useEffect above
     }
   };
 
@@ -327,7 +293,7 @@ export default function StoreDetails() {
           hasIconOrLoader
           text="Save Changes"
           height={49}
-          action={handleSaveWithFeedback} // ✅ Use the new handler with toast feedback
+          action={handleAction} // ✅ CHANGED: Use handleAction directly instead of handleSaveWithFeedback
           loading={submitBusinessDetailsMutation.isPending || isPending}
           icon={<TickCircle size="16" color="#fff" variant="Bold" />}
         />
