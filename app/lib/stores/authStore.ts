@@ -15,6 +15,7 @@ type AuthState = {
   hasHydrated: boolean;
   rememberMe: boolean;
   hasActiveSubscription?: boolean;
+  subscriptionEndDate?: Date | null | string;
   subscriptionType:
     | {
         name: string;
@@ -51,6 +52,7 @@ type AuthActions = {
   logout: () => void;
   setUser: (user: User) => void;
   setHasActiveSubscription: (state: boolean) => void;
+  setSubscriptionEndDate: (date: Date | null | string) => void;
   setSubscriptionType: (
     subscriptionType:
       | {
@@ -87,6 +89,7 @@ export const useAuthStore = create<AuthStore>()(
       },
       loginDate: null,
       hasActiveSubscription: false,
+      subscriptionEndDate: null,
       hasHydrated: false,
       subscriptionType: {
         name: "Free",
@@ -99,6 +102,9 @@ export const useAuthStore = create<AuthStore>()(
       },
       setSubscriptionType: (subscriptionType) => {
         set({ subscriptionType });
+      },
+      setSubscriptionEndDate: (date) => {
+        set({ subscriptionEndDate: date });
       },
       logout: () => {
         localStorage.clear();

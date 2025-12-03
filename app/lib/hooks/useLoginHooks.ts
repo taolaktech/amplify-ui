@@ -66,6 +66,9 @@ export const useInitialize = () => {
   const setSubscriptionType = useAuthStore(
     (state) => state.setSubscriptionType
   );
+  const setSubscriptionEndDate = useAuthStore(
+    (state) => state.setSubscriptionEndDate
+  );
 
   async function getMe(token: string) {
     // tun this to async
@@ -120,7 +123,10 @@ export const useInitialize = () => {
             cycle: "monthly" as Cycle,
           };
 
-      if (currentPlan) setSubscriptionType(currentPlan);
+      if (currentPlan) {
+        setSubscriptionType(currentPlan);
+        setSubscriptionEndDate(response?.data?.currentPeriodEnd || null);
+      }
       return response;
     } catch (error) {
       console.error("Error fetching current subscription plan:", error);

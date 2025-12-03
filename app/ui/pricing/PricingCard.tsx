@@ -50,20 +50,10 @@ function PricingCard({
       router.push("/create-campaign");
       return;
     }
-    // if (isCurrentPlan) return;
     router.push(
       `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
     );
   };
-  // const changePlan = (plan: Plan) => {
-  //   if (isCurrentPlan) {
-  //     if (isDashboard) return;
-  //     router.push("/create-campaign");
-  //     return;
-  //   }
-  //   // if (isCurrentPlan) return;
-  //   handlePlanChange(plan);
-  // };
 
   return (
     <div

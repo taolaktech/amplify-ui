@@ -75,10 +75,8 @@ export const useCampaignsActions = () => {
       return;
     }
     if (
-      subscriptionType?.name?.toLowerCase() === "free" ||
-      !subscriptionType ||
-      !data ||
-      data?.length === 0
+      (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
+      (!data || data?.length === 0)
     ) {
       router.push("/pricing");
     } else {

@@ -47,7 +47,6 @@ export default function Pricing({
   const handlePlanChange = (plan: Plan) => {
     setSelectedPlan(plan);
   };
-  // P
 
   return (
     <section className={`${isDashboard ? "py-5" : "py-12 px-5"} lg:px-5`}>
