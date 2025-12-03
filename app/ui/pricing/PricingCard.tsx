@@ -50,20 +50,10 @@ function PricingCard({
       router.push("/create-campaign");
       return;
     }
-    // if (isCurrentPlan) return;
     router.push(
       `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
     );
   };
-  // const changePlan = (plan: Plan) => {
-  //   if (isCurrentPlan) {
-  //     if (isDashboard) return;
-  //     router.push("/create-campaign");
-  //     return;
-  //   }
-  //   // if (isCurrentPlan) return;
-  //   handlePlanChange(plan);
-  // };
 
   return (
     <div
@@ -95,12 +85,6 @@ function PricingCard({
         </span>
       </div>
       <div>
-        {/* <div
-          className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
-          onClick={handlePlanSelection}
-        >
-          {isCurrentPlan ? "Current Plan" : "Choose Plan"}
-        </div> */}
         {!isCurrentPlan ? (
           <Button
             height={52}
@@ -111,12 +95,14 @@ function PricingCard({
             gradientBorder={isCurrentPlan ? false : true}
           />
         ) : (
-          <div
-            className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
+          <button
+            aria-disabled={isDashboard}
+            disabled={isDashboard}
+            className="h-[52px] w-full text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
             onClick={handlePlanSelection}
           >
-            Current Plan
-          </div>
+            {isDashboard ? "Current Plan" : "Create Campaign"}
+          </button>
         )}
       </div>
       <div className="mt-6">

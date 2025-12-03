@@ -77,6 +77,7 @@ export default function StoryPost({
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
               opacity: imgLoaded && !imgError ? 1 : 0,
+              objectFit: "contain",
               transition: "opacity 0.5s ease-in-out",
             }}
             onLoad={() => setImgLoaded(true)}

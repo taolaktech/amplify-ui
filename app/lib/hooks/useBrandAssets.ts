@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
 import { useUploadPhoto } from "./useUploadPhoto";
-// import { useToastStore } from "../stores/toastStore";
-// import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-// import "react-pdf/dist/esm/Page/TextLayer.css";''
-
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { pdfjs } from "react-pdf";
@@ -29,10 +25,6 @@ export const options = {
   cMapUrl: "/cmaps/",
   standardFontDataUrl: "/standard_fonts/",
 };
-
-// const resizeObserverOptions = {};
-
-// const maxWidth = 800;
 
 export default function useBrandAssets() {
   const token = useAuthStore((state) => state.token);
@@ -129,7 +121,7 @@ export default function useBrandAssets() {
     onError: (error) => {
       console.error("Error posting brand assets:", error);
       setToast({
-        title: "Error Occured.",
+        title: "Error Occurred.",
         message: "Something went wrong while updating brand assets.",
         type: "error",
       });
@@ -145,7 +137,7 @@ export default function useBrandAssets() {
       assets: {
         removePrimaryLogo: isPrimaryLogoRemoved,
         removeSecondaryLogo: isSecondaryLogoRemoved,
-        removeBrandGuide: !currentBrandGuide && !brandGuide,
+        removeBrandGuide: isBrandGuideRemoved,
         primaryColor: primaryColor || currentPrimaryColor,
         secondaryColor: secondaryColor || currentSecondaryColor,
         toneOfVoice: toneOfVoice || currentToneOfVoice || "Friendly",
@@ -162,9 +154,6 @@ export default function useBrandAssets() {
   const [secondaryColor, setSecondaryColor] = useState<string>(
     currentSecondaryColor
   );
-
-  // const setToast = useToastStore((state) => state.setToast);
-  // const [numPages, setNumPages] = useState<number | null>(null);
 
   const [primaryFont, setPrimaryFont] = useState<string | null>(
     currentPrimaryFont
@@ -229,15 +218,7 @@ export default function useBrandAssets() {
 
   const handleRemoveBrandGuide = () => {
     setIsBrandGuideRemoved(true);
-    // storeBrandGuide(null);
-    // setRemoveBrandGuide(true);
   };
-
-  // function onDocumentLoadSuccess({
-  //   numPages: nextNumPages,
-  // }: PDFDocumentProxy): void {
-  //   setNumPages(nextNumPages);
-  // }
 
   return {
     primaryLogoFile,
@@ -279,8 +260,5 @@ export default function useBrandAssets() {
     isPending,
     currentPrimaryLogo,
     currentSecondaryLogo,
-    // onDocumentLoadSuccess,
   };
 }
-
-// export default function useSubmitBr

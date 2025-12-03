@@ -86,6 +86,9 @@ export const useGetCurrentSubscriptionPlan = () => {
   const setSubscriptionType = useAuthStore(
     (state) => state.setSubscriptionType
   );
+  const setSubscriptionEndDate = useAuthStore(
+    (state) => state.setSubscriptionEndDate
+  );
   const { data, isLoading, error, isSuccess } = useQuery({
     queryKey: ["current-subscription-plan"],
     queryFn: () => getCurrentSubscriptionPlan(token || ""),
@@ -96,8 +99,6 @@ export const useGetCurrentSubscriptionPlan = () => {
     refetchOnReconnect: true,
   });
   useEffect(() => {
-    console.log("current plan data:", data);
-
     if (isSuccess) {
       const currentPlanId = data?.data?.activeStripePriceId;
       const currentPlan = currentPlanId
@@ -109,7 +110,10 @@ export const useGetCurrentSubscriptionPlan = () => {
 
       console.log("current plan:");
 
-      if (currentPlan) setSubscriptionType(currentPlan);
+      if (currentPlan) {
+        setSubscriptionType(currentPlan);
+        setSubscriptionEndDate(data?.data?.currentPeriodEnd || null);
+      }
     }
   }, [isSuccess]);
 
@@ -120,6 +124,11 @@ export const useUpgradePlan = () => {
   const token = useAuthStore((state) => state.token);
   const setSubscriptionType = useAuthStore(
     (state) => state.setSubscriptionType
+  );
+  const showToast = useToastStore((state) => state.setToast);
+  const [isDowngrade, setIsDowngrade] = useState<boolean>(false);
+  const subscriptionEndDate = useAuthStore(
+    (state) => state.subscriptionEndDate
   );
   const [planId, setPlanId] = useState<string | null>(null);
 
@@ -142,10 +151,30 @@ export const useUpgradePlan = () => {
           };
 
       console.log("new plan for upgrade:", newPlan);
-      if (newPlan) setSubscriptionType(newPlan);
-      // setTimeout(() => {
+      if (newPlan && !isDowngrade) setSubscriptionType(newPlan);
+      let downgradeMessage;
+      if (isDowngrade) {
+        if (subscriptionEndDate) {
+          const dateObj = new Date(subscriptionEndDate);
+          if (!isNaN(dateObj.getTime())) {
+            const endDate = dateObj.toLocaleDateString(
+              "en-US",
+              { year: "numeric", month: "long", day: "numeric" }
+            );
+            downgradeMessage = `Your plan downgrade will take effect on ${endDate}. You’ll continue to enjoy your current plan benefits until then.`;
+          } else {
+            downgradeMessage = "Your plan downgrade has been scheduled.";
+          }
+        } else {
+          downgradeMessage = "Your plan downgrade has been scheduled.";
+        }
+        showToast({
+          title: "Subscription Downgrade",
+          message: downgradeMessage,
+          type: "success",
+        });
+      }
       router.push("/pricing/checkout/success");
-      // }, 500);
     },
 
     onError: (error) => {
@@ -159,13 +188,17 @@ export const useUpgradePlan = () => {
     },
   });
 
-  const handleUpgrade = (data: { newPriceId: string }) => {
+  const handleUpgrade = (data: {
+    newPriceId: string;
+    isDowngrade?: boolean;
+  }) => {
     console.log("data for upgrade:", data);
-
+    setIsDowngrade(data.isDowngrade || false);
     setPlanId(data.newPriceId);
     mutate({
       token: token || "",
-      ...data,
+      newPriceId: data.newPriceId,
+      prorationBehavior: data.isDowngrade ? "none" : "create_prorations",
     });
   };
 

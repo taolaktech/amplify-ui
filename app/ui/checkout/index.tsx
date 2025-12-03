@@ -134,6 +134,7 @@ export default function Checkout({
     if ((isUpgrade || isDowngrade) && hasActiveSubscription) {
       handleUpgrade({
         newPriceId: price,
+        isDowngrade: isDowngrade || false,
       });
     } else {
       handleSubscribe({
