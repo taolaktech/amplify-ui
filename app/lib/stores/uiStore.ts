@@ -110,12 +110,19 @@ const useUIStore = create<UIStore>((set) => ({
     resetStore: () =>
       set({
         products: [],
+        creativeLoadingState: {},
+        isPreviewMaximized: false,
         productCount: 0,
         startCursor: "",
         endCursor: "",
         currentPage: 1,
+        totalProgressStep: 6,
+        currentProgressStep: 1,
         hasNextPage: false,
         hasPreviousPage: false,
+        isSidebarOpen: defaultSidebarOpen,
+        isOnboardingCompleted: false,
+        isSubscriptionSuccess: false,
       }),
   },
 }));
