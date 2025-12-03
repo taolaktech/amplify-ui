@@ -11,7 +11,9 @@ type UseUploadPhotoReturn = {
   reset: () => void;
 };
 
-export function useUploadPhoto(): UseUploadPhotoReturn {
+export function useUploadPhoto(
+  onFileChange?: () => void
+): UseUploadPhotoReturn {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -40,6 +42,7 @@ export function useUploadPhoto(): UseUploadPhotoReturn {
       setPreview(reader.result as string);
     };
     reader.readAsDataURL(selectedFile);
+    onFileChange?.();
   };
 
   const uploadPhoto = async (uploadUrl: string): Promise<string | null> => {

@@ -68,7 +68,7 @@ export default function Button({
           aria-hidden={loading}
           className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
             iconPosition === "right" ? "flex-row-reverse" : ""
-          } transition-opacity duration-300 ${
+          } transition-opacity duration-200 ${
             !loading ? "opacity-100 delay-75" : "opacity-0 "
           }`}
         >
@@ -90,8 +90,8 @@ export default function Button({
         <div
           className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
             iconPosition === "right" ? "flex-row-reverse" : ""
-          } transition-opacity duration-300  ${
-            loading ? "opacity-100 delay-400" : "opacity-0 "
+          } transition-opacity duration-200  ${
+            loading ? "opacity-100 delay-300" : "opacity-0 "
           }`}
           aria-hidden={!loading}
         >

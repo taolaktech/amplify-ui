@@ -46,7 +46,7 @@ const SelectInput = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.match(/[a-zA-Z]/)) {
+      if (e?.key?.match(/[a-zA-Z]/)) {
         setFilteredOptions(
           options.filter((option) =>
             option.toLowerCase().startsWith(e.key.toLowerCase())
