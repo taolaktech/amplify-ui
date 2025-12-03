@@ -81,7 +81,6 @@ export default function StoryPost({
               transition: "opacity 0.5s ease-in-out",
               objectFit: "contain",
             }}
-            objectFit="contain"
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoUrlError(true)}
             unoptimized
