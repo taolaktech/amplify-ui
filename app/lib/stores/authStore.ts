@@ -116,7 +116,6 @@ export const useAuthStore = create<AuthStore>()(
       },
       logout: () => {
         localStorage.clear();
-        set({ token: null, isAuth: false, user: null, loginDate: null });
         useAuthStore.getState().resetStore();
         useIntegrationStore.getState().actions.resetStore();
         useUIStore.getState().actions.resetStore();

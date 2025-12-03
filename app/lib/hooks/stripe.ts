@@ -152,14 +152,25 @@ export const useUpgradePlan = () => {
 
       console.log("new plan for upgrade:", newPlan);
       if (newPlan && !isDowngrade) setSubscriptionType(newPlan);
-      const endDate = new Date(subscriptionEndDate || "").toLocaleDateString(
-        "en-US",
-        { year: "numeric", month: "long", day: "numeric" }
-      );
+      let downgradeMessage;
       if (isDowngrade) {
+        if (subscriptionEndDate) {
+          const dateObj = new Date(subscriptionEndDate);
+          if (!isNaN(dateObj.getTime())) {
+            const endDate = dateObj.toLocaleDateString(
+              "en-US",
+              { year: "numeric", month: "long", day: "numeric" }
+            );
+            downgradeMessage = `Your plan downgrade will take effect on ${endDate}. You’ll continue to enjoy your current plan benefits until then.`;
+          } else {
+            downgradeMessage = "Your plan downgrade has been scheduled.";
+          }
+        } else {
+          downgradeMessage = "Your plan downgrade has been scheduled.";
+        }
         showToast({
           title: "Subscription Downgrade",
-          message: `Your plan downgrade will take effect on ${endDate}. You’ll continue to enjoy your current plan benefits until then.`,
+          message: downgradeMessage,
           type: "success",
         });
       }
