@@ -6,7 +6,7 @@ type IntegrationState = {
   google: boolean;
   instagram: boolean;
   facebook: boolean;
-}
+};
 
 type IntegrationActions = {
   toggleShopifyStore: () => void;
@@ -14,11 +14,12 @@ type IntegrationActions = {
   toggleGoogle: () => void;
   toggleInstagram: () => void;
   toggleFacebook: () => void;
-}
+  resetStore: () => void;
+};
 
 type IntegrationStore = IntegrationState & {
   actions: IntegrationActions;
-}
+};
 
 const initialState: IntegrationState = {
   shopifyStore: false,
@@ -32,6 +33,7 @@ export const useIntegrationStore = create<IntegrationStore>()(
     (set) => ({
       ...initialState,
       actions: {
+        resetStore: () => set(() => initialState),
         toggleShopifyStore: () => {
           set((state) => ({
             shopifyStore: !state.shopifyStore,

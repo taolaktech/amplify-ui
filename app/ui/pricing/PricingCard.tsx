@@ -85,12 +85,21 @@ function PricingCard({
         </span>
       </div>
       <div>
-        {/* <div
-          className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
-          onClick={handlePlanSelection}
-        >
-          {isCurrentPlan ? "Current Plan" : "Choose Plan"}
-        </div> */}
+        {/* <Button
+          height={52}
+          // disabled={isCurrentPlan}
+          action={handlePlanSelection}
+          showShadow={isCurrentPlan ? false : true}
+          text={
+            isCurrentPlan
+              ? isDashboard
+                ? "Current Plan"
+                : "Create Campaign"
+              : `Choose Plan`
+          }
+          secondary={isCurrentPlan}
+          gradientBorder={isDashboard ? !isCurrentPlan : true}
+        /> */}
         {!isCurrentPlan ? (
           <Button
             height={52}
@@ -101,12 +110,13 @@ function PricingCard({
             gradientBorder={isCurrentPlan ? false : true}
           />
         ) : (
-          <div
-            className="h-[52px] text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
+          <button
+            disabled={isDashboard}
+            className="h-[52px] w-full text-sm font-medium rounded-[12px] bg-white flex items-center justify-center"
             onClick={handlePlanSelection}
           >
-            Current Plan
-          </div>
+            {isDashboard ? "Current Plan" : "Create Campaign"}
+          </button>
         )}
       </div>
       <div className="mt-6">

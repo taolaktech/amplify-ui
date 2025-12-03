@@ -79,7 +79,9 @@ export default function StoryPost({
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
               opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
+              objectFit: "contain",
             }}
+            objectFit="contain"
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoUrlError(true)}
             unoptimized

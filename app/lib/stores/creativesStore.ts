@@ -23,6 +23,7 @@ type CreativesStore = {
     ) => void;
     generalUndo: (productId: string) => void;
     canUndo: (productId: string) => boolean;
+    resetStore: () => void;
   };
 };
 
@@ -57,6 +58,8 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
   Instagram: null,
   Facebook: null,
   actions: {
+    resetStore: () =>
+      set(() => ({ Google: null, Instagram: null, Facebook: null })),
     undo: (kind: Platform, productId: string) => {
       const { Google, Instagram, Facebook } = get();
       if (

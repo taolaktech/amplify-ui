@@ -28,6 +28,7 @@ type UIStore = {
       hasPreviousPage: boolean,
       currentPage: number
     ) => void;
+    resetStore: () => void;
     setCreativeLoadingState: (
       productId: string,
       state: Record<Platform, boolean>
@@ -106,6 +107,16 @@ const useUIStore = create<UIStore>((set) => ({
       set({ isOnboardingCompleted: completed }),
     setSubscriptionSuccess: (success) =>
       set({ isSubscriptionSuccess: success }),
+    resetStore: () =>
+      set({
+        products: [],
+        productCount: 0,
+        startCursor: "",
+        endCursor: "",
+        currentPage: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      }),
   },
 }));
 

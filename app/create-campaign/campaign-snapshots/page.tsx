@@ -119,18 +119,6 @@ const MainActions = ({
   }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
-      {/* {!isOnlyGoogle && (
-        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-          
-          <img
-            src={MagicStarIcon.src}
-            alt="Magic Star"
-            width={20}
-            height={20}
-          />
-          <span className="text-sm font-medium">Mix</span>
-        </button>
-      )} */}
       {canUndo(highlightedProduct?.node?.id) && (
         <button
           disabled={isLoading}
@@ -233,6 +221,13 @@ export default function CampaignSnapshotsPage() {
 
     if (isLoading) return;
 
+    const googleHasCreative =
+      supportedAdPlatforms.Google && Google?.[productId];
+    const instagramHasCreative =
+      supportedAdPlatforms.Instagram && Instagram?.[productId];
+    const facebookHasCreative =
+      supportedAdPlatforms.Facebook && Facebook?.[productId];
+
     const hasCreative =
       (supportedAdPlatforms.Google && Google?.[productId]) ||
       (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
@@ -241,6 +236,18 @@ export default function CampaignSnapshotsPage() {
     if (!hasCreative) {
       hasRunRef.current[productId] = true;
       generateCreatives(productId, activePlatforms as Platform[]);
+    } else if (!googleHasCreative && supportedAdPlatforms.Google) {
+      // Handle case where Google Ads creative is missing
+      hasRunRef.current[productId] = true;
+      generateCreatives(productId, ["GOOGLE ADS"]);
+    } else if (!instagramHasCreative && supportedAdPlatforms.Instagram) {
+      // Handle case where Instagram creative is missing
+      hasRunRef.current[productId] = true;
+      generateCreatives(productId, ["INSTAGRAM"]);
+    } else if (!facebookHasCreative && supportedAdPlatforms.Facebook) {
+      // Handle case where Facebook creative is missing
+      hasRunRef.current[productId] = true;
+      generateCreatives(productId, ["FACEBOOK"]);
     }
   }, [highlightedProduct?.node.id]);
 
@@ -533,7 +540,6 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       </div>
-      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 }

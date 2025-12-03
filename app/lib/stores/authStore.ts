@@ -1,6 +1,14 @@
 import { Cycle } from "@/app/ui/pricing/ModelHeader";
+import { use } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useIntegrationStore } from "./integrationStore";
+import useUIStore from "./uiStore";
+import useCampaignsStore from "./campaignsStore";
+import useBrandAssetStore from "./brandAssetStore";
+import useCreativesStore from "./creativesStore";
+import { useCreateCampaignStore } from "./createCampaignStore";
+import { useSetupStore } from "./setupStore";
 
 export type SubscriptionType =
   | "FREE_PLAN"
@@ -69,6 +77,7 @@ type AuthActions = {
   setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
+  resetStore: () => void;
 };
 
 export type AuthStore = AuthState & AuthActions;
@@ -109,6 +118,14 @@ export const useAuthStore = create<AuthStore>()(
       logout: () => {
         localStorage.clear();
         set({ token: null, isAuth: false, user: null, loginDate: null });
+        useAuthStore.getState().resetStore();
+        useIntegrationStore.getState().actions.resetStore();
+        useUIStore.getState().actions.resetStore();
+        useBrandAssetStore.getState().actions.resetStore();
+        useCreativesStore.getState().actions.resetStore();
+        useCampaignsStore.getState().actions.resetStore();
+        useCreateCampaignStore.getState().actions.reset();
+        useSetupStore.getState().reset();
       },
       storeRememberMe: () => {
         const rememberMe = !get().rememberMe;
@@ -123,6 +140,21 @@ export const useAuthStore = create<AuthStore>()(
       getUser: () => get().user,
       setHasHydrated: (state) => {
         set({ hasHydrated: state });
+      },
+      resetStore: () => {
+        set({
+          token: null,
+          isAuth: false,
+          user: null,
+          loginDate: null,
+          hasActiveSubscription: false,
+          subscriptionEndDate: null,
+          subscriptionType: {
+            name: "Free",
+            cycle: "monthly",
+          },
+          rememberMe: false,
+        });
       },
     }),
     {
@@ -164,6 +196,7 @@ type CreateUserActions = {
   storeProfile: (profile: CreateProfileState) => void;
   storeRetryError: (hasError: boolean) => void;
   storeJustCreated: (justCreated: boolean) => void;
+  resetStore: () => void;
   storeJustVerified: (justVerified: boolean) => void;
 };
 
@@ -188,6 +221,15 @@ export const useCreateUserStore = create<CreateUserStore>()((set) => ({
     },
     storeProfile: (profile) => {
       set({ profile });
+    },
+    resetStore: () => {
+      set({
+        email: "",
+        profile: null,
+        retryError: false,
+        justCreated: false,
+        justVerified: false,
+      });
     },
   },
 }));
