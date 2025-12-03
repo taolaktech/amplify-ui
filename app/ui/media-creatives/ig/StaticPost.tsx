@@ -155,6 +155,7 @@ export default function StaticPost({
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               opacity: photoUrlLoaded && !photoError ? 1 : 0,
+              objectFit: "contain",
             }}
             unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}

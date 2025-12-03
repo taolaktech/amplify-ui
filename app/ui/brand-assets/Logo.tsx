@@ -31,8 +31,6 @@ export default function Logo({
   isPrimaryLogoRemoved,
   isSecondaryLogoRemoved,
 }: LogoProps) {
-  console.log("primaryLogoPreview: ", primaryLogoPreview);
-
   return (
     <div className="">
       <div className="text-heading font-medium text-sm">1. Logos</div>

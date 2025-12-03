@@ -189,8 +189,9 @@ export default function StaticPost({
         <div
           style={{
             height: maximized ? maximizedHeight! * (40 / 415.78) : "40px",
+            marginTop: maximized ? maximizedHeight! * (6 / 415.78) : "6px",
           }}
-          className="mt-[2px] flex flex-col justify-between"
+          className="flex flex-col justify-between"
         >
           {caption ? (
             <div
@@ -241,6 +242,7 @@ export default function StaticPost({
                 width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
+                objectFit: "contain",
               }}
               unoptimized
               onLoad={() => setPhotoUrlLoaded(true)}
