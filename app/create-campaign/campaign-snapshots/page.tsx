@@ -233,21 +233,15 @@ export default function CampaignSnapshotsPage() {
       (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
       (supportedAdPlatforms.Facebook && Facebook?.[productId]);
 
-    if (!hasCreative) {
+    // Collect all missing platforms for this product
+    const missingPlatforms: Platform[] = [];
+    if (supportedAdPlatforms.Google && !googleHasCreative) missingPlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram && !instagramHasCreative) missingPlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook && !facebookHasCreative) missingPlatforms.push("FACEBOOK");
+
+    if (missingPlatforms.length > 0) {
       hasRunRef.current[productId] = true;
-      generateCreatives(productId, activePlatforms as Platform[]);
-    } else if (!googleHasCreative && supportedAdPlatforms.Google) {
-      // Handle case where Google Ads creative is missing
-      hasRunRef.current[productId] = true;
-      generateCreatives(productId, ["GOOGLE ADS"]);
-    } else if (!instagramHasCreative && supportedAdPlatforms.Instagram) {
-      // Handle case where Instagram creative is missing
-      hasRunRef.current[productId] = true;
-      generateCreatives(productId, ["INSTAGRAM"]);
-    } else if (!facebookHasCreative && supportedAdPlatforms.Facebook) {
-      // Handle case where Facebook creative is missing
-      hasRunRef.current[productId] = true;
-      generateCreatives(productId, ["FACEBOOK"]);
+      generateCreatives(productId, missingPlatforms);
     }
   }, [highlightedProduct?.node.id]);
 
