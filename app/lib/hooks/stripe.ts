@@ -151,7 +151,7 @@ export const useUpgradePlan = () => {
           };
 
       console.log("new plan for upgrade:", newPlan);
-      if (newPlan) setSubscriptionType(newPlan);
+      if (newPlan && !isDowngrade) setSubscriptionType(newPlan);
       const endDate = new Date(subscriptionEndDate || "").toLocaleDateString(
         "en-US",
         { year: "numeric", month: "long", day: "numeric" }
@@ -186,7 +186,8 @@ export const useUpgradePlan = () => {
     setPlanId(data.newPriceId);
     mutate({
       token: token || "",
-      ...data,
+      newPriceId: data.newPriceId,
+      prorationBehavior: data.isDowngrade ? "none" : "create_prorations",
     });
   };
 

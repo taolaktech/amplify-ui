@@ -11,7 +11,7 @@ import {
   CampaignSnapshots,
   useCreateCampaignStore,
 } from "@/app/lib/stores/createCampaignStore";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
 import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
@@ -228,16 +228,19 @@ export default function CampaignSnapshotsPage() {
     const facebookHasCreative =
       supportedAdPlatforms.Facebook && Facebook?.[productId];
 
-    const hasCreative =
-      (supportedAdPlatforms.Google && Google?.[productId]) ||
-      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+    // const hasCreative =
+    //   (supportedAdPlatforms.Google && Google?.[productId]) ||
+    //   (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+    //   (supportedAdPlatforms.Facebook && Facebook?.[productId]);
 
     // Collect all missing platforms for this product
     const missingPlatforms: Platform[] = [];
-    if (supportedAdPlatforms.Google && !googleHasCreative) missingPlatforms.push("GOOGLE ADS");
-    if (supportedAdPlatforms.Instagram && !instagramHasCreative) missingPlatforms.push("INSTAGRAM");
-    if (supportedAdPlatforms.Facebook && !facebookHasCreative) missingPlatforms.push("FACEBOOK");
+    if (supportedAdPlatforms.Google && !googleHasCreative)
+      missingPlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram && !instagramHasCreative)
+      missingPlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook && !facebookHasCreative)
+      missingPlatforms.push("FACEBOOK");
 
     if (missingPlatforms.length > 0) {
       hasRunRef.current[productId] = true;
@@ -387,6 +390,10 @@ export default function CampaignSnapshotsPage() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   // window.scrollTo({ top: 0, behavior: "instant" });
+  // }, [highlightedProduct?.node.id]);
+
   const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
 
   const handleSetHighlightedProduct = (product: ShopifyProduct) => {
@@ -516,6 +523,7 @@ export default function CampaignSnapshotsPage() {
         </div>
         <div className="mt-10">
           <Preview
+            key={highlightedProduct?.node.id || "1"}
             adPlatforms={adPlatforms}
             highlightedProductId={highlightedProduct?.node.id || "1"}
             generateCreatives={generateCreatives}
