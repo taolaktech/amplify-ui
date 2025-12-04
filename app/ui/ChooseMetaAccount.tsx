@@ -1,7 +1,7 @@
 import CloseIcon from "@/public/close-circle.svg";
 import Button from "./Button";
 import TickIcon from "@/public/tick-circle-variant.svg";
-import { SearchNormal } from "iconsax-react";
+// import { SearchNormal } from "iconsax-react";
 
 export const ChooseMetaAccount = ({
   handleClose,
