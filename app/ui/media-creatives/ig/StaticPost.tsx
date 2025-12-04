@@ -46,9 +46,10 @@ export default function StaticPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedHeight = isBigScreen
+        let calculatedHeight = isBigScreen
           ? screenHeight * 0.7
           : screenHeight * 0.65;
+        calculatedHeight = Math.min(calculatedHeight, 800); // Max height 800px
         const calculatedWidth = calculatedHeight * (260.74 / 413);
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);

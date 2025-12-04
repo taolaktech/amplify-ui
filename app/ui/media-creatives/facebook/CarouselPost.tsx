@@ -23,10 +23,12 @@ export default function CarouselPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedWidth = isBigScreen
+        let calculatedWidth = isBigScreen
           ? screenHeight * 0.6
           : screenHeight * 0.4;
-        const calculatedHeight = calculatedWidth * (260.74 / 260.74);
+        let calculatedHeight = calculatedWidth;
+        calculatedHeight = Math.min(calculatedHeight, 505); // Max height 505px
+        calculatedWidth = Math.min(calculatedWidth, 505); // Max width 505px
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
       }

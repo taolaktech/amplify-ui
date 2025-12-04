@@ -144,7 +144,7 @@ const CarouselContent = ({
       >
         <ArrowRight2 size={18} color="#101214" />
       </div>
-      <div className="h-[70vh] w-[90vw] max-w-[700px] relative z-0">
+      <div className="h-[70vh] w-[90vw] max-h-[850px] max-w-[700px] relative z-0">
         <div
           onClick={handlePrevSlide}
           className="hidden absolute cursor-pointer left-[0px] top-1/2 -translate-y-1/2 md:flex justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
@@ -166,11 +166,11 @@ const CarouselContent = ({
             onChange={(index) => setCurrentSlide(index)}
             infiniteLoop={true}
             animationHandler={"fade"}
-            autoPlay
+            // autoPlay
             autoFocus
             swipeable={false}
           >
-            <div className="flex items-center h-full justify-center">
+            <div className="flex items-center h-[70vh] max-h-[850px] justify-center">
               <StaticPost
                 brandName={brandName}
                 location={location}
@@ -182,7 +182,7 @@ const CarouselContent = ({
             </div>
             {new Array(4).fill(0).map((_, index) => (
               <div
-                className="flex items-center h-[70vh] justify-center"
+                className="flex items-center h-[70vh] max-h-[850px] justify-center"
                 key={index}
               >
                 <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
