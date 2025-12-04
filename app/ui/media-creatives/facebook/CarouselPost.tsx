@@ -65,7 +65,10 @@ export default function CarouselPost({
           alt="Carousel Post"
           layout="fill"
           unoptimized
-          style={{ opacity: imgLoaded && !photoError ? 1 : 0 }}
+          style={{
+            opacity: imgLoaded && !photoError ? 1 : 0,
+            objectFit: "contain",
+          }}
           onLoad={() => setImgLoaded(true)}
           onError={() => setPhotoError(true)}
         />

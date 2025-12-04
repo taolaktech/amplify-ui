@@ -58,13 +58,14 @@ export const subscribeToPlan = async (data: {
 export const upgradePlan = async (data: {
   newPriceId: string;
   token: string;
+  prorationBehavior: "create_prorations" | "none";
 }) => {
-  const { token, newPriceId } = data;
+  const { token, newPriceId, prorationBehavior } = data;
   const response = await axiosInstance.put(
     "/stripe/subscriptions/change-plan",
     {
       newPriceId,
-      prorationBehavior: "create_prorations",
+      prorationBehavior,
     },
     {
       headers: {

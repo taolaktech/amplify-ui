@@ -59,7 +59,7 @@ export default function Product({
       <div
         className={`text-xs tracking-100 break-all ${
           highlightedProduct?.node?.id === product?.node?.id
-            ? "font-bold"
+            ? "font-semibold"
             : "font-medium"
         }`}
       >

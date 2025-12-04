@@ -197,6 +197,7 @@ const CheckoutForm = ({
         await upgradePlan({
           token: token || "",
           newPriceId: price[billingCycle as keyof typeof price].toString(),
+          prorationBehavior: isDowngrade ? "none" : "create_prorations",
         });
       }
 

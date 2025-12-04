@@ -1,6 +1,13 @@
 import { Cycle } from "@/app/ui/pricing/ModelHeader";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useIntegrationStore } from "./integrationStore";
+import useUIStore from "./uiStore";
+import useCampaignsStore from "./campaignsStore";
+import useBrandAssetStore from "./brandAssetStore";
+import useCreativesStore from "./creativesStore";
+import { useCreateCampaignStore } from "./createCampaignStore";
+import { useSetupStore } from "./setupStore";
 
 export type SubscriptionType =
   | "FREE_PLAN"
@@ -15,6 +22,7 @@ type AuthState = {
   hasHydrated: boolean;
   rememberMe: boolean;
   hasActiveSubscription?: boolean;
+  subscriptionEndDate?: Date | null | string;
   subscriptionType:
     | {
         name: string;
@@ -51,6 +59,7 @@ type AuthActions = {
   logout: () => void;
   setUser: (user: User) => void;
   setHasActiveSubscription: (state: boolean) => void;
+  setSubscriptionEndDate: (date: Date | null | string) => void;
   setSubscriptionType: (
     subscriptionType:
       | {
@@ -67,6 +76,7 @@ type AuthActions = {
   setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
+  resetStore: () => void;
 };
 
 export type AuthStore = AuthState & AuthActions;
@@ -87,6 +97,7 @@ export const useAuthStore = create<AuthStore>()(
       },
       loginDate: null,
       hasActiveSubscription: false,
+      subscriptionEndDate: null,
       hasHydrated: false,
       subscriptionType: {
         name: "Free",
@@ -100,9 +111,19 @@ export const useAuthStore = create<AuthStore>()(
       setSubscriptionType: (subscriptionType) => {
         set({ subscriptionType });
       },
+      setSubscriptionEndDate: (date) => {
+        set({ subscriptionEndDate: date });
+      },
       logout: () => {
         localStorage.clear();
-        set({ token: null, isAuth: false, user: null, loginDate: null });
+        useAuthStore.getState().resetStore();
+        useIntegrationStore.getState().actions.resetStore();
+        useUIStore.getState().actions.resetStore();
+        useBrandAssetStore.getState().actions.resetStore();
+        useCreativesStore.getState().actions.resetStore();
+        useCampaignsStore.getState().actions.resetStore();
+        useCreateCampaignStore.getState().actions.reset();
+        useSetupStore.getState().reset();
       },
       storeRememberMe: () => {
         const rememberMe = !get().rememberMe;
@@ -117,6 +138,21 @@ export const useAuthStore = create<AuthStore>()(
       getUser: () => get().user,
       setHasHydrated: (state) => {
         set({ hasHydrated: state });
+      },
+      resetStore: () => {
+        set({
+          token: null,
+          isAuth: false,
+          user: null,
+          loginDate: null,
+          hasActiveSubscription: false,
+          subscriptionEndDate: null,
+          subscriptionType: {
+            name: "Free",
+            cycle: "monthly",
+          },
+          rememberMe: false,
+        });
       },
     }),
     {
@@ -158,6 +194,7 @@ type CreateUserActions = {
   storeProfile: (profile: CreateProfileState) => void;
   storeRetryError: (hasError: boolean) => void;
   storeJustCreated: (justCreated: boolean) => void;
+  resetStore: () => void;
   storeJustVerified: (justVerified: boolean) => void;
 };
 
@@ -182,6 +219,15 @@ export const useCreateUserStore = create<CreateUserStore>()((set) => ({
     },
     storeProfile: (profile) => {
       set({ profile });
+    },
+    resetStore: () => {
+      set({
+        email: "",
+        profile: null,
+        retryError: false,
+        justCreated: false,
+        justVerified: false,
+      });
     },
   },
 }));

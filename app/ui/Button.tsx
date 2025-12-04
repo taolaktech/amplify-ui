@@ -41,7 +41,7 @@ export default function Button({
   // const isLarge = buttonSize === "large";
   return (
     <button
-      disabled={loading}
+      disabled={loading || disabled}
       onClick={handleOnClick}
       className={`w-[100%] relative bg-purple-600 
     ${gradientBorder && secondary ? "gradient-border" : ""}  ${

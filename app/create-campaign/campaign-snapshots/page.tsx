@@ -119,18 +119,6 @@ const MainActions = ({
   }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
-      {/* {!isOnlyGoogle && (
-        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-          
-          <img
-            src={MagicStarIcon.src}
-            alt="Magic Star"
-            width={20}
-            height={20}
-          />
-          <span className="text-sm font-medium">Mix</span>
-        </button>
-      )} */}
       {canUndo(highlightedProduct?.node?.id) && (
         <button
           disabled={isLoading}
@@ -233,14 +221,30 @@ export default function CampaignSnapshotsPage() {
 
     if (isLoading) return;
 
-    const hasCreative =
-      (supportedAdPlatforms.Google && Google?.[productId]) ||
-      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+    const googleHasCreative =
+      supportedAdPlatforms.Google && Google?.[productId];
+    const instagramHasCreative =
+      supportedAdPlatforms.Instagram && Instagram?.[productId];
+    const facebookHasCreative =
+      supportedAdPlatforms.Facebook && Facebook?.[productId];
 
-    if (!hasCreative) {
+    // const hasCreative =
+    //   (supportedAdPlatforms.Google && Google?.[productId]) ||
+    //   (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+    //   (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+
+    // Collect all missing platforms for this product
+    const missingPlatforms: Platform[] = [];
+    if (supportedAdPlatforms.Google && !googleHasCreative)
+      missingPlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram && !instagramHasCreative)
+      missingPlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook && !facebookHasCreative)
+      missingPlatforms.push("FACEBOOK");
+
+    if (missingPlatforms.length > 0) {
       hasRunRef.current[productId] = true;
-      generateCreatives(productId, activePlatforms as Platform[]);
+      generateCreatives(productId, missingPlatforms);
     }
   }, [highlightedProduct?.node.id]);
 
@@ -386,6 +390,10 @@ export default function CampaignSnapshotsPage() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   // window.scrollTo({ top: 0, behavior: "instant" });
+  // }, [highlightedProduct?.node.id]);
+
   const isOnlyGoogle = supportedAdPlatforms.Google && adPlatforms.length === 1;
 
   const handleSetHighlightedProduct = (product: ShopifyProduct) => {
@@ -515,6 +523,7 @@ export default function CampaignSnapshotsPage() {
         </div>
         <div className="mt-10">
           <Preview
+            key={highlightedProduct?.node.id || "1"}
             adPlatforms={adPlatforms}
             highlightedProductId={highlightedProduct?.node.id || "1"}
             generateCreatives={generateCreatives}
@@ -533,7 +542,6 @@ export default function CampaignSnapshotsPage() {
           />
         </div>
       </div>
-      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 }

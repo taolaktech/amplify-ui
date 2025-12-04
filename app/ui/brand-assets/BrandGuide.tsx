@@ -117,20 +117,14 @@ const BrandGuidePreview = ({
 
   useEffect(() => {
     setUseGoogleViewer(typeof brandGuide === "string");
-    console.log(brandGuide);
-    console.log("brandGuide: ", typeof brandGuide);
   }, [brandGuide]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   return (
     <div
       onClick={handleUploadBtnClick}
       className="w-full relative cursor-pointer h-[278px] flex flex-col gap-3 bg-[rgba(230,230,230,0.25)] rounded-[8px] p-4"
     >
-      <div
-        ref={containerRef}
-        className="w-full h-[169px] bg-white max-h-[167px] max-w-full overflow-hidden relative"
-      >
+      <div className="w-full h-[169px] bg-white max-h-[167px] max-w-full overflow-hidden relative">
         {/* <img src={null} id="pdf-thumbnail" alt="" height={200} /> */}
         {useGoogleViewer ? (
           <iframe

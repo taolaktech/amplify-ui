@@ -79,6 +79,7 @@ export default function StoryPost({
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
               opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
               transition: "opacity 0.5s ease-in-out",
+              objectFit: "contain",
             }}
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoUrlError(true)}
@@ -237,6 +238,7 @@ const Avatar = ({
         style={{
           width: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
+          objectFit: "contain",
         }}
         unoptimized
         className={`${
