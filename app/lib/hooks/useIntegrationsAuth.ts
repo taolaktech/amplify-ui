@@ -89,7 +89,6 @@ export default function useIntegrationsAuth() {
       console.error(`Error during ${platform} authentication:`, error);
     } finally {
       setLoading(false);
-      console.error(`Error during ${platform} authentication:`);
     }
   };
 

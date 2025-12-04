@@ -54,8 +54,10 @@ export const ChooseMetaAccount = ({
                   className="flex flex-1 w-full pl-6 py-4  items-center gap-4 flex-shrink-0"
                   onClick={() => setSelectedAdAccount(account)}
                 >
-                  <div className="flex flex-col justify-center">
-                    <div className="text-sm font-medium">{account.name}</div>
+                  <div className="flex flex-col justify-center w-full ">
+                    <div className="text-sm font-medium max-w-[70%] truncate whitespace-nowrap text-ellipsis">
+                      {account.name}
+                    </div>
                   </div>
                 </div>
                 <div className="pr-6 py-4 ">
@@ -67,7 +69,7 @@ export const ChooseMetaAccount = ({
             ))}
           </div>
 
-          <div className="h-[80px] p-6 rounded-b-3xl">
+          <div className="h-[90px] p-6 rounded-b-3xl">
             <div className="ml-auto max-w-[100px]">
               <Button text="Confirm" hasIconOrLoader />
             </div>

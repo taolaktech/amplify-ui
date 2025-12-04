@@ -67,6 +67,28 @@ export const facebookCallback = async (data: {
   return response.data;
 };
 
+export const selectFacebookPrimaryAdAccount = async (data: {
+  adAccountId: string;
+  pageId: string;
+  metaPixelId?: string | null;
+  token: string;
+}) => {
+  const response = await axiosInstanceBase.post(
+    "/facebook-auth/ad-accounts/primary/select",
+    {
+      adAccountId: data.adAccountId,
+      pageId: data.pageId,
+      metaPixelId: data.metaPixelId || null,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export const handleShopifyAuth = async (data: {
   shop: string;
   token: string;

@@ -8,6 +8,7 @@ import useBrandAssetStore from "./brandAssetStore";
 import useCreativesStore from "./creativesStore";
 import { useCreateCampaignStore } from "./createCampaignStore";
 import { useSetupStore } from "./setupStore";
+import router from "next/navigation";
 
 export type SubscriptionType =
   | "FREE_PLAN"
@@ -124,6 +125,7 @@ export const useAuthStore = create<AuthStore>()(
         useCampaignsStore.getState().actions.resetStore();
         useCreateCampaignStore.getState().actions.reset();
         useSetupStore.getState().reset();
+        router.redirect("/auth/login");
       },
       storeRememberMe: () => {
         const rememberMe = !get().rememberMe;
