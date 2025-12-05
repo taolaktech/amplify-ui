@@ -76,8 +76,10 @@ export const useCampaignsActions = () => {
     }
     if (
       (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
-      (!data || data?.length === 0)
+      (!data || data?.length === 0) &&
+      !localStorage.getItem("seen-pricing")
     ) {
+      localStorage.setItem("seen-pricing", "true");
       router.push("/pricing");
     } else {
       router.push("/create-campaign");
