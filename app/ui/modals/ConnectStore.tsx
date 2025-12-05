@@ -145,7 +145,16 @@ function ConnectStore({
                   Connect your Shopify Store
                 </p>
                 <p className="text-xs tracking-100">
-                  Enter your Shopify store link
+                  Enter your Shopify store link. Not sure where to find it?{" "}
+                  <a
+                    href="https://www.youtube.com/watch?v=84j-y1qyyyQ&themeRefresh=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-purple-700"
+                  >
+                    Click here
+                  </a>{" "}
+                  to watch a video guide on where to find it.
                 </p>
               </div>
               <div className="mt-9">
@@ -159,7 +168,7 @@ function ConnectStore({
 
                   <input
                     type="text"
-                    placeholder="http://www.rstore.com/"
+                    placeholder="your-store.myshopify.com"
                     value={shopifyStore}
                     name="store"
                     id="store"

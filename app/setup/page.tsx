@@ -3,7 +3,7 @@ import ShopIcon from "@/public/shop.svg";
 import ShopIconSM from "@/public/shop-sm.svg";
 import TickIcon from "@/public/tick-circle-gradient.svg";
 import TickIconSM from "@/public/tick-circle-gradient-sm.svg";
-// import { useSetupStore } from "@/app/lib/stores/setupStore";
+import { useSetupStore } from "@/app/lib/stores/setupStore"; // ADDED: Import store
 import { useSearchParams } from "next/navigation";
 import TrendUpIcon from "@/public/trend-up.svg";
 import TrendUpIconSM from "@/public/trendup-sm.svg";
@@ -17,14 +17,18 @@ function ConnectPage() {
 
   const params = useSearchParams();
   const isLinkedStore = params.get("linked_store") === "true";
+  const storeUrl = useSetupStore((state) => state.connectStore.storeUrl); // ADDED: Get store URL from store
 
   const handleContinue = () => {
     setConnectStoreModal(true);
   };
 
   useEffect(() => {
-    if (isLinkedStore) setConnectStoreModal(true);
-  }, [isLinkedStore]);
+    // UPDATED: Only auto-open modal if we have a store URL to fetch
+    if (isLinkedStore && storeUrl) {
+      setConnectStoreModal(true);
+    }
+  }, [isLinkedStore, storeUrl]); // UPDATED: Added storeUrl as dependency
 
   return (
     <div className="">

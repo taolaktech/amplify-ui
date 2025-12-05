@@ -136,17 +136,17 @@ function GettingStarted() {
                   <div className="flex items-end space-x-3 ml-4 h-full">
                     {/* Chart 1 - Shortest */}
                     <div className="flex flex-col items-center justify-end h-full">
-                      <div className="w-[35px] bg-gradient-to-t from-[#8A2BE2] to-[#4B0082] rounded-t-lg h-24"></div>
+                      <div className="w-[35px] bg-gradient-to-t from-[#240343] to-[#270440] rounded-t-lg h-24"></div>
                     </div>
 
                     {/* Chart 3 - Tallest */}
                     <div className="flex flex-col items-center justify-end h-full">
-                      <div className="w-[35px] bg-gradient-to-t from-[#8A2BE2] to-[#4B0082] rounded-t-lg h-32"></div>
+                      <div className="w-[35px] bg-gradient-to-t from-[#32075b] to-[#3c0464] rounded-t-lg h-32"></div>
                     </div>
 
                     {/* Chart 2 - Medium */}
                     <div className="flex flex-col items-center justify-end h-full">
-                      <div className="w-[35px] bg-gradient-to-t from-[#8A2BE2] to-[#4B0082] rounded-t-lg h-20"></div>
+                      <div className="w-[35px] bg-gradient-to-t from-[#2e0752] to-[#2e024d] rounded-t-lg h-20"></div>
                     </div>
                   </div>
                 </div>
