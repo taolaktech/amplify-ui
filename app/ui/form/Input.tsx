@@ -12,6 +12,7 @@ type InputProps = {
   error?: string;
   placeholder?: string;
   background?: string;
+  largeBorder?: boolean;
   borderless?: boolean;
   visibility?: boolean;
   showErrorMessage?: boolean;
@@ -33,6 +34,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       background,
       borderless,
       showPasswordErrorMessage,
+      largeBorder,
       ...props
     },
     ref
@@ -75,7 +77,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ? "border-red-500 focus:border-red-500"
                 : "border-input-border focus:border-[#A755FF] "
             } rounded-lg text-sm focus:outline-0 ${
-              borderless ? "border-none" : "border-[1.2px]"
+              borderless
+                ? "border-none"
+                : largeBorder
+                ? "border-2"
+                : "border-[1.2px]"
             } `}
             {...props}
           />

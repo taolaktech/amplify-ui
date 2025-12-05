@@ -13,16 +13,30 @@ import IGPostLG from "@/public/ig_post_lg.webp";
 import FacebookPostSM from "@/public/facebook_post_sm.webp";
 import FacebookPostLG from "@/public/facebook_post_lg.webp";
 import { useModal } from "@/app/lib/hooks/useModal";
-// import { useGenerateCreatives } from "@/app/lib/hooks/creatives";
+import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
+import AdPlatformConnect from "@/app/ui/modals/AdPlatformConnect";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
-  const { productSelection, supportedAdPlatforms, actions } =
-    useCreateCampaignStore((state) => state);
+  const productSelection = useCreateCampaignStore(
+    (state) => state.productSelection
+  );
+  const supportedAdPlatforms = useCreateCampaignStore(
+    (state) => state.supportedAdPlatforms
+  );
 
-  // const { initialGeneration, loading } = useGenerateCreatives();
+  const [activePlatform, setActivePlatform] = useState<
+    "Instagram" | "Facebook"
+  >("Facebook");
+
+  const [showAdPlatformConnectModal, setShowAdPlatformConnectModal] =
+    useState(false);
+
+  const actions = useCreateCampaignStore((state) => state.actions);
+
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { instagram, facebook } = useIntegrationStore((state) => state);
 
   useModal(isLoading);
 
@@ -42,6 +56,16 @@ const SupportedAdPlatforms = () => {
   }, []);
 
   useEffect(() => {
+    if (!instagram) {
+      actions.setAdsPlatform("Instagram", false);
+    }
+
+    if (!facebook) {
+      actions.setAdsPlatform("Facebook", false);
+    }
+  }, [instagram, facebook]);
+
+  useEffect(() => {
     if (!productSelection.complete) {
       router.push("/create-campaign/");
     }
@@ -56,14 +80,31 @@ const SupportedAdPlatforms = () => {
     actions.completeAdsPlatform();
 
     router.push("/create-campaign/campaign-snapshots");
+  };
 
-    // setTimeout(() => {
-    //   if (canProceed) {
-    //     actions.completeAdsPlatform();
-    //     router.push("/create-campaign/campaign-snapshots");
-    //   }
-    //   setIsLoading(false);
-    // }, 2000);
+  const handleToggleFacebook = () => {
+    if (supportedAdPlatforms.Facebook) {
+      actions.toggleAdsPlatform("Facebook");
+      return;
+    }
+    if (!facebook) {
+      setActivePlatform("Facebook");
+      setShowAdPlatformConnectModal(true);
+      return;
+    }
+    actions.toggleAdsPlatform("Facebook");
+  };
+  const handleToggleInstagram = () => {
+    if (supportedAdPlatforms.Instagram) {
+      actions.toggleAdsPlatform("Instagram");
+      return;
+    }
+    if (!instagram) {
+      setActivePlatform("Instagram");
+      setShowAdPlatformConnectModal(true);
+      return;
+    }
+    actions.toggleAdsPlatform("Instagram");
   };
 
   return (
@@ -139,9 +180,7 @@ const SupportedAdPlatforms = () => {
             />
             <Toggle
               on={supportedAdPlatforms.Instagram}
-              // on={false}
-              toggle={() => actions.toggleAdsPlatform("Instagram")}
-              // toggle={() => {}}
+              toggle={handleToggleInstagram}
             />
           </div>
         </div>
@@ -172,14 +211,12 @@ const SupportedAdPlatforms = () => {
             />
             <Toggle
               on={supportedAdPlatforms.Facebook}
-              // on={false}
-              toggle={() => actions.toggleAdsPlatform("Facebook")}
-              // toggle={() => {}}
+              toggle={handleToggleFacebook}
             />
           </div>
         </div>
       </div>
-      <div className="mt-5 md:mt-7 sm:max-w-[200px] mx-auto">
+      <div className="mt-5 md:mt-9 sm:max-w-[200px] mx-auto">
         <Button
           text="Proceed"
           action={handleProceed}
@@ -191,7 +228,12 @@ const SupportedAdPlatforms = () => {
           iconSize={16}
         />
       </div>
-      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
+      {showAdPlatformConnectModal && (
+        <AdPlatformConnect
+          platform={activePlatform.toUpperCase() as "FACEBOOK" | "INSTAGRAM"}
+          handleClose={() => setShowAdPlatformConnectModal(false)}
+        />
+      )}
     </div>
   );
 };
