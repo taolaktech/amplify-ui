@@ -12,7 +12,8 @@ import URLInput from "@/app/ui/form/URLInput";
 import { Gallery, TickCircle } from "iconsax-react";
 import DefaultButton from "@/app/ui/Button";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function StoreDetails() {
   const {
@@ -36,11 +37,44 @@ export default function StoreDetails() {
     submitBusinessDetailsMutation,
   } = useBusinessDetails(true);
 
+  const { setToast } = useToastStore(); // ✅ CORRECT: Use setToast method
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ✅ ADD SUCCESS TOAST WHEN SAVE IS SUCCESSFUL
+  useEffect(() => {
+    if (submitBusinessDetailsMutation.isSuccess) {
+      setToast({
+        title: "Success",
+        message: "Store details saved successfully!",
+        type: "success",
+      });
+    }
+  }, [submitBusinessDetailsMutation.isSuccess, setToast]);
+
+  // ✅ ADD ERROR TOAST IF SAVE FAILS
+  useEffect(() => {
+    if (submitBusinessDetailsMutation.isError) {
+      setToast({
+        title: "Error",
+        message: "Failed to save store details. Please try again.",
+        type: "error",
+      });
+    }
+  }, [submitBusinessDetailsMutation.isError, setToast]);
 
   const handleUploadBtnClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  // ✅ MODIFIED: Wrap handleAction to ensure feedback
+  const handleSaveWithFeedback = async () => {
+    try {
+      await handleAction();
+      // Toast will be shown by the useEffect above
+    } catch (error) {
+      // Error toast will be shown by the useEffect above
     }
   };
 
@@ -177,7 +211,6 @@ export default function StoreDetails() {
           <Input
             type="text"
             label="Contact Email"
-            // placeholder="Enter your company or store name"
             large
             {...register("contactEmail", {
               required: "Enter your contact email",
@@ -192,7 +225,6 @@ export default function StoreDetails() {
           <Input
             type="text"
             label="Contact Phone Number"
-            // placeholder="Enter your company or store name"
             large
             {...register("contactPhone", {
               required: "Enter your contact phone number",
@@ -243,25 +275,6 @@ export default function StoreDetails() {
             error={companyRoleError ? "Choose your company role" : undefined}
           />
         </div>
-        {/* <div className="w-full">
-          <div className="text-xs">Integration Status</div>
-          <div className="flex gap-2 flex-shrink-0 mt-2 flex-wrap">
-            {defaultBusinessDetails.storeUrl && (
-              <div className="bg-[#EAF7EF] py-2 px-3  flex items-center gap-2 rounded-full">
-                <span className="bg-[#27AE60] w-[16px] h-[16px] flex items-center justify-center rounded-full">
-                  <CheckIcon fill="#fff" width={10} height={10} />
-                </span>
-                <Image
-                  src="/shopify.svg"
-                  alt="shopify"
-                  width={56}
-                  height={36}
-                  // className="w-full h-full"
-                />
-              </div>
-            )}
-          </div>
-        </div> */}
       </div>
 
       <div className="flex flex-col md:flex-row gap-5 md:gap-4 mt-5 md:mt-9">
@@ -308,12 +321,13 @@ export default function StoreDetails() {
           />
         </div>
       </div>
+
       <div className="sm:max-w-[205px] mx-auto my-4 md:my-10">
         <DefaultButton
           hasIconOrLoader
           text="Save Changes"
           height={49}
-          action={handleAction}
+          action={handleSaveWithFeedback} // ✅ Use the new handler with toast feedback
           loading={submitBusinessDetailsMutation.isPending || isPending}
           icon={<TickCircle size="16" color="#fff" variant="Bold" />}
         />
