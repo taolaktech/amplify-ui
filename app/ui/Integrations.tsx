@@ -81,7 +81,6 @@ export default function Integrations({
             isOpen={connectStoreModal}
             closeModal={() => setConnectStoreModal(false)}
             isIntegrations={true}
-            // isLinkedStore={isLinkedStore}
           />
         )}
       </div>

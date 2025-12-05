@@ -27,6 +27,19 @@ export default function IntegrationLayout() {
     metaAccountChooser,
     setMetaAccountChooser,
     metaAccounts,
+    handleGetPagesForAdAccount,
+    metaPages,
+    metaPagesLoading,
+    selectedMetaPage,
+    setSelectedMetaPage,
+    step,
+    setStep,
+    lastStepLoading,
+    integrationsAuthPlatform,
+    handleLastStep,
+    selectedIGAccount,
+    setSelectedIGAccount,
+    IGAccounts,
   } = useIntegrationsAuth();
 
   useModal(loading || metaAccountChooser);
@@ -38,7 +51,17 @@ export default function IntegrationLayout() {
   useEffect(() => {
     const code = params.get("code");
     const state = params.get("state");
+    const platform = params.get("platform");
+    const route = params.get("route");
+    console.log("params:", params);
     if (hasRun.current) return;
+    if (params.get("platform")) {
+      if (platform === "INSTAGRAM") {
+        handleFacebookAuth("INSTAGRAM", route);
+      } else if (platform === "FACEBOOK") {
+        handleFacebookAuth("FACEBOOK", route);
+      }
+    }
     if (code && state && token) {
       handleFacebookCallback(code, state);
       hasRun.current = true;
@@ -106,6 +129,19 @@ export default function IntegrationLayout() {
           handleClose={() => setMetaAccountChooser(false)}
           selectedAdAccount={selectedAdAccount}
           setSelectedAdAccount={setSelectedAdAccount}
+          handleGetPagesForAdAccount={handleGetPagesForAdAccount}
+          metaPages={metaPages}
+          metaPagesLoading={metaPagesLoading}
+          selectedMetaPage={selectedMetaPage}
+          setSelectedMetaPage={setSelectedMetaPage}
+          step={step}
+          setStep={setStep}
+          lastStepLoading={lastStepLoading}
+          handleLastStep={handleLastStep}
+          integrationsAuthPlatform={integrationsAuthPlatform}
+          selectedIGAccount={selectedIGAccount}
+          setSelectedIGAccount={setSelectedIGAccount}
+          IGAccounts={IGAccounts}
         />
       )}
     </div>

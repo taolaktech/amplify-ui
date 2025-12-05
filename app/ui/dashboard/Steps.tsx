@@ -17,30 +17,39 @@ export default function Steps2() {
 
   useModal(loading);
 
-  const { primaryLogo, brandGuide, brandGuideName } = useBrandAssetStore(
-    (state) => state
-  );
+  // const { primaryLogo, brandGuide, brandGuideName } = useBrandAssetStore(
+  //   (state) => state
+  // );
+  const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const router = useRouter();
 
-  const { google, instagram, facebook } = useIntegrationStore((state) => state);
+  const { instagram, facebook } = useIntegrationStore((state) => state);
 
   useEffect(() => {
-    console.log("isSetupComplete", isSetupComplete, link);
-    let step = 1;
-    if (primaryLogo && (brandGuide || brandGuideName)) {
+    console.log("isSetupComplete", isSetupComplete);
+    console.log("isFacebook", facebook);
+    let step = 0;
+    // if (primaryLogo && (brandGuide || brandGuideName)) {
+    if (primaryLogo) {
       step += 1;
     }
     if (instagram) step += 1;
 
     if (facebook) step += 1;
 
-    if (google) step += 1;
-
     if (isSetupComplete) step += 1;
     console.log("step", step);
 
     setStep(step);
-  }, [isSetupComplete, link]);
+  }, [
+    isSetupComplete,
+    link,
+    instagram,
+    facebook,
+    primaryLogo,
+    // brandGuide,
+    // brandGuideName,
+  ]);
 
   const handleUploadBrandKit = () => {
     router.push("/company/brand-assets");
@@ -52,12 +61,12 @@ export default function Steps2() {
         <h2 className="font-medium md:text-xl">Complete your Setup</h2>
         <div className="flex flex-row mt-2 items-center flex-shrink-0">
           <div className="text-xs font-medium text-[#787779] w-[70px]">
-            {step} / 5 Steps
+            {step} / 4 Steps
           </div>
           <div className="w-full bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
             <div
               style={{
-                width: `${(step / 5) * 100}%`,
+                width: `${(step / 4) * 100}%`,
                 backgroundColor: "#27AE60",
                 borderRadius: 2.5,
                 height: 3,
@@ -88,10 +97,11 @@ export default function Steps2() {
           />
           <StepsItem
             text="Upload Brand Kit"
-            connected={
-              Boolean(primaryLogo) &&
-              (Boolean(brandGuide) || Boolean(brandGuideName))
-            }
+            // connected={
+            //   Boolean(primaryLogo) &&
+            //   (Boolean(brandGuide) || Boolean(brandGuideName))
+            // }
+            connected={Boolean(primaryLogo)}
             isOptional
             action={handleUploadBrandKit}
           />

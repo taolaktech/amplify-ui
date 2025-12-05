@@ -67,18 +67,67 @@ export const facebookCallback = async (data: {
   return response.data;
 };
 
+export const getAdPagesForAdAccount = async (data: {
+  adAccountId: string;
+  token: string;
+}) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/facebook-auth/ad-accounts/${data.adAccountId}/pages`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const testAdPagesForAdAccount = async (data: {
+  adAccountId: string;
+  token: string;
+}) => {
+  await sleep(2000); // 2s delay
+  console.log(data);
+
+  return {
+    success: true,
+    data: [
+      {
+        _id: "68b0c75f03d4f2edcfad28bd",
+        userId: "680690b4b7fe560e4582cf2f",
+        pageId: "712111348642385",
+        pageName: "Amplify AI",
+        pageCategory: "Software Company",
+        isPrimaryPage: true,
+        createdAt: "2025-08-28T21:17:19.056Z",
+        updatedAt: "2025-12-04T12:05:25.430Z",
+        __v: 0,
+        connectedInstagramAccountId: "17841476275533415",
+      },
+    ],
+    message: "Pages retrieved successfully",
+  };
+};
+
 export const selectFacebookPrimaryAdAccount = async (data: {
   adAccountId: string;
   pageId: string;
   metaPixelId?: string | null;
+  instagramAccountId?: string | null;
   token: string;
 }) => {
-  const response = await axiosInstanceBase.post(
-    "/facebook-auth/ad-accounts/primary/select",
+  const response = await axios.post(
+    `${INTEGRATION_HOST}/facebook-auth/ad-accounts/primary/select`,
     {
       adAccountId: data.adAccountId,
       pageId: data.pageId,
       metaPixelId: data.metaPixelId || null,
+      ...(data.instagramAccountId
+        ? { instagramAccountId: data.instagramAccountId }
+        : {}),
     },
     {
       headers: {
