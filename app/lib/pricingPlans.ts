@@ -4,7 +4,6 @@ const pricingPlans = [
     price: 0,
     features: [
       "Shopify Integration",
-      "Up to $100 in ad credit for every 5 referrals",
       "Launch 1 AI-Powered Ad Product campaign across multiple ad platforms",
       "AI-Powered marketing campaign setup, automation and optimization",
       "2 Set of AI-Generated Ad Creatives & Copy",
@@ -22,7 +21,7 @@ const pricingPlans = [
       "Generate Up to 250 AI-Generated Product Ad Creatives & Copy",
       "Ready-to-Launch AI-Powered Product Campaigns designed to Boost Sales",
       "Unlimited Ad Spend",
-      "Pay <b> 0% commission for the first 3 months,</b> then only <b>2.5% on ad spend.</b>",
+      "Pay 0% commission on Ad Spend",
     ],
   },
   {
@@ -32,7 +31,7 @@ const pricingPlans = [
       "Everything in Starter plan plus",
       "Launch up to 30 AI-Powered Ad Product Campaigns across multiple ad platforms",
       "Generate Up to 450 AI-Generated Product Ad Creatives & Copy",
-      "Pay <b> 0% commission for the first 3 months,</b> then only <b>1.5% on ad spend.</b>",
+      "Pay 0% commission on Ad Spend",
     ],
   },
   // {
@@ -42,7 +41,7 @@ const pricingPlans = [
   //     "Everything in Grow plan plus",
   //     "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
   //     "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
-  //     "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
+  //     "Pay 0% commission on Ad Spend",
   //   ],
   // },
 ];
