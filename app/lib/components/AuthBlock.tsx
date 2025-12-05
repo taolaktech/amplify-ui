@@ -54,9 +54,7 @@ export default function AuthBlock({
 
   const isPublicRoute = checkIsPublicRoute();
 
-  if (!isMounted || (!isPublicRoute && !isAuth)) {
-    return <SplashScreen />; // or return a <LoadingScreen />
-  }
+  const showSplashScreen = !isMounted || (!isPublicRoute && !isAuth);
 
-  return <>{children}</>;
+  return showSplashScreen ? <SplashScreen /> : <>{children}</>;
 }

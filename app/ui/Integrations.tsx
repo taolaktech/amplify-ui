@@ -2,6 +2,7 @@ import Image from "next/image";
 import Toggle from "./Toggle";
 import ConnectStore from "./modals/ConnectStore";
 import { useState } from "react";
+// import { useSearchParams } from "next/navigation";
 
 export default function Integrations({
   heading,
@@ -80,7 +81,6 @@ export default function Integrations({
             isOpen={connectStoreModal}
             closeModal={() => setConnectStoreModal(false)}
             isIntegrations={true}
-            // isLinkedStore={isLinkedStore}
           />
         )}
       </div>

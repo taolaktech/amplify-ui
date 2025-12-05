@@ -65,6 +65,10 @@ type CreateCampaignActions = {
   }) => void;
   storeSelectedPaymentMethod: (paymentMethod: cardDetails | null) => void;
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
+  setAdsPlatform: (
+    platform: keyof SupportedAdPlatforms,
+    value: boolean
+  ) => void;
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
@@ -209,6 +213,17 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             supportedAdPlatforms: {
               ...state.supportedAdPlatforms,
               [platform]: !state.supportedAdPlatforms[platform],
+            },
+          }));
+        },
+        setAdsPlatform: (
+          platform: keyof SupportedAdPlatforms,
+          value: boolean
+        ) => {
+          set((state) => ({
+            supportedAdPlatforms: {
+              ...state.supportedAdPlatforms,
+              [platform]: value,
             },
           }));
         },

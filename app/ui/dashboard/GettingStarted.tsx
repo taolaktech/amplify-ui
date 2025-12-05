@@ -1,30 +1,52 @@
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
 import { CloseCircle, Notification } from "iconsax-react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
 import Button from "../Button";
 import Link from "next/link";
 import Image from "next/image";
-import Steps2 from "./Steps2";
+import Steps from "./Steps";
 import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
+import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
+import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 
 function GettingStarted() {
   const user = useAuthStore((state) => state.user);
   const [cancelNotification, setCancelNotification] = useState(false);
   const { navigateToCreateCampaign } = useCampaignsActions();
   const { isSetupComplete, link } = useGetSetupComplete();
+  const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
+
+  const { instagram, facebook } = useIntegrationStore((state) => state);
+
+  const stepsComplete = useMemo(() => {
+    return isSetupComplete && instagram && facebook && primaryLogo;
+  }, [isSetupComplete, instagram, facebook, primaryLogo]);
 
   const firstName = user?.name?.split(" ")[0] || "Unknown";
   return (
     <div className="flex flex-col gap-7">
-      <div>
-        <p className="font-semibold text-lg lg:text-2xl">
-          Welcome {firstName} 👋
-        </p>
-        <p className="text-sm lg:text-base">
-          Let's start growing your business.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-semibold text-lg lg:text-2xl">
+            Welcome {firstName} 👋
+          </p>
+          <p className="text-sm lg:text-base">
+            Let's start growing your business.
+          </p>
+        </div>
+        {/* {isSetupComplete && (
+          <div className="w-full max-w-[180px]">
+            <Button
+              text="Create Campaign"
+              height={54}
+              action={navigateToCreateCampaign}
+              icon={<CalendarEdit size={16} color="#fff" />}
+              hasIconOrLoader
+            />
+          </div>
+        )} */}
       </div>
       {!isSetupComplete && (
         <div
@@ -57,11 +79,12 @@ function GettingStarted() {
           </div>
         </div>
       )}
-      <div className="h-[377px] md:h-[416px] flex gap-2  ">
-        <div className="w-[100%] h-full">
-          <Steps2 />
-        </div>
-        {/* <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
+      {!stepsComplete && (
+        <div className="h-[377px] md:h-[416px] flex gap-2  ">
+          <div className="w-[100%] h-full">
+            <Steps />
+          </div>
+          {/* <div className="bg-gradient relative w-full rounded-3xl overflow-hidden arrow-shadow">
           <Steps />
           <div className="absolute top-0 right-0 translate-x-[25%] -translate-y-[35%] bg-[rgba(255,255,255,0.05)] h-[305px] w-[305px] md:h-[610px] md:w-[610px] flex items-center justify-center rounded-full">
             <div className="bg-[rgba(255,255,255,0.05)] h-[237px] w-[237px] md:h-[474px] md:w-[474px] flex items-center justify-center rounded-full">
@@ -69,31 +92,37 @@ function GettingStarted() {
             </div>
           </div>
         </div> */}
-        <div className="hidden relative flex-col xl:flex w-full overflow-hidden max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
-          <div>
-            <HomeTrendIcon width={34} height={34} />
-            <span className="absolute bottom-0 z-[1] right-0">
-              {/* <ChartIcon width={226} height={226} />
-               */}
-              <Image alt="chart" src={"/chart.png"} width={276} height={276} />
-            </span>
-            <h1 className="text-4xl mt-3 font-extrabold bg-gradient-to-r max-w-[300px] from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
-              Ready to Amplify Your Sales?
-            </h1>
-            <p className="text-sm text-white mt-2 max-w-[220px]">
-              Kickstart your first campaign and watch your conversions grow.
-            </p>
-          </div>
-          <div className="max-w-[140px] z-[2] mt-auto">
-            <Button
-              text="Start Campaign"
-              height={50}
-              action={navigateToCreateCampaign}
-              secondary
-            />
+          <div className="hidden relative flex-col xl:flex w-full overflow-hidden max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
+            <div>
+              <HomeTrendIcon width={34} height={34} />
+              <span className="absolute bottom-0 z-[1] right-0">
+                {/* <ChartIcon width={226} height={226} />
+                 */}
+                <Image
+                  alt="chart"
+                  src={"/chart.png"}
+                  width={276}
+                  height={276}
+                />
+              </span>
+              <h1 className="text-4xl mt-3 font-extrabold bg-gradient-to-r max-w-[300px] from-[#A755FF] to-[#6800D7] bg-clip-text text-transparent">
+                Ready to Amplify Your Sales?
+              </h1>
+              <p className="text-sm text-white mt-2 max-w-[220px]">
+                Kickstart your first campaign and watch your conversions grow.
+              </p>
+            </div>
+            <div className="max-w-[140px] z-[2] mt-auto">
+              <Button
+                text="Start Campaign"
+                height={50}
+                action={navigateToCreateCampaign}
+                secondary
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

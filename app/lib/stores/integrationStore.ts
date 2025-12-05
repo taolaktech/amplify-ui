@@ -14,6 +14,8 @@ type IntegrationActions = {
   toggleGoogle: () => void;
   toggleInstagram: () => void;
   toggleFacebook: () => void;
+  setInstagram: (value: boolean) => void;
+  setFacebook: (value: boolean) => void;
   resetStore: () => void;
 };
 
@@ -52,6 +54,17 @@ export const useIntegrationStore = create<IntegrationStore>()(
         toggleInstagram: () => {
           set((state) => ({
             instagram: !state.instagram,
+          }));
+        },
+        setInstagram: (value: boolean) => {
+          set(() => ({
+            instagram: value,
+          }));
+        },
+        setFacebook: (value: boolean) => {
+          console.log("setting fb:", value);
+          set(() => ({
+            facebook: value,
           }));
         },
         toggleFacebook: () => {
