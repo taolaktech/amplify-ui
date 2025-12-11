@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 export default function AdPlatformConnect({
   handleClose,
   platform,
+  socialModalKind,
 }: {
   handleClose: () => void;
   platform: "INSTAGRAM" | "FACEBOOK";
+  socialModalKind: "INSTAGRAM" | "FACEBOOK";
 }) {
   const router = useRouter();
+
+  const isFacebook = socialModalKind === "FACEBOOK";
   return (
     <div className="">
       <div
@@ -34,13 +38,14 @@ export default function AdPlatformConnect({
               </button>
             </div>
             <div className="text-xl font-semibold mb-4">
-              Connect your Facebook Ads Account
+              Connect your {isFacebook ? "Facebook" : "Instagram"} Ads Account
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center flex-col w-full  p-6 overflow-y-scroll">
-            <div className="text-center text-[#555456]">
-              You’ll need to connect your Facebook/Instagram ad account before
+          <div className="flex-1 flex items-center justify-center flex-col w-full   p-6 overflow-y-scroll">
+            <div className="text-center text-[#555456] w-full max-w-[90%]">
+              You’ll need to connect your{" "}
+              {isFacebook ? "Facebook" : "Instagram"} ads account before
               generating creatives or launching a campaign.
             </div>
           </div>

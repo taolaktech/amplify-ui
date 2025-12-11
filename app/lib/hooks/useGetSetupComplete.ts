@@ -47,5 +47,7 @@ export const useGetSetupComplete = () => {
     marketingGoals.complete &&
     preferredSalesLocation.complete;
 
-  return { isSetupComplete, link };
+  const hasShopifyStore = shopifyStore;
+
+  return { isSetupComplete, link, shopifyStore, hasShopifyStore };
 };
