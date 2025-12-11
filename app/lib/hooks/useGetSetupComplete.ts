@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSetupStore } from "../stores/setupStore";
 import { useIntegrationStore } from "../stores/integrationStore";
-import useUIStore from "../stores/uiStore";
 
 export const useGetSetupComplete = () => {
   const {
@@ -10,10 +9,6 @@ export const useGetSetupComplete = () => {
     marketingGoals,
     preferredSalesLocation,
   } = useSetupStore((state) => state);
-
-  const setFromDashboardStep = useUIStore(
-    (state) => state.actions.setFromDashboardStep
-  );
 
   const shopifyStore = useIntegrationStore((state) => state).shopifyStore;
 

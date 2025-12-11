@@ -1,5 +1,5 @@
 import type React from "react";
-import SetupSideBar, { GoBack } from "../ui/SetupSideBar";
+import SetupSideBar from "../ui/SetupSideBar";
 import SetupMainContainer from "../ui/SetupMainContainer";
 
 export const metadata = {

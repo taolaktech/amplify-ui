@@ -1,7 +1,7 @@
 "use client";
 import { TickCircle, Next } from "iconsax-react";
 import { useSetupStore } from "../lib/stores/setupStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import NextSM from "@/public/next-sm.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
