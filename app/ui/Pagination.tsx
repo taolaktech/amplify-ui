@@ -10,7 +10,6 @@ export default function Pagination({
   setCurrentPage: (page: number) => void;
   currentPage: number;
 }) {
-  console.log(currentPage);
   return (
     <ReactPaginate
       pageCount={pageCount}
@@ -18,7 +17,7 @@ export default function Pagination({
       containerClassName="pagination"
       activeClassName="active"
       previousLabel={
-        pageCount > 0 ? (
+        pageCount > 0 && currentPage !== 1 ? (
           <span className="flex items-center">
             <ArrowLeft2 size={20} color="#6D6C6F" />
           </span>
@@ -26,11 +25,13 @@ export default function Pagination({
       }
       pageLabelBuilder={(page) => (Number(page) < 10 ? `0${page}` : page)}
       nextLabel={
-        pageCount > 0 ? (
+        pageCount > 0 && currentPage !== pageCount ? (
           <span className="flex items-center">
             <ArrowRight2 size={20} color="#6D6C6F" />
           </span>
-        ) : null
+        ) : (
+          <span className="cursor-not-allowed w-full"></span>
+        )
       }
     />
   );

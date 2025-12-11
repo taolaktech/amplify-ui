@@ -17,14 +17,18 @@ import { useGetSetupComplete } from "./useGetSetupComplete";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
-  const { page, sortBy, type, status, platforms } = useCampaignsStore(
+  const { sortBy, type, status, platforms } = useCampaignsStore(
     (state) => state
   );
   const isLoading = useCampaignsStore((state) => state.isLoading);
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken?: string, showLoader?: boolean) => {
+  const fetchCampaigns = async (
+    authToken?: string,
+    showLoader?: boolean,
+    page?: number
+  ) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
     actions.setIsLoading(true);
@@ -32,7 +36,7 @@ export default function useGetCampaigns() {
     const requestData: any = {
       token,
     };
-    if (page) requestData.page = page;
+    requestData.page = page ?? 0;
     if (sortBy) requestData.sortBy = sortBy;
     if (type) requestData.type = type;
     if (status) requestData.status = status;
@@ -41,6 +45,7 @@ export default function useGetCampaigns() {
       const data = await getCampaigns(requestData);
       console.log("Fetched campaigns data:", data);
       if (data.data) {
+        console.log("Setting campaigns data in store:", data.data);
         actions.setData(data.data.campaigns);
         console.log("Pagination info:", data.data.pagination);
         actions.setPaginationInfo(data.data.pagination);
