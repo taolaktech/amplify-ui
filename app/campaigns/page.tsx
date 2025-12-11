@@ -19,8 +19,8 @@ export default function CampaignsPage() {
 
   return (
     <div className="min-h-[calc(100vh-56px)] relative flex flex-col flex-shrink-0 lg:gap-6">
-      <div className="mb-3 lg:hidden font-semibold text-lg">Campaign</div>
-      <div className="flex w-full flex-col-reverse gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-3 lg:hidden font-semibold text-lg px-5">Campaign</div>
+      <div className="flex px-5 w-full flex-col-reverse gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="font-medium tracking-150 text-sm lg:text-base ">
           Overview
         </div>
@@ -34,7 +34,7 @@ export default function CampaignsPage() {
           />
         </div>
       </div>
-      <div className="lg:flex lg:h-[126px] lg:gap-4 mt-5 lg:mt-0">
+      <div className="lg:flex px-5 lg:h-[126px] lg:gap-4 mt-5 lg:mt-0">
         <div className="border h-[98px] lg:h-auto relative border-[#F3EFF6] rounded-2xl flex-1 py-3 px-4 lg:p-8 flex items-center">
           {!hasCampaigns && (
             <div className="absolute rounded-[20px] backdrop-blur-[5px] bg-transparent top-0 right-0 bottom-0 left-0 w-full"></div>
@@ -100,7 +100,7 @@ export default function CampaignsPage() {
           </div>
         </div>
       </div>
-      <div className="mt-3 lg:mt-0">
+      <div className="mt-3 lg:mt-0 px-5">
         <div className="border mb-4 relative border-[#F3EFF6] rounded-2xl flex-1 h-[98px] py-3 px-4 flex lg:hidden items-center">
           <div className="flex flex-col gap-2">
             <div className="text-xs text-[#595959]">Total Revenue</div>
@@ -149,11 +149,11 @@ export default function CampaignsPage() {
         </div>
       </div>
       {!hasCampaigns ? (
-        <div className="flex-1 min-h-[350px] mb-8 lg:min-h-[550px] bg-[#FBFAFC] flex flex-col">
+        <div className="flex-1 px-5 min-h-[350px] mb-8 lg:min-h-[550px] bg-[#FBFAFC] flex flex-col">
           <NoCampaigns handleCreateCampaign={navigateToCreateCampaign} />
         </div>
       ) : (
-        <div className="mt-4">
+        <div className="mt-4 ">
           <Campaigns />
         </div>
       )}

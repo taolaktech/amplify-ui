@@ -3,9 +3,10 @@ import { ProductOptions } from "./Settings";
 import Image from "next/image";
 import { ArrowDown2, More } from "iconsax-react";
 import CheckIcon from "@/public/custom-check.svg";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Platforms from "./Platforms";
 import Status from "./Status";
+import { createPortal } from "react-dom";
 import { campaignStatus } from "@/app/lib/utils";
 
 export default function TableData({
@@ -22,7 +23,7 @@ export default function TableData({
   moreRef: React.RefObject<HTMLButtonElement | null>;
   moreOpen: null | number;
   dropdownPosition: "top" | "bottom";
-  handleMoreClick: (e: any, index: number) => void;
+  handleMoreClick: (e: any, index: number | null) => void;
   toggleCampaignOpen: (e: React.MouseEvent, index: number) => void;
   campaignOpen: null | number;
 }) {
@@ -47,6 +48,41 @@ export default function TableData({
   const isEven = useMemo(() => {
     return index % 2 === 0 || index === 0;
   }, [index]);
+
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const moreButtonRef = useRef<HTMLDivElement>(null);
+  const [showOptions, setShowOptions] = useState(false);
+
+  useEffect(() => {
+    if (moreOpen === index) {
+      const handleScroll = () => {
+        handleMoreClick(new Event("scroll"), null);
+      };
+
+      window.addEventListener("scroll", handleScroll, true); // true captures scroll on any element
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll, true);
+      };
+    }
+  }, [moreOpen, index]);
+
+  useEffect(() => {
+    if (moreOpen === index && moreButtonRef.current) {
+      const rect = moreButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: dropdownPosition === "top" ? rect.top - 208 - 4 : rect.bottom + 4,
+        left: rect.right - 199, // align right edge of dropdown with button
+      });
+      setShowOptions(true);
+    } else setShowOptions(false);
+  }, [moreOpen, index, dropdownPosition]);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -135,18 +171,32 @@ export default function TableData({
           {new Date(campaign?.startDate)?.toLocaleDateString()}
         </div>
         <div
-          className="relative pr-2"
+          ref={moreButtonRef}
+          className="pr-2"
           onClick={(e) => handleMoreClick(e, index)}
         >
-          <div className="hover:bg-[rgba(167,127,255,0.1)] more-dropdown rounded-lg transition-all h-[24px] w-[24px] flex items-center justify-center ">
+          <div className="hover:bg-[rgba(167,127,255,0.1)] more-dropdown rounded-lg transition-all h-[24px] w-[24px] flex items-center justify-center">
             <button className="-rotate-90 cursor-pointer">
               <More size="16" color="#5B5B5B" />
             </button>
-            {moreOpen === index && (
-              <ProductOptions dropdownPosition={dropdownPosition} />
-            )}
           </div>
         </div>
+        {moreOpen === index &&
+          mounted &&
+          showOptions &&
+          createPortal(
+            <div
+              style={{
+                position: "fixed",
+                top: menuPosition.top,
+                left: menuPosition.left,
+                zIndex: 9999,
+              }}
+            >
+              <ProductOptions dropdownPosition={dropdownPosition} />
+            </div>,
+            document.body
+          )}
       </div>
 
       {/* ------------------------------------------------------ */}

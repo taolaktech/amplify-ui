@@ -5,7 +5,9 @@ export default function Campaigns() {
   return (
     <div>
       <div className="w-full">
-        <TableHeader />
+        <div className=" ">
+          <TableHeader />
+        </div>
         <Table />
       </div>
     </div>

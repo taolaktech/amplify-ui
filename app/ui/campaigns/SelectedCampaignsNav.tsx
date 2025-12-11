@@ -6,12 +6,16 @@ export default function SelectedCampaignsNav() {
   // const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const paginationInfo = useCampaignsStore((state) => state.paginationInfo);
   const excludeDataIds = useCampaignsStore((state) => state.excludeDataIds);
+  const excludeDataCount = useCampaignsStore(
+    (state) => state.excludedDataCount
+  );
   const { clearSelectedData } = useCampaignsStore((state) => state.actions);
 
   console.log("Rendering SelectedCampaignsNav", paginationInfo);
   const selectedNo = useMemo(() => {
-    return paginationInfo.total - excludeDataIds.length;
-  }, [paginationInfo, excludeDataIds]);
+    console.log("Calculating selectedNo", paginationInfo, excludeDataIds);
+    return paginationInfo.total - excludeDataCount;
+  }, [paginationInfo, excludeDataCount]);
   return (
     <>
       {selectedNo > 0 && (

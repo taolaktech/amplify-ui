@@ -7,9 +7,8 @@ export function ProductOptions({
 }) {
   return (
     <div
-      className={`h-[208px] z-5 absolute more-dropdown left-[-140px] ${
-        dropdownPosition === "bottom" ? " bottom-[-184px]" : " top-[-208px]"
-      } w-[199px] bg-white shadow-[0_0px_3px_rgba(0,0,0,0.1)] rounded-[10px] border-[#B6B3B9]`}
+      className={`h-[208px] z-5  more-dropdown 
+       w-[199px] bg-white custom-shadow-sm rounded-[10px] border-[0.5] border-[#B6B3B9]`}
     >
       <div className="h-[52px] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center">
         <Play size={16} color="#101214" />

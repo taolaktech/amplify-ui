@@ -42,6 +42,7 @@ export default function useGetCampaigns() {
       console.log("Fetched campaigns data:", data);
       if (data.data) {
         actions.setData(data.data.campaigns);
+        console.log("Pagination info:", data.data.pagination);
         actions.setPaginationInfo(data.data.pagination);
       }
       setError(null); // Clear any previous errors
