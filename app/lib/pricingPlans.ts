@@ -21,7 +21,7 @@ const pricingPlans = [
       "Generate Up to 250 AI-Generated Product Ad Creatives & Copy",
       "Ready-to-Launch AI-Powered Product Campaigns designed to Boost Sales",
       "Unlimited Ad Spend",
-      "Pay 0% commission on Ad Spend",
+      "Pay 0% commission on ad spend",
     ],
   },
   {
