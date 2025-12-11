@@ -134,6 +134,7 @@ export default function Checkout({
     if ((isUpgrade || isDowngrade) && hasActiveSubscription) {
       handleUpgrade({
         newPriceId: price,
+        isDowngrade: isDowngrade || false,
       });
     } else {
       handleSubscribe({
@@ -210,17 +211,9 @@ export default function Checkout({
       </div>
       {!putInContainer ||
         (!isAddCard && !isAddCardPage && (
-          <div className="w-full md:max-w-[150px] mx-auto mt-9">
+          <div className="w-full md:max-w-[180px] mx-auto mt-9">
             <Button
-              text={
-                isAddCardPage
-                  ? "Add card"
-                  : isUpgrade && hasActiveSubscription
-                  ? "Upgrade now"
-                  : isDowngrade && hasActiveSubscription
-                  ? "Downgrade now"
-                  : "Subscribe now"
-              }
+              text={"Subscribe Now"}
               hasIconOrLoader
               action={() =>
                 handleSubscribeOrUpgrade(
@@ -229,6 +222,7 @@ export default function Checkout({
                 )
               }
               loading={isPending || isUpgradePending}
+              // loading={true}
               height={48}
             />
           </div>

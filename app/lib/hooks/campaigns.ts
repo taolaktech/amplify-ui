@@ -75,11 +75,11 @@ export const useCampaignsActions = () => {
       return;
     }
     if (
-      subscriptionType?.name?.toLowerCase() === "free" ||
-      !subscriptionType ||
-      !data ||
-      data?.length === 0
+      (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
+      (!data || data?.length === 0) &&
+      !localStorage.getItem("seen-pricing")
     ) {
+      localStorage.setItem("seen-pricing", "true");
       router.push("/pricing");
     } else {
       router.push("/create-campaign");
@@ -216,13 +216,13 @@ export const useLaunchCampaign = (
         id: product.node.id,
         title: product.node.title,
         price: parseFloat(product.node.priceRangeV2.minVariantPrice.amount),
-        description: product.node.description || "",
+        description: product.node.description || product.node.title || "N/A",
         occasion: product.node.occasion || "General",
         features: [
           ...(product.node?.tags || []),
-          product.node?.category?.name || "",
-          product.node?.productType || "",
-          product.node?.handle || "",
+          product.node?.category?.name || "N/A",
+          product.node?.productType || "N/A",
+          product.node?.handle || "N/A",
         ],
         category: product.node.productType || "General",
         imageLinks: [product.node.media.edges[0]?.node.preview.image.url || ""],

@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientLayoutWrapper from "./lib/components/ClientLayoutWrapper";
 import { inter, rubik } from "./ui/fonts";
 import Toast from "./ui/Toast";
+import Script from "next/script";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -38,6 +39,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta
+          name="shopify-api-key"
+          content={process.env?.NEXT_PUBLIC_SHOPIFY_API_KEY}
+        />
+        <Script
+          src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
+          strategy="afterInteractive"
+        />
         <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />
         <link
           href="https://fonts.cdnfonts.com/css/sf-pro-display"

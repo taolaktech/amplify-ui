@@ -12,13 +12,7 @@ import XIcon from "@/public/x.svg";
 import { Carousel } from "react-responsive-carousel";
 import useUIStore from "@/app/lib/stores/uiStore";
 
-export default function CarouselPostView({
-  creatives,
-  isLoading,
-}: {
-  creatives: any[];
-  isLoading?: boolean;
-}) {
+export default function CarouselPostView({ creatives }: { creatives: any[] }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
     (state) => state.adsShow.location[0] || "Location"
@@ -47,7 +41,6 @@ export default function CarouselPostView({
                 location={location}
                 photoUrl={creatives?.[0]?.url}
                 caption={creatives?.[0]?.caption}
-                isLoading={isLoading}
                 title={creatives?.[0]?.title}
               />
             </div>
@@ -57,10 +50,7 @@ export default function CarouselPostView({
                 key={index}
                 style={{ marginRight: index === 3 ? "24px" : "0" }}
               >
-                <CarouselPost
-                  photoUrl={creatives?.[index + 1]?.url}
-                  isLoading={isLoading}
-                />
+                <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
               </div>
             ))}
           </div>
@@ -73,7 +63,6 @@ export default function CarouselPostView({
           caption={creatives?.[0]?.caption}
           brandName={brandName}
           location={location}
-          isLoading={isLoading}
           title={creatives?.[0]?.title}
         />
       )}
@@ -87,7 +76,6 @@ const CarouselPostViewMaximized = ({
   caption,
   brandName,
   location,
-  isLoading,
   title,
 }: {
   toggleMaximize: () => void;
@@ -95,7 +83,6 @@ const CarouselPostViewMaximized = ({
   location: string;
   photoUrls: string[];
   caption?: string;
-  isLoading?: boolean;
   title?: string;
 }) => {
   return (
@@ -113,7 +100,6 @@ const CarouselPostViewMaximized = ({
             location={location}
             caption={caption}
             photoUrls={photoUrls}
-            isLoading={isLoading}
             title={title}
           />
         </div>
@@ -127,14 +113,12 @@ const CarouselContent = ({
   location,
   photoUrls,
   caption,
-  isLoading,
   title,
 }: {
   brandName: string;
   location: string;
   photoUrls: string[];
   caption?: string;
-  isLoading?: boolean;
   title?: string;
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -160,7 +144,7 @@ const CarouselContent = ({
       >
         <ArrowRight2 size={18} color="#101214" />
       </div>
-      <div className="h-[70vh] w-[90vw] max-w-[700px] relative z-0">
+      <div className="h-[70vh] w-[90vw] max-h-[850px] max-w-[700px] relative z-0">
         <div
           onClick={handlePrevSlide}
           className="hidden absolute cursor-pointer left-[0px] top-1/2 -translate-y-1/2 md:flex justify-center items-center bg-[#E6E6E6] h-[36px] w-[36px] md:h-[56px] md:w-[56px] rounded-full z-10"
@@ -182,31 +166,26 @@ const CarouselContent = ({
             onChange={(index) => setCurrentSlide(index)}
             infiniteLoop={true}
             animationHandler={"fade"}
-            autoPlay
+            // autoPlay
             autoFocus
             swipeable={false}
           >
-            <div className="flex items-center h-full justify-center">
+            <div className="flex items-center h-[70vh] max-h-[850px] justify-center">
               <StaticPost
                 brandName={brandName}
                 location={location}
                 photoUrl={photoUrls[0]}
                 caption={caption}
                 maximized
-                isLoading={isLoading}
                 title={title}
               />
             </div>
             {new Array(4).fill(0).map((_, index) => (
               <div
-                className="flex items-center h-[70vh] justify-center"
+                className="flex items-center h-[70vh] max-h-[850px] justify-center"
                 key={index}
               >
-                <CarouselPost
-                  photoUrl={photoUrls[index + 1]}
-                  maximized
-                  isLoading={isLoading}
-                />
+                <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
               </div>
             ))}
           </Carousel>

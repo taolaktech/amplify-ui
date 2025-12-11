@@ -24,7 +24,7 @@ export default function CampaignsPage() {
         <div className="font-medium tracking-150 text-sm lg:text-base ">
           Overview
         </div>
-        <div className=" max-w-[180px]">
+        <div className="w-full max-w-[180px]">
           <Button
             text="Create Campaign"
             height={48}

@@ -15,13 +15,11 @@ export default function StoryPost({
   location,
   photoUrl,
   maximized,
-  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
   const [maximizedHeight, setMaximizedHeight] = useState(0);
@@ -33,9 +31,11 @@ export default function StoryPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedHeight = isBigScreen
+
+        let calculatedHeight = isBigScreen
           ? screenHeight * 0.7
           : screenHeight * 0.65;
+        calculatedHeight = Math.min(calculatedHeight, 800); // Max height 800px
         const calculatedWidth = calculatedHeight * (211.51 / 413);
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
@@ -78,15 +78,16 @@ export default function StoryPost({
             style={{
               width: maximized ? maximizedWidth! : 211.51,
               height: maximized ? maximizedHeight! * (211.51 / 413) : 211.51,
-              opacity: imgLoaded && !isLoading && !imgError ? 1 : 0,
+              opacity: imgLoaded && !imgError ? 1 : 0,
+              objectFit: "contain",
               transition: "opacity 0.5s ease-in-out",
             }}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
-            // unoptimized
+            unoptimized
           />
         )}
-        {(!photoUrl || !imgLoaded || imgError || isLoading) && (
+        {(!photoUrl || !imgLoaded || imgError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>
@@ -238,7 +239,7 @@ const Avatar = ({
           width: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
           height: maximized ? maximizedHeight! * (17.69 / 413) : 17.69,
         }}
-        // unoptimized
+        unoptimized
         className={`${
           imgLoaded && !imgError ? "opacity-100" : "opacity-0"
         } transition-opacity duration-300 rounded-full`}

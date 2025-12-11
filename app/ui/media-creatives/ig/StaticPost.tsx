@@ -23,14 +23,12 @@ export default function StaticPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
-  isLoading,
 }: {
   brandName: string;
   location: string;
   photoUrl: string;
   caption?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -48,9 +46,10 @@ export default function StaticPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedHeight = isBigScreen
+        let calculatedHeight = isBigScreen
           ? screenHeight * 0.7
           : screenHeight * 0.65;
+        calculatedHeight = Math.min(calculatedHeight, 800); // Max height 800px
         const calculatedWidth = calculatedHeight * (260.74 / 413);
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
@@ -114,7 +113,7 @@ export default function StaticPost({
               width: maximized ? maximizedHeight! * (28 / 413) : 28,
               height: maximized ? maximizedHeight! * (28 / 413) : 28,
             }}
-            // unoptimized
+            unoptimized
             className={`${
               imgLoaded && !imgError ? "opacity-100" : "opacity-0"
             } transition-opacity duration-300 rounded-full`}
@@ -156,14 +155,15 @@ export default function StaticPost({
             style={{
               width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
               height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              opacity: photoUrlLoaded && !isLoading && !photoError ? 1 : 0,
+              opacity: photoUrlLoaded && !photoError ? 1 : 0,
+              objectFit: "contain",
             }}
-            // unoptimized
+            unoptimized
             onLoad={() => setPhotoUrlLoaded(true)}
             onError={() => setPhotoError(true)}
           />
         )}
-        {(!photoUrl || !photoUrlLoaded || isLoading || photoError) && (
+        {(!photoUrl || !photoUrlLoaded || photoError) && (
           <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
             <CircleLoader black />
           </div>

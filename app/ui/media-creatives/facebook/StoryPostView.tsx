@@ -6,13 +6,7 @@ import StoryPost from "./StoryPost";
 import XIcon from "@/public/x.svg";
 import useUIStore from "@/app/lib/stores/uiStore";
 
-export default function StoryPostView({
-  creative,
-  isLoading,
-}: {
-  creative: any;
-  isLoading?: boolean;
-}) {
+export default function StoryPostView({ creative }: { creative: any }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
     (state) => state.adsShow.location[0] || "Location"
@@ -37,7 +31,6 @@ export default function StoryPostView({
           brandName={brandName}
           location={location}
           photoUrl={creative?.url}
-          isLoading={isLoading}
         />
       </div>
       {maximize && (
@@ -45,7 +38,6 @@ export default function StoryPostView({
           toggleMaximize={toggleMaximize}
           photoUrl={creative?.url}
           caption={creative?.caption}
-          isLoading={isLoading}
         />
       )}
     </div>
@@ -57,12 +49,10 @@ const StoryPostViewMaximized = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   toggleMaximize,
-  isLoading,
 }: {
   photoUrl?: string;
   toggleMaximize: () => void;
   caption?: string;
-  isLoading?: boolean;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
@@ -71,7 +61,10 @@ const StoryPostViewMaximized = ({
 
   return (
     <div className="">
-      <div className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"></div>
+      <div
+        className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"
+        onClick={toggleMaximize}
+      ></div>
 
       <div className="fixed top-[50%] z-30 -translate-y-[50%] left-[50%] -translate-x-[50%]">
         <div>
@@ -85,7 +78,6 @@ const StoryPostViewMaximized = ({
             location={location}
             photoUrl={photoUrl}
             maximized
-            isLoading={isLoading}
           />
         </div>
       </div>

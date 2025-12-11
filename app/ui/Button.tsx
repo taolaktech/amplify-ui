@@ -35,56 +35,84 @@ export default function Button({
     e.preventDefault();
     action();
   };
-  const right = iconPosition === "right";
+  // const right = iconPosition === "right";
   const isSmall = buttonSize === "small";
   // const isMedium = buttonSize === "medium";
   // const isLarge = buttonSize === "large";
   return (
     <button
-      disabled={loading}
+      disabled={loading || disabled}
       onClick={handleOnClick}
-      className={`w-full bg-purple-600 
-        ${gradientBorder && secondary ? "gradient-border" : ""}  ${
+      className={`w-[100%] relative bg-purple-600 
+    ${gradientBorder && secondary ? "gradient-border" : ""}  ${
         !secondary && !tertiary
           ? "gradient"
           : tertiary
           ? "tertiary"
           : "secondary active:bg-[#fbfafc]"
       } 
-        ${showShadow ? "custom-shadow-sm" : ""}
-        ${
-          loading || disabled
-            ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer"
-        } ${
+    ${showShadow ? "custom-shadow-sm" : ""}
+    ${
+      loading || disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+    } ${
         iconPosition === "right" ? "flex-row-reverse" : ""
       } rounded-xl flex items-center justify-center gap-[6px] ${
         !isSmall ? "h-[44px] md:h-[40px]" : "h-[38px]"
       } min-w-[90px] font-medium`}
-      style={{ height: height ?? height }}
+      // style={{ height: height ?? height }}
+      {...(height !== undefined ? { style: { height } } : {})}
     >
-      {hasIconOrLoader && (
-        <span style={{ width: iconSize }}>
-          {!loading && <>{icon}</>}
-          {loading && <ButtonLoader secondary={secondary} />}
-        </span>
-      )}
-      <span
-        className={`text-sm text-center tracking-100 whitespace-nowrap ${
-          secondary
-            ? "text-purple-dark"
-            : tertiary
-            ? "text-black"
-            : "text-white"
-        }`}
-      >
-        {text}
-      </span>
-      {hasIconOrLoader && !icon && (
-        <span style={{ width: iconSize }}>
-          {loading && right && <ButtonLoader secondary={secondary} />}
-        </span>
-      )}
+      {/* Non-loading content */}
+      <div className="relative w-full h-full">
+        <div
+          aria-hidden={loading}
+          className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
+            iconPosition === "right" ? "flex-row-reverse" : ""
+          } transition-opacity duration-200 ${
+            !loading ? "opacity-100 delay-75" : "opacity-0 "
+          }`}
+        >
+          {icon && <span style={{ width: iconSize }}>{icon}</span>}
+          <span
+            className={`text-sm text-center tracking-100 whitespace-nowrap ${
+              secondary
+                ? "text-purple-dark"
+                : tertiary
+                ? "text-black"
+                : "text-white"
+            }`}
+          >
+            {text}
+          </span>
+        </div>
+
+        {/* Loading content */}
+        <div
+          className={`absolute inset-0 h-full left-[50%] translate-x-[-50%] flex items-center justify-center gap-[6px] ${
+            iconPosition === "right" ? "flex-row-reverse" : ""
+          } transition-opacity duration-200  ${
+            loading ? "opacity-100 delay-300" : "opacity-0 "
+          }`}
+          aria-hidden={!loading}
+        >
+          {hasIconOrLoader && (
+            <span style={{ width: iconSize }}>
+              <ButtonLoader secondary={secondary} />
+            </span>
+          )}
+          <span
+            className={`text-sm text-center tracking-100 whitespace-nowrap ${
+              secondary
+                ? "text-purple-dark"
+                : tertiary
+                ? "text-black"
+                : "text-white"
+            }`}
+          >
+            {text}
+          </span>
+        </div>
+      </div>
     </button>
   );
 }

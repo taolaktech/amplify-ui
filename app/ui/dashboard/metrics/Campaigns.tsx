@@ -64,7 +64,7 @@ export function NoCampaigns({
           Start your first campaign after setup!
         </div>
       </div>
-      <div>
+      <div className="w-full max-w-[230px] mx-auto">
         <Button
           text="Setup your first Campaign"
           buttonSize="small"

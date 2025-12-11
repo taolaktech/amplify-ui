@@ -6,11 +6,9 @@ import CircleLoader from "../../loaders/CircleLoader";
 export default function CarouselPost({
   photoUrl,
   maximized,
-  isLoading,
 }: {
   photoUrl?: string;
   maximized?: boolean;
-  isLoading?: boolean;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -25,10 +23,12 @@ export default function CarouselPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedWidth = isBigScreen
+        let calculatedWidth = isBigScreen
           ? screenHeight * 0.6
           : screenHeight * 0.4;
-        const calculatedHeight = calculatedWidth * (260.74 / 260.74);
+        let calculatedHeight = calculatedWidth;
+        calculatedHeight = Math.min(calculatedHeight, 505); // Max height 505px
+        calculatedWidth = Math.min(calculatedWidth, 505); // Max width 505px
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
       }
@@ -66,13 +66,16 @@ export default function CarouselPost({
           src={photoUrl}
           alt="Carousel Post"
           layout="fill"
-          // unoptimized
-          style={{ opacity: imgLoaded && !isLoading && !photoError ? 1 : 0 }}
+          unoptimized
+          style={{
+            opacity: imgLoaded && !photoError ? 1 : 0,
+            objectFit: "contain",
+          }}
           onLoad={() => setImgLoaded(true)}
           onError={() => setPhotoError(true)}
         />
       )}
-      {(!photoUrl || !imgLoaded || isLoading || photoError) && (
+      {(!photoUrl || !imgLoaded || photoError) && (
         <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
           <CircleLoader black />
         </div>

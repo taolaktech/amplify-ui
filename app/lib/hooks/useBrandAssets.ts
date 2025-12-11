@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUploadPhoto } from "./useUploadPhoto";
-// import { useToastStore } from "../stores/toastStore";
-// import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-// import "react-pdf/dist/esm/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import { pdfjs } from "react-pdf";
 import { useMutation } from "@tanstack/react-query";
 import { postBrandAssets } from "../api/base";
@@ -26,10 +25,6 @@ export const options = {
   cMapUrl: "/cmaps/",
   standardFontDataUrl: "/standard_fonts/",
 };
-
-// const resizeObserverOptions = {};
-
-// const maxWidth = 800;
 
 export default function useBrandAssets() {
   const token = useAuthStore((state) => state.token);
@@ -58,7 +53,17 @@ export default function useBrandAssets() {
     setPrimaryFont: storePrimaryFont,
     setSecondaryFont: storeSecondaryFont,
   } = brandActions;
+  const [isPrimaryLogoRemoved, setIsPrimaryLogoRemoved] = useState(false);
+  const [isSecondaryLogoRemoved, setIsSecondaryLogoRemoved] = useState(false);
+  const [isBrandGuideRemoved, setIsBrandGuideRemoved] = useState(false);
 
+  const onPrimaryLogoChange = () => {
+    setIsPrimaryLogoRemoved(false);
+  };
+
+  const onSecondaryLogoChange = () => {
+    setIsSecondaryLogoRemoved(false);
+  };
   const {
     file: primaryLogoFile,
     preview: primaryLogoPreview,
@@ -67,15 +72,15 @@ export default function useBrandAssets() {
     handleFileChange: primaryLogoHandleFileChange,
     uploadPhoto: primaryLogoUploadPhoto,
     reset: primaryLogoReset,
-  } = useUploadPhoto();
+  } = useUploadPhoto(onPrimaryLogoChange);
 
   const handlePrimaryLogoRemove = () => {
-    setPrimaryLogo(null);
+    setIsPrimaryLogoRemoved(true);
     primaryLogoReset();
   };
 
   const handleSecondaryLogoRemove = () => {
-    setSecondaryLogo(null);
+    setIsSecondaryLogoRemoved(true);
     secondaryLogoReset();
   };
 
@@ -87,7 +92,7 @@ export default function useBrandAssets() {
     handleFileChange: secondaryLogoHandleFileChange,
     uploadPhoto: secondaryLogoUploadPhoto,
     reset: secondaryLogoReset,
-  } = useUploadPhoto();
+  } = useUploadPhoto(onSecondaryLogoChange);
 
   const { mutate, isPending } = useMutation({
     mutationFn: postBrandAssets,
@@ -98,14 +103,31 @@ export default function useBrandAssets() {
         message: "Your brand assets has been updated.",
         type: "success",
       });
+      setBrandGuideFile(brandGuide);
+      storePrimaryColor(primaryColor);
+      storeSecondaryColor(secondaryColor);
+      storeToneOfVoice(toneOfVoice);
+      storePrimaryFont(primaryFont);
+      storeSecondaryFont(secondaryFont);
+      if (primaryLogoPreview) setPrimaryLogo(primaryLogoPreview);
+      if (isPrimaryLogoRemoved) setPrimaryLogo(null);
+      if (isSecondaryLogoRemoved) setSecondaryLogo(null);
+      if (secondaryLogoPreview) setSecondaryLogo(secondaryLogoPreview);
+      if (isBrandGuideRemoved) storeBrandGuide(null);
+      setIsPrimaryLogoRemoved(false);
+      setIsSecondaryLogoRemoved(false);
+      setIsBrandGuideRemoved(false);
     },
     onError: (error) => {
       console.error("Error posting brand assets:", error);
       setToast({
-        title: "Error Occured.",
+        title: "Error Occurred.",
         message: "Something went wrong while updating brand assets.",
         type: "error",
       });
+      setIsPrimaryLogoRemoved(false);
+      setIsSecondaryLogoRemoved(false);
+      setIsBrandGuideRemoved(false);
     },
   });
 
@@ -113,9 +135,9 @@ export default function useBrandAssets() {
     mutate({
       token: token ?? "",
       assets: {
-        removePrimaryLogo: !currentPrimaryLogo && !primaryLogoPreview,
-        removeSecondaryLogo: !currentSecondaryLogo && !secondaryLogoPreview,
-        removeBrandGuide: !currentBrandGuide && !brandGuide,
+        removePrimaryLogo: isPrimaryLogoRemoved,
+        removeSecondaryLogo: isSecondaryLogoRemoved,
+        removeBrandGuide: isBrandGuideRemoved,
         primaryColor: primaryColor || currentPrimaryColor,
         secondaryColor: secondaryColor || currentSecondaryColor,
         toneOfVoice: toneOfVoice || currentToneOfVoice || "Friendly",
@@ -126,21 +148,12 @@ export default function useBrandAssets() {
         ...(secondaryLogoFile ? { secondaryLogo: secondaryLogoFile } : {}),
       },
     });
-    setBrandGuideFile(brandGuide);
-    storePrimaryColor(primaryColor);
-    storeSecondaryColor(secondaryColor);
-    storeToneOfVoice(toneOfVoice);
-    storePrimaryFont(primaryFont);
-    storeSecondaryFont(secondaryFont);
   }
 
   const [primaryColor, setPrimaryColor] = useState<string>(currentPrimaryColor);
   const [secondaryColor, setSecondaryColor] = useState<string>(
     currentSecondaryColor
   );
-
-  // const setToast = useToastStore((state) => state.setToast);
-  // const [numPages, setNumPages] = useState<number | null>(null);
 
   const [primaryFont, setPrimaryFont] = useState<string | null>(
     currentPrimaryFont
@@ -199,20 +212,13 @@ export default function useBrandAssets() {
 
     if (nextFile) {
       setBrandGuide(nextFile);
+      setIsBrandGuideRemoved(false);
     }
   };
 
   const handleRemoveBrandGuide = () => {
-    setBrandGuide(null);
-    storeBrandGuide(null);
-    // setRemoveBrandGuide(true);
+    setIsBrandGuideRemoved(true);
   };
-
-  // function onDocumentLoadSuccess({
-  //   numPages: nextNumPages,
-  // }: PDFDocumentProxy): void {
-  //   setNumPages(nextNumPages);
-  // }
 
   return {
     primaryLogoFile,
@@ -241,6 +247,9 @@ export default function useBrandAssets() {
     setBrandGuide,
     setPrimaryColor,
     setSecondaryColor,
+    isPrimaryLogoRemoved,
+    isSecondaryLogoRemoved,
+    isBrandGuideRemoved,
     toneOfVoice,
     currentBrandGuide,
     setToneOfVoice,
@@ -251,8 +260,5 @@ export default function useBrandAssets() {
     isPending,
     currentPrimaryLogo,
     currentSecondaryLogo,
-    // onDocumentLoadSuccess,
   };
 }
-
-// export default function useSubmitBr

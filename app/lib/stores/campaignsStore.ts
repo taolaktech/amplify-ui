@@ -77,6 +77,7 @@ type CampaignsStore = {
     setSortBy: (sortBy: CampaignSortBy) => void;
     setActiveTab: (tab: CampaignTab) => void;
     setIsLoading: (isLoading: boolean) => void;
+    resetStore: () => void;
   };
 };
 
@@ -97,6 +98,23 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   toggleHeaderOpen: false,
 
   actions: {
+    resetStore: () =>
+      set({
+        page: 1,
+        status: null,
+        type: null,
+        platforms: null,
+        data: null,
+        isAllCampaignsSelected: false,
+        excludeDataIds: [],
+        isLoading: false,
+        sortBy: CampaignSortBy.Desc,
+        showLoader: true,
+        activeTab: CampaignTab.ALL,
+        moreOpen: null,
+        toggleHeaderOpen: false,
+        filterOpen: false,
+      }),
     setPage: (page: number) => {
       set({ page });
     },
@@ -139,7 +157,6 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       });
     },
     toggleSelectAllData: () => {
-      console.log("Toggling select all data");
       if (get().isAllCampaignsSelected && get().excludeDataIds.length === 0) {
         set({
           isAllCampaignsSelected: false,

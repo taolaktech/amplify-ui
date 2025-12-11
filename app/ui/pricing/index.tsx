@@ -47,7 +47,6 @@ export default function Pricing({
   const handlePlanChange = (plan: Plan) => {
     setSelectedPlan(plan);
   };
-  // P
 
   return (
     <section className={`${isDashboard ? "py-5" : "py-12 px-5"} lg:px-5`}>
@@ -67,7 +66,7 @@ export default function Pricing({
       <div
         className={`grid justify-center items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full ${
           !isDashboard
-            ? "max-w-[520px] md:max-w-[600px] xl:max-w-[1266px] mx-auto"
+            ? "max-w-[520px] md:max-w-[900px] xl:max-w-[1266px] mx-auto"
             : ""
         } mt-12`}
       >

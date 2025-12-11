@@ -23,7 +23,6 @@ export default function StaticPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
-  isLoading,
   title,
 }: {
   brandName: string;
@@ -31,7 +30,6 @@ export default function StaticPost({
   photoUrl: string;
   caption?: string;
   maximized?: boolean;
-  isLoading?: boolean;
   title?: string;
 }) {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
@@ -53,9 +51,10 @@ export default function StaticPost({
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const isBigScreen = screenWidth >= 768;
-        const calculatedHeight = isBigScreen
+        let calculatedHeight = isBigScreen
           ? screenHeight * 0.7
           : screenHeight * 0.65;
+        calculatedHeight = Math.min(calculatedHeight, 800); // Max height 800px
         const calculatedWidth = calculatedHeight * (260 / 415.78);
         setMaximizedWidth(calculatedWidth);
         setMaximizedHeight(calculatedHeight);
@@ -121,7 +120,7 @@ export default function StaticPost({
                 width: maximized ? maximizedHeight! * (28 / 415.78) : 28,
                 height: maximized ? maximizedHeight! * (28 / 415.78) : 28,
               }}
-              // unoptimized
+              unoptimized
               className={`${
                 imgLoaded && !imgError ? "opacity-100" : "opacity-0"
               } transition-opacity duration-300 rounded-full`}
@@ -191,8 +190,9 @@ export default function StaticPost({
         <div
           style={{
             height: maximized ? maximizedHeight! * (40 / 415.78) : "40px",
+            marginTop: maximized ? maximizedHeight! * (6 / 415.78) : "6px",
           }}
-          className="mt-[2px] flex flex-col justify-between"
+          className="flex flex-col justify-between"
         >
           {caption ? (
             <div
@@ -242,14 +242,15 @@ export default function StaticPost({
               style={{
                 width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
                 height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
-                opacity: photoUrlLoaded && !photoUrlError && !isLoading ? 1 : 0,
+                opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
+                objectFit: "contain",
               }}
-              // unoptimized
+              unoptimized
               onLoad={() => setPhotoUrlLoaded(true)}
               onError={() => setPhotoUrlError(true)}
             />
           )}
-          {(!photoUrl || !photoUrlLoaded || isLoading || photoUrlError) && (
+          {(!photoUrl || !photoUrlLoaded || photoUrlError) && (
             <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
               <CircleLoader black />
             </div>

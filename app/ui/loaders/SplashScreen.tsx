@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SplashIcon from "@/public/splash.svg";
 import SplashSMIcon from "@/public/splash-sm.svg";
 import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useModal } from "@/app/lib/hooks/useModal";
 
 export default function SplashScreen({
   isRefreshing,
@@ -37,6 +38,8 @@ export default function SplashScreen({
       if (typeof unsub === "function") unsub();
     };
   }, [isRefreshing]);
+
+  useModal(isRefreshing ? true : false);
 
   useEffect(() => {
     // Keep splash visible if still refreshing

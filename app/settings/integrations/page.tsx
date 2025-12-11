@@ -3,13 +3,70 @@ import IntegrationCard from "@/app/ui/Integrations";
 import FolderConnectionIcon from "@/public/folder-connection.svg";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
+import AuthLoading from "@/app/ui/AuthLoading";
+import { useModal } from "@/app/lib/hooks/useModal";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { ChooseMetaAccount } from "@/app/ui/ChooseMetaAccount";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook } = useIntegrationStore(
     (state) => state
   );
+  const token = useAuthStore((state) => state.token);
 
-  const { handleFacebookAuth } = useIntegrationsAuth();
+  const {
+    handleFacebookAuth,
+    loading,
+    fetchingProgress,
+    subText,
+    handleFacebookCallback,
+    selectedAdAccount,
+    setSelectedAdAccount,
+    metaAccountChooser,
+    setMetaAccountChooser,
+    metaAccounts,
+    handleGetPagesForAdAccount,
+    metaPages,
+    metaPagesLoading,
+    selectedMetaPage,
+    setSelectedMetaPage,
+    step,
+    setStep,
+    lastStepLoading,
+    integrationsAuthPlatform,
+    handleLastStep,
+    selectedIGAccount,
+    setSelectedIGAccount,
+    IGAccounts,
+  } = useIntegrationsAuth();
+
+  useModal(loading || metaAccountChooser);
+
+  const params = useSearchParams();
+
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    const code = params.get("code");
+    const state = params.get("state");
+    const platform = params.get("platform");
+    const route = params.get("route");
+    console.log("params:", params);
+    if (hasRun.current) return;
+    if (params.get("platform")) {
+      if (platform === "INSTAGRAM") {
+        handleFacebookAuth("INSTAGRAM", route);
+      } else if (platform === "FACEBOOK") {
+        handleFacebookAuth("FACEBOOK", route);
+      }
+    }
+    if (code && state && token) {
+      handleFacebookCallback(code, state);
+      hasRun.current = true;
+    }
+  }, [params, token]);
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
@@ -31,7 +88,7 @@ export default function IntegrationLayout() {
       image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
-      toggleOn: () => actions.toggleInstagram(),
+      toggleOn: () => handleFacebookAuth("INSTAGRAM"),
       on: instagram,
     },
     {
@@ -39,7 +96,7 @@ export default function IntegrationLayout() {
       image: "/facebook.svg",
       writeUp:
         "Connect your Facebook account to manage your product and orders.",
-      toggleOn: handleFacebookAuth,
+      toggleOn: () => handleFacebookAuth("FACEBOOK"),
       on: facebook,
     },
   ];
@@ -59,6 +116,34 @@ export default function IntegrationLayout() {
           <IntegrationCard key={integration.heading} {...integration} />
         ))}
       </div>
+      {loading && (
+        <AuthLoading
+          fetchingProgress={fetchingProgress}
+          headingText="Just a moment…"
+          subText={subText}
+        />
+      )}
+      {metaAccountChooser && (
+        <ChooseMetaAccount
+          adAccounts={metaAccounts}
+          handleClose={() => setMetaAccountChooser(false)}
+          selectedAdAccount={selectedAdAccount}
+          setSelectedAdAccount={setSelectedAdAccount}
+          handleGetPagesForAdAccount={handleGetPagesForAdAccount}
+          metaPages={metaPages}
+          metaPagesLoading={metaPagesLoading}
+          selectedMetaPage={selectedMetaPage}
+          setSelectedMetaPage={setSelectedMetaPage}
+          step={step}
+          setStep={setStep}
+          lastStepLoading={lastStepLoading}
+          handleLastStep={handleLastStep}
+          integrationsAuthPlatform={integrationsAuthPlatform}
+          selectedIGAccount={selectedIGAccount}
+          setSelectedIGAccount={setSelectedIGAccount}
+          IGAccounts={IGAccounts}
+        />
+      )}
     </div>
   );
 }

@@ -27,6 +27,8 @@ import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 import { getCampaignTypes } from "@/app/lib/campaignTypes";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import { isAllProductGenerated } from "@/app/lib/utils";
 
 const ProductContainer = ({
   products,
@@ -38,7 +40,7 @@ const ProductContainer = ({
   handleSetHighlightedProduct: (product: ShopifyProduct) => void;
 }) => {
   return (
-    <div className="w-[224px] sticky top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
+    <div className="w-[224px] sticky custom-shadow-sm top-20 flex-shrink-0 flex flex-col gap-6 px-1 py-6 bg-[#FBFAFC] rounded-3xl max-h-[calc(100vh-200px)]">
       <div className="flex justify-between gap-2 px-3">
         <span className="text-sm font-medium">Products</span>
         <span>
@@ -117,18 +119,6 @@ const MainActions = ({
   }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
-      {/* {!isOnlyGoogle && (
-        <button className="flex items-center gap-2 h-[40px] w-[115px] md:w-[134px] rounded-[39px]  justify-center bg-[#F0E6FB] border-[#D0B0F3] border ">
-          
-          <img
-            src={MagicStarIcon.src}
-            alt="Magic Star"
-            width={20}
-            height={20}
-          />
-          <span className="text-sm font-medium">Mix</span>
-        </button>
-      )} */}
       {canUndo(highlightedProduct?.node?.id) && (
         <button
           disabled={isLoading}
@@ -231,14 +221,30 @@ export default function CampaignSnapshotsPage() {
 
     if (isLoading) return;
 
-    const hasCreative =
-      (supportedAdPlatforms.Google && Google?.[productId]) ||
-      (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-      (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+    const googleHasCreative =
+      supportedAdPlatforms.Google && Google?.[productId];
+    const instagramHasCreative =
+      supportedAdPlatforms.Instagram && Instagram?.[productId];
+    const facebookHasCreative =
+      supportedAdPlatforms.Facebook && Facebook?.[productId];
 
-    if (!hasCreative) {
+    // const hasCreative =
+    //   (supportedAdPlatforms.Google && Google?.[productId]) ||
+    //   (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
+    //   (supportedAdPlatforms.Facebook && Facebook?.[productId]);
+
+    // Collect all missing platforms for this product
+    const missingPlatforms: Platform[] = [];
+    if (supportedAdPlatforms.Google && !googleHasCreative)
+      missingPlatforms.push("GOOGLE ADS");
+    if (supportedAdPlatforms.Instagram && !instagramHasCreative)
+      missingPlatforms.push("INSTAGRAM");
+    if (supportedAdPlatforms.Facebook && !facebookHasCreative)
+      missingPlatforms.push("FACEBOOK");
+
+    if (missingPlatforms.length > 0) {
       hasRunRef.current[productId] = true;
-      generateCreatives(productId, activePlatforms as Platform[]);
+      generateCreatives(productId, missingPlatforms);
     }
   }, [highlightedProduct?.node.id]);
 
@@ -290,6 +296,8 @@ export default function CampaignSnapshotsPage() {
     Facebook?.[highlightedProduct?.node.id || ""],
   ]);
 
+  const setToast = useToastStore((state) => state.setToast);
+
   const campaignDetails = useCreateCampaignStore(
     (state) => state.campaignSnapshots
   );
@@ -320,10 +328,43 @@ export default function CampaignSnapshotsPage() {
     setCampaignDetails({ ...campaignDetails, [key]: value });
   };
 
+  const isLoading = useMemo(() => {
+    return productSelection.products.some((product) => {
+      return (
+        creativeLoadingStates?.[product?.node.id]?.["GOOGLE ADS"] ||
+        creativeLoadingStates?.[product?.node.id]?.["FACEBOOK"] ||
+        creativeLoadingStates?.[product?.node.id]?.["INSTAGRAM"]
+      );
+    });
+  }, [productSelection.products, creativeLoadingStates]);
+
   const handleProceed = () => {
     if (campaignDetails.campaignName.trim() === "") {
       setError(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    } else if (isLoading) {
+      setToast({
+        type: "warning",
+        message: "Please wait for the creatives to finish generating.",
+        title: "Generation in Progress",
+      });
+      return;
+    } else if (
+      !isAllProductGenerated(
+        supportedAdPlatforms,
+        productSelection.products,
+        Facebook,
+        Google,
+        Instagram
+      )
+    ) {
+      setToast({
+        type: "error",
+        message:
+          "Some selected products don’t have creatives yet. Please generate creatives for all selected products to continue.",
+        title: "Creatives Missing",
+      });
       return;
     } else {
       setError(false);
@@ -361,11 +402,12 @@ export default function CampaignSnapshotsPage() {
   const handleSetHighlightedProduct = (product: ShopifyProduct) => {
     setHighlightedProduct(product);
   };
+
   const products = productSelection.products;
   return (
     <div className="flex items-start flex-shrink-0 gap-6 mt-6 pb-12">
       {products.length > 0 && (
-        <div className="hidden w-[224px] lg:block">
+        <div className="hidden w-[224px] lg:block sticky top-20 flex-shrink-0">
           <ProductContainer
             highlightedProduct={highlightedProduct}
             products={products}
@@ -488,6 +530,7 @@ export default function CampaignSnapshotsPage() {
         </div>
         <div className="mt-10">
           <Preview
+            key={highlightedProduct?.node.id || "1"}
             adPlatforms={adPlatforms}
             highlightedProductId={highlightedProduct?.node.id || "1"}
             generateCreatives={generateCreatives}
@@ -499,13 +542,13 @@ export default function CampaignSnapshotsPage() {
             text="Proceed"
             action={handleProceed}
             hasIconOrLoader
+            disabled={isLoading}
             icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
             iconPosition="right"
             iconSize={16}
           />
         </div>
       </div>
-      {/* {loading && <CircleLoaderModal text="Generating Ad Creatives..." />} */}
     </div>
   );
 }

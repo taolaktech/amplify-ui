@@ -23,6 +23,7 @@ type BrandAssetStore = {
     setPrimaryFont: (font: string | null) => void;
     setSecondaryFont: (font: string | null) => void;
     setBrandGuide: (guide: string | null) => void;
+    resetStore: () => void;
   };
 };
 
@@ -50,6 +51,19 @@ const useBrandAssetStore = create<BrandAssetStore>((set) => ({
     setPrimaryFont: (font: string | null) => set({ primaryFont: font }),
     setSecondaryFont: (font: string | null) => set({ secondaryFont: font }),
     setBrandGuide: (guide: string | null) => set({ brandGuide: guide }),
+    resetStore: () =>
+      set({
+        primaryLogo: null,
+        secondaryLogo: null,
+        primaryColor: "#000000",
+        secondaryColor: "#FFFFFF",
+        toneOfVoice: null,
+        primaryFont: null,
+        secondaryFont: null,
+        brandGuide: null,
+        brandGuideName: null,
+        brandGuideFile: null,
+      }),
   },
 }));
 
