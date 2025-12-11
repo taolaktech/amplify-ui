@@ -31,7 +31,7 @@ const pricingPlans = [
       "Everything in Starter plan plus",
       "Launch up to 30 AI-Powered Ad Product Campaigns across multiple ad platforms",
       "Generate Up to 450 AI-Generated Product Ad Creatives & Copy",
-      "Pay 0% commission on Ad Spend",
+      "Pay 0% commission on ad spend",
     ],
   },
   // {
