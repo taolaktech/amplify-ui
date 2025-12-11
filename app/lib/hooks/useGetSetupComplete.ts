@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSetupStore } from "../stores/setupStore";
+import { useIntegrationStore } from "../stores/integrationStore";
+import useUIStore from "../stores/uiStore";
 
 export const useGetSetupComplete = () => {
   const {
@@ -9,11 +11,19 @@ export const useGetSetupComplete = () => {
     preferredSalesLocation,
   } = useSetupStore((state) => state);
 
+  const setFromDashboardStep = useUIStore(
+    (state) => state.actions.setFromDashboardStep
+  );
+
+  const shopifyStore = useIntegrationStore((state) => state).shopifyStore;
+
   const [link, setLink] = useState("");
 
   useEffect(() => {
     if (!connectStore.complete) {
       setLink("/setup");
+    } else if (!shopifyStore) {
+      setLink("/settings/integrations");
     } else if (!businessDetails.complete) {
       setLink("/setup/business-details");
     } else if (!preferredSalesLocation.complete) {
