@@ -112,7 +112,7 @@ function ConnectStore({
 
       <div
         className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
-      h-[50vh] w-[90vw] max-h-[330px] md:max-h-[420px] max-w-[720px]
+      h-[80vh] w-[90vw] max-h-[340px] md:max-h-[420px] max-w-[720px]
       z-30 rounded-3xl p-6 flex flex-col
       "
       >
@@ -130,8 +130,17 @@ function ConnectStore({
                 <p className="md:text-lg text-heading font-medium tracking-250 ">
                   Connect your Shopify Store
                 </p>
-                <p className="text-xs tracking-100">
-                  Enter your Shopify store link
+                <p className="text-xs mt-1 tracking-100">
+                  Enter your Shopify store link. Not sure where to find it?{" "}
+                  <a
+                    href="https://www.youtube.com/watch?v=84j-y1qyyyQ&themeRefresh=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-purple-700"
+                  >
+                    Click here
+                  </a>{" "}
+                  to watch a video guide on where to find it.
                 </p>
               </div>
               <div className="mt-9">
@@ -145,7 +154,7 @@ function ConnectStore({
 
                   <input
                     type="text"
-                    placeholder="http://www.rstore.com/"
+                    placeholder="your-store.myshopify.com"
                     value={shopifyStore}
                     name="store"
                     id="store"
