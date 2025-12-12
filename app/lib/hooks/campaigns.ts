@@ -65,7 +65,7 @@ export const useCampaignsActions = () => {
   const data = useCampaignsStore((state) => state.data);
   const subscriptionType = useAuthStore((state) => state.subscriptionType);
   const router = useRouter();
-  const { isSetupComplete } = useGetSetupComplete();
+  const { isSetupComplete, hasShopifyStore } = useGetSetupComplete();
 
   const navigateToCreateCampaign = () => {
     console.log("campaigns data in actions hook:", data);
@@ -74,6 +74,11 @@ export const useCampaignsActions = () => {
       router.push("/setup?redirect=create-campaign");
       return;
     }
+    if (!hasShopifyStore) {
+      router.push("/settings/integrations");
+      return;
+    }
+
     if (
       (subscriptionType?.name?.toLowerCase() === "free" || !subscriptionType) &&
       (!data || data?.length === 0) &&

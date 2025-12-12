@@ -18,6 +18,7 @@ type UIStore = {
   isSidebarOpen: boolean;
   isOnboardingCompleted: boolean;
   isSubscriptionSuccess: boolean;
+  fromDashboardStep: boolean;
   actions: {
     setProducts: (
       products: any[],
@@ -29,6 +30,7 @@ type UIStore = {
       currentPage: number
     ) => void;
     resetStore: () => void;
+    setFromDashboardStep: (fromDashboardStep: boolean) => void;
     setCreativeLoadingState: (
       productId: string,
       state: Record<Platform, boolean>
@@ -57,6 +59,7 @@ const useUIStore = create<UIStore>((set) => ({
   totalProgressStep: 6,
   currentProgressStep: 1,
   endCursor: "",
+  fromDashboardStep: false,
   hasNextPage: false,
   hasPreviousPage: false,
   isSidebarOpen: defaultSidebarOpen,
@@ -73,6 +76,22 @@ const useUIStore = create<UIStore>((set) => ({
           [productId]: state,
         },
       })),
+
+    setFromDashboardStep: (fromDashboardStep: boolean) => {
+      if (fromDashboardStep) {
+        localStorage.setItem("fromDashboardStep", "true");
+      }
+      // } else {
+      //   localStorage.removeItem("fromDashboardStep");
+      // }
+      console.log("Setting fromDashboardStep to", fromDashboardStep);
+      localStorage.setItem(
+        "fromDashboardStep",
+        JSON.stringify(fromDashboardStep)
+      );
+
+      set({ fromDashboardStep });
+    },
     setProducts: (
       products: any[],
       productCount: number,
