@@ -158,7 +158,7 @@ export default function CampaignsPage() {
         </div>
       )}
       {/* <div className="h-8"></div> */}
-      {loading && <CircleLoaderModal text="Fetching Campaigns`..." />}
+      {loading && <CircleLoaderModal text="" />}
     </div>
   );
 }
