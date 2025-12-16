@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSetupStore } from "../stores/setupStore";
+import { useIntegrationStore } from "../stores/integrationStore";
 
 export const useGetSetupComplete = () => {
   const {
@@ -9,11 +10,15 @@ export const useGetSetupComplete = () => {
     preferredSalesLocation,
   } = useSetupStore((state) => state);
 
+  const shopifyStore = useIntegrationStore((state) => state).shopifyStore;
+
   const [link, setLink] = useState("");
 
   useEffect(() => {
     if (!connectStore.complete) {
       setLink("/setup");
+    } else if (!shopifyStore) {
+      setLink("/settings/integrations");
     } else if (!businessDetails.complete) {
       setLink("/setup/business-details");
     } else if (!preferredSalesLocation.complete) {
@@ -37,5 +42,7 @@ export const useGetSetupComplete = () => {
     marketingGoals.complete &&
     preferredSalesLocation.complete;
 
-  return { isSetupComplete, link };
+  const hasShopifyStore = shopifyStore;
+
+  return { isSetupComplete, link, shopifyStore, hasShopifyStore };
 };
