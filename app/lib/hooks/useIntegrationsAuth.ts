@@ -49,6 +49,7 @@ export default function useIntegrationsAuth() {
   const facebookCallbackMutation = useMutation({
     mutationFn: facebookCallback,
     onMutate: () => {
+      setFetchingProgress(40);
       setLoading(true);
       if (integrationsAuthPlatform === "INSTAGRAM") {
         setSubText("Finalizing Instagram authentication...");
@@ -68,6 +69,7 @@ export default function useIntegrationsAuth() {
         setSelectedAdAccount(data.data.adAccounts[0] || null);
         setMetaAccounts(data.data.adAccounts || []);
         setMetaAccountChooser(true);
+        setFetchingProgress(20);
       }, 1500);
     },
     onError: (error) => {
@@ -174,7 +176,6 @@ export default function useIntegrationsAuth() {
 
   const handleFacebookCallback = async (code: string, state: string) => {
     if (loading || !token) return;
-    setFetchingProgress(40);
     facebookCallbackMutation.mutate({ code, state, token: token! });
   };
 

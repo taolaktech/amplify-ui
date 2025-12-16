@@ -37,6 +37,9 @@ const SupportedAdPlatforms = () => {
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { instagram, facebook } = useIntegrationStore((state) => state);
+  const [socialModalKind, setSocialModalKind] = useState<
+    "INSTAGRAM" | "FACEBOOK"
+  >("FACEBOOK");
 
   useModal(isLoading);
 
@@ -88,6 +91,7 @@ const SupportedAdPlatforms = () => {
       return;
     }
     if (!facebook) {
+      setSocialModalKind("FACEBOOK");
       setActivePlatform("Facebook");
       setShowAdPlatformConnectModal(true);
       return;
@@ -100,6 +104,7 @@ const SupportedAdPlatforms = () => {
       return;
     }
     if (!instagram) {
+      setSocialModalKind("INSTAGRAM");
       setActivePlatform("Instagram");
       setShowAdPlatformConnectModal(true);
       return;
@@ -179,7 +184,7 @@ const SupportedAdPlatforms = () => {
               width={100}
             />
             <Toggle
-              on={supportedAdPlatforms.Instagram}
+              on={supportedAdPlatforms.Instagram && instagram}
               toggle={handleToggleInstagram}
             />
           </div>
@@ -210,7 +215,7 @@ const SupportedAdPlatforms = () => {
               }`}
             />
             <Toggle
-              on={supportedAdPlatforms.Facebook}
+              on={supportedAdPlatforms.Facebook && facebook}
               toggle={handleToggleFacebook}
             />
           </div>
@@ -232,6 +237,7 @@ const SupportedAdPlatforms = () => {
         <AdPlatformConnect
           platform={activePlatform.toUpperCase() as "FACEBOOK" | "INSTAGRAM"}
           handleClose={() => setShowAdPlatformConnectModal(false)}
+          socialModalKind={socialModalKind}
         />
       )}
     </div>
