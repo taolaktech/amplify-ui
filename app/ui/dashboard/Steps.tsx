@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "../AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
+import useUIStore from "@/app/lib/stores/uiStore";
 
 export default function Steps2() {
   const { isSetupComplete, link } = useGetSetupComplete();
@@ -23,7 +24,12 @@ export default function Steps2() {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const router = useRouter();
 
-  const { instagram, facebook } = useIntegrationStore((state) => state);
+  const { shopifyStore, instagram, facebook } = useIntegrationStore(
+    (state) => state
+  );
+  const setFromDashboardStep = useUIStore(
+    (state) => state.actions.setFromDashboardStep
+  );
 
   useEffect(() => {
     console.log("isSetupComplete", isSetupComplete);
@@ -55,6 +61,11 @@ export default function Steps2() {
     router.push("/company/brand-assets");
   };
 
+  const handleConnectStore = () => {
+    setFromDashboardStep(true);
+    router.push(link);
+  };
+
   return (
     <>
       <div className="flex flex-col bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl flex-1 h-full">
@@ -77,8 +88,8 @@ export default function Steps2() {
         <div className="flex flex-col gap-1 flex-1 justify-center">
           <StepsItem
             text="Connect your Store"
-            connected={isSetupComplete!}
-            action={() => router.push(link!)}
+            connected={Boolean(isSetupComplete) && shopifyStore}
+            action={handleConnectStore}
           />
           {/* <StepsItem
           text="Connect to Google Ads"
