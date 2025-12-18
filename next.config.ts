@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+const allowedOrigins = [
+  "http://127.0.0.1",
+  "http://localhost",
+];
+
+if (process.env.REPLIT_DEV_DOMAIN) {
+  allowedOrigins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+}
+
 const nextConfig: NextConfig = {
   webpack(config) {
     config.module.rules.push({
@@ -27,17 +36,7 @@ const nextConfig: NextConfig = {
       "amplify-shopify-uploads.s3.us-east-2.amazonaws.com",
     ],
   },
-  experimental: {
-    allowedDevOrigins: ["http://172.20.10.6:3000", "http://192.168.1.168:3000"], // <-- 🔥 This is what you need
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
-  },
+  allowedDevOrigins: allowedOrigins,
 };
 
 export default nextConfig;
