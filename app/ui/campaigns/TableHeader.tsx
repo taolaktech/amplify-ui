@@ -4,6 +4,10 @@ import useCampaignsStore, {
 import { SearchNormal } from "iconsax-react";
 import ToggleHeader from "./ToggleHeader";
 import Filter from "./Filter";
+import { debounce } from "lodash";
+import useGetCampaigns from "@/app/lib/hooks/campaigns";
+import { useCallback } from "react";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export const tableTabs = [
   CampaignTab.ALL,
@@ -17,7 +21,26 @@ export const tableTabs = [
 export default function TableHeader() {
   const activeTab = useCampaignsStore((state) => state.activeTab);
   const paginationInfo = useCampaignsStore((state) => state.paginationInfo);
-  const { setActiveTab } = useCampaignsStore((state) => state.actions);
+  const { setActiveTab, setCampaignName } = useCampaignsStore(
+    (state) => state.actions
+  );
+  const { fetchCampaigns } = useGetCampaigns();
+
+  const campaignName = useCampaignsStore((state) => state.campaignName);
+  const authToken = useAuthStore((state) => state.token);
+
+  const debouncedFetch = useCallback(
+    debounce(() => {
+      fetchCampaigns(authToken ?? undefined);
+    }, 300),
+    [] // create once
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCampaignName(e.target.value);
+    console.log("Search Input Changed:", e.target.value);
+    debouncedFetch();
+  };
 
   const numFormatter = (num: string) => {
     if (num.length < 2) {
@@ -76,6 +99,8 @@ export default function TableHeader() {
         <div className="relative w-full lg:min-w-[238px] max-w-[450px]">
           <input
             type="text"
+            value={campaignName}
+            onChange={handleSearchChange}
             placeholder="Search products and campaigns..."
             className=" h-[34px] text-xs w-full   placeholder:text-[#928F94] pl-8 pr-4 border border-[#E1E1E1] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A755FF]"
           />

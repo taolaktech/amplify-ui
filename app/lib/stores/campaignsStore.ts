@@ -48,6 +48,7 @@ type CampaignsStore = {
   platforms: CampaignPlatforms | null;
   data: any[] | null;
   isAllCampaignsSelected: boolean;
+  campaignName?: string | undefined;
   excludeDataIds: string[];
   paginationInfo?: any;
   isLoading: boolean;
@@ -61,6 +62,7 @@ type CampaignsStore = {
 
   actions: {
     setPage: (page: number) => void;
+    setCampaignName: (name: string) => void;
     setFilterOpen: (filterOpen: boolean) => void;
     setStatus: (status: CampaignStatus | null) => void;
     setShowLoader: (showLoader: boolean) => void;
@@ -99,6 +101,7 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   moreOpen: null,
   toggleHeaderOpen: false,
   excludedDataCount: 0,
+  campaignName: "",
 
   actions: {
     resetStore: () =>
@@ -120,6 +123,9 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       }),
     setPage: (page: number) => {
       set({ page });
+    },
+    setCampaignName: (name: string) => {
+      set({ campaignName: name });
     },
     setExcludedDataCount(count) {
       set({ excludedDataCount: count });

@@ -12,7 +12,7 @@ export default function Campaigns() {
 
   const setCurrentPage = (page: number) => {
     console.log("Setting current page to:", page);
-    fetchCampaigns(token ?? undefined, true, page + 1);
+    fetchCampaigns(token ?? undefined, true, false, page + 1);
   };
 
   return (

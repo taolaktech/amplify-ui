@@ -19,8 +19,9 @@ export default async function getCampaigns(data: {
   type?: CampaignType;
   status?: CampaignStatus;
   platforms?: CampaignPlatforms;
+  name?: string;
 }) {
-  const { token, page, sortBy, type, status, platforms } = data;
+  const { token, page, sortBy, type, status, platforms, name } = data;
   const response = await instance.get("/campaign", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -29,6 +30,7 @@ export default async function getCampaigns(data: {
       page: page || 1,
       perPage: 10,
       sortBy: sortBy || "createdAt:desc",
+      name: name || "",
       ...(type && { type }),
       ...(status && { status }),
       ...(platforms && { platforms }),
