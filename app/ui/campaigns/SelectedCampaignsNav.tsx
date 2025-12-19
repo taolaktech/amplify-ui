@@ -1,5 +1,11 @@
 import useCampaignsStore from "@/app/lib/stores/campaignsStore";
-import { CloseCircle, Edit2, PauseCircle } from "iconsax-react";
+import {
+  CloseCircle,
+  Edit2,
+  EmptyWalletChange,
+  PauseCircle,
+  WalletAdd,
+} from "iconsax-react";
 import { useMemo } from "react";
 
 export default function SelectedCampaignsNav() {
@@ -40,13 +46,14 @@ export default function SelectedCampaignsNav() {
             </div>
             <div className="flex gap-2 items-center">
               <button className="w-[72px] h-[34px] rounded-xl bg-[rgba(255,255,255,0.10)] flex items-center justify-center gap-1">
-                <Edit2 size={12} color="#FFF" />
-                <span className="text-white text-sm">Edit</span>
-              </button>
-              <button className="w-[72px] h-[34px] rounded-xl bg-[rgba(255,255,255,0.10)] flex items-center justify-center gap-1">
                 <PauseCircle size={12} color="#FFF" />
                 <span className="text-white text-sm">Pause</span>
               </button>
+              <button className="w-[137px] h-[34px] rounded-xl bg-[rgba(255,255,255,0.10)] flex items-center justify-center gap-1">
+                <EmptyWalletChange size={17.5} color="#FFF" />
+                <span className="text-white text-sm">Change Budget</span>
+              </button>
+
               <button className="w-[79px] h-[34px] rounded-xl bg-[#FF4949] flex items-center justify-center gap-1">
                 <PauseCircle size={12} color="#FFF" />
                 <span className="text-white text-sm">Archive</span>
