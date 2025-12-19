@@ -28,33 +28,7 @@ type CreativesStore = {
 };
 
 const useCreativesStore = create<CreativesStore>((set, get) => ({
-  Google: {
-    "1": [
-      {
-        generatorId: "gen-123",
-        creatives: [
-          {
-            headline: "Amplify Creatives",
-            description: "Generating Creatives for you",
-          },
-          {
-            headline: "Amplify Creatives",
-            description: "Generating Creatives for you",
-          },
-          {
-            headline: "Amplify Creatives",
-            description: "Generating Creatives for you",
-          },
-          {
-            headline: "Amplify Creatives",
-            description: "Generating Creatives for you",
-          },
-        ],
-        createdAt: new Date(),
-        kind: "GOOGLE ADS",
-      },
-    ],
-  },
+  Google: null,
   Instagram: null,
   Facebook: null,
   actions: {

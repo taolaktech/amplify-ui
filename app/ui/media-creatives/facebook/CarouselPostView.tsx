@@ -12,7 +12,13 @@ import XIcon from "@/public/x.svg";
 import { Carousel } from "react-responsive-carousel";
 import useUIStore from "@/app/lib/stores/uiStore";
 
-export default function CarouselPostView({ creatives }: { creatives: any[] }) {
+export default function CarouselPostView({
+  creatives,
+  loading,
+}: {
+  creatives: any[];
+  loading: boolean;
+}) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
     (state) => state.adsShow.location[0] || "Location"
@@ -44,7 +50,7 @@ export default function CarouselPostView({ creatives }: { creatives: any[] }) {
                 title={creatives?.[0]?.title}
               />
             </div>
-            {new Array(4).fill(0).map((_, index) => (
+            {/* {new Array(4).fill(0).map((_, index) => (
               <div
                 className="w-[260.74px] mb-[56px] flex-shrink-0"
                 key={index}
@@ -52,7 +58,29 @@ export default function CarouselPostView({ creatives }: { creatives: any[] }) {
               >
                 <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
               </div>
-            ))}
+            ))} */}
+            {loading
+              ? new Array(4).fill(0).map((_, index) => (
+                  <div
+                    className="w-[260.74px] mb-[56px] flex-shrink-0"
+                    key={index}
+                    style={{ marginRight: index === 3 ? "24px" : "0" }}
+                  >
+                    <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
+                  </div>
+                ))
+              : new Array(creatives.length - 1).fill(0).map((_, index) => (
+                  <div
+                    className="w-[260.74px] mb-[56px] flex-shrink-0"
+                    key={index}
+                    style={{
+                      marginRight:
+                        index === creatives.length - 2 ? "24px" : "0",
+                    }}
+                  >
+                    <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
+                  </div>
+                ))}
           </div>
         </DragScrollContainer>
       </div>
@@ -77,6 +105,7 @@ const CarouselPostViewMaximized = ({
   brandName,
   location,
   title,
+  loading,
 }: {
   toggleMaximize: () => void;
   brandName: string;
@@ -84,6 +113,7 @@ const CarouselPostViewMaximized = ({
   photoUrls: string[];
   caption?: string;
   title?: string;
+  loading?: boolean;
 }) => {
   return (
     <div className="z-30">
@@ -101,6 +131,7 @@ const CarouselPostViewMaximized = ({
             caption={caption}
             photoUrls={photoUrls}
             title={title}
+            loading={loading}
           />
         </div>
       </div>
@@ -114,12 +145,14 @@ const CarouselContent = ({
   photoUrls,
   caption,
   title,
+  loading,
 }: {
   brandName: string;
   location: string;
   photoUrls: string[];
   caption?: string;
   title?: string;
+  loading?: boolean;
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -180,14 +213,31 @@ const CarouselContent = ({
                 title={title}
               />
             </div>
-            {new Array(4).fill(0).map((_, index) => (
+            {/* {new Array(4).fill(0).map((_, index) => (
               <div
                 className="flex items-center h-[70vh] max-h-[850px] justify-center"
                 key={index}
               >
                 <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
               </div>
-            ))}
+            ))} */}
+            {loading
+              ? new Array(4).fill(0).map((_, index) => (
+                  <div
+                    className="flex items-center h-[70vh] max-h-[850px] justify-center"
+                    key={index}
+                  >
+                    <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
+                  </div>
+                ))
+              : new Array(photoUrls.length - 1).fill(0).map((_, index) => (
+                  <div
+                    className="flex items-center h-[70vh] max-h-[850px] justify-center"
+                    key={index}
+                  >
+                    <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
+                  </div>
+                ))}
           </Carousel>
         </div>
       </div>
