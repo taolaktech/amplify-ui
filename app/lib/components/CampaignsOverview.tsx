@@ -1,23 +1,25 @@
 "use client";
 import { CalendarEdit } from "iconsax-react";
-import Button from "../ui/Button";
-import { useCampaignsActions } from "../lib/hooks/campaigns";
-import Campaigns from "../ui/campaigns";
-import useCampaignsStore from "../lib/stores/campaignsStore";
-import { NoCampaigns } from "../ui/dashboard/metrics/Campaigns";
+import Button from "../../ui/Button";
+import { useCampaignsActions } from "../hooks/campaigns";
+import Campaigns from "../../ui/campaigns";
+import useCampaignsStore from "../stores/campaignsStore";
+import { NoCampaigns } from "@/app/ui/dashboard/metrics/Campaigns";
 import { useMemo } from "react";
 import MetricArrowUp from "@/public/metric-arrow-up.svg";
 import MetricArrowDown from "@/public/metric-arrow-down.svg";
-import CircleLoaderModal from "../ui/modals/CircleLoaderModal";
-import Image from "next/image";
-import WithSkeleton from "../ui/WithSkeleton";
+import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 
-export default function CampaignsPage() {
+export default function CampaignsOverview({
+  data,
+  loading,
+  hasCampaigns,
+}: {
+  data: any[] | null;
+  loading: boolean;
+  hasCampaigns: boolean | null;
+}) {
   const { navigateToCreateCampaign } = useCampaignsActions();
-  const data = useCampaignsStore((state) => state.data);
-  const loading = useCampaignsStore((state) => state.showLoader);
-
-  const hasCampaigns = useMemo(() => data && data.length > 0, [data]);
 
   return (
     <div className="min-h-[calc(100vh-56px)] relative flex flex-col flex-shrink-0 lg:gap-6">
@@ -47,13 +49,7 @@ export default function CampaignsPage() {
                 Top Performing Product
               </div>
               <div className="flex items-center flex-shrink-0 gap-3">
-                <WithSkeleton
-                  width="36px"
-                  height="36px"
-                  src="https://images.unsplash.com/photo-1541701571234-ffe036ddf1d2?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  borderRadius="8px"
-                  objectFit="cover"
-                />
+                <div className="w-[36px] h-[36px] rounded-lg bg-gray-50"></div>
                 <div className="font-medium text-sm lg:text-lg max-w-[140px] xl:max-w-[170px] truncate overflow-hidden whitespace-nowrap tracking-250">
                   Adiddas Sneakers
                 </div>
@@ -85,14 +81,7 @@ export default function CampaignsPage() {
                 Top Performing Campaign
               </div>
               <div className="flex flex-shrink-0 items-center gap-3">
-                <WithSkeleton
-                  width="36px"
-                  height="36px"
-                  src="https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  borderRadius="8px"
-                  objectFit="cover"
-                />
-
+                <div className="w-[36px] h-[36px] rounded-lg bg-gray-50"></div>
                 <div className="font-medium text-sm lg:text-lg truncate overflow-hidden whitespace-nowrap tracking-250 max-w-[140px] xl:max-w-[170px]">
                   Summer Promo Sales
                 </div>
@@ -172,7 +161,8 @@ export default function CampaignsPage() {
           <Campaigns />
         </div>
       )}
-      {loading && <CircleLoaderModal text="" alternate />}
+      {/* <div className="h-8"></div> */}
+      {data && loading && <CircleLoaderModal text="" />}
     </div>
   );
 }

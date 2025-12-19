@@ -41,8 +41,12 @@ export default function Table() {
     }
   }, [moreOpen]);
 
-  const handleMoreClick = (e: any, index: number) => {
+  const handleMoreClick = (e: any, index: number | null) => {
     e.stopPropagation();
+    if (index === null) {
+      setMoreOpen(index);
+      return;
+    }
     setMoreOpen(moreOpen === index ? null : index);
     moreRef.current = e.currentTarget;
   };
@@ -52,8 +56,8 @@ export default function Table() {
   }, [isAllCampaignsSelected, excludeDataIds]);
 
   return (
-    <div className="mt-[2px] relative overflow-x-scroll">
-      <div className="grid grid-cols-[1.2fr_2fr_repeat(4,1fr)_repeat(3,0.7fr)_0.85fr_1fr_0.3fr] text-sm">
+    <div className="mt-[2px] relative overflow-auto ">
+      <div className="grid min-w-[1100px] mx-5 xl:mx-0 xl:px-5 grid-cols-[1.2fr_2fr_repeat(4,1fr)_repeat(3,0.7fr)_0.85fr_1fr_0.3fr] text-sm">
         {/* <!-- Header --> */}
         <div className="contents [&>*]:bg-[rgba(243,239,246,0.8)] [&>*]:text-sm  [&>*]:text-[#928F94] [&>*]:font-medium [&>*]:h-[44px] [&>*]:flex [&>*]:items-center [&>*]:justify-start">
           <div
@@ -100,7 +104,7 @@ export default function Table() {
           />
         ))}
       </div>
-      <div className="h-[100px]" />
+      {/* <div className="h-[100px]" /> */}
       <SelectedCampaignsNav />
     </div>
   );

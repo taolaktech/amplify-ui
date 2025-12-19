@@ -17,31 +17,51 @@ import { useGetSetupComplete } from "./useGetSetupComplete";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
-  const { page, sortBy, type, status, platforms } = useCampaignsStore(
-    (state) => state
-  );
   const isLoading = useCampaignsStore((state) => state.isLoading);
   const actions = useCampaignsStore((state) => state.actions);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCampaigns = async (authToken?: string, showLoader?: boolean) => {
+  const fetchCampaigns = async (
+    authToken?: string,
+    showLoader?: boolean,
+    showInitialLoader?: boolean,
+    page?: number
+  ) => {
     const token = authToken || authTokenFromStore;
     if (!token) return setError("No authentication token provided");
     actions.setIsLoading(true);
-    if (showLoader) actions.setShowLoader(true);
+    if (showInitialLoader) {
+      actions.setShowLoader(true);
+      // actions.set;
+    } else if (showLoader) actions.setShowLoader(true);
     const requestData: any = {
       token,
     };
-    if (page) requestData.page = page;
+
+    const { sortBy, type, status, platforms, campaignName } =
+      useCampaignsStore.getState();
+    console.log("Fetching campaigns with params:", {
+      page,
+      sortBy,
+      type,
+      status,
+      platforms,
+      campaignName,
+    });
+    requestData.page = page ?? 0;
     if (sortBy) requestData.sortBy = sortBy;
     if (type) requestData.type = type;
+
+    requestData.name = campaignName;
     if (status) requestData.status = status;
     if (platforms) requestData.platforms = platforms;
     try {
       const data = await getCampaigns(requestData);
       console.log("Fetched campaigns data:", data);
       if (data.data) {
+        console.log("Setting campaigns data in store:", data.data);
         actions.setData(data.data.campaigns);
+        console.log("Pagination info:", data.data.pagination);
         actions.setPaginationInfo(data.data.pagination);
       }
       setError(null); // Clear any previous errors
@@ -286,7 +306,7 @@ export const useCampaignPageActions = () => {
   const { fetchCampaigns } = useGetCampaigns();
 
   const navigateToCampaignPage = () => {
-    if (token) fetchCampaigns(token, true);
+    if (token) fetchCampaigns(token, false, true);
     router.push(`/campaigns`);
   };
 

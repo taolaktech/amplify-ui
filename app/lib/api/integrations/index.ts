@@ -32,6 +32,7 @@ export const facebookAuth = async (data: { token: string }) => {
       },
     }
   );
+  console.log("facebook auth response:", response);
   return response.data;
 };
 

@@ -3,10 +3,12 @@ import { ProductOptions } from "./Settings";
 import Image from "next/image";
 import { ArrowDown2, More } from "iconsax-react";
 import CheckIcon from "@/public/custom-check.svg";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Platforms from "./Platforms";
 import Status from "./Status";
+import { createPortal } from "react-dom";
 import { campaignStatus } from "@/app/lib/utils";
+import WithSkeleton from "../WithSkeleton";
 
 export default function TableData({
   campaign,
@@ -22,7 +24,7 @@ export default function TableData({
   moreRef: React.RefObject<HTMLButtonElement | null>;
   moreOpen: null | number;
   dropdownPosition: "top" | "bottom";
-  handleMoreClick: (e: any, index: number) => void;
+  handleMoreClick: (e: any, index: number | null) => void;
   toggleCampaignOpen: (e: React.MouseEvent, index: number) => void;
   campaignOpen: null | number;
 }) {
@@ -47,6 +49,52 @@ export default function TableData({
   const isEven = useMemo(() => {
     return index % 2 === 0 || index === 0;
   }, [index]);
+
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const moreButtonRef = useRef<HTMLDivElement>(null);
+  const [showOptions, setShowOptions] = useState(false);
+
+  useEffect(() => {
+    if (moreOpen === index) {
+      const handleScroll = () => {
+        handleMoreClick(new Event("scroll"), null);
+      };
+
+      window.addEventListener("scroll", handleScroll, true); // true captures scroll on any element
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll, true);
+      };
+    }
+  }, [moreOpen, index]);
+
+  useEffect(() => {
+    if (moreOpen === index && moreButtonRef.current) {
+      const rect = moreButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: dropdownPosition === "top" ? rect.top - 208 - 4 : rect.bottom + 4,
+        left: rect.right - 199, // align right edge of dropdown with button
+      });
+      setShowOptions(true);
+    } else setShowOptions(false);
+  }, [moreOpen, index, dropdownPosition]);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const campaignImg = useMemo(() => {
+    const creatives = campaign.products[0]?.creatives as any[];
+    const foundCreative = creatives.find(
+      (creative) =>
+        creative.channel === "facebook" || creative.channel === "instagram"
+    );
+    return foundCreative
+      ? JSON.parse(foundCreative.data[0]).url
+      : campaign.products[0]?.imageLinks[0];
+  }, [campaign.products]);
 
   return (
     <>
@@ -86,13 +134,14 @@ export default function TableData({
         </div>
         <div className="">
           <div className="flex items-center gap-2">
-            <Image
-              width={36}
-              height={36}
-              alt="Product Image"
-              className="rounded-lg w-[36px] h-[36px] object-cover"
-              src={campaign.products[0]?.imageLinks[0]}
+            <WithSkeleton
+              width="36px"
+              height="36px"
+              src={campaignImg}
+              borderRadius="8px"
+              objectFit="cover"
             />
+
             <span
               title={campaign.name}
               className="max-w-[120px] truncate overflow-hidden whitespace-nowrap"
@@ -132,21 +181,39 @@ export default function TableData({
           <Platforms platform={campaign?.platforms} />
         </div>
         <div className="text-sm">
-          {new Date(campaign?.startDate)?.toLocaleDateString()}
+          {new Date(campaign?.startDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
         </div>
         <div
-          className="relative pr-2"
+          ref={moreButtonRef}
+          className="pr-2"
           onClick={(e) => handleMoreClick(e, index)}
         >
-          <div className="hover:bg-[rgba(167,127,255,0.1)] more-dropdown rounded-lg transition-all h-[24px] w-[24px] flex items-center justify-center ">
+          <div className="hover:bg-[rgba(167,127,255,0.1)] more-dropdown rounded-lg transition-all h-[24px] w-[24px] flex items-center justify-center">
             <button className="-rotate-90 cursor-pointer">
               <More size="16" color="#5B5B5B" />
             </button>
-            {moreOpen === index && (
-              <ProductOptions dropdownPosition={dropdownPosition} />
-            )}
           </div>
         </div>
+        {moreOpen === index &&
+          mounted &&
+          showOptions &&
+          createPortal(
+            <div
+              style={{
+                position: "fixed",
+                top: menuPosition.top,
+                left: menuPosition.left,
+                zIndex: 9999,
+              }}
+            >
+              <ProductOptions dropdownPosition={dropdownPosition} />
+            </div>,
+            document.body
+          )}
       </div>
 
       {/* ------------------------------------------------------ */}
@@ -156,6 +223,7 @@ export default function TableData({
           {campaign?.products?.map((product: any, index: number) => (
             <ProductData
               campaign={campaign}
+              isEven={isEven}
               product={product}
               key={product.shopifyId}
               isSelected={isSelected}
@@ -173,14 +241,20 @@ function ProductData({
   product,
   isSelected,
   index,
+  isEven,
 }: {
   campaign: any;
   product: any;
   isSelected: boolean;
   index: number;
+  isEven: boolean;
 }) {
   return (
-    <div className="contents cursor-pointer [&>*]:text-sm  [&>*]:text-[#5B5B5B] [&>*]:font-medium [&>*]:h-[76px] [&>*]:flex [&>*]:items-center [&>*]:justify-start">
+    <div
+      className={`contents cursor-pointer
+            ${!isEven ? "[&>*]:bg-[rgba(230,230,230,0.25)]" : ""}
+            [&>*]:text-sm  [&>*]:text-[#5B5B5B] [&>*]:font-medium [&>*]:h-[76px] [&>*]:flex [&>*]:items-center [&>*]:justify-start`}
+    >
       <div
         className={`border-l-4 flex items-center justify-between w-full  px-5 ${
           isSelected
@@ -240,7 +314,11 @@ function ProductData({
         <Platforms platform={campaign?.platforms} />
       </div>
       <div className="text-sm">
-        {new Date(campaign?.startDate)?.toLocaleDateString()}
+        {new Date(campaign?.startDate)?.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
       </div>
       {/* <div className="relative" onClick={(e) => handleMoreClick(e, index)}> */}
       <div>

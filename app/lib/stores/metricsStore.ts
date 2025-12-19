@@ -50,7 +50,7 @@ type MetricsStore = {
     setCampaignsFilter: (filter: CampaignsFilter) => void;
     setTimeline: (timeline: Timeline) => void;
   };
-}
+};
 
 const defaultMetricsPoints: MetricsPoints[] = [
   {

@@ -47,19 +47,25 @@ type CampaignsStore = {
   type: CampaignType | null;
   platforms: CampaignPlatforms | null;
   data: any[] | null;
+  filters: Set<"Product" | "Campaign" | "TBD" | "Others">;
+  sort: Set<"Impressions" | "Clicks" | "Start Date" | "End Date">;
   isAllCampaignsSelected: boolean;
+  campaignName?: string | undefined;
   excludeDataIds: string[];
   paginationInfo?: any;
   isLoading: boolean;
+
   sortBy: CampaignSortBy | null;
   showLoader: boolean;
   activeTab: CampaignTab;
   moreOpen: null | number;
   toggleHeaderOpen: boolean;
   filterOpen: boolean;
+  excludedDataCount: number;
 
   actions: {
     setPage: (page: number) => void;
+    setCampaignName: (name: string) => void;
     setFilterOpen: (filterOpen: boolean) => void;
     setStatus: (status: CampaignStatus | null) => void;
     setShowLoader: (showLoader: boolean) => void;
@@ -68,6 +74,10 @@ type CampaignsStore = {
     setPaginationInfo: (paginationInfo: any) => void;
     checkIfIsAllDataSelected: () => boolean;
     setMoreOpen: (moreOpen: null | number) => void;
+    toggleFilters: (filter: "Product" | "Campaign" | "TBD" | "Others") => void;
+    toggleSort: (
+      sort: "Impressions" | "Clicks" | "Start Date" | "End Date"
+    ) => void;
     setToggleHeaderOpen: (toggleHeaderOpen: boolean) => void;
     setData: (data: any[] | null) => void;
     checkIfIsDataSelected: (id: string) => boolean;
@@ -77,6 +87,7 @@ type CampaignsStore = {
     setSortBy: (sortBy: CampaignSortBy) => void;
     setActiveTab: (tab: CampaignTab) => void;
     setIsLoading: (isLoading: boolean) => void;
+    setExcludedDataCount: (count: number) => void;
     resetStore: () => void;
   };
 };
@@ -88,6 +99,8 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   type: null,
   platforms: null,
   excludeDataIds: [],
+  filters: new Set<"Product" | "Campaign" | "TBD" | "Others">(),
+  sort: new Set<"Impressions" | "Clicks" | "Start Date" | "End Date">(),
   isAllCampaignsSelected: false,
   data: null,
   isLoading: false,
@@ -96,6 +109,8 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   showLoader: true,
   moreOpen: null,
   toggleHeaderOpen: false,
+  excludedDataCount: 0,
+  campaignName: "",
 
   actions: {
     resetStore: () =>
@@ -118,6 +133,36 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
     setPage: (page: number) => {
       set({ page });
     },
+    toggleFilters: (filter: "Product" | "Campaign" | "TBD" | "Others") => {
+      set((state) => {
+        const newFilters = new Set(state.filters);
+        if (newFilters.has(filter)) {
+          newFilters.delete(filter);
+        } else {
+          newFilters.add(filter);
+        }
+        return { filters: newFilters };
+      });
+    },
+    toggleSort: (
+      sort: "Impressions" | "Clicks" | "Start Date" | "End Date"
+    ) => {
+      set((state) => {
+        const newSort = new Set(state.sort);
+        if (newSort.has(sort)) {
+          newSort.delete(sort);
+        } else {
+          newSort.add(sort);
+        }
+        return { sort: newSort };
+      });
+    },
+    setCampaignName: (name: string) => {
+      set({ campaignName: name });
+    },
+    setExcludedDataCount(count) {
+      set({ excludedDataCount: count });
+    },
     setFilterOpen: (filterOpen: boolean) => {
       set({ filterOpen });
     },
@@ -137,6 +182,7 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       set({
         isAllCampaignsSelected: false,
         excludeDataIds: get().data?.map((item) => item._id) || [],
+        excludedDataCount: get().paginationInfo.total || 0,
       });
     },
     toggleSelectedData: (id: string) => {
@@ -146,25 +192,33 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
         if (isSelected) {
           return {
             excludeDataIds: [...excludeDataIds, id],
+            excludedDataCount: (state.excludedDataCount || 0) + 1,
           };
         } else {
           return {
             excludeDataIds: excludeDataIds.filter(
               (excludedId) => excludedId !== id
             ),
+            excludedDataCount: (state.excludedDataCount || 0) - 1,
           };
         }
       });
     },
+
     toggleSelectAllData: () => {
       if (get().isAllCampaignsSelected && get().excludeDataIds.length === 0) {
         set({
           isAllCampaignsSelected: false,
           excludeDataIds: get().data?.map((item) => item._id),
+          excludedDataCount: get().paginationInfo.total || 0,
         });
       } else {
         console.log("");
-        set({ isAllCampaignsSelected: true, excludeDataIds: [] });
+        set({
+          isAllCampaignsSelected: true,
+          excludeDataIds: [],
+          excludedDataCount: 0,
+        });
       }
     },
     checkIfIsAllDataSelected: () => {
@@ -177,6 +231,19 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       set({ activeTab: tab });
     },
     setPaginationInfo: (paginationInfo: any) => {
+      const currentPaginationInfo = get().paginationInfo;
+      if (!currentPaginationInfo) {
+        set({ excludedDataCount: paginationInfo.total });
+      } else if (!get().isAllCampaignsSelected) {
+        if (get().excludedDataCount !== paginationInfo.total) {
+          const newExcludedCount = Math.abs(
+            paginationInfo.total - get().excludedDataCount
+          );
+          set({
+            excludedDataCount: newExcludedCount,
+          });
+        }
+      }
       set({ paginationInfo });
     },
     setSortBy: (sortBy: CampaignSortBy) => {

@@ -1,6 +1,12 @@
-import CircleLoader from "../loaders/CircleLoader";
+import CircleLoader, { CircleLoader2 } from "../loaders/CircleLoader";
 
-export default function CircleLoaderModal({ text }: { text: string }) {
+export default function CircleLoaderModal({
+  text,
+  alternate,
+}: {
+  text: string;
+  alternate?: boolean;
+}) {
   return (
     <div className="">
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"></div>
@@ -11,7 +17,7 @@ export default function CircleLoaderModal({ text }: { text: string }) {
     z-30 rounded-3xl p-6 flex flex-col
     "
       >
-        <CircleLoader />
+        {alternate ? <CircleLoader2 /> : <CircleLoader />}
         <p className="mt-6 text-center tracking-250">{text}</p>
       </div>
     </div>
