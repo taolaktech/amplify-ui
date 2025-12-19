@@ -1,5 +1,6 @@
 import useCampaignsStore from "@/app/lib/stores/campaignsStore";
 import { Add } from "iconsax-react";
+import { GreenCheckbox } from "../form/GreenCheckbox";
 
 export default function ToggleHeader({
   dropdownPosition,
@@ -10,6 +11,10 @@ export default function ToggleHeader({
   const setToggleHeaderOpen = useCampaignsStore(
     (state) => state.actions.setToggleHeaderOpen
   );
+  const sort = useCampaignsStore((state) => state.sort);
+  const toggleSort = useCampaignsStore((state) => state.actions.toggleSort);
+
+  const borderColor = "#595959";
 
   return (
     <div className="toggle-header relative">
@@ -26,21 +31,49 @@ export default function ToggleHeader({
             dropdownPosition === "bottom" ? " bottom-[-214px]" : " top-[-208px]"
           } w-[199px] bg-white shadow-[0_0px_3px_rgba(0,0,0,0.1)] rounded-[10px] border-[#B6B3B9]`}
         >
-          <div className="h-[52px] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center">
-            {/* <Play size={16} color="#101214" /> */}
-            <span className="text-sm">Impressions</span>
+          <div
+            onClick={() => toggleSort("Impressions")}
+            className="h-[52px] hover:bg-[rgba(243,239,246,0.5)] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center"
+          >
+            <GreenCheckbox
+              ticked={sort.has("Impressions")}
+              borderWidth={1}
+              borderColor={borderColor}
+            />
+            <span className="text-sm font-medium">Impressions</span>
           </div>
-          <div className="h-[52px] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center">
-            {/* <CopySuccess size={16} color="#101214" /> */}
-            <span className="text-sm">Clicks</span>
+          <div
+            onClick={() => toggleSort("Clicks")}
+            className="h-[52px] hover:bg-[rgba(243,239,246,0.5)] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center"
+          >
+            <GreenCheckbox
+              ticked={sort.has("Clicks")}
+              borderWidth={1}
+              borderColor={borderColor}
+            />
+            <span className="text-sm font-medium">Clicks</span>
           </div>
-          <div className="h-[52px] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center">
-            {/* <Archive size={16} color="#101214" /> */}
-            <span className="text-sm">Start Date</span>
+          <div
+            onClick={() => toggleSort("Start Date")}
+            className="h-[52px] hover:bg-[rgba(243,239,246,0.5)] cursor-pointer border-b-[0.25px] border-[#B6B3B9] px-4 gap-2 flex items-center"
+          >
+            <GreenCheckbox
+              ticked={sort.has("Start Date")}
+              borderWidth={1}
+              borderColor={borderColor}
+            />
+            <span className="text-sm font-medium">Start Date</span>
           </div>
-          <div className="h-[52px] cursor-pointer px-4 gap-2 flex items-center">
-            {/* <PauseCircle size={16} color="#101214" /> */}
-            <span className="text-sm">End Date</span>
+          <div
+            onClick={() => toggleSort("End Date")}
+            className="h-[52px] hover:bg-[rgba(243,239,246,0.5)] cursor-pointer px-4 gap-2 flex items-center"
+          >
+            <GreenCheckbox
+              ticked={sort.has("End Date")}
+              borderWidth={1}
+              borderColor={borderColor}
+            />
+            <span className="text-sm font-medium">End Date</span>
           </div>
         </div>
       )}

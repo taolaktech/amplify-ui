@@ -8,6 +8,7 @@ import Platforms from "./Platforms";
 import Status from "./Status";
 import { createPortal } from "react-dom";
 import { campaignStatus } from "@/app/lib/utils";
+import WithSkeleton from "../WithSkeleton";
 
 export default function TableData({
   campaign,
@@ -84,6 +85,17 @@ export default function TableData({
     setMounted(true);
   }, []);
 
+  const campaignImg = useMemo(() => {
+    const creatives = campaign.products[0]?.creatives as any[];
+    const foundCreative = creatives.find(
+      (creative) =>
+        creative.channel === "facebook" || creative.channel === "instagram"
+    );
+    return foundCreative
+      ? JSON.parse(foundCreative.data[0]).url
+      : campaign.products[0]?.imageLinks[0];
+  }, [campaign.products]);
+
   return (
     <>
       <div
@@ -122,13 +134,14 @@ export default function TableData({
         </div>
         <div className="">
           <div className="flex items-center gap-2">
-            <Image
-              width={36}
-              height={36}
-              alt="Product Image"
-              className="rounded-lg w-[36px] h-[36px] object-cover"
-              src={campaign.products[0]?.imageLinks[0]}
+            <WithSkeleton
+              width="36px"
+              height="36px"
+              src={campaignImg}
+              borderRadius="8px"
+              objectFit="cover"
             />
+
             <span
               title={campaign.name}
               className="max-w-[120px] truncate overflow-hidden whitespace-nowrap"
@@ -168,7 +181,11 @@ export default function TableData({
           <Platforms platform={campaign?.platforms} />
         </div>
         <div className="text-sm">
-          {new Date(campaign?.startDate)?.toLocaleDateString()}
+          {new Date(campaign?.startDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
         </div>
         <div
           ref={moreButtonRef}
@@ -206,6 +223,7 @@ export default function TableData({
           {campaign?.products?.map((product: any, index: number) => (
             <ProductData
               campaign={campaign}
+              isEven={isEven}
               product={product}
               key={product.shopifyId}
               isSelected={isSelected}
@@ -223,14 +241,20 @@ function ProductData({
   product,
   isSelected,
   index,
+  isEven,
 }: {
   campaign: any;
   product: any;
   isSelected: boolean;
   index: number;
+  isEven: boolean;
 }) {
   return (
-    <div className="contents cursor-pointer [&>*]:text-sm  [&>*]:text-[#5B5B5B] [&>*]:font-medium [&>*]:h-[76px] [&>*]:flex [&>*]:items-center [&>*]:justify-start">
+    <div
+      className={`contents cursor-pointer
+            ${!isEven ? "[&>*]:bg-[rgba(230,230,230,0.25)]" : ""}
+            [&>*]:text-sm  [&>*]:text-[#5B5B5B] [&>*]:font-medium [&>*]:h-[76px] [&>*]:flex [&>*]:items-center [&>*]:justify-start`}
+    >
       <div
         className={`border-l-4 flex items-center justify-between w-full  px-5 ${
           isSelected
@@ -290,7 +314,11 @@ function ProductData({
         <Platforms platform={campaign?.platforms} />
       </div>
       <div className="text-sm">
-        {new Date(campaign?.startDate)?.toLocaleDateString()}
+        {new Date(campaign?.startDate)?.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
       </div>
       {/* <div className="relative" onClick={(e) => handleMoreClick(e, index)}> */}
       <div>

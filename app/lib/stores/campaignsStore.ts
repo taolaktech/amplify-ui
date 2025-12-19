@@ -47,11 +47,14 @@ type CampaignsStore = {
   type: CampaignType | null;
   platforms: CampaignPlatforms | null;
   data: any[] | null;
+  filters: Set<"Product" | "Campaign" | "TBD" | "Others">;
+  sort: Set<"Impressions" | "Clicks" | "Start Date" | "End Date">;
   isAllCampaignsSelected: boolean;
   campaignName?: string | undefined;
   excludeDataIds: string[];
   paginationInfo?: any;
   isLoading: boolean;
+
   sortBy: CampaignSortBy | null;
   showLoader: boolean;
   activeTab: CampaignTab;
@@ -71,6 +74,10 @@ type CampaignsStore = {
     setPaginationInfo: (paginationInfo: any) => void;
     checkIfIsAllDataSelected: () => boolean;
     setMoreOpen: (moreOpen: null | number) => void;
+    toggleFilters: (filter: "Product" | "Campaign" | "TBD" | "Others") => void;
+    toggleSort: (
+      sort: "Impressions" | "Clicks" | "Start Date" | "End Date"
+    ) => void;
     setToggleHeaderOpen: (toggleHeaderOpen: boolean) => void;
     setData: (data: any[] | null) => void;
     checkIfIsDataSelected: (id: string) => boolean;
@@ -92,6 +99,8 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
   type: null,
   platforms: null,
   excludeDataIds: [],
+  filters: new Set<"Product" | "Campaign" | "TBD" | "Others">(),
+  sort: new Set<"Impressions" | "Clicks" | "Start Date" | "End Date">(),
   isAllCampaignsSelected: false,
   data: null,
   isLoading: false,
@@ -123,6 +132,30 @@ const useCampaignsStore = create<CampaignsStore>((set, get) => ({
       }),
     setPage: (page: number) => {
       set({ page });
+    },
+    toggleFilters: (filter: "Product" | "Campaign" | "TBD" | "Others") => {
+      set((state) => {
+        const newFilters = new Set(state.filters);
+        if (newFilters.has(filter)) {
+          newFilters.delete(filter);
+        } else {
+          newFilters.add(filter);
+        }
+        return { filters: newFilters };
+      });
+    },
+    toggleSort: (
+      sort: "Impressions" | "Clicks" | "Start Date" | "End Date"
+    ) => {
+      set((state) => {
+        const newSort = new Set(state.sort);
+        if (newSort.has(sort)) {
+          newSort.delete(sort);
+        } else {
+          newSort.add(sort);
+        }
+        return { sort: newSort };
+      });
     },
     setCampaignName: (name: string) => {
       set({ campaignName: name });

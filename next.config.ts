@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       "lh3.googleusercontent.com",
+      "images.unsplash.com",
       "cdn.shopify.com",
       "cdn.pixabay.com",
       "s3.us-east-2.amazonaws.com",

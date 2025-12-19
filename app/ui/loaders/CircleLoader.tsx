@@ -67,12 +67,11 @@ export function CircleLoader2({ black }: { black?: boolean }) {
             y2="94.6872"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#A755FF" />
-            <stop offset="1" stop-color="#6800D7" />
+            <stop stopColor="#A755FF" />
+            <stop offset="1" stopColor="#6800D7" />
           </linearGradient>
         </defs>
       </svg>
-      <div className="text-center mt-3">Loading...</div>
     </div>
   );
 }
