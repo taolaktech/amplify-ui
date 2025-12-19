@@ -394,6 +394,7 @@ const PreviewContainer = ({
                       creatives={
                         isMediaCreative?.[mediaCreative]?.creatives || []
                       }
+                      loading={isLoading || false}
                     />
                   </div>
                 )}
@@ -466,6 +467,7 @@ const PreviewContainer = ({
                       creatives={
                         isMediaCreative?.[mediaCreative]?.creatives || []
                       }
+                      loading={isLoading || false}
                     />
                   </div>
                 )}
