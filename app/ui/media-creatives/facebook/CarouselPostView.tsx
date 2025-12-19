@@ -50,15 +50,6 @@ export default function CarouselPostView({
                 title={creatives?.[0]?.title}
               />
             </div>
-            {/* {new Array(4).fill(0).map((_, index) => (
-              <div
-                className="w-[260.74px] mb-[56px] flex-shrink-0"
-                key={index}
-                style={{ marginRight: index === 3 ? "24px" : "0" }}
-              >
-                <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
-              </div>
-            ))} */}
             {loading
               ? new Array(4).fill(0).map((_, index) => (
                   <div
@@ -69,7 +60,8 @@ export default function CarouselPostView({
                     <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
                   </div>
                 ))
-              : new Array(creatives.length - 1).fill(0).map((_, index) => (
+              : creatives.length > 1 &&
+                new Array(creatives.length - 1).fill(0).map((_, index) => (
                   <div
                     className="w-[260.74px] mb-[56px] flex-shrink-0"
                     key={index}
@@ -92,6 +84,7 @@ export default function CarouselPostView({
           brandName={brandName}
           location={location}
           title={creatives?.[0]?.title}
+          loading={loading}
         />
       )}
     </div>
@@ -213,14 +206,7 @@ const CarouselContent = ({
                 title={title}
               />
             </div>
-            {/* {new Array(4).fill(0).map((_, index) => (
-              <div
-                className="flex items-center h-[70vh] max-h-[850px] justify-center"
-                key={index}
-              >
-                <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
-              </div>
-            ))} */}
+
             {loading
               ? new Array(4).fill(0).map((_, index) => (
                   <div
@@ -230,7 +216,8 @@ const CarouselContent = ({
                     <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
                   </div>
                 ))
-              : new Array(photoUrls.length - 1).fill(0).map((_, index) => (
+              : photoUrls.length > 1 &&
+                new Array(photoUrls.length - 1).fill(0).map((_, index) => (
                   <div
                     className="flex items-center h-[70vh] max-h-[850px] justify-center"
                     key={index}

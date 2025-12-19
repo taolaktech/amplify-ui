@@ -59,7 +59,8 @@ export default function CarouselPostView({
                     <CarouselPost photoUrl={creatives?.[index + 1]?.url} />
                   </div>
                 ))
-              : new Array(creatives.length - 1).fill(0).map((_, index) => (
+              : creatives.length > 1 &&
+                new Array(creatives.length - 1).fill(0).map((_, index) => (
                   <div
                     className="w-[260.74px] mb-[56px] flex-shrink-0"
                     key={index}
@@ -208,7 +209,8 @@ const CarouselContent = ({
                   <CarouselPost photoUrl={photoUrls[index + 1]} maximized />
                 </div>
               ))
-            : new Array(photoUrls.length - 1).fill(0).map((_, index) => (
+            : photoUrls.length > 1 &&
+              new Array(photoUrls.length - 1).fill(0).map((_, index) => (
                 <div
                   className="flex items-center h-[70vh] max-h-[850px] justify-center"
                   key={index}
