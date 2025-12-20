@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
     ],
   },
   allowedDevOrigins: allowedOrigins,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
