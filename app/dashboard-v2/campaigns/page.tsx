@@ -111,7 +111,7 @@ export default function CampaignsV2Page() {
           <p className="text-gray-500 text-sm">Manage your saved ads and marketing campaigns</p>
         </div>
         <a
-          href="/create-campaign/campaign-snapshots"
+          href="/dashboard-v2/inspirations"
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-sm rounded-xl hover:opacity-90 transition-opacity font-medium"
         >
           <Add size={18} />
@@ -235,7 +235,7 @@ export default function CampaignsV2Page() {
               <p className="text-gray-800 text-lg font-medium mb-1">No campaigns yet</p>
               <p className="text-gray-500 text-sm mb-4 text-center">Create your first marketing campaign</p>
               <a
-                href="/create-campaign/campaign-snapshots"
+                href="/dashboard-v2/inspirations"
                 className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
               >
                 <Add size={16} />
