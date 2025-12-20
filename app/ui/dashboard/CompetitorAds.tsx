@@ -532,7 +532,7 @@ export default function CompetitorAds() {
                 <ArrowDown2 size={12} />
               </button>
               {showSortDropdown && (
-                <div className="absolute right-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 min-w-[120px]">
+                <div className="absolute right-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-50 min-w-[120px]">
                   {sortOptions.map((option) => (
                     <button
                       key={option}
@@ -666,7 +666,7 @@ function FilterDropdown({
         <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
       </button>
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 min-w-[140px]">
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-50 min-w-[140px]">
           {options.map((option) => (
             <button
               key={option}
@@ -722,7 +722,7 @@ function NicheDropdown({
         <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
       </button>
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-20 w-[280px] max-h-[400px] overflow-auto">
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-50 w-[280px] max-h-[400px] overflow-auto">
           <button
             onClick={() => onSelect("All")}
             className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] rounded-t-xl flex items-center justify-between ${
@@ -833,7 +833,7 @@ function AdScoreDropdown({
         <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
       </button>
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 p-4 w-[220px]">
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-50 p-4 w-[220px]">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-dark">Score Range</span>
             <span className="text-xs text-purple-normal font-medium">{range[0]} - {range[1]}</span>
