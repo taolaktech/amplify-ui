@@ -3,10 +3,12 @@ import type { NextConfig } from "next";
 const allowedOrigins = [
   "http://127.0.0.1",
   "http://localhost",
+  "*.replit.dev",
 ];
 
 if (process.env.REPLIT_DEV_DOMAIN) {
   allowedOrigins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  allowedOrigins.push(`http://${process.env.REPLIT_DEV_DOMAIN}`);
 }
 
 const nextConfig: NextConfig = {
