@@ -933,17 +933,24 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
           const currentSeason = seasonalCampaigns[0]?.season || "Winter";
           return (
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-red-500 to-green-600 rounded-2xl p-6 text-white">
-                <div className="flex items-center gap-3 mb-3">
-                  <Gift size={28} />
-                  <div>
-                    <h3 className="text-xl font-bold">{currentSeason} Campaign Ideas</h3>
-                    <p className="text-white/80 text-sm">Trending templates for the holiday season</p>
+              <div className="relative">
+                <img 
+                  src="/attached_assets/9779732_1766211084749.png" 
+                  alt="Christmas ornament" 
+                  className="absolute -top-4 right-8 w-16 h-auto z-10 drop-shadow-lg"
+                />
+                <div className="bg-gradient-to-r from-red-500 to-green-600 rounded-2xl p-6 text-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Gift size={28} />
+                    <div>
+                      <h3 className="text-xl font-bold">{currentSeason} Campaign Ideas</h3>
+                      <p className="text-white/80 text-sm">Trending templates for the holiday season</p>
+                    </div>
                   </div>
+                  <p className="text-white/90 text-sm">
+                    These campaign templates are optimized for the current season. Use them as inspiration to create timely, relevant ads that resonate with your audience.
+                  </p>
                 </div>
-                <p className="text-white/90 text-sm">
-                  These campaign templates are optimized for the current season. Use them as inspiration to create timely, relevant ads that resonate with your audience.
-                </p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
