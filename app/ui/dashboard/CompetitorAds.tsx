@@ -523,7 +523,7 @@ export default function CompetitorAds() {
             <SearchNormal1 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-dark" />
             <input
               type="text"
-              placeholder="Search brands, ads..."
+              placeholder="Search Competitor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-input-border rounded-xl pl-9 pr-3 py-2 text-sm text-purple-dark placeholder-gray-dark focus:outline-none focus:border-purple-normal"
