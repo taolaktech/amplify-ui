@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy, TrendUp, Flash } from "iconsax-react";
+import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy, TrendUp, Flash, DocumentDownload, Refresh2 } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { getTrendingAds, TrendingAd } from "@/app/lib/trendingAds";
 import ConnectStore from "@/app/ui/modals/ConnectStore";
 
@@ -36,9 +37,73 @@ type Campaign = {
   created_at: string;
 };
 
+const demoCampaigns: Campaign[] = [
+  {
+    id: 1001,
+    name: "Summer Skincare Launch",
+    type: "generated",
+    status: "active",
+    source_ad_id: null,
+    source_brand: "MUSE Skin",
+    product_name: "Glow Serum",
+    headline: "Achieve radiant summer skin with our bestselling serum",
+    preview_type: "image",
+    preview_url: "/image-ads/muse-skin.png",
+    platform: "meta",
+    niche: "Beauty",
+    created_at: "2024-12-18T10:30:00Z",
+  },
+  {
+    id: 1002,
+    name: "SPF Awareness Campaign",
+    type: "generated",
+    status: "draft",
+    source_ad_id: null,
+    source_brand: "Naked Sundays",
+    product_name: "Collagen Glow SPF50+",
+    headline: "Protect your skin while getting that perfect glow",
+    preview_type: "image",
+    preview_url: "/image-ads/naked-sundays.png",
+    platform: "tiktok",
+    niche: "Skincare",
+    created_at: "2024-12-17T14:20:00Z",
+  },
+  {
+    id: 1003,
+    name: "Holiday Hand Care",
+    type: "generated",
+    status: "active",
+    source_ad_id: null,
+    source_brand: "Mary Kay",
+    product_name: "Satin Hands",
+    headline: "Give the gift of soft, silky hands this holiday season",
+    preview_type: "image",
+    preview_url: "/image-ads/satin-hands.png",
+    platform: "meta",
+    niche: "Skincare",
+    created_at: "2024-12-16T09:15:00Z",
+  },
+  {
+    id: 1004,
+    name: "Clean Beauty Launch",
+    type: "cloned",
+    status: "paused",
+    source_ad_id: "hersteller-001",
+    source_brand: "Hersteller",
+    product_name: "Veggie Cleanser",
+    headline: "Clean beauty that actually works for sensitive skin",
+    preview_type: "image",
+    preview_url: "/image-ads/hersteller.png",
+    platform: "meta",
+    niche: "Skincare",
+    created_at: "2024-12-15T16:45:00Z",
+  },
+];
+
 export default function CampaignsV2Page() {
+  const router = useRouter();
   const [savedAds, setSavedAds] = useState<SavedAd[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>(demoCampaigns);
   const [loading, setLoading] = useState(true);
   const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
 
@@ -62,9 +127,11 @@ export default function CampaignsV2Page() {
       const campaignsData = await campaignsRes.json();
       
       setSavedAds(savedData.savedAds || []);
-      setCampaigns(campaignsData.campaigns || []);
+      const apiCampaigns = campaignsData.campaigns || [];
+      setCampaigns([...demoCampaigns, ...apiCampaigns]);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setCampaigns(demoCampaigns);
     } finally {
       setLoading(false);
     }
@@ -84,11 +151,30 @@ export default function CampaignsV2Page() {
   };
 
   const handleDeleteCampaign = async (id: number) => {
+    if (id >= 1001 && id <= 1004) {
+      setCampaigns(campaigns.filter((c) => c.id !== id));
+      return;
+    }
     try {
       await fetch(`/api/campaigns?id=${id}`, { method: "DELETE" });
       setCampaigns(campaigns.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Error deleting campaign:", error);
+    }
+  };
+
+  const handleRegenerateCampaign = (campaign: Campaign) => {
+    router.push(`/dashboard-v2/campaign-snapshot?id=${campaign.id}&regenerate=true`);
+  };
+
+  const handleDownloadAssets = async (campaign: Campaign) => {
+    if (campaign.preview_url) {
+      const link = document.createElement("a");
+      link.href = campaign.preview_url;
+      link.download = `${campaign.name.replace(/\s+/g, "-").toLowerCase()}-asset`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -245,7 +331,13 @@ export default function CampaignsV2Page() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {generatedCampaigns.map((campaign) => (
-                <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
+                <CampaignCard 
+                  key={campaign.id} 
+                  campaign={campaign} 
+                  onDelete={handleDeleteCampaign}
+                  onRegenerate={handleRegenerateCampaign}
+                  onDownload={handleDownloadAssets}
+                />
               ))}
             </div>
           )}
@@ -258,7 +350,13 @@ export default function CampaignsV2Page() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {clonedCampaigns.map((campaign) => (
-                <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
+                <CampaignCard 
+                  key={campaign.id} 
+                  campaign={campaign} 
+                  onDelete={handleDeleteCampaign}
+                  onRegenerate={handleRegenerateCampaign}
+                  onDownload={handleDownloadAssets}
+                />
               ))}
             </div>
           </section>
@@ -295,7 +393,12 @@ export default function CampaignsV2Page() {
   );
 }
 
-function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (id: number) => void }) {
+function CampaignCard({ campaign, onDelete, onRegenerate, onDownload }: { 
+  campaign: Campaign; 
+  onDelete: (id: number) => void;
+  onRegenerate: (campaign: Campaign) => void;
+  onDownload: (campaign: Campaign) => void;
+}) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -356,9 +459,21 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
           )}
         </div>
         <div className="flex items-center gap-2 pt-2">
-          <button className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium">
-            <Edit2 size={12} />
-            Edit
+          <button
+            onClick={() => onRegenerate(campaign)}
+            className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
+          >
+            <Refresh2 size={12} />
+            Regenerate
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onDownload(campaign)}
+            className="flex-1 py-2 bg-[#F3EFF6] text-purple-600 text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1 font-medium"
+          >
+            <DocumentDownload size={12} />
+            Download
           </button>
           <button
             onClick={() => onDelete(campaign.id)}

@@ -674,16 +674,6 @@ export default function AdLibrary() {
                   className="w-full h-full object-cover"
                 />
               )}
-              <div className="absolute top-2 right-2">
-                <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-green-500 text-white">
-                  Active
-                </span>
-              </div>
-              <div className="absolute bottom-2 left-2">
-                <span className="text-[10px] font-medium px-2 py-1 rounded-md bg-black/60 text-white backdrop-blur-sm">
-                  Ad Score: {75 + (ad.id % 20)}
-                </span>
-              </div>
               <button
                 onClick={() => toggleSaveAd(ad.id)}
                 className="absolute bottom-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
