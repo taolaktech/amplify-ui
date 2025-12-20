@@ -563,8 +563,7 @@ export default function CompetitorAds() {
           </div>
         </div>
 
-        <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
-          <div className="flex items-center gap-2 min-w-max lg:flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <FilterDropdown
             label="Format"
             value={filters.format}
@@ -605,12 +604,11 @@ export default function CompetitorAds() {
           {getActiveFilterCount() > 0 && (
             <button
               onClick={clearFilters}
-              className="px-3 py-1.5 text-sm text-purple-normal hover:text-purple-dark font-medium whitespace-nowrap"
+              className="px-3 py-1.5 text-sm text-purple-normal hover:text-purple-dark font-medium"
             >
               Clear all
             </button>
           )}
-          </div>
         </div>
       </div>
 
