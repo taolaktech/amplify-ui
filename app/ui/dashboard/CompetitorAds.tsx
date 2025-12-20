@@ -8,6 +8,7 @@ type Ad = {
   isNew: boolean;
   daysAgo: number | null;
   previewType: "video" | "image";
+  previewUrl: string;
   headline: string;
   domain: string;
   productName: string;
@@ -106,99 +107,190 @@ const nicheCategories: NicheCategory[] = [
 const mockAds: Ad[] = [
   {
     id: 1,
-    brand: "BURLEBO",
+    brand: "Luxe Cosmetics",
     isNew: true,
     daysAgo: null,
-    previewType: "video",
-    headline: "Taking after Dad already! Check out all the latest BURLEY-baby...",
-    domain: "www.burlebo.com",
-    productName: "BURLEBO Baby Zip Ups",
+    previewType: "image",
+    previewUrl: "/ad-assets/6da1073c-b66a-4448-9269-80afa64e9ac9_1766197795895.png",
+    headline: "Your signature shade awaits. Our long-lasting lipstick stays flawless from morning meetings to midnight events...",
+    domain: "www.luxecosmetics.com",
+    productName: "Velvet Matte Lipstick Collection",
     cta: "Shop Now",
     platform: "meta",
-    niche: "Fashion & Apparel",
-    subNiche: "Kids & Baby Clothing",
+    niche: "Beauty & Personal Care",
+    subNiche: "Makeup & Cosmetics",
     status: "active",
     saved: false,
   },
   {
     id: 2,
-    brand: "Zeely Market",
+    brand: "NomadGear",
     isNew: true,
     daysAgo: null,
-    previewType: "video",
-    headline: "Add comfort & style to your space with Nu Jants! Our quality throw...",
-    domain: "zee.store",
-    productName: "Could your living room or wardrob...",
-    cta: "Learn More",
+    previewType: "image",
+    previewUrl: "/ad-assets/0b113324-a1a5-415b-99e2-1a8139f6529e_1766197795897.png",
+    headline: "Travel in style with our premium carry-on. Designed for the modern explorer who refuses to compromise...",
+    domain: "www.nomadgear.co",
+    productName: "Urban Explorer Rolling Bag",
+    cta: "Shop Now",
     platform: "meta",
-    niche: "Home & Living",
-    subNiche: "Bedding & Mattresses",
+    niche: "Jewelry & Accessories",
+    subNiche: "Bags & Wallets",
     status: "active",
     saved: true,
   },
   {
     id: 3,
-    brand: "Zeely Market",
+    brand: "FitForm",
     isNew: true,
     daysAgo: null,
-    previewType: "video",
-    headline: "Tired of dull outfits? Transform your style with Luo's Shop's...",
-    domain: "zeely.store",
-    productName: "Discover Exclusive Deals at Luo's...",
-    cta: "Learn More",
+    previewType: "image",
+    previewUrl: "/ad-assets/9b63b13f-e770-42dd-a300-36cef414b8c1_1766197795898.png",
+    headline: "Elevate your workout game. Premium activewear that moves with you through every rep and stretch...",
+    domain: "www.fitform.com",
+    productName: "Pro Performance Leggings Set",
+    cta: "Shop Now",
     platform: "tiktok",
     niche: "Fashion & Apparel",
-    subNiche: "Women's Clothing",
+    subNiche: "Activewear & Athleisure",
     status: "active",
     saved: false,
   },
   {
     id: 4,
-    brand: "Zeely Market",
+    brand: "SkateFlow",
     isNew: true,
     daysAgo: null,
     previewType: "image",
-    headline: "Tired of endless mall trips? Shop smart with Luo's Shop—your on...",
-    domain: "zeely.store",
-    productName: "Discover Unbeatable Deal...",
-    cta: "Learn More",
+    previewUrl: "/ad-assets/29f2b7d0-0ca0-42b6-ab01-e94ad8a007ad_1766197795898.png",
+    headline: "Feel the freedom of flight. Our pro-grade inline skates deliver unmatched speed and control...",
+    domain: "www.skateflow.com",
+    productName: "Pro Inline Skates",
+    cta: "Shop Now",
     platform: "meta",
-    niche: "Digital Products",
-    subNiche: "Online Courses",
-    status: "inactive",
+    niche: "Sports & Outdoors",
+    subNiche: "Outdoor Gear",
+    status: "active",
     saved: false,
   },
   {
     id: 5,
-    brand: "BURLEBO",
+    brand: "Elegance Studio",
     isNew: false,
-    daysAgo: 1,
-    previewType: "video",
-    headline: "Matching made easy: BURLEBO Father & Son outfits—durable...",
-    domain: "www.burlebo.com",
-    productName: "BURLEBO Father & Son BURLEBO...",
+    daysAgo: 2,
+    previewType: "image",
+    previewUrl: "/ad-assets/Winter_Gala_Ready_version_1_1766197795900.png",
+    headline: "The Winter Event Standard. The perfect deep emerald dress, designed to move with you through every festive moment...",
+    domain: "www.elegancestudio.com",
+    productName: "Winter Gala Collection",
     cta: "Shop Now",
     platform: "meta",
     niche: "Fashion & Apparel",
-    subNiche: "Men's Clothing",
+    subNiche: "Occasion Wear",
     status: "active",
     saved: true,
   },
   {
     id: 6,
-    brand: "Body & Bra",
+    brand: "GlowUp Beauty",
     isNew: true,
     daysAgo: null,
-    previewType: "image",
-    headline: "Struggling with larger cup sizes? Finally, a bra that gives real lift...",
-    domain: "www.bodyandbra.com",
-    productName: "Ultimate Support Bra",
+    previewType: "video",
+    previewUrl: "/ad-assets/a069269c-49e5-4068-a750-007e54a3d580_1766197795899.mp4",
+    headline: "Transform your skincare routine with our viral serum. See real results in just 7 days...",
+    domain: "www.glowupbeauty.com",
+    productName: "Hydra-Glow Vitamin C Serum",
     cta: "Shop Now",
     platform: "tiktok",
     niche: "Beauty & Personal Care",
-    subNiche: "Women's Clothing",
+    subNiche: "Skincare",
     status: "active",
     saved: false,
+  },
+  {
+    id: 7,
+    brand: "HomeStyle",
+    isNew: true,
+    daysAgo: null,
+    previewType: "video",
+    previewUrl: "/ad-assets/a5928bf1-8cca-4f11-80c1-d48602facf5a_1766197795899.mp4",
+    headline: "Create the cozy sanctuary you deserve. Our luxury bedding transforms any bedroom into a 5-star retreat...",
+    domain: "www.homestyle.co",
+    productName: "Cloud Comfort Bedding Set",
+    cta: "Learn More",
+    platform: "meta",
+    niche: "Home & Living",
+    subNiche: "Bedding & Mattresses",
+    status: "active",
+    saved: false,
+  },
+  {
+    id: 8,
+    brand: "TechPro",
+    isNew: false,
+    daysAgo: 3,
+    previewType: "video",
+    previewUrl: "/ad-assets/a7aa648c-6d7b-463a-8c47-998e25342aaa_1766197795900.mp4",
+    headline: "The future of audio is here. Experience crystal-clear sound with our AI-powered earbuds...",
+    domain: "www.techpro.io",
+    productName: "AirPods Pro Max",
+    cta: "Shop Now",
+    platform: "meta",
+    niche: "Tech & Electronics",
+    subNiche: "Audio Equipment",
+    status: "active",
+    saved: true,
+  },
+  {
+    id: 9,
+    brand: "FitLife",
+    isNew: true,
+    daysAgo: null,
+    previewType: "video",
+    previewUrl: "/ad-assets/c75be66a-b6a9-4cfb-add1-d2a98fa78080_1766197795900.mp4",
+    headline: "Your home gym, reimagined. Compact equipment that delivers full-body results without the gym membership...",
+    domain: "www.fitlife.com",
+    productName: "Home Fitness System",
+    cta: "Shop Now",
+    platform: "tiktok",
+    niche: "Health & Wellness",
+    subNiche: "Fitness Accessories",
+    status: "active",
+    saved: false,
+  },
+  {
+    id: 10,
+    brand: "PetPals",
+    isNew: true,
+    daysAgo: null,
+    previewType: "video",
+    previewUrl: "/ad-assets/Download_(1)_1766197795901.mp4",
+    headline: "Your furry friend deserves the best. Premium pet accessories that combine style with comfort...",
+    domain: "www.petpals.store",
+    productName: "Luxury Pet Travel Carrier",
+    cta: "Shop Now",
+    platform: "meta",
+    niche: "Baby & Kids",
+    subNiche: "Baby Gear",
+    status: "inactive",
+    saved: false,
+  },
+  {
+    id: 11,
+    brand: "Artisan Coffee",
+    isNew: false,
+    daysAgo: 1,
+    previewType: "video",
+    previewUrl: "/ad-assets/d3b6fcfd-4074-4e98-9fb9-8e81d0d78cbe_1766197795901.mp4",
+    headline: "Start your morning right. Single-origin beans roasted to perfection for the ultimate coffee experience...",
+    domain: "www.artisancoffee.co",
+    productName: "Premium Coffee Subscription",
+    cta: "Subscribe",
+    platform: "tiktok",
+    niche: "Food & Beverages",
+    subNiche: "Coffee & Tea",
+    status: "active",
+    saved: true,
   },
 ];
 
@@ -672,15 +764,30 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
         <p className="px-3 text-gray-dark text-xs line-clamp-2 mb-2">{ad.headline}</p>
 
         <div className="relative flex-1 min-h-[200px] bg-[#F3EFF6] mx-3 rounded-xl overflow-hidden cursor-pointer" onClick={() => setShowInsights(true)}>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1D0B30]/20"></div>
+          {ad.previewType === "image" ? (
+            <img
+              src={ad.previewUrl}
+              alt={ad.productName}
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          ) : (
+            <video
+              src={ad.previewUrl}
+              className="w-full h-full object-cover absolute inset-0"
+              muted
+              loop
+              playsInline
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1D0B30]/30"></div>
           {ad.previewType === "video" && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Play size={20} className="text-purple-dark ml-1" variant="Bold" />
               </div>
             </div>
           )}
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 z-10">
             <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${ad.status === "active" ? "bg-[#EAF7EF] text-[#27AE60]" : "bg-[#FEF5EA] text-[#C67B22]"}`}>
               {ad.status === "active" ? "Active" : "Inactive"}
             </span>
@@ -737,13 +844,20 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
             </div>
 
             <div className="p-4 space-y-4">
-              <div className="aspect-video bg-[#F3EFF6] rounded-xl flex items-center justify-center">
+              <div className="aspect-video bg-[#F3EFF6] rounded-xl overflow-hidden relative">
                 {ad.previewType === "video" ? (
-                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                    <Play size={28} className="text-purple-dark ml-1" variant="Bold" />
-                  </div>
+                  <video
+                    src={ad.previewUrl}
+                    className="w-full h-full object-cover"
+                    controls
+                    playsInline
+                  />
                 ) : (
-                  <span className="text-gray-dark">Image Preview</span>
+                  <img
+                    src={ad.previewUrl}
+                    alt={ad.productName}
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </div>
 
