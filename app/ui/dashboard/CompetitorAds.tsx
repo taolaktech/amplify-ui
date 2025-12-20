@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2 } from "iconsax-react";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle } from "iconsax-react";
 
 type Ad = {
   id: number;
@@ -19,6 +19,7 @@ type Ad = {
   subNiche: string;
   status: "active" | "inactive";
   saved: boolean;
+  adScore: number;
 };
 
 type NicheCategory = {
@@ -122,6 +123,7 @@ const mockAds: Ad[] = [
     subNiche: "Makeup & Cosmetics",
     status: "active",
     saved: false,
+    adScore: 92,
   },
   {
     id: 2,
@@ -139,6 +141,7 @@ const mockAds: Ad[] = [
     subNiche: "Bags & Wallets",
     status: "active",
     saved: true,
+    adScore: 78,
   },
   {
     id: 3,
@@ -156,6 +159,7 @@ const mockAds: Ad[] = [
     subNiche: "Activewear & Athleisure",
     status: "active",
     saved: false,
+    adScore: 85,
   },
   {
     id: 4,
@@ -173,6 +177,7 @@ const mockAds: Ad[] = [
     subNiche: "Outdoor Gear",
     status: "active",
     saved: false,
+    adScore: 67,
   },
   {
     id: 5,
@@ -190,6 +195,7 @@ const mockAds: Ad[] = [
     subNiche: "Occasion Wear",
     status: "active",
     saved: true,
+    adScore: 94,
   },
   {
     id: 6,
@@ -207,6 +213,7 @@ const mockAds: Ad[] = [
     subNiche: "Skincare",
     status: "active",
     saved: false,
+    adScore: 88,
   },
   {
     id: 7,
@@ -224,6 +231,7 @@ const mockAds: Ad[] = [
     subNiche: "Bedding & Mattresses",
     status: "active",
     saved: false,
+    adScore: 73,
   },
   {
     id: 8,
@@ -241,6 +249,7 @@ const mockAds: Ad[] = [
     subNiche: "Audio Equipment",
     status: "active",
     saved: true,
+    adScore: 81,
   },
   {
     id: 9,
@@ -258,6 +267,7 @@ const mockAds: Ad[] = [
     subNiche: "Fitness Accessories",
     status: "active",
     saved: false,
+    adScore: 96,
   },
   {
     id: 10,
@@ -275,6 +285,7 @@ const mockAds: Ad[] = [
     subNiche: "Baby Gear",
     status: "inactive",
     saved: false,
+    adScore: 45,
   },
   {
     id: 11,
@@ -292,6 +303,7 @@ const mockAds: Ad[] = [
     subNiche: "Coffee & Tea",
     status: "active",
     saved: true,
+    adScore: 89,
   },
 ];
 
@@ -316,6 +328,7 @@ export default function CompetitorAds() {
     niche: "All",
     subNiche: "All",
   });
+  const [adRankRange, setAdRankRange] = useState<[number, number]>([0, 100]);
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
@@ -343,6 +356,7 @@ export default function CompetitorAds() {
     if (filters.platform !== "All") count++;
     if (filters.status !== "All") count++;
     if (filters.niche !== "All") count++;
+    if (adRankRange[0] !== 0 || adRankRange[1] !== 100) count++;
     return count;
   };
 
@@ -378,6 +392,10 @@ export default function CompetitorAds() {
       }
     }
 
+    if (adRankRange[0] !== 0 || adRankRange[1] !== 100) {
+      result = result.filter((ad) => ad.adScore >= adRankRange[0] && ad.adScore <= adRankRange[1]);
+    }
+
     if (showSavedOnly) {
       result = result.filter((ad) => ad.saved);
     }
@@ -391,7 +409,7 @@ export default function CompetitorAds() {
     }
 
     return result;
-  }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab]);
+  }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab, adRankRange]);
 
   useEffect(() => {
     const fetchSavedAds = async () => {
@@ -443,6 +461,7 @@ export default function CompetitorAds() {
       niche: "All",
       subNiche: "All",
     });
+    setAdRankRange([0, 100]);
     setSearchQuery("");
     setShowSavedOnly(false);
   };
@@ -533,6 +552,12 @@ export default function CompetitorAds() {
             isOpen={openFilter === "niche"}
             onToggle={() => toggleFilter("niche")}
             onSelect={updateNicheFilter}
+          />
+          <AdRankDropdown
+            range={adRankRange}
+            isOpen={openFilter === "adRank"}
+            onToggle={() => toggleFilter("adRank")}
+            onRangeChange={setAdRankRange}
           />
           {getActiveFilterCount() > 0 && (
             <button
@@ -757,10 +782,100 @@ function NicheDropdown({
   );
 }
 
+function AdRankDropdown({
+  range,
+  isOpen,
+  onToggle,
+  onRangeChange,
+}: {
+  range: [number, number];
+  isOpen: boolean;
+  onToggle: () => void;
+  onRangeChange: (range: [number, number]) => void;
+}) {
+  const isActive = range[0] !== 0 || range[1] !== 100;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className={`flex items-center gap-1 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+          isActive
+            ? "bg-[#F3EFF6] border-purple-normal text-purple-dark"
+            : "bg-white border-input-border text-gray-dark hover:border-purple-normal"
+        }`}
+      >
+        Ad Rank
+        {isActive && <span className="text-purple-normal">: {range[0]}-{range[1]}</span>}
+        <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 p-4 w-[220px]">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-gray-dark">Score Range</span>
+            <span className="text-xs text-purple-normal font-medium">{range[0]} - {range[1]}</span>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-dark">Min</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={range[0]}
+                onChange={(e) => {
+                  const newMin = parseInt(e.target.value);
+                  if (newMin <= range[1]) {
+                    onRangeChange([newMin, range[1]]);
+                  }
+                }}
+                className="w-full h-1 bg-[#F3EFF6] rounded-lg appearance-none cursor-pointer accent-purple-normal"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-dark">Max</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={range[1]}
+                onChange={(e) => {
+                  const newMax = parseInt(e.target.value);
+                  if (newMax >= range[0]) {
+                    onRangeChange([range[0], newMax]);
+                  }
+                }}
+                className="w-full h-1 bg-[#F3EFF6] rounded-lg appearance-none cursor-pointer accent-purple-normal"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => onRangeChange([80, 100])}
+              className="flex-1 py-1.5 text-xs bg-[#F3EFF6] text-purple-dark rounded-lg hover:bg-[#E6DCF0]"
+            >
+              Top Ads (80+)
+            </button>
+            <button
+              onClick={() => onRangeChange([0, 100])}
+              className="flex-1 py-1.5 text-xs bg-[#F3EFF6] text-purple-dark rounded-lg hover:bg-[#E6DCF0]"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => void }) {
   const router = useRouter();
   const [showInsights, setShowInsights] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
+  const [showScoreTooltip, setShowScoreTooltip] = useState(false);
+
+  const isWinningAd = ad.adScore >= 85;
 
   const handleClone = () => {
     setIsCloning(true);
@@ -825,10 +940,40 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
               </div>
             </div>
           )}
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
             <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${ad.status === "active" ? "bg-[#EAF7EF] text-[#27AE60]" : "bg-[#FEF5EA] text-[#C67B22]"}`}>
               {ad.status === "active" ? "Active" : "Inactive"}
             </span>
+          </div>
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
+            {isWinningAd && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-gradient-to-r from-[#FF6B35] to-[#F7931E] text-white flex items-center gap-0.5">
+                🔥 Winning Ad
+              </span>
+            )}
+          </div>
+          <div className="absolute bottom-2 left-2 z-10">
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowScoreTooltip(!showScoreTooltip);
+                }}
+                className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/90 text-purple-dark shadow-sm"
+              >
+                Ad Score: {ad.adScore}
+                <InfoCircle size={10} />
+              </button>
+              {showScoreTooltip && (
+                <div 
+                  className="absolute bottom-full left-0 mb-1 w-[200px] p-2 bg-purple-dark text-white text-[10px] rounded-lg shadow-lg z-20"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Ad Score estimates how likely an ad is to perform well based on real advertiser behavior, longevity, creative reuse, scale, and conversion intent
+                  <div className="absolute bottom-[-4px] left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-dark"></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
