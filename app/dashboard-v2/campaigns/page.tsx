@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy } from "iconsax-react";
+import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy, TrendUp, Flash } from "iconsax-react";
+import { getTrendingAds, TrendingAd } from "@/app/lib/trendingAds";
 
 type SavedAd = {
   id: string;
@@ -256,6 +257,26 @@ export default function CampaignsV2Page() {
             </div>
           </section>
         )}
+
+        <section>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] rounded-xl">
+                <TrendUp size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">Suggestions Based on Trending Ads</h2>
+                <p className="text-xs text-gray-500">Top performing ads from Meta Ad Library</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {getTrendingAds(6).map((ad) => (
+              <TrendingAdCard key={ad.id} ad={ad} />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -332,6 +353,89 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
           >
             <Trash size={14} />
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrendingAdCard({ ad }: { ad: TrendingAd }) {
+  return (
+    <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
+      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+        {ad.previewType === "video" ? (
+          <>
+            <video
+              src={ad.previewUrl}
+              className="w-full h-full object-cover"
+              muted
+              loop
+              playsInline
+              onMouseEnter={(e) => e.currentTarget.play()}
+              onMouseLeave={(e) => {
+                e.currentTarget.pause();
+                e.currentTarget.currentTime = 0;
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[12px] border-l-white ml-1"></div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <img
+            src={ad.previewUrl}
+            alt={ad.productName}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute top-2 left-2 flex items-center gap-1">
+          <span className={`text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
+            ad.previewType === "video" 
+              ? "bg-purple-500/80 text-white" 
+              : "bg-blue-500/80 text-white"
+          }`}>
+            {ad.previewType === "video" ? <Video size={10} className="inline mr-1" /> : <ImageIcon size={10} className="inline mr-1" />}
+            {ad.previewType}
+          </span>
+        </div>
+        <div className="absolute top-2 right-2">
+          <span className="text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-gradient-to-r from-orange-500/80 to-red-500/80 text-white flex items-center gap-1">
+            <Flash size={10} variant="Bold" />
+            Score: {ad.adScore}
+          </span>
+        </div>
+        {ad.isNew && (
+          <div className="absolute bottom-2 left-2">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500/80 text-white">
+              NEW
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-white font-medium truncate">{ad.productName}</h3>
+        <p className="text-gray-400 text-xs line-clamp-2">{ad.headline}</p>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
+            {ad.brand.charAt(0)}
+          </div>
+          <span className="text-gray-300 text-xs truncate">{ad.brand}</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize flex-shrink-0 ${
+            ad.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
+          }`}>
+            {ad.platform}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 pt-2">
+          <a
+            href="/create-campaign/campaign-snapshots"
+            className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
+          >
+            <Copy size={12} />
+            Use as Template
+          </a>
         </div>
       </div>
     </div>
