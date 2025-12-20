@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy, TrendUp, Flash } from "iconsax-react";
 import { getTrendingAds, TrendingAd } from "@/app/lib/trendingAds";
+import ConnectStore from "@/app/ui/modals/ConnectStore";
 
 type SavedAd = {
   id: string;
@@ -39,6 +40,11 @@ export default function CampaignsV2Page() {
   const [savedAds, setSavedAds] = useState<SavedAd[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
+
+  const handleCloneAd = () => {
+    setShowConnectStoreModal(true);
+  };
 
   useEffect(() => {
     fetchData();
@@ -200,13 +206,13 @@ export default function CampaignsV2Page() {
                     </div>
                     <p className="text-gray-500 text-xs line-clamp-2">{ad.headline}</p>
                     <div className="flex items-center gap-2 pt-2">
-                      <a
-                        href="/create-campaign/campaign-snapshots"
+                      <button
+                        onClick={handleCloneAd}
                         className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
                       >
                         <Copy size={12} />
                         Clone Ad
-                      </a>
+                      </button>
                       <button className="py-2 px-3 bg-[#F3EFF6] text-purple-600 text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors">
                         <Edit2 size={14} />
                       </button>
@@ -273,11 +279,18 @@ export default function CampaignsV2Page() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {getTrendingAds(6).map((ad) => (
-              <TrendingAdCard key={ad.id} ad={ad} />
+              <TrendingAdCard key={ad.id} ad={ad} onClone={handleCloneAd} />
             ))}
           </div>
         </section>
       </div>
+
+      {showConnectStoreModal && (
+        <ConnectStore
+          isOpen={showConnectStoreModal}
+          closeModal={() => setShowConnectStoreModal(false)}
+        />
+      )}
     </div>
   );
 }
@@ -359,7 +372,7 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
   );
 }
 
-function TrendingAdCard({ ad }: { ad: TrendingAd }) {
+function TrendingAdCard({ ad, onClone }: { ad: TrendingAd; onClone: () => void }) {
   return (
     <div className="bg-white border border-[#E8E5EC] rounded-2xl p-4 hover:shadow-lg transition-all group">
       <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#F3EFF6]">
@@ -429,13 +442,13 @@ function TrendingAdCard({ ad }: { ad: TrendingAd }) {
           </span>
         </div>
         <div className="flex items-center gap-2 pt-2">
-          <a
-            href="/create-campaign/campaign-snapshots"
+          <button
+            onClick={onClone}
             className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
           >
             <Copy size={12} />
             Use as Template
-          </a>
+          </button>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video } from "iconsax-react";
+import ConnectStore from "../modals/ConnectStore";
 
 type Ad = {
   id: number;
@@ -488,6 +489,11 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
   const [showBanner, setShowBanner] = useState(true);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [ads, setAds] = useState<Ad[]>(mockAds);
+  const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
+
+  const handleCloneAd = () => {
+    setShowConnectStoreModal(true);
+  };
 
   const [filters, setFilters] = useState({
     format: "All",
@@ -883,7 +889,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
                         View Details
                       </button>
                       <button
-                        onClick={() => window.location.href = "/create-campaign/campaign-snapshots"}
+                        onClick={handleCloneAd}
                         className="w-full py-2 gradient text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
                       >
                         <Copy size={14} />
@@ -911,7 +917,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {(limit ? filteredAds.slice(0, limit) : filteredAds).map((ad) => (
-              <AdCard key={ad.id} ad={ad} onToggleSave={toggleSaveAd} />
+              <AdCard key={ad.id} ad={ad} onToggleSave={toggleSaveAd} onClone={handleCloneAd} />
             ))}
           </div>
           {showViewAllButton && filteredAds.length > (limit || 0) && (
@@ -926,6 +932,13 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
             </div>
           )}
         </>
+      )}
+
+      {showConnectStoreModal && (
+        <ConnectStore
+          isOpen={showConnectStoreModal}
+          closeModal={() => setShowConnectStoreModal(false)}
+        />
       )}
     </div>
   );
@@ -1251,8 +1264,7 @@ function AdScoreDropdown({
   );
 }
 
-function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => void }) {
-  const router = useRouter();
+function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: number) => void; onClone: () => void }) {
   const [showInsights, setShowInsights] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
@@ -1261,7 +1273,8 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
 
   const handleClone = () => {
     setIsCloning(true);
-    router.push("/create-campaign/campaign-snapshots");
+    onClone();
+    setTimeout(() => setIsCloning(false), 500);
   };
 
   return (
