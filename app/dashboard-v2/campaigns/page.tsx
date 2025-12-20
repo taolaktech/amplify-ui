@@ -125,10 +125,10 @@ export default function CampaignsV2Page() {
           </div>
           
           {savedAds.length === 0 ? (
-            <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
-              <Heart size={40} className="text-purple-400 mb-3" />
-              <p className="text-white text-lg font-medium mb-1">No saved ads yet</p>
-              <p className="text-gray-400 text-sm mb-4 text-center">Save competitor ads to use as inspiration for your campaigns</p>
+            <div className="bg-[#F8F7FA] border border-[#E8E5EC] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+              <Heart size={40} className="text-purple-500 mb-3" />
+              <p className="text-gray-800 text-lg font-medium mb-1">No saved ads yet</p>
+              <p className="text-gray-500 text-sm mb-4 text-center">Save competitor ads to use as inspiration for your campaigns</p>
               <a
                 href="/dashboard-v2/inspirations"
                 className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
@@ -140,8 +140,8 @@ export default function CampaignsV2Page() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {savedAds.map((ad) => (
-                <div key={ad.id} className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
-                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+                <div key={ad.id} className="bg-white border border-[#E8E5EC] rounded-2xl p-4 hover:shadow-lg transition-all group">
+                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#F3EFF6]">
                     {ad.previewType === "video" ? (
                       <>
                         <video
@@ -157,7 +157,7 @@ export default function CampaignsV2Page() {
                           }}
                         />
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                             <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[12px] border-l-white ml-1"></div>
                           </div>
                         </div>
@@ -172,8 +172,8 @@ export default function CampaignsV2Page() {
                     <div className="absolute top-2 left-2 flex items-center gap-1">
                       <span className={`text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
                         ad.previewType === "video" 
-                          ? "bg-purple-500/80 text-white" 
-                          : "bg-blue-500/80 text-white"
+                          ? "bg-purple-500 text-white" 
+                          : "bg-blue-500 text-white"
                       }`}>
                         {ad.previewType === "video" ? <Video size={10} className="inline mr-1" /> : <ImageIcon size={10} className="inline mr-1" />}
                         {ad.previewType}
@@ -181,9 +181,9 @@ export default function CampaignsV2Page() {
                     </div>
                     <button
                       onClick={() => handleRemoveSavedAd(ad.id)}
-                      className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-sm rounded-full hover:bg-red-500/80 transition-colors"
+                      className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-red-50 transition-colors shadow-sm"
                     >
-                      <Heart size={14} variant="Bold" className="text-red-400" />
+                      <Heart size={14} variant="Bold" className="text-red-500" />
                     </button>
                   </div>
                   <div className="space-y-2">
@@ -191,14 +191,14 @@ export default function CampaignsV2Page() {
                       <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
                         {ad.brand.charAt(0)}
                       </div>
-                      <span className="text-white font-medium text-sm truncate">{ad.brand}</span>
+                      <span className="text-gray-800 font-medium text-sm truncate">{ad.brand}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize flex-shrink-0 ${
-                        ad.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
+                        ad.platform === "meta" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"
                       }`}>
                         {ad.platform}
                       </span>
                     </div>
-                    <p className="text-gray-400 text-xs line-clamp-2">{ad.headline}</p>
+                    <p className="text-gray-500 text-xs line-clamp-2">{ad.headline}</p>
                     <div className="flex items-center gap-2 pt-2">
                       <a
                         href="/create-campaign/campaign-snapshots"
@@ -207,7 +207,7 @@ export default function CampaignsV2Page() {
                         <Copy size={12} />
                         Clone Ad
                       </a>
-                      <button className="py-2 px-3 bg-white/10 text-white text-xs rounded-lg hover:bg-white/20 transition-colors">
+                      <button className="py-2 px-3 bg-[#F3EFF6] text-purple-600 text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors">
                         <Edit2 size={14} />
                       </button>
                     </div>
@@ -224,10 +224,10 @@ export default function CampaignsV2Page() {
           </div>
           
           {generatedCampaigns.length === 0 ? (
-            <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
-              <Calendar size={40} className="text-purple-400 mb-3" />
-              <p className="text-white text-lg font-medium mb-1">No campaigns yet</p>
-              <p className="text-gray-400 text-sm mb-4 text-center">Create your first marketing campaign</p>
+            <div className="bg-[#F8F7FA] border border-[#E8E5EC] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+              <Calendar size={40} className="text-purple-500 mb-3" />
+              <p className="text-gray-800 text-lg font-medium mb-1">No campaigns yet</p>
+              <p className="text-gray-500 text-sm mb-4 text-center">Create your first marketing campaign</p>
               <a
                 href="/create-campaign/campaign-snapshots"
                 className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
@@ -291,19 +291,19 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-500/20 text-green-400";
+        return "bg-green-100 text-green-600";
       case "draft":
-        return "bg-yellow-500/20 text-yellow-400";
+        return "bg-yellow-100 text-yellow-600";
       case "paused":
-        return "bg-gray-500/20 text-gray-400";
+        return "bg-gray-100 text-gray-600";
       default:
-        return "bg-gray-500/20 text-gray-400";
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
-      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+    <div className="bg-white border border-[#E8E5EC] rounded-2xl p-4 hover:shadow-lg transition-all group">
+      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#F3EFF6]">
         {campaign.preview_url ? (
           campaign.preview_type === "video" ? (
             <video src={campaign.preview_url} className="w-full h-full object-cover" muted />
@@ -311,7 +311,7 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
             <img src={campaign.preview_url} alt={campaign.name} className="w-full h-full object-cover" />
           )
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-purple-800/30">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-purple-50">
             <Calendar size={40} className="text-purple-400" />
           </div>
         )}
@@ -322,21 +322,21 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
         </div>
       </div>
       <div className="space-y-2">
-        <h3 className="text-white font-medium truncate">{campaign.name}</h3>
+        <h3 className="text-gray-800 font-medium truncate">{campaign.name}</h3>
         {campaign.headline && (
-          <p className="text-gray-400 text-xs line-clamp-2">{campaign.headline}</p>
+          <p className="text-gray-500 text-xs line-clamp-2">{campaign.headline}</p>
         )}
         {campaign.source_brand && (
-          <p className="text-purple-400 text-[10px]">Inspired by: {campaign.source_brand}</p>
+          <p className="text-purple-600 text-[10px]">Inspired by: {campaign.source_brand}</p>
         )}
-        <div className="flex items-center justify-between text-[10px] text-gray-500 pt-1">
+        <div className="flex items-center justify-between text-[10px] text-gray-400 pt-1">
           <span className="flex items-center gap-1">
             <Clock size={10} />
             {formatDate(campaign.created_at)}
           </span>
           {campaign.platform && (
             <span className={`px-1.5 py-0.5 rounded capitalize ${
-              campaign.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
+              campaign.platform === "meta" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"
             }`}>
               {campaign.platform}
             </span>
@@ -349,7 +349,7 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
           </button>
           <button
             onClick={() => onDelete(campaign.id)}
-            className="py-2 px-3 bg-red-500/20 text-red-400 text-xs rounded-lg hover:bg-red-500/30 transition-colors"
+            className="py-2 px-3 bg-red-50 text-red-500 text-xs rounded-lg hover:bg-red-100 transition-colors"
           >
             <Trash size={14} />
           </button>
@@ -361,8 +361,8 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
 
 function TrendingAdCard({ ad }: { ad: TrendingAd }) {
   return (
-    <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
-      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+    <div className="bg-white border border-[#E8E5EC] rounded-2xl p-4 hover:shadow-lg transition-all group">
+      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#F3EFF6]">
         {ad.previewType === "video" ? (
           <>
             <video
@@ -378,7 +378,7 @@ function TrendingAdCard({ ad }: { ad: TrendingAd }) {
               }}
             />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                 <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[12px] border-l-white ml-1"></div>
               </div>
             </div>
@@ -393,37 +393,37 @@ function TrendingAdCard({ ad }: { ad: TrendingAd }) {
         <div className="absolute top-2 left-2 flex items-center gap-1">
           <span className={`text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
             ad.previewType === "video" 
-              ? "bg-purple-500/80 text-white" 
-              : "bg-blue-500/80 text-white"
+              ? "bg-purple-500 text-white" 
+              : "bg-blue-500 text-white"
           }`}>
             {ad.previewType === "video" ? <Video size={10} className="inline mr-1" /> : <ImageIcon size={10} className="inline mr-1" />}
             {ad.previewType}
           </span>
         </div>
         <div className="absolute top-2 right-2">
-          <span className="text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-gradient-to-r from-orange-500/80 to-red-500/80 text-white flex items-center gap-1">
+          <span className="text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center gap-1">
             <Flash size={10} variant="Bold" />
             Score: {ad.adScore}
           </span>
         </div>
         {ad.isNew && (
           <div className="absolute bottom-2 left-2">
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500/80 text-white">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500 text-white">
               NEW
             </span>
           </div>
         )}
       </div>
       <div className="space-y-2">
-        <h3 className="text-white font-medium truncate">{ad.productName}</h3>
-        <p className="text-gray-400 text-xs line-clamp-2">{ad.headline}</p>
+        <h3 className="text-gray-800 font-medium truncate">{ad.productName}</h3>
+        <p className="text-gray-500 text-xs line-clamp-2">{ad.headline}</p>
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
             {ad.brand.charAt(0)}
           </div>
-          <span className="text-gray-300 text-xs truncate">{ad.brand}</span>
+          <span className="text-gray-600 text-xs truncate">{ad.brand}</span>
           <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize flex-shrink-0 ${
-            ad.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
+            ad.platform === "meta" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"
           }`}>
             {ad.platform}
           </span>
