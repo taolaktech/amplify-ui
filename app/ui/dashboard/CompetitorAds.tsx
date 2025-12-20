@@ -782,14 +782,23 @@ export default function CompetitorAds() {
             onToggle={() => toggleFilter("adScore")}
             onRangeChange={setAdRankRange}
           />
-          {getActiveFilterCount() > 0 && (
-            <button
-              onClick={clearFilters}
-              className="px-3 py-1.5 text-sm text-purple-normal hover:text-purple-dark font-medium"
-            >
-              Clear all
-            </button>
-          )}
+          <button
+            onClick={clearFilters}
+            disabled={getActiveFilterCount() === 0}
+            className={`flex items-center gap-1 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+              getActiveFilterCount() > 0
+                ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300"
+                : "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            <CloseCircle size={14} />
+            Clear filters
+            {getActiveFilterCount() > 0 && (
+              <span className="bg-red-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                {getActiveFilterCount()}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
