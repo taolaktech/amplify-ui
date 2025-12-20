@@ -819,7 +819,7 @@ export default function CompetitorAds() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {videoAdsWithHooks.map((ad) => (
-                <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
+                <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group">
                   <div className="relative aspect-square">
                     <video
                       src={ad.previewUrl}
@@ -833,12 +833,17 @@ export default function CompetitorAds() {
                         e.currentTarget.currentTime = 0;
                       }}
                     />
-                    <div className="absolute top-2 left-2 bg-purple-normal text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none group-hover:opacity-0 transition-opacity">
+                      <div className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
+                        <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-purple-dark ml-1"></div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 left-2 bg-purple-normal text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1 z-20">
                       <Video size={10} />
                       Best Hook
                     </div>
                     {ad.adScore >= 85 && (
-                      <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                      <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1 z-20">
                         🔥 Winning Ad
                       </div>
                     )}
@@ -1278,9 +1283,9 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1D0B30]/30"></div>
           {ad.previewType === "video" && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Play size={20} className="text-purple-dark ml-1" variant="Bold" />
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform border-2 border-white">
+                <div className="w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-purple-dark ml-1"></div>
               </div>
             </div>
           )}
