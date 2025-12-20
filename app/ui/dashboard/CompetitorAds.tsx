@@ -414,6 +414,8 @@ const platformOptions = ["All", "Meta", "TikTok"];
 const statusOptions = ["All", "Active", "Inactive"];
 const sortOptions = ["Newest", "Oldest", "Most Popular"];
 
+const allCompetitors = [...new Set(mockAds.map((ad) => ad.brand))].sort();
+
 const getHooksForAd = (ad: Ad): string[] => {
   const productName = ad.productName;
   const niche = ad.niche;
@@ -490,6 +492,7 @@ export default function CompetitorAds() {
     subNiche: "All",
   });
   const [adRankRange, setAdRankRange] = useState<[number, number]>([0, 100]);
+  const [selectedCompetitors, setSelectedCompetitors] = useState<string[]>([]);
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
@@ -518,7 +521,16 @@ export default function CompetitorAds() {
     if (filters.status !== "All") count++;
     if (filters.niche !== "All") count++;
     if (adRankRange[0] !== 0 || adRankRange[1] !== 100) count++;
+    if (selectedCompetitors.length > 0) count++;
     return count;
+  };
+
+  const toggleCompetitor = (competitor: string) => {
+    setSelectedCompetitors((prev) =>
+      prev.includes(competitor)
+        ? prev.filter((c) => c !== competitor)
+        : [...prev, competitor]
+    );
   };
 
   const filteredAds = useMemo(() => {
@@ -557,6 +569,10 @@ export default function CompetitorAds() {
       result = result.filter((ad) => ad.adScore >= adRankRange[0] && ad.adScore <= adRankRange[1]);
     }
 
+    if (selectedCompetitors.length > 0) {
+      result = result.filter((ad) => selectedCompetitors.includes(ad.brand));
+    }
+
     if (showSavedOnly) {
       result = result.filter((ad) => ad.saved);
     }
@@ -566,7 +582,7 @@ export default function CompetitorAds() {
     }
 
     return result;
-  }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab, adRankRange]);
+  }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab, adRankRange, selectedCompetitors]);
 
   useEffect(() => {
     const fetchSavedAds = async () => {
@@ -619,6 +635,7 @@ export default function CompetitorAds() {
       subNiche: "All",
     });
     setAdRankRange([0, 100]);
+    setSelectedCompetitors([]);
     setSearchQuery("");
     setShowSavedOnly(false);
   };
@@ -751,6 +768,13 @@ export default function CompetitorAds() {
             isOpen={openFilter === "niche"}
             onToggle={() => toggleFilter("niche")}
             onSelect={updateNicheFilter}
+          />
+          <CompetitorDropdown
+            competitors={allCompetitors}
+            selectedCompetitors={selectedCompetitors}
+            isOpen={openFilter === "competitor"}
+            onToggle={() => toggleFilter("competitor")}
+            onToggleCompetitor={toggleCompetitor}
           />
           <AdScoreDropdown
             range={adRankRange}
@@ -903,6 +927,68 @@ function FilterDropdown({
             >
               {option}
               {value === option && <TickCircle size={14} variant="Bold" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompetitorDropdown({
+  competitors,
+  selectedCompetitors,
+  isOpen,
+  onToggle,
+  onToggleCompetitor,
+}: {
+  competitors: string[];
+  selectedCompetitors: string[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onToggleCompetitor: (competitor: string) => void;
+}) {
+  const isActive = selectedCompetitors.length > 0;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className={`flex items-center gap-1 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+          isActive
+            ? "bg-[#F3EFF6] border-purple-normal text-purple-dark"
+            : "bg-white border-input-border text-gray-dark hover:border-purple-normal"
+        }`}
+      >
+        Competitor
+        {isActive && <span className="text-purple-normal">: {selectedCompetitors.length}</span>}
+        <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-50 w-[220px] max-h-[300px] overflow-auto">
+          <div className="p-2 border-b border-[#F3EFF6]">
+            <span className="text-xs text-gray-light">Select competitors to filter</span>
+          </div>
+          {competitors.map((competitor, idx) => (
+            <button
+              key={competitor}
+              onClick={() => onToggleCompetitor(competitor)}
+              className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] flex items-center gap-2 ${
+                idx === competitors.length - 1 ? "rounded-b-xl" : ""
+              } ${selectedCompetitors.includes(competitor) ? "text-purple-normal" : "text-gray-dark"}`}
+            >
+              <div
+                className={`w-4 h-4 border rounded flex items-center justify-center ${
+                  selectedCompetitors.includes(competitor)
+                    ? "bg-purple-normal border-purple-normal"
+                    : "border-gray-light"
+                }`}
+              >
+                {selectedCompetitors.includes(competitor) && (
+                  <TickCircle size={10} variant="Bold" className="text-white" />
+                )}
+              </div>
+              <span className="truncate">{competitor}</span>
             </button>
           ))}
         </div>
