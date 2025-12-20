@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Heart, Video, Image as ImageIcon, Play, Trash, Edit2, Eye, Copy, Add, Calendar, Clock, ArrowRight2 } from "iconsax-react";
+import { Heart, Video, Image as ImageIcon, Trash, Edit2, Add, Calendar, Clock, ArrowRight2, Copy } from "iconsax-react";
 
 type SavedAd = {
   id: string;
@@ -35,7 +35,6 @@ type Campaign = {
 };
 
 export default function CampaignsV2Page() {
-  const [activeTab, setActiveTab] = useState<"saved" | "campaigns" | "cloned">("saved");
   const [savedAds, setSavedAds] = useState<SavedAd[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,249 +88,174 @@ export default function CampaignsV2Page() {
   const clonedCampaigns = campaigns.filter((c) => c.type === "cloned");
   const generatedCampaigns = campaigns.filter((c) => c.type === "generated");
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-56px)] flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-[calc(100vh-56px)] relative flex flex-col flex-shrink-0 lg:gap-6">
-      <div className="mb-3 lg:hidden font-semibold text-lg">Campaigns</div>
-      <div className="flex flex-col gap-7">
-        <div className="flex w-full flex-col-reverse gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="font-medium tracking-150 text-sm lg:text-base">
-            Manage your saved ads and campaigns
-          </div>
-          <a
-            href="/create-campaign/campaign-snapshots"
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-sm rounded-xl hover:opacity-90 transition-opacity"
-          >
-            <Add size={18} />
-            Create Campaign
-          </a>
+    <div className="min-h-[calc(100vh-56px)] relative flex flex-col flex-shrink-0">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-1">Your Campaigns</h1>
+          <p className="text-gray-500 text-sm">Manage your saved ads and marketing campaigns</p>
         </div>
+        <a
+          href="/create-campaign/campaign-snapshots"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-sm rounded-xl hover:opacity-90 transition-opacity font-medium"
+        >
+          <Add size={18} />
+          Create Campaign
+        </a>
+      </div>
 
-        <div className="bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl">
-          <div className="flex items-center gap-4 mb-6 border-b border-[#E5E5E5] pb-4">
-            <button
-              onClick={() => setActiveTab("saved")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "saved"
-                  ? "bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white"
-                  : "bg-white text-gray-600 hover:bg-[#F3EFF6]"
-              }`}
-            >
-              <Heart size={16} variant={activeTab === "saved" ? "Bold" : "Linear"} />
-              Saved Ads
-              {savedAds.length > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === "saved" ? "bg-white/20" : "bg-purple-100 text-purple-600"
-                }`}>
-                  {savedAds.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("campaigns")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "campaigns"
-                  ? "bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white"
-                  : "bg-white text-gray-600 hover:bg-[#F3EFF6]"
-              }`}
-            >
-              <Calendar size={16} />
-              Campaigns
-              {generatedCampaigns.length > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === "campaigns" ? "bg-white/20" : "bg-purple-100 text-purple-600"
-                }`}>
-                  {generatedCampaigns.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("cloned")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "cloned"
-                  ? "bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white"
-                  : "bg-white text-gray-600 hover:bg-[#F3EFF6]"
-              }`}
-            >
-              <Copy size={16} />
-              Cloned Ads
-              {clonedCampaigns.length > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === "cloned" ? "bg-white/20" : "bg-purple-100 text-purple-600"
-                }`}>
-                  {clonedCampaigns.length}
-                </span>
-              )}
-            </button>
+      <div className="space-y-10">
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-semibold text-gray-800">Saved Ads</h2>
+            {savedAds.length > 0 && (
+              <a href="/dashboard-v2/inspirations" className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1">
+                Browse more <ArrowRight2 size={14} />
+              </a>
+            )}
           </div>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="animate-spin w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full"></div>
+          
+          {savedAds.length === 0 ? (
+            <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+              <Heart size={40} className="text-purple-400 mb-3" />
+              <p className="text-white text-lg font-medium mb-1">No saved ads yet</p>
+              <p className="text-gray-400 text-sm mb-4 text-center">Save competitor ads to use as inspiration for your campaigns</p>
+              <a
+                href="/dashboard-v2/inspirations"
+                className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+              >
+                Browse Competitor Ads
+                <ArrowRight2 size={16} />
+              </a>
             </div>
           ) : (
-            <>
-              {activeTab === "saved" && (
-                <>
-                  {savedAds.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                      <Heart size={48} className="text-gray-300 mb-4" />
-                      <p className="text-gray-600 text-lg mb-2">No saved ads yet</p>
-                      <p className="text-gray-400 text-sm mb-4">Save ads from the Competitor Ads page to see them here</p>
-                      <a
-                        href="/dashboard-v2/inspirations"
-                        className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-                      >
-                        Browse Competitor Ads
-                        <ArrowRight2 size={16} />
-                      </a>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {savedAds.map((ad) => (
-                        <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group">
-                          <div className="relative aspect-square">
-                            {ad.previewType === "video" ? (
-                              <>
-                                <video
-                                  src={ad.previewUrl}
-                                  className="w-full h-full object-cover"
-                                  muted
-                                  loop
-                                  playsInline
-                                  onMouseEnter={(e) => e.currentTarget.play()}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.pause();
-                                    e.currentTarget.currentTime = 0;
-                                  }}
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none group-hover:opacity-0 transition-opacity">
-                                  <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
-                                    <div className="w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-purple-600 ml-1"></div>
-                                  </div>
-                                </div>
-                              </>
-                            ) : (
-                              <img
-                                src={ad.previewUrl}
-                                alt={ad.productName}
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-                            <div className="absolute top-2 left-2 flex items-center gap-1">
-                              <span className={`text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1 ${
-                                ad.previewType === "video" 
-                                  ? "bg-purple-600 text-white" 
-                                  : "bg-blue-500 text-white"
-                              }`}>
-                                {ad.previewType === "video" ? <Video size={10} /> : <ImageIcon size={10} />}
-                                {ad.previewType}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => handleRemoveSavedAd(ad.id)}
-                              className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors"
-                            >
-                              <Heart size={16} variant="Bold" className="text-red-500" />
-                            </button>
-                          </div>
-                          <div className="p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-purple-700 flex items-center justify-center text-white text-[10px] font-bold">
-                                {ad.brand.charAt(0)}
-                              </div>
-                              <span className="text-sm font-medium text-gray-800 truncate">{ad.brand}</span>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize ${
-                                ad.platform === "meta" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"
-                              }`}>
-                                {ad.platform}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 truncate mb-2">{ad.headline}</p>
-                            <div className="flex items-center justify-between text-[10px] text-gray-400">
-                              <span>{ad.niche}</span>
-                              <span className="flex items-center gap-1">
-                                <Clock size={10} />
-                                {formatDate(ad.savedAt)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-3 pt-0 flex gap-2">
-                            <button className="flex-1 py-2 bg-[#F3EFF6] text-purple-600 text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1 font-medium">
-                              <Eye size={14} />
-                              View
-                            </button>
-                            <a
-                              href="/create-campaign/campaign-snapshots"
-                              className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
-                            >
-                              <Copy size={14} />
-                              Clone
-                            </a>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {savedAds.map((ad) => (
+                <div key={ad.id} className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
+                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+                    {ad.previewType === "video" ? (
+                      <>
+                        <video
+                          src={ad.previewUrl}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                          }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[12px] border-l-white ml-1"></div>
                           </div>
                         </div>
-                      ))}
+                      </>
+                    ) : (
+                      <img
+                        src={ad.previewUrl}
+                        alt={ad.productName}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute top-2 left-2 flex items-center gap-1">
+                      <span className={`text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
+                        ad.previewType === "video" 
+                          ? "bg-purple-500/80 text-white" 
+                          : "bg-blue-500/80 text-white"
+                      }`}>
+                        {ad.previewType === "video" ? <Video size={10} className="inline mr-1" /> : <ImageIcon size={10} className="inline mr-1" />}
+                        {ad.previewType}
+                      </span>
                     </div>
-                  )}
-                </>
-              )}
-
-              {activeTab === "campaigns" && (
-                <>
-                  {generatedCampaigns.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                      <Calendar size={48} className="text-gray-300 mb-4" />
-                      <p className="text-gray-600 text-lg mb-2">No campaigns yet</p>
-                      <p className="text-gray-400 text-sm mb-4">Create your first marketing campaign</p>
+                    <button
+                      onClick={() => handleRemoveSavedAd(ad.id)}
+                      className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-sm rounded-full hover:bg-red-500/80 transition-colors"
+                    >
+                      <Heart size={14} variant="Bold" className="text-red-400" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                        {ad.brand.charAt(0)}
+                      </div>
+                      <span className="text-white font-medium text-sm truncate">{ad.brand}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize flex-shrink-0 ${
+                        ad.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
+                      }`}>
+                        {ad.platform}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-xs line-clamp-2">{ad.headline}</p>
+                    <div className="flex items-center gap-2 pt-2">
                       <a
                         href="/create-campaign/campaign-snapshots"
-                        className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+                        className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium"
                       >
-                        <Add size={16} />
-                        Create Campaign
+                        <Copy size={12} />
+                        Clone Ad
                       </a>
+                      <button className="py-2 px-3 bg-white/10 text-white text-xs rounded-lg hover:bg-white/20 transition-colors">
+                        <Edit2 size={14} />
+                      </button>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {generatedCampaigns.map((campaign) => (
-                        <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {activeTab === "cloned" && (
-                <>
-                  {clonedCampaigns.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                      <Copy size={48} className="text-gray-300 mb-4" />
-                      <p className="text-gray-600 text-lg mb-2">No cloned ads yet</p>
-                      <p className="text-gray-400 text-sm mb-4">Clone competitor ads to use as inspiration for your campaigns</p>
-                      <a
-                        href="/dashboard-v2/inspirations"
-                        className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-                      >
-                        Browse Competitor Ads
-                        <ArrowRight2 size={16} />
-                      </a>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {clonedCampaigns.map((campaign) => (
-                        <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-        </div>
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-semibold text-gray-800">Recent Campaigns</h2>
+          </div>
+          
+          {generatedCampaigns.length === 0 ? (
+            <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+              <Calendar size={40} className="text-purple-400 mb-3" />
+              <p className="text-white text-lg font-medium mb-1">No campaigns yet</p>
+              <p className="text-gray-400 text-sm mb-4 text-center">Create your first marketing campaign</p>
+              <a
+                href="/create-campaign/campaign-snapshots"
+                className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+              >
+                <Add size={16} />
+                Create Campaign
+              </a>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {generatedCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {clonedCampaigns.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-semibold text-gray-800">Cloned from Competitor Ads</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {clonedCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDeleteCampaign} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
@@ -346,65 +270,65 @@ function CampaignCard({ campaign, onDelete }: { campaign: Campaign; onDelete: (i
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-600";
+        return "bg-green-500/20 text-green-400";
       case "draft":
-        return "bg-yellow-100 text-yellow-600";
+        return "bg-yellow-500/20 text-yellow-400";
       case "paused":
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-500/20 text-gray-400";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-500/20 text-gray-400";
     }
   };
 
   return (
-    <div className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
-      {campaign.preview_url ? (
-        <div className="relative aspect-video bg-[#F3EFF6]">
-          {campaign.preview_type === "video" ? (
+    <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 hover:shadow-xl transition-all group">
+      <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-4 bg-[#0D0D1A]">
+        {campaign.preview_url ? (
+          campaign.preview_type === "video" ? (
             <video src={campaign.preview_url} className="w-full h-full object-cover" muted />
           ) : (
             <img src={campaign.preview_url} alt={campaign.name} className="w-full h-full object-cover" />
-          )}
-        </div>
-      ) : (
-        <div className="aspect-video bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center">
-          <Calendar size={32} className="text-purple-300" />
-        </div>
-      )}
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-medium text-gray-800 truncate">{campaign.name}</h3>
-          <span className={`text-[10px] px-2 py-1 rounded-full capitalize ${getStatusColor(campaign.status)}`}>
+          )
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-purple-800/30">
+            <Calendar size={40} className="text-purple-400" />
+          </div>
+        )}
+        <div className="absolute top-2 right-2">
+          <span className={`text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm capitalize ${getStatusColor(campaign.status)}`}>
             {campaign.status}
           </span>
         </div>
-        {campaign.source_brand && (
-          <p className="text-xs text-gray-500 mb-2">From: {campaign.source_brand}</p>
-        )}
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-white font-medium truncate">{campaign.name}</h3>
         {campaign.headline && (
-          <p className="text-xs text-gray-400 truncate mb-2">{campaign.headline}</p>
+          <p className="text-gray-400 text-xs line-clamp-2">{campaign.headline}</p>
         )}
-        <div className="flex items-center justify-between text-[10px] text-gray-400 mb-3">
+        {campaign.source_brand && (
+          <p className="text-purple-400 text-[10px]">Inspired by: {campaign.source_brand}</p>
+        )}
+        <div className="flex items-center justify-between text-[10px] text-gray-500 pt-1">
           <span className="flex items-center gap-1">
             <Clock size={10} />
             {formatDate(campaign.created_at)}
           </span>
           {campaign.platform && (
             <span className={`px-1.5 py-0.5 rounded capitalize ${
-              campaign.platform === "meta" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"
+              campaign.platform === "meta" ? "bg-blue-500/20 text-blue-400" : "bg-pink-500/20 text-pink-400"
             }`}>
               {campaign.platform}
             </span>
           )}
         </div>
-        <div className="flex gap-2">
-          <button className="flex-1 py-2 bg-[#F3EFF6] text-purple-600 text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1 font-medium">
-            <Edit2 size={14} />
+        <div className="flex items-center gap-2 pt-2">
+          <button className="flex-1 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1 font-medium">
+            <Edit2 size={12} />
             Edit
           </button>
           <button
             onClick={() => onDelete(campaign.id)}
-            className="py-2 px-3 bg-red-50 text-red-500 text-xs rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center"
+            className="py-2 px-3 bg-red-500/20 text-red-400 text-xs rounded-lg hover:bg-red-500/30 transition-colors"
           >
             <Trash size={14} />
           </button>
