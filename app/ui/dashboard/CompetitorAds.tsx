@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2 } from "iconsax-react";
 
 type Ad = {
@@ -392,10 +392,46 @@ export default function CompetitorAds() {
     return result;
   }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab]);
 
-  const toggleSaveAd = (adId: number) => {
+  useEffect(() => {
+    const fetchSavedAds = async () => {
+      try {
+        const response = await fetch("/api/saved-ads");
+        const data = await response.json();
+        if (data.savedAdIds) {
+          setAds((prev) =>
+            prev.map((ad) => ({
+              ...ad,
+              saved: data.savedAdIds.includes(String(ad.id)),
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching saved ads:", error);
+      }
+    };
+    fetchSavedAds();
+  }, []);
+
+  const toggleSaveAd = async (adId: number) => {
+    const ad = ads.find((a) => a.id === adId);
+    if (!ad) return;
+
     setAds((prev) =>
-      prev.map((ad) => (ad.id === adId ? { ...ad, saved: !ad.saved } : ad))
+      prev.map((a) => (a.id === adId ? { ...a, saved: !a.saved } : a))
     );
+
+    try {
+      await fetch("/api/saved-ads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad }),
+      });
+    } catch (error) {
+      console.error("Error saving ad:", error);
+      setAds((prev) =>
+        prev.map((a) => (a.id === adId ? { ...a, saved: !a.saved } : a))
+      );
+    }
   };
 
   const clearFilters = () => {
