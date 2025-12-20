@@ -284,6 +284,21 @@ export default function AdLibrary() {
         </p>
       </div>
 
+      {activeTab === "seasonal" && (
+        <div className="bg-gradient-to-r from-red-500 to-green-600 rounded-2xl p-6 text-white mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <Gift size={28} />
+            <div>
+              <h3 className="text-xl font-bold">Christmas Campaign Ideas</h3>
+              <p className="text-white/80 text-sm">Trending templates for the holiday season</p>
+            </div>
+          </div>
+          <p className="text-white/90 text-sm">
+            These campaign templates are optimized for the current season. Use them as inspiration to create timely, relevant ads that resonate with your audience.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {currentAds.map((ad) => (
           <div
