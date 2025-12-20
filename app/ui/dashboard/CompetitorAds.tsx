@@ -935,7 +935,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
             <div className="space-y-6">
               <div className="relative">
                 <img 
-                  src="/attached_assets/9779732_1766211084749.png" 
+                  src="/images/christmas-ornament.png" 
                   alt="Christmas ornament" 
                   className="absolute -top-4 right-8 w-16 h-auto z-10 drop-shadow-lg"
                 />
