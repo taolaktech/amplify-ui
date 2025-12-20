@@ -20,6 +20,7 @@ type Ad = {
   status: "active" | "inactive";
   saved: boolean;
   adScore: number;
+  hook?: string;
 };
 
 type NicheCategory = {
@@ -214,6 +215,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 88,
+    hook: "I just got this serum and you need to get this for yourself. My skin has never looked better!",
   },
   {
     id: 7,
@@ -232,6 +234,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 73,
+    hook: "Looking for bedding that feels like a cloud? This is the piece that changed my sleep forever.",
   },
   {
     id: 8,
@@ -250,6 +253,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: true,
     adScore: 81,
+    hook: "Seriously, what was I using before? These earbuds are next level. The sound quality is insane!",
   },
   {
     id: 9,
@@ -268,6 +272,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 96,
+    hook: "If you want to transform your body at home, you need to try this. No gym membership required!",
   },
   {
     id: 10,
@@ -286,6 +291,7 @@ const mockAds: Ad[] = [
     status: "inactive",
     saved: false,
     adScore: 45,
+    hook: "Hey pet parents! Looking for something your furry baby will love? Check this out!",
   },
   {
     id: 11,
@@ -304,6 +310,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: true,
     adScore: 89,
+    hook: "Seriously, what was I drinking before? This coffee is a game-changer for your morning routine.",
   },
   {
     id: 12,
@@ -322,6 +329,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 91,
+    hook: "If you want flawless, glowing skin, you need to try this serum. Watch what happens in 7 days!",
   },
   {
     id: 13,
@@ -340,6 +348,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 83,
+    hook: "This might be controversial, but here are three reasons why you should not buy cheap hoodies.",
   },
   {
     id: 14,
@@ -358,6 +367,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 76,
+    hook: "Hey guys, I'm sharing my wellness journey. Here's the supplement that changed everything for me.",
   },
   {
     id: 15,
@@ -376,6 +386,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: false,
     adScore: 88,
+    hook: "I just got this duvet set and you need to get this for your bedroom. Best sleep of my life!",
   },
   {
     id: 16,
@@ -394,6 +405,7 @@ const mockAds: Ad[] = [
     status: "active",
     saved: true,
     adScore: 94,
+    hook: "Hey sweetie, you ready to go? What did you get me? *reveals the necklace* This piece is stunning!",
   },
 ];
 
@@ -758,40 +770,36 @@ export default function CompetitorAds() {
       </div>
 
       {activeTab === "besthooks" ? (
-        filteredAds.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <p className="text-gray-dark text-lg mb-2">No ads found</p>
-            <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
-            <button
-              onClick={clearFilters}
-              className="px-4 py-2 bg-purple-normal text-white rounded-xl text-sm font-medium hover:bg-purple-dark transition-colors"
-            >
-              Clear all filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredAds.map((ad) => {
-              const hooks = getHooksForAd(ad);
-              return (
+        (() => {
+          const videoAdsWithHooks = filteredAds.filter((ad) => ad.previewType === "video" && ad.hook);
+          return videoAdsWithHooks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <p className="text-gray-dark text-lg mb-2">No video ads with hooks found</p>
+              <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 bg-purple-normal text-white rounded-xl text-sm font-medium hover:bg-purple-dark transition-colors"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {videoAdsWithHooks.map((ad) => (
                 <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square">
-                    {ad.previewType === "video" ? (
-                      <video
-                        src={ad.previewUrl}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        playsInline
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.pause();
-                          e.currentTarget.currentTime = 0;
-                        }}
-                      />
-                    ) : (
-                      <img src={ad.previewUrl} alt={ad.productName} className="w-full h-full object-cover" />
-                    )}
+                    <video
+                      src={ad.previewUrl}
+                      className="w-full h-full object-cover"
+                      muted
+                      loop
+                      playsInline
+                      onMouseEnter={(e) => e.currentTarget.play()}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.pause();
+                        e.currentTarget.currentTime = 0;
+                      }}
+                    />
                     <div className="absolute top-2 left-2 bg-purple-normal text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
                       <Video size={10} />
                       Best Hook
@@ -812,7 +820,7 @@ export default function CompetitorAds() {
                     </div>
                     <div className="bg-[#1A1A2E] rounded-lg p-3 mb-2">
                       <p className="text-white text-xs font-medium leading-relaxed">
-                        {hooks[0]}
+                        "{ad.hook}"
                       </p>
                     </div>
                     <div className="flex items-center justify-between">
@@ -826,10 +834,10 @@ export default function CompetitorAds() {
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )
+              ))}
+            </div>
+          );
+        })()
       ) : filteredAds.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-gray-dark text-lg mb-2">No ads found</p>
