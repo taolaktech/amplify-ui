@@ -67,22 +67,28 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         Google?.[productId] &&
         Google?.[productId].length
       ) {
-        Google?.[productId].pop();
-        set({ Google });
+        const nextGoogle = { ...(Google || {}) };
+        nextGoogle[productId] = [...(nextGoogle[productId] || [])];
+        nextGoogle[productId].pop();
+        set({ Google: nextGoogle });
       } else if (
         kind === "INSTAGRAM" &&
         Instagram?.[productId] &&
         Instagram?.[productId].length
       ) {
-        Instagram?.[productId].pop();
-        set({ Instagram });
+        const nextInstagram = { ...(Instagram || {}) };
+        nextInstagram[productId] = [...(nextInstagram[productId] || [])];
+        nextInstagram[productId].pop();
+        set({ Instagram: nextInstagram });
       } else if (
         kind === "FACEBOOK" &&
         Facebook?.[productId] &&
         Facebook?.[productId].length
       ) {
-        Facebook?.[productId].pop();
-        set({ Facebook });
+        const nextFacebook = { ...(Facebook || {}) };
+        nextFacebook[productId] = [...(nextFacebook[productId] || [])];
+        nextFacebook[productId].pop();
+        set({ Facebook: nextFacebook });
       }
     },
 
@@ -108,17 +114,26 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       if (!lastCreative) return;
 
       if (lastCreative.kind === "GOOGLE ADS") {
-        if (Google?.[productId] && Google?.[productId]?.length > 1)
-          Google?.[productId].pop();
-        set({ Google });
+        if (Google?.[productId] && Google?.[productId]?.length > 1) {
+          const nextGoogle = { ...(Google || {}) };
+          nextGoogle[productId] = [...(nextGoogle[productId] || [])];
+          nextGoogle[productId].pop();
+          set({ Google: nextGoogle });
+        }
       } else if (lastCreative.kind === "INSTAGRAM") {
-        if (Instagram?.[productId] && Instagram?.[productId]?.length > 1)
-          Instagram?.[productId].pop();
-        set({ Instagram });
+        if (Instagram?.[productId] && Instagram?.[productId]?.length > 1) {
+          const nextInstagram = { ...(Instagram || {}) };
+          nextInstagram[productId] = [...(nextInstagram[productId] || [])];
+          nextInstagram[productId].pop();
+          set({ Instagram: nextInstagram });
+        }
       } else if (lastCreative.kind === "FACEBOOK") {
-        if (Facebook?.[productId] && Facebook?.[productId]?.length > 1)
-          Facebook?.[productId].pop();
-        set({ Facebook });
+        if (Facebook?.[productId] && Facebook?.[productId]?.length > 1) {
+          const nextFacebook = { ...(Facebook || {}) };
+          nextFacebook[productId] = [...(nextFacebook[productId] || [])];
+          nextFacebook[productId].pop();
+          set({ Facebook: nextFacebook });
+        }
       }
     },
 
@@ -139,25 +154,20 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
     ) => {
       const { Google, Instagram, Facebook } = get();
       if (kind === "GOOGLE ADS") {
-        const subGoogle = Google || {};
-        if (!subGoogle[productId]) {
-          subGoogle[productId] = [];
-        }
-        subGoogle[productId].push({
+        const subGoogle = { ...(Google || {}) };
+        const nextArr = [...(subGoogle[productId] || [])];
+        nextArr.push({
           creatives: creatives,
           generatorId: generatorId,
           kind: "GOOGLE ADS",
           createdAt: new Date(),
         });
+        subGoogle[productId] = nextArr;
         set({ Google: subGoogle });
       } else if (kind === "INSTAGRAM") {
-        const subInstagram = Instagram || {};
-
-        if (!subInstagram[productId]) {
-          subInstagram[productId] = [];
-        }
-
-        const foundCreative = subInstagram[productId].find(
+        const subInstagram = { ...(Instagram || {}) };
+        const prevArr = [...(subInstagram[productId] || [])];
+        const foundCreative = prevArr.find(
           (c) => c.generatorId === generatorId
         );
         if (
@@ -167,7 +177,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         ) {
           return;
         } else if (!foundCreative && (!creatives || creatives.length === 0)) {
-          subInstagram[productId].push({
+          prevArr.push({
             creatives: [],
             kind: "INSTAGRAM",
             createdAt: new Date(),
@@ -177,7 +187,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
           foundCreative &&
           foundCreative.creatives?.length !== creatives.length
         ) {
-          subInstagram[productId] = subInstagram[productId].map((c) =>
+          subInstagram[productId] = prevArr.map((c) =>
             c.generatorId === generatorId
               ? {
                   creatives: creatives,
@@ -187,18 +197,18 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
                 }
               : c
           );
+          set({ Instagram: subInstagram });
+          return;
         }
-
+        if (!subInstagram[productId]) {
+          subInstagram[productId] = prevArr;
+        }
         set({ Instagram: subInstagram });
         return;
       } else if (kind === "FACEBOOK") {
-        const subFacebook = Facebook || {};
-
-        if (!subFacebook[productId]) {
-          subFacebook[productId] = [];
-        }
-
-        const foundCreative = subFacebook[productId].find(
+        const subFacebook = { ...(Facebook || {}) };
+        const prevArr = [...(subFacebook[productId] || [])];
+        const foundCreative = prevArr.find(
           (c) => c.generatorId === generatorId
         );
         if (
@@ -208,7 +218,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         ) {
           return;
         } else if (!foundCreative && (!creatives || creatives.length === 0)) {
-          subFacebook[productId].push({
+          prevArr.push({
             creatives: [],
             kind: "FACEBOOK",
             createdAt: new Date(),
@@ -218,7 +228,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
           foundCreative &&
           foundCreative.creatives?.length !== creatives.length
         ) {
-          subFacebook[productId] = subFacebook[productId].map((c) =>
+          subFacebook[productId] = prevArr.map((c) =>
             c.generatorId === generatorId
               ? {
                   creatives: creatives,
@@ -228,8 +238,12 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
                 }
               : c
           );
+          set({ Facebook: subFacebook });
+          return;
         }
-
+        if (!subFacebook[productId]) {
+          subFacebook[productId] = prevArr;
+        }
         set({ Facebook: subFacebook });
         return;
       }

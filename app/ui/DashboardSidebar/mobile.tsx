@@ -48,6 +48,12 @@ type MobileSideBarProps = {
   toggleIsSettingTabOpen: () => void;
   toggleIsCompanyTabOpen: () => void;
   handleCreateCampaign: () => void;
+  isVersion2: boolean;
+  isDashboardV2: boolean;
+  isInspirationsV2: boolean;
+  isCampaignsV2: boolean;
+  isVersion2TabOpen: boolean;
+  toggleIsVersion2TabOpen: () => void;
 };
 
 export default function MobileSideBar({
@@ -70,6 +76,12 @@ export default function MobileSideBar({
   // isIntegrations,
   handleCreateCampaign,
   isSettings,
+  isVersion2,
+  isDashboardV2,
+  isInspirationsV2,
+  isCampaignsV2,
+  isVersion2TabOpen,
+  toggleIsVersion2TabOpen,
 }: MobileSideBarProps) {
   // const router = useRouter();
   useModal(isSidebarOpen);
@@ -131,17 +143,17 @@ export default function MobileSideBar({
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
-                href="/"
+                href="/dashboard-v2"
                 onClick={closeSidebar}
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
                  h-[48px] cursor-pointer ${
-                   isDashboard ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                   isDashboardV2 ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                  }`}
               >
                 <span>
-                  {!isDashboard && <HomeTrendUp size="24" color="#BFBFBF" />}
-                  {/* {isDashboard && <HomeTrendUp size="24" color="#BFBFBF" />} */}
-                  {isDashboard && (
+                  {!isDashboardV2 && <HomeTrendUp size="24" color="#BFBFBF" />}
+                  {/* {isDashboardV2 && <HomeTrendUp size="24" color="#BFBFBF" />} */}
+                  {isDashboardV2 && (
                     <Image
                       src={"/home-trend-up.svg"}
                       alt="logo"
@@ -152,7 +164,7 @@ export default function MobileSideBar({
                 </span>
                 <span
                   className={`text-sm font-medium ${
-                    isDashboard ? "text-heading" : "text-gray-dark"
+                    isDashboardV2 ? "text-heading" : "text-gray-dark"
                   }`}
                 >
                   Dashboard
@@ -167,16 +179,16 @@ export default function MobileSideBar({
                 }}
                 className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
                 px-4 h-[48px] cursor-pointer ${
-                  isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isCampaignsV2 ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
+                  {!isCampaignsV2 && <CalendarEdit size="24" color="#BFBFBF" />}
+                  {isCampaignsV2 && <CalenderEditGrad width="24" height="24" />}
                 </span>
                 <span
                   className={`text-sm font-medium ${
-                    isCampaigns ? "text-heading" : "text-gray-dark"
+                    isCampaignsV2 ? "text-heading" : "text-gray-dark"
                   }`}
                 >
                   Campaigns

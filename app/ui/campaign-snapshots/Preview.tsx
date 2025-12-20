@@ -25,6 +25,8 @@ const Preview = ({
   isReview,
   highlightedProductId,
   generateCreatives,
+  loading,
+  hidePlatformRegenerate,
 }: {
   adPlatforms: {
     title: PreviewTitle;
@@ -37,6 +39,7 @@ const Preview = ({
   isReview?: boolean;
   generateCreatives: (productId: string, platforms: Platform[]) => void;
   loading: boolean;
+  hidePlatformRegenerate?: boolean;
 }) => {
   const settings: { label: string; key: SocialSettingsKey }[] = [
     { label: "Static Post", key: "staticPost" },
@@ -99,7 +102,8 @@ const Preview = ({
               </div>
             </div>
             <div className="h-[32px]">
-              {!isReview &&
+              {!hidePlatformRegenerate &&
+                !isReview &&
                 !creativeLoadingStates?.[highlightedProductId]?.[
                   item.platform
                 ] && (

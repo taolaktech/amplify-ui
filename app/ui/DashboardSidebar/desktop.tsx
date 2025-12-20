@@ -26,10 +26,7 @@ import SettingsIcon from "@/public/setting-2.svg";
 import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
-import { Version2SideBar } from "../Version2Nav";
 import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
-import { Code } from "iconsax-react";
-import CodeGradient from "@/public/code-gradient.svg";
 
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
@@ -147,21 +144,21 @@ export default function DesktopSideBar({
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
-                href="/"
+                href="/dashboard-v2"
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isDashboard ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isDashboardV2 ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isDashboard && <HomeTrendUp size="24" color="#BFBFBF" />}
-                  {isDashboard && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isDashboardV2 && <HomeTrendUp size="24" color="#BFBFBF" />}
+                  {isDashboardV2 && <HomeTrendUpGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isDashboard ? "text-heading" : "text-gray-dark"
+                      isDashboardV2 ? "text-heading" : "text-gray-dark"
                     }`}
                   >
                     Dashboard
@@ -176,19 +173,19 @@ export default function DesktopSideBar({
                 className={`flex items-center rounded-xl  gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isCampaigns
+                  isCampaignsV2
                     ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
                     : "hover:bg-[#fdfcfd]"
                 }`}
               >
                 <span>
-                  {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
+                  {!isCampaignsV2 && <CalendarEdit size="24" color="#BFBFBF" />}
+                  {isCampaignsV2 && <CalenderEditGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isCampaigns ? "text-heading" : "text-gray-dark"
+                      isCampaignsV2 ? "text-heading" : "text-gray-dark"
                     }`}
                   >
                     Campaigns
@@ -281,49 +278,6 @@ export default function DesktopSideBar({
                 isSidebarOpen={isSidebarOpen}
                 isIntegrations={isIntegrations}
                 isPricing={isPricing}
-              />
-            </li>
-            <li>
-              <span
-                onClick={toggleIsVersion2TabOpen}
-                className={`flex items-center px-4 rounded-xl justify-between 
-                ${
-                  isVersion2
-                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
-                    : "hover:bg-[#fdfcfd]"
-                }
-                `}
-              >
-                <span
-                  className={`flex items-center
-                ${
-                  isSidebarOpen ? "" : "justify-center"
-                }  gap-2 w-full  h-[48px] cursor-pointer `}
-                >
-                  <span>
-                    {!isVersion2 && <Code size="24" color="#BFBFBF" />}
-                    {isVersion2 && <Code size="24" color="#7C3AED" />}
-                  </span>
-                  {isSidebarOpen && (
-                    <div className="flex items-center gap-2 justify-between">
-                      <span
-                        className={`text-sm font-medium ${
-                          isVersion2 ? "text-heading" : "text-gray-dark"
-                        }`}
-                      >
-                        Version 2
-                      </span>
-                    </div>
-                  )}
-                </span>
-                {isSidebarOpen && <SelectArrow isOpen={isVersion2TabOpen} />}
-              </span>
-              <Version2SideBar
-                on={isVersion2TabOpen}
-                isSidebarOpen={isSidebarOpen}
-                isDashboardV2={isDashboardV2}
-                isInspirationsV2={isInspirationsV2}
-                isCampaignsV2={isCampaignsV2}
               />
             </li>
             {/* <li className="">

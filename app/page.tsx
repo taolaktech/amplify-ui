@@ -1,12 +1,5 @@
-"use client";
-import GettingStarted from "./ui/dashboard/GettingStarted";
-import Metrics from "./ui/dashboard/metrics";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
-  return (
-    <main className="">
-      <GettingStarted />
-      <Metrics />
-    </main>
-  );
+  redirect("/dashboard-v2");
 }

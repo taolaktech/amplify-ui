@@ -1,6 +1,7 @@
 "use client";
 import GettingStartedV2 from "../ui/dashboard/GettingStartedV2";
 import CompetitorAds from "../ui/dashboard/CompetitorAds";
+import AdLibrary from "../ui/dashboard/AdLibrary";
 
 export default function DashboardV2Page() {
   return (
@@ -8,7 +9,10 @@ export default function DashboardV2Page() {
       <div className="mb-3 lg:hidden font-semibold text-lg">Dashboard V2</div>
       <GettingStartedV2 />
       <div className="mt-6">
-        <CompetitorAds limit={10} showViewAllButton={true} />
+        <CompetitorAds />
+      </div>
+      <div className="mt-6">
+        <AdLibrary />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HomeTrendUp, Magicpen, CalendarEdit } from "iconsax-react";
+import { HomeTrendUp, CalendarEdit, Image as ImageIcon } from "iconsax-react";
 
 export const Version2SideBar = ({
   on,
@@ -55,9 +55,9 @@ export const Version2SideBar = ({
           className="flex items-center gap-2"
         >
           {isInspirationsV2 ? (
-            <Magicpen size="18" color="#000" />
+            <ImageIcon size="18" color="#000" />
           ) : (
-            <Magicpen size="18" color={"#737373"} />
+            <ImageIcon size="18" color="#737373" />
           )}
           {isSidebarOpen && (
             <span
@@ -65,7 +65,7 @@ export const Version2SideBar = ({
                 isInspirationsV2 ? "text-[#000]" : "text-[#595959]"
               }`}
             >
-              Ad Library
+              Inspirations
             </span>
           )}
         </Link>

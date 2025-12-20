@@ -282,12 +282,11 @@ export const useLaunchCampaign = (
 export const useCampaignPageActions = () => {
   const router = useRouter();
   const token = useAuthStore((state) => state.token);
-
   const { fetchCampaigns } = useGetCampaigns();
 
   const navigateToCampaignPage = () => {
     if (token) fetchCampaigns(token, true);
-    router.push(`/campaigns`);
+    router.push(`/dashboard-v2/campaigns`);
   };
 
   return { navigateToCampaignPage };

@@ -17,7 +17,7 @@ function GettingStartedV2() {
       {!stepsComplete && (
         <div className="h-[280px] md:h-[320px] flex gap-2">
           <div className="w-[100%] h-full">
-            <StepsV2 />
+            <StepsV2 onComplete={() => setStepsComplete(true)} />
           </div>
           <div className="hidden relative flex-col xl:flex w-full overflow-hidden max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
             <div>

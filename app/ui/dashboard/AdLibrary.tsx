@@ -1,6 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Image as ImageIcon, Video, Gift, Copy, Heart, Eye, ArrowLeft2, Magicpen, ArrowDown2, TickCircle, ArrowRight2, ArrowLeft, ArrowRight } from "iconsax-react";
+
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, ArrowRight2, Video, Gift, Magicpen } from "iconsax-react";
 import ConnectStore from "../modals/ConnectStore";
 
 const formatOptions = ["All", "Image", "Video"];
@@ -420,6 +422,42 @@ const aiModelAds: LibraryAd[] = [
   },
 ];
 
+const prototypeImageAds: LibraryAd[] = [
+  ...imageAds,
+  ...imageAds.map((ad, index) => ({
+    ...ad,
+    id: ad.id + 1000 + index,
+    saved: false,
+  })),
+];
+
+const prototypeVideoAds: LibraryAd[] = [
+  ...videoAds,
+  ...videoAds.map((ad, index) => ({
+    ...ad,
+    id: ad.id + 1000 + index,
+    saved: false,
+  })),
+];
+
+const prototypeSeasonalAds: LibraryAd[] = [
+  ...seasonalAds,
+  ...seasonalAds.map((ad, index) => ({
+    ...ad,
+    id: ad.id + 1000 + index,
+    saved: false,
+  })),
+];
+
+const prototypeAiModelAds: LibraryAd[] = [
+  ...aiModelAds,
+  ...aiModelAds.map((ad, index) => ({
+    ...ad,
+    id: ad.id + 1000 + index,
+    saved: false,
+  })),
+];
+
 type FilterState = {
   format: string;
   platform: string;
@@ -430,14 +468,18 @@ type FilterState = {
   creativeDirection: string;
 };
 
-const ITEMS_PER_PAGE = 12;
-
-export default function AdLibrary() {
+export default function AdLibrary({
+  onSelectAd,
+}: {
+  onSelectAd?: (adId: number) => void;
+}) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"image" | "video" | "seasonal" | "ai">("image");
   const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
   const [savedAds, setSavedAds] = useState<number[]>([]);
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
   const [filters, setFilters] = useState<FilterState>({
     format: "All",
     platform: "All",
@@ -452,8 +494,40 @@ export default function AdLibrary() {
     setCurrentPage(1);
   }, [activeTab, filters]);
 
-  const handleCloneAd = () => {
-    setShowConnectStoreModal(true);
+  useEffect(() => {
+    const compute = () => {
+      // Match our grid breakpoints: base=1 col, sm=2 cols, lg=4 cols
+      if (window.innerWidth >= 1024) return 4;
+      if (window.innerWidth >= 640) return 2;
+      return 1;
+    };
+
+    const next = compute();
+    setItemsPerPage(next);
+
+    const onResize = () => {
+      const computed = compute();
+      setItemsPerPage((prev) => {
+        if (prev === computed) return prev;
+        setCurrentPage(1);
+        return computed;
+      });
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const handleCloneAd = (adId?: number) => {
+    if (typeof adId === "number" && typeof onSelectAd === "function") {
+      onSelectAd(adId);
+      return;
+    }
+
+    const qs = new URLSearchParams();
+    qs.set("source", "library");
+    if (typeof adId === "number") qs.set("adId", String(adId));
+    router.push(`/dashboard-v2/create-campaign/product-selection?${qs.toString()}`);
   };
 
   const toggleSaveAd = (adId: number) => {
@@ -486,19 +560,19 @@ export default function AdLibrary() {
     let ads: LibraryAd[];
     switch (activeTab) {
       case "image":
-        ads = imageAds;
+        ads = prototypeImageAds;
         break;
       case "video":
-        ads = videoAds;
+        ads = prototypeVideoAds;
         break;
       case "seasonal":
-        ads = seasonalAds;
+        ads = prototypeSeasonalAds;
         break;
       case "ai":
-        ads = aiModelAds;
+        ads = prototypeAiModelAds;
         break;
       default:
-        ads = imageAds;
+        ads = prototypeImageAds;
     }
     
     if (filters.ethnicity !== "All") {
@@ -515,9 +589,9 @@ export default function AdLibrary() {
   };
 
   const allAds = getAds();
-  const totalPages = Math.ceil(allAds.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentAds = allAds.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(allAds.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentAds = allAds.slice(startIndex, startIndex + itemsPerPage);
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -529,12 +603,12 @@ export default function AdLibrary() {
     <div className="bg-[rgba(246,246,246,0.75)] rounded-3xl p-4 lg:p-6 min-h-[400px]">
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
-          <button className="text-purple-dark hover:text-purple-normal transition-colors">
+          <button className="text-purple-dark hover:text-purple-normal transition-colors -ml-7">
             <ArrowLeft2 size={20} />
           </button>
-          <h2 className="text-purple-dark font-semibold text-xl">Ad Library</h2>
+          <h2 className="text-purple-dark font-semibold text-xl">Use Our Ready Made Creative Templates</h2>
         </div>
-        <p className="text-gray-500 text-sm ml-7">Pick a template, add your product, and launch ads without guesswork.</p>
+        <p className="text-gray-500 text-sm">Select a layout that fits your brand, add your product, and skip the trial and error.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -547,7 +621,7 @@ export default function AdLibrary() {
                 : "text-gray-dark border-transparent hover:text-purple-dark"
             }`}
           >
-            <ImageIcon size={14} />
+            <Play size={14} />
             Image Ads
           </button>
           <button
@@ -655,7 +729,7 @@ export default function AdLibrary() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentAds.map((ad) => (
           <div
             key={ad.id}
@@ -726,11 +800,11 @@ export default function AdLibrary() {
                 View Details
               </button>
               <button
-                onClick={handleCloneAd}
+                onClick={() => handleCloneAd(ad.id)}
                 className="w-full py-2.5 gradient text-white text-xs rounded-full hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
               >
                 <Copy size={14} />
-                {activeTab === "ai" ? "Use this Model" : "Clone this ad"}
+                {activeTab === "ai" ? "Use this Model" : "Use Template"}
               </button>
             </div>
           </div>
@@ -748,14 +822,14 @@ export default function AdLibrary() {
                 : "text-purple-dark hover:bg-[#F3EFF6]"
             }`}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft2 size={18} />
           </button>
           
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
               onClick={() => goToPage(page)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-8 h-8 rounded-lg text-sm font-medium leading-none flex items-center justify-center transition-colors ${
                 currentPage === page
                   ? "gradient text-white"
                   : "text-gray-dark hover:bg-[#F3EFF6]"
@@ -774,7 +848,7 @@ export default function AdLibrary() {
                 : "text-purple-dark hover:bg-[#F3EFF6]"
             }`}
           >
-            <ArrowRight size={18} />
+            <ArrowRight2 size={18} />
           </button>
         </div>
       )}

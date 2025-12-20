@@ -1,13 +1,23 @@
 "use client";
 import { TickCircle } from "iconsax-react";
 import ArrowRightIcon from "@/public/arrow-right-gradient-alt.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function StepsV2() {
+export default function StepsV2({
+  onComplete,
+}: {
+  onComplete?: () => void;
+}) {
   const [storeConnected, setStoreConnected] = useState(false);
   const [brandKitUploaded, setBrandKitUploaded] = useState(false);
 
   const completedSteps = (storeConnected ? 1 : 0) + (brandKitUploaded ? 1 : 0);
+
+  useEffect(() => {
+    if (completedSteps === 2) {
+      onComplete?.();
+    }
+  }, [completedSteps, onComplete]);
 
   const handleConnectStore = () => {
     setStoreConnected(true);

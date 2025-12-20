@@ -28,6 +28,8 @@ export default function Navbar() {
 
   const showProgressBar = isCreateCampaign || isSetup;
 
+  const showDashboardNav = isInDashboard && (isAuth || process.env.NODE_ENV === "development");
+
   const alternateNavbarColor = isPricing;
 
   useEffect(() => {
@@ -68,15 +70,8 @@ export default function Navbar() {
          !alternateNavbarColor ? "md:bg-white" : "md:bg-[#FBFAFC]"
        }`}
     >
-      {(!isInDashboard || !isAuth) && (
-        <div
-          className="max-w-[1512px] mx-auto w-full items-center"
-          style={
-            {
-              // display: isDashboard && isAuth ? "none" : "flex",
-            }
-          }
-        >
+      {!showDashboardNav && (
+        <div className="max-w-[1512px] mx-auto w-full flex items-center">
           <Link href={isAuth ? "/" : "/"} className="hidden md:inline-block">
             <LogoIcon width={109} height={32} />
           </Link>
@@ -85,29 +80,35 @@ export default function Navbar() {
           </Link>
         </div>
       )}
+
       {/* dashboard list items */}
-      {isInDashboard && isAuth && (
+      {showDashboardNav && (
         <>
           <div
             className={`${
               isSidebarOpen ? "ml-[279px]" : "ml-[91px]"
             } hidden xl:flex w-full justify-between font-medium items-center max-w-[1152px]`}
           >
-            <p className={`block text-xl tracking-40`}>{paths.get(pathname)}</p>
+            <p className={`block text-xl tracking-40`}>{paths.get(pathname) || "Dashboard"}</p>
 
             <div className="flex items-center gap-3">
               {/* <Notification /> */}
               <Profile />
             </div>
           </div>
-          <div className="xl:hidden flex items-center justify-between w-full max-w-[1152px]">
+          <div className="xl:hidden relative flex items-center justify-between w-full max-w-[1152px]">
             <div className="flex items-center gap-2">
               {/* <SidebarLeft size="32" color="#333"/> */}
               <button onClick={toggleSidebar}>
                 <HambergerMenu size="24" color="#333" />
               </button>
-              <LogoSMIcon width={81} height={24} />
             </div>
+            <Link
+              href={isAuth ? "/" : "/"}
+              className="absolute left-1/2 -translate-x-1/2"
+            >
+              <LogoSMIcon width={81} height={24} />
+            </Link>
             <div className="flex items-center gap-1">
               {/* <Notification /> */}
               <Profile />

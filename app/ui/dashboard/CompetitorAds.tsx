@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video, Gift, Calendar } from "iconsax-react";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video, Gift, Calendar, ArrowLeft, ArrowRight } from "iconsax-react";
 import ConnectStore from "../modals/ConnectStore";
 
 type SeasonalCampaign = {
@@ -459,8 +459,8 @@ const mockAds: Ad[] = [
     brand: "VitaBoost",
     isNew: false,
     daysAgo: 2,
-    previewType: "video",
-    previewUrl: "/ad-assets/AQP8eyx5D8yntxpO7rCFFWxb7gSKlojV0dcA6loTB-tl462LjLSTB4CaYtV57e_1766202310701.mp4",
+    previewType: "image",
+    previewUrl: "/ad-assets/9b63b13f-e770-42dd-a300-36cef414b8c1_1766197795898.png",
     headline: "Fuel your day with essential vitamins. Our premium supplements are designed for maximum absorption...",
     domain: "www.vitaboost.com",
     productName: "Daily Vitamin Complex",
@@ -478,8 +478,8 @@ const mockAds: Ad[] = [
     brand: "CozyNest",
     isNew: true,
     daysAgo: null,
-    previewType: "video",
-    previewUrl: "/ad-assets/AQPRTgBVdYj83IchzmGk4NrNf2XZQR3IcDDCwIx8X96g8Fvy7mSQjyFl24hnUi_1766202310701.mp4",
+    previewType: "image",
+    previewUrl: "/ad-assets/Winter_Gala_Ready_version_1_1766197795900.png",
     headline: "Transform your bedroom into a sanctuary. Premium bedding that feels like sleeping on clouds...",
     domain: "www.cozynest.co",
     productName: "Cloud Comfort Duvet Set",
@@ -497,8 +497,8 @@ const mockAds: Ad[] = [
     brand: "GlamJewels",
     isNew: false,
     daysAgo: 1,
-    previewType: "video",
-    previewUrl: "/ad-assets/b45b2243-c01d-4719-a6d7-4aec7dfac4e5_1766202310701.mp4",
+    previewType: "image",
+    previewUrl: "/ad-assets/29f2b7d0-0ca0-42b6-ab01-e94ad8a007ad_1766197795898.png",
     headline: "Make a statement with our handcrafted jewelry. Each piece tells a unique story of elegance...",
     domain: "www.glamjewels.com",
     productName: "Signature Gold Necklace",
@@ -513,12 +513,43 @@ const mockAds: Ad[] = [
   },
 ];
 
-const formatOptions = ["All", "Video", "Image"];
-const platformOptions = ["All", "Meta", "TikTok"];
-const statusOptions = ["All", "Active", "Inactive"];
-const sortOptions = ["Newest", "Oldest", "Most Popular"];
+const prototypeAds: Ad[] = [
+  ...mockAds,
+  ...mockAds.map((ad, index) => ({
+    ...ad,
+    id: ad.id + 1000 + index,
+    saved: false,
+    isNew: false,
+    daysAgo: ad.daysAgo ?? 1,
+  })),
+];
 
-const allCompetitors = [...new Set(mockAds.map((ad) => ad.brand))].sort();
+const platformOptions = ["All", "Meta", "TikTok"];
+const sortOptions = ["Newest", "Oldest", "Highest Score"];
+
+const allCompetitors = [...new Set(prototypeAds.map((ad) => ad.brand))].sort();
+
+function getAdStartDate(ad: Ad): string {
+  const days = ad.daysAgo ?? 0;
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getEstimatedReach(ad: Ad): string {
+  const seed = (ad.id * 9307 + ad.adScore * 131) % 10000;
+  const min = 12000;
+  const max = 1200000;
+  const reach = Math.round(min + (seed / 10000) * (max - min));
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(reach);
+}
 
 const getHooksForAd = (ad: Ad): string[] => {
   const productName = ad.productName;
@@ -580,28 +611,38 @@ const getHooksForAd = (ad: Ad): string[] => {
 };
 
 type CompetitorAdsProps = {
-  limit?: number;
-  showViewAllButton?: boolean;
+  limit?: never;
+  showViewAllButton?: never;
+  onSelectAd?: (adId: number) => void;
 };
 
-export default function CompetitorAds({ limit, showViewAllButton = false }: CompetitorAdsProps) {
-  const [activeTab, setActiveTab] = useState<"explore" | "besthooks">("explore");
+const ITEMS_PER_PAGE = 8;
+
+export default function CompetitorAds({ onSelectAd }: CompetitorAdsProps) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"image" | "video">("image");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [ads, setAds] = useState<Ad[]>(mockAds);
+  const [ads, setAds] = useState<Ad[]>(prototypeAds);
   const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleCloneAd = () => {
-    setShowConnectStoreModal(true);
+  const handleCloneAd = (adId?: number) => {
+    if (typeof adId === "number" && typeof onSelectAd === "function") {
+      onSelectAd(adId);
+      return;
+    }
+
+    const qs = new URLSearchParams();
+    qs.set("source", "competitor");
+    if (typeof adId === "number") qs.set("adId", String(adId));
+    router.push(`/dashboard-v2/create-campaign/product-selection?${qs.toString()}`);
   };
 
   const [filters, setFilters] = useState({
-    format: "All",
     platform: "All",
-    status: "All",
     niche: "All",
     subNiche: "All",
   });
@@ -630,9 +671,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
 
   const getActiveFilterCount = () => {
     let count = 0;
-    if (filters.format !== "All") count++;
     if (filters.platform !== "All") count++;
-    if (filters.status !== "All") count++;
     if (filters.niche !== "All") count++;
     if (adRankRange[0] !== 0 || adRankRange[1] !== 100) count++;
     if (selectedCompetitors.length > 0) count++;
@@ -650,6 +689,8 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
   const filteredAds = useMemo(() => {
     let result = [...ads];
 
+    result = result.filter((ad) => ad.status === "active");
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -660,16 +701,8 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
       );
     }
 
-    if (filters.format !== "All") {
-      result = result.filter((ad) => ad.previewType === filters.format.toLowerCase());
-    }
-
     if (filters.platform !== "All") {
       result = result.filter((ad) => ad.platform === filters.platform.toLowerCase());
-    }
-
-    if (filters.status !== "All") {
-      result = result.filter((ad) => ad.status === filters.status.toLowerCase());
     }
 
     if (filters.niche !== "All") {
@@ -687,16 +720,32 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
       result = result.filter((ad) => selectedCompetitors.includes(ad.brand));
     }
 
-    if (showSavedOnly) {
-      result = result.filter((ad) => ad.saved);
-    }
-
     if (sortBy === "Oldest") {
-      result = result.reverse();
+      result = [...result].reverse();
+    } else if (sortBy === "Highest Score") {
+      result = [...result].sort((a, b) => b.adScore - a.adScore);
     }
 
     return result;
-  }, [ads, searchQuery, filters, sortBy, showSavedOnly, activeTab, adRankRange, selectedCompetitors]);
+  }, [ads, searchQuery, filters, sortBy, activeTab, adRankRange, selectedCompetitors]);
+
+  const adsForGrid = useMemo(
+    () => filteredAds.filter((ad) => ad.previewType === activeTab),
+    [filteredAds, activeTab]
+  );
+  const totalPages = Math.ceil(adsForGrid.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentAds = adsForGrid.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, filters, sortBy, adRankRange, selectedCompetitors]);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   useEffect(() => {
     const fetchSavedAds = async () => {
@@ -742,16 +791,13 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
 
   const clearFilters = () => {
     setFilters({
-      format: "All",
       platform: "All",
-      status: "All",
       niche: "All",
       subNiche: "All",
     });
     setAdRankRange([0, 100]);
     setSelectedCompetitors([]);
     setSearchQuery("");
-    setShowSavedOnly(false);
   };
 
   return (
@@ -759,36 +805,36 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
       <div className="mb-6 flex flex-col lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <button className="text-purple-dark hover:text-purple-normal transition-colors">
+            <button className="text-purple-dark hover:text-purple-normal transition-colors -ml-7">
               <ArrowLeft2 size={20} />
             </button>
-            <h2 className="text-purple-dark font-semibold text-xl">Competitor Ads</h2>
+            <h2 className="text-purple-dark font-semibold text-xl">Clone Competitor Ads</h2>
           </div>
-          <p className="text-gray-500 text-sm ml-7">See what's working for your competitors and borrow proven hooks, formats, and angles.</p>
+          <p className="text-gray-500 text-sm">See what's working for your competitors and borrow proven hooks, formats, and angles.</p>
         </div>
       </div>
-
+      
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => setActiveTab("explore")}
+            onClick={() => setActiveTab("image")}
             className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
-              activeTab === "explore"
+              activeTab === "image"
                 ? "text-purple-dark border-purple-normal"
                 : "text-gray-dark border-transparent hover:text-purple-dark"
             }`}
           >
-            Explore
+            Image Ads
           </button>
           <button
-            onClick={() => setActiveTab("besthooks")}
+            onClick={() => setActiveTab("video")}
             className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
-              activeTab === "besthooks"
+              activeTab === "video"
                 ? "text-purple-dark border-purple-normal"
                 : "text-gray-dark border-transparent hover:text-purple-dark"
             }`}
           >
-            Best Hooks
+            Video Ads
           </button>
         </div>
 
@@ -802,7 +848,6 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         )}
       </div>
 
-      {activeTab === "explore" && (
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-shrink-0 w-full sm:w-[200px]">
@@ -844,28 +889,10 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setShowSavedOnly(!showSavedOnly)}
-              className={`flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap ${
-                showSavedOnly ? "text-purple-normal" : "text-gray-dark hover:text-purple-dark"
-              }`}
-            >
-              <Heart size={16} variant={showSavedOnly ? "Bold" : "Linear"} />
-              <span className="hidden xs:inline">Saved ads</span>
-              <span className="xs:hidden">Saved</span>
-            </button>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <FilterDropdown
-            label="Format"
-            value={filters.format}
-            options={formatOptions}
-            isOpen={openFilter === "format"}
-            onToggle={() => toggleFilter("format")}
-            onSelect={(value) => updateFilter("format", value)}
-          />
           <FilterDropdown
             label="Platform"
             value={filters.platform}
@@ -873,14 +900,6 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
             isOpen={openFilter === "platform"}
             onToggle={() => toggleFilter("platform")}
             onSelect={(value) => updateFilter("platform", value)}
-          />
-          <FilterDropdown
-            label="Status"
-            value={filters.status}
-            options={statusOptions}
-            isOpen={openFilter === "status"}
-            onToggle={() => toggleFilter("status")}
-            onSelect={(value) => updateFilter("status", value)}
           />
           <NicheDropdown
             selectedNiche={filters.niche}
@@ -921,98 +940,8 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
           </button>
         </div>
       </div>
-      )}
 
-      {activeTab === "besthooks" ? (
-        (() => {
-          const videoAdsWithHooks = filteredAds.filter((ad) => ad.previewType === "video" && ad.hook);
-          return videoAdsWithHooks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <p className="text-gray-dark text-lg mb-2">No video ads with hooks found</p>
-              <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
-              <button
-                onClick={clearFilters}
-                className="px-4 py-2 bg-purple-normal text-white rounded-xl text-sm font-medium hover:bg-purple-dark transition-colors"
-              >
-                Clear all filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {videoAdsWithHooks.map((ad) => (
-                <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group">
-                  <div className="relative aspect-square">
-                    <video
-                      src={ad.previewUrl}
-                      className="w-full h-full object-cover"
-                      muted
-                      loop
-                      playsInline
-                      onMouseEnter={(e) => e.currentTarget.play()}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
-                      }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none group-hover:opacity-0 transition-opacity">
-                      <div className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
-                        <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-purple-dark ml-1"></div>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 left-2 bg-purple-normal text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1 z-20">
-                      <Video size={10} />
-                      Best Hook
-                    </div>
-                    {ad.adScore >= 85 && (
-                      <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1 z-20">
-                        🔥 Winning Ad
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-normal to-purple-dark flex items-center justify-center text-white text-[10px] font-bold">
-                        {ad.brand.charAt(0)}
-                      </div>
-                      <span className="text-sm font-medium text-purple-dark truncate">{ad.brand}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-[#F3EFF6] text-gray-dark rounded capitalize">{ad.platform}</span>
-                    </div>
-                    <div className="bg-[#1A1A2E] rounded-lg p-3 mb-2">
-                      <p className="text-white text-xs font-medium leading-relaxed">
-                        "{ad.hook}"
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] text-gray-dark">{ad.niche}</span>
-                      <button
-                        onClick={() => toggleSaveAd(ad.id)}
-                        className="p-1 hover:bg-[#F3EFF6] rounded-full transition-colors"
-                      >
-                        <Heart size={14} variant={ad.saved ? "Bold" : "Linear"} className={ad.saved ? "text-red-500" : "text-gray-dark"} />
-                      </button>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <button
-                        className="w-full py-2 bg-[#F3EFF6] text-purple-dark text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1.5 font-medium"
-                      >
-                        <Eye size={14} />
-                        View Details
-                      </button>
-                      <button
-                        onClick={handleCloneAd}
-                        className="w-full py-2 gradient text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
-                      >
-                        <Copy size={14} />
-                        Clone this video ad
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        })()
-      ) : filteredAds.length === 0 ? (
+      {adsForGrid.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-gray-dark text-lg mb-2">No ads found</p>
           <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
@@ -1025,20 +954,51 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(limit ? filteredAds.slice(0, limit) : filteredAds).map((ad) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {currentAds.map((ad) => (
               <AdCard key={ad.id} ad={ad} onToggleSave={toggleSaveAd} onClone={handleCloneAd} />
             ))}
           </div>
-          {showViewAllButton && filteredAds.length > (limit || 0) && (
-            <div className="flex justify-center mt-6">
-              <a
-                href="/dashboard-v2/inspirations"
-                className="px-6 py-3 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-purple-dark hover:bg-[#F3EFF6]"
+                }`}
               >
-                View All Competitor Ads
-                <ArrowRight2 size={16} />
-              </a>
+                <ArrowLeft size={18} />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`w-8 h-8 rounded-lg text-sm font-medium leading-none flex items-center justify-center transition-colors ${
+                    currentPage === page
+                      ? "gradient text-white"
+                      : "text-gray-dark hover:bg-[#F3EFF6]"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-purple-dark hover:bg-[#F3EFF6]"
+                }`}
+              >
+                <ArrowRight size={18} />
+              </button>
             </div>
           )}
         </>
@@ -1296,18 +1256,20 @@ function AdScoreDropdown({
           <InfoCircle 
             size={12} 
             className="text-gray-light cursor-help"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTooltip(!showTooltip);
-            }}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
           />
           {showTooltip && (
-            <div 
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[200px] p-2 bg-purple-dark text-white text-[10px] rounded-lg shadow-lg z-30"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Ad Score estimates how likely an ad is to perform well based on real advertiser behavior, longevity, creative reuse, scale, and conversion intent
-              <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-dark"></div>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[260px] p-3 bg-purple-dark text-white text-[11px] rounded-xl shadow-lg z-30">
+              <p className="font-semibold mb-2">How we calculate Ad Score</p>
+              <div className="space-y-1 text-white/95">
+                <p>Running 30+ days</p>
+                <p>Video/Image used across multiple campaigns</p>
+                <p>Multiple languages or regions</p>
+                <p>Includes proof and CTA</p>
+                <p>Has strong storytelling</p>
+              </div>
+              <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-purple-dark"></div>
             </div>
           )}
         </div>
@@ -1374,30 +1336,71 @@ function AdScoreDropdown({
   );
 }
 
-function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: number) => void; onClone: () => void }) {
+function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: number) => void; onClone: (adId: number) => void }) {
   const [showInsights, setShowInsights] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
 
-  const isWinningAd = ad.adScore >= 85;
-
   const handleClone = () => {
     setIsCloning(true);
-    onClone();
+    onClone(ad.id);
     setTimeout(() => setIsCloning(false), 500);
   };
 
   return (
     <>
-      <div className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow group">
+      <div className="bg-white border border-[#F3EFF6] rounded-2xl overflow-visible flex flex-col shadow-sm hover:shadow-md transition-shadow group">
         <div className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center">
               <span className="text-xs text-white font-medium">{ad.brand.charAt(0)}</span>
             </div>
             <span className="text-purple-dark text-sm font-medium truncate max-w-[80px]">{ad.brand}</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded ${ad.platform === "meta" ? "bg-[#E7F3FF] text-[#1877F2]" : "bg-[#FFF0F0] text-[#FE2C55]"}`}>
-              {ad.platform === "meta" ? "Meta" : "TikTok"}
+            <span className={`flex items-center gap-1 px-1.5 py-1 rounded ${ad.platform === "meta" ? "bg-[#E7F3FF]" : "bg-[#FFF0F0]"}`}>
+              {ad.platform === "meta" ? (
+                <>
+                  <img
+                    src="/instagram_logo.svg"
+                    alt="Instagram"
+                    className="w-3.5 h-3.5"
+                  />
+                  <img
+                    src="/facebook.svg"
+                    alt="Facebook"
+                    className="w-3.5 h-3.5"
+                  />
+                </>
+              ) : (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-label="TikTok"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M29.5 6c.5 5.1 3.7 8.2 8.6 8.5v5.9c-3.2.2-6.1-.8-8.6-2.7V30c0 8.2-8.9 13.4-16.2 9.6-4.7-2.5-6.4-8.8-3.6-13.5 2.7-4.5 8.3-5.7 12.2-4.5v6.4c-.5-.2-1.2-.3-1.8-.3-1.9 0-3.6 1.1-4.3 2.9-.9 2.2.4 4.9 2.7 5.6 2.8.9 5.4-1.1 5.4-4V6h5.6Z"
+                    fill="#000000"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M24.1 6v24.2c0 3.7-3.1 6.2-7 5.2-2.3-.6-3.9-2.9-3.6-5.3.4-2.7 2.8-4.4 5.5-3.9V20c-6.8-.8-12.8 4.4-12 11.6.6 5.2 5 9.4 10.3 10 7.9.9 14.6-5.3 14.6-13.1V17.7c2.4 1.5 5.2 2.4 8.1 2.2v-5.9c-4.9-.3-8.1-3.4-8.6-8.5h-7.3Z"
+                    fill="#FE2C55"
+                    opacity="0.8"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M29.5 6c.5 5.1 3.7 8.2 8.6 8.5v2.9c-3.2.2-6.1-.8-8.6-2.7V30c0 8.2-8.9 13.4-16.2 9.6-1.7-.9-3-2.3-3.9-3.9 7.4 4.5 17.1-.7 17.1-9.8V6h3Z"
+                    fill="#25F4EE"
+                    opacity="0.8"
+                  />
+                </svg>
+              )}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -1414,14 +1417,20 @@ function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: numb
             {ad.isNew ? (
               <span className="px-1.5 py-0.5 bg-[#EAF7EF] text-[#27AE60] text-xs rounded font-medium">NEW</span>
             ) : ad.daysAgo ? (
-              <span className="text-gray-dark text-xs">{ad.daysAgo}D</span>
+              <span className="relative inline-block group/days text-gray-dark text-xs">
+                {ad.daysAgo}D
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 bg-purple-dark text-white text-[10px] rounded-lg shadow-lg z-30 opacity-0 pointer-events-none group-hover/days:opacity-100 transition-opacity">
+                  This ad has been running for {ad.daysAgo} {ad.daysAgo === 1 ? "day" : "days"}
+                  <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-dark"></span>
+                </span>
+              </span>
             ) : null}
           </div>
         </div>
 
         <p className="px-3 text-gray-dark text-xs line-clamp-2 mb-2">{ad.headline}</p>
 
-        <div className="relative h-[250px] bg-[#F3EFF6] mx-3 rounded-xl overflow-hidden cursor-pointer" onClick={() => setShowInsights(true)}>
+        <div className="relative h-[250px] bg-[#F3EFF6] mx-3 overflow-hidden cursor-pointer" onClick={() => setShowInsights(true)}>
           {ad.previewType === "image" ? (
             <img
               src={ad.previewUrl}
@@ -1445,37 +1454,28 @@ function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: numb
               </div>
             </div>
           )}
-          <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${ad.status === "active" ? "bg-[#EAF7EF] text-[#27AE60]" : "bg-[#FEF5EA] text-[#C67B22]"}`}>
-              {ad.status === "active" ? "Active" : "Inactive"}
-            </span>
-          </div>
-          <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
-            {isWinningAd && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-gradient-to-r from-[#FF6B35] to-[#F7931E] text-white flex items-center gap-0.5">
-                🔥 Winning Ad
-              </span>
-            )}
-          </div>
           <div className="absolute bottom-2 left-2 z-10">
             <div className="relative">
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowScoreTooltip(!showScoreTooltip);
-                }}
-                className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/90 text-purple-dark shadow-sm"
+                onMouseEnter={() => setShowScoreTooltip(true)}
+                onMouseLeave={() => setShowScoreTooltip(false)}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full font-semibold bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white shadow-md border border-white/20"
               >
-                Ad Score: {ad.adScore}
-                <InfoCircle size={10} />
+                <span className="tracking-wide">Ad Score</span>
+                <span className="text-sm font-extrabold leading-none">{ad.adScore}</span>
+                <InfoCircle size={12} className="opacity-90" />
               </button>
               {showScoreTooltip && (
-                <div 
-                  className="absolute bottom-full left-0 mb-1 w-[200px] p-2 bg-purple-dark text-white text-[10px] rounded-lg shadow-lg z-20"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Ad Score estimates how likely an ad is to perform well based on real advertiser behavior, longevity, creative reuse, scale, and conversion intent
-                  <div className="absolute bottom-[-4px] left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-dark"></div>
+                <div className="absolute bottom-full left-0 mb-2 w-[260px] p-3 bg-purple-dark text-white text-[11px] rounded-xl shadow-lg z-20">
+                  <p className="font-semibold mb-2">How we calculate Ad Score</p>
+                  <div className="space-y-1 text-white/95">
+                    <p>Running 30+ days</p>
+                    <p>{ad.previewType === "video" ? "Video used across multiple campaigns" : "Image used across multiple campaigns"}</p>
+                    <p>Multiple languages or regions</p>
+                    <p>Includes proof and CTA</p>
+                    <p>Has strong storytelling</p>
+                  </div>
+                  <div className="absolute bottom-[-6px] left-6 w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-purple-dark"></div>
                 </div>
               )}
             </div>
@@ -1508,14 +1508,14 @@ function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: numb
             }`}
           >
             <Copy size={16} />
-            {isCloning ? "Cloning..." : `Clone this ${ad.previewType} ad`}
+            {isCloning ? "Cloning..." : "Clone Ad"}
           </button>
         </div>
       </div>
 
       {showInsights && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowInsights(false)}>
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 border-b border-[#F3EFF6] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#A755FF] to-[#6800D7] flex items-center justify-center">
@@ -1523,84 +1523,197 @@ function AdCard({ ad, onToggleSave, onClone }: { ad: Ad; onToggleSave: (id: numb
                 </div>
                 <div>
                   <h3 className="text-purple-dark font-semibold">{ad.brand}</h3>
-                  <p className="text-gray-dark text-xs">{ad.subNiche} • {ad.platform === "meta" ? "Meta" : "TikTok"}</p>
+                  <div className="flex items-center gap-2 text-gray-dark text-xs">
+                    <span className="truncate">{ad.subNiche}</span>
+                    <span className="text-gray-light">•</span>
+                    <span className="flex items-center gap-1">
+                      {ad.platform === "meta" ? (
+                        <>
+                          <img src="/instagram_logo.svg" alt="Instagram" className="w-3.5 h-3.5" />
+                          <img src="/facebook.svg" alt="Facebook" className="w-3.5 h-3.5" />
+                        </>
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 48 48"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-label="TikTok"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M29.5 6c.5 5.1 3.7 8.2 8.6 8.5v5.9c-3.2.2-6.1-.8-8.6-2.7V30c0 8.2-8.9 13.4-16.2 9.6-4.7-2.5-6.4-8.8-3.6-13.5 2.7-4.5 8.3-5.7 12.2-4.5v6.4c-.5-.2-1.2-.3-1.8-.3-1.9 0-3.6 1.1-4.3 2.9-.9 2.2.4 4.9 2.7 5.6 2.8.9 5.4-1.1 5.4-4V6h5.6Z"
+                            fill="#000000"
+                          />
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M24.1 6v24.2c0 3.7-3.1 6.2-7 5.2-2.3-.6-3.9-2.9-3.6-5.3.4-2.7 2.8-4.4 5.5-3.9V20c-6.8-.8-12.8 4.4-12 11.6.6 5.2 5 9.4 10.3 10 7.9.9 14.6-5.3 14.6-13.1V17.7c2.4 1.5 5.2 2.4 8.1 2.2v-5.9c-4.9-.3-8.1-3.4-8.6-8.5h-7.3Z"
+                            fill="#FE2C55"
+                            opacity="0.8"
+                          />
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M29.5 6c.5 5.1 3.7 8.2 8.6 8.5v2.9c-3.2.2-6.1-.8-8.6-2.7V30c0 8.2-8.9 13.4-16.2 9.6-1.7-.9-3-2.3-3.9-3.9 7.4 4.5 17.1-.7 17.1-9.8V6h3Z"
+                            fill="#25F4EE"
+                            opacity="0.8"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <button onClick={() => setShowInsights(false)} className="text-gray-dark hover:text-purple-dark">
-                <CloseCircle size={24} />
-              </button>
-            </div>
-
-            <div className="p-4 space-y-4">
-              <div className="aspect-video bg-[#F3EFF6] rounded-xl overflow-hidden relative">
-                {ad.previewType === "video" ? (
-                  <video
-                    src={ad.previewUrl}
-                    className="w-full h-full object-cover"
-                    controls
-                    playsInline
-                  />
-                ) : (
-                  <img
-                    src={ad.previewUrl}
-                    alt={ad.productName}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-
-              <div>
-                <h4 className="text-purple-dark font-medium mb-1">Ad Copy</h4>
-                <p className="text-gray-dark text-sm">{ad.headline}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#F3EFF6] rounded-xl p-3">
-                  <p className="text-gray-dark text-xs mb-1">Status</p>
-                  <p className={`font-medium text-sm ${ad.status === "active" ? "text-[#27AE60]" : "text-[#C67B22]"}`}>
-                    {ad.status === "active" ? "Active" : "Inactive"}
-                  </p>
-                </div>
-                <div className="bg-[#F3EFF6] rounded-xl p-3">
-                  <p className="text-gray-dark text-xs mb-1">Format</p>
-                  <p className="text-purple-dark font-medium text-sm capitalize">{ad.previewType}</p>
-                </div>
-                <div className="bg-[#F3EFF6] rounded-xl p-3">
-                  <p className="text-gray-dark text-xs mb-1">Platform</p>
-                  <p className="text-purple-dark font-medium text-sm">{ad.platform === "meta" ? "Meta" : "TikTok"}</p>
-                </div>
-                <div className="bg-[#F3EFF6] rounded-xl p-3">
-                  <p className="text-gray-dark text-xs mb-1">Niche</p>
-                  <p className="text-purple-dark font-medium text-sm">{ad.niche}</p>
-                </div>
-                <div className="bg-[#F3EFF6] rounded-xl p-3 col-span-2">
-                  <p className="text-gray-dark text-xs mb-1">Sub-Niche</p>
-                  <p className="text-purple-dark font-medium text-sm">{ad.subNiche}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
+              <div className="relative flex items-center gap-2 z-10">
                 <button
                   onClick={() => onToggleSave(ad.id)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                    ad.saved
-                      ? "bg-[#FEE7E5] text-[#E74C3C]"
-                      : "bg-[#F3EFF6] text-purple-dark hover:bg-[#E6DCF0]"
+                  className={`p-2 rounded-lg border border-[#F3EFF6] bg-white transition-colors hover:bg-[#F3EFF6] ${
+                    ad.saved ? "text-[#E74C3C]" : "text-gray-dark hover:text-purple-dark"
                   }`}
+                  aria-label={ad.saved ? "Unsave ad" : "Save ad"}
                 >
-                  <Heart size={16} variant={ad.saved ? "Bold" : "Linear"} />
-                  {ad.saved ? "Saved" : "Save Ad"}
+                  <Heart
+                    size={20}
+                    variant={ad.saved ? "Bold" : "Linear"}
+                    color={ad.saved ? "#E74C3C" : "#737373"}
+                  />
                 </button>
                 <button
                   onClick={() => {
                     handleClone();
                     setShowInsights(false);
                   }}
-                  className="flex-1 py-2.5 gradient text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90"
+                  className="p-2 rounded-lg border border-[#F3EFF6] bg-white text-gray-dark hover:text-purple-dark hover:bg-[#F3EFF6] transition-colors"
+                  aria-label="Clone ad"
                 >
-                  <Copy size={16} />
-                  Clone Ad
+                  <Copy size={20} color="#737373" />
                 </button>
+                <button
+                  onClick={() => setShowInsights(false)}
+                  className="p-2 rounded-lg border border-[#F3EFF6] bg-white text-gray-dark hover:text-purple-dark hover:bg-[#F3EFF6] transition-colors"
+                  aria-label="Close"
+                >
+                  <CloseCircle size={24} className="text-gray-dark" color="#737373" />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] h-[calc(85vh-73px)]">
+              <div className="border-b lg:border-b-0 lg:border-r border-[#F3EFF6] p-4">
+                <div className="bg-[#F3EFF6] overflow-hidden relative h-[420px] lg:h-full">
+                  {ad.previewType === "video" ? (
+                    <video
+                      src={ad.previewUrl}
+                      className="w-full h-full object-cover"
+                      controls
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={ad.previewUrl}
+                      alt={ad.productName}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="mt-3">
+                  <p className="text-gray-dark text-xs truncate">{ad.domain}</p>
+                  <p className="text-purple-dark font-semibold">{ad.productName}</p>
+                </div>
+              </div>
+
+              <div className="overflow-auto p-4 space-y-4">
+                <div className="bg-[#F3EFF6] rounded-2xl p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-gray-dark text-xs">Ad Score</p>
+                      <p className="text-purple-dark text-2xl font-extrabold leading-none">{ad.adScore}</p>
+                    </div>
+                    <button
+                      className="px-3 py-2 bg-white text-purple-dark text-sm rounded-xl shadow-sm hover:bg-[#FAF7FC] transition-colors font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      View scoring factors
+                    </button>
+                  </div>
+                  <div className="mt-3 text-[12px] text-gray-dark space-y-1">
+                    <p>Running 30+ days</p>
+                    <p>{ad.previewType === "video" ? "Video used across multiple campaigns" : "Image used across multiple campaigns"}</p>
+                    <p>Multiple languages or regions</p>
+                    <p>Includes proof and CTA</p>
+                    <p>Has strong storytelling</p>
+                  </div>
+                </div>
+
+                <div className="bg-[#F3EFF6] rounded-2xl p-4">
+                  <h4 className="text-purple-dark font-semibold mb-2">Ad Copy</h4>
+                  <p className="text-gray-dark text-sm">{ad.headline}</p>
+                </div>
+
+                <div className="bg-[#F3EFF6] rounded-2xl p-4">
+                  <h4 className="text-purple-dark font-semibold mb-3">Ad Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Platform</p>
+                      <p className="font-medium text-sm text-purple-dark capitalize">{ad.platform}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Ad Type</p>
+                      <p className="font-medium text-sm text-purple-dark capitalize">{ad.previewType}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Niche</p>
+                      <p className="font-medium text-sm text-purple-dark">{ad.niche}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Sub-Niche</p>
+                      <p className="font-medium text-sm text-purple-dark">{ad.subNiche}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Days Running</p>
+                      <p className="font-medium text-sm text-purple-dark">{ad.daysAgo ? `${ad.daysAgo} days` : "New"}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Start Date</p>
+                      <p className="font-medium text-sm text-purple-dark">{getAdStartDate(ad)}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">Reach</p>
+                      <p className="font-medium text-sm text-purple-dark">{getEstimatedReach(ad)}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-3">
+                      <p className="text-gray-dark text-xs mb-1">CTA</p>
+                      <p className="font-medium text-sm text-purple-dark">{ad.cta}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onToggleSave(ad.id)}
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                      ad.saved
+                        ? "bg-[#FEE7E5] text-[#E74C3C]"
+                        : "bg-[#F3EFF6] text-purple-dark hover:bg-[#E6DCF0]"
+                    }`}
+                  >
+                    <Heart size={16} variant={ad.saved ? "Bold" : "Linear"} />
+                    {ad.saved ? "Saved" : "Save Ad"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleClone();
+                      setShowInsights(false);
+                    }}
+                    className="flex-1 py-2.5 gradient text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90"
+                  >
+                    <Copy size={16} />
+                    Clone Ad
+                  </button>
+                </div>
               </div>
             </div>
           </div>

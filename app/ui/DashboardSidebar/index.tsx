@@ -135,6 +135,12 @@ export default function DashboardSideBar() {
           isCompanyTabOpen={isCompanyTabOpen}
           toggleIsCompanyTabOpen={toggleIsCompanyOpen}
           handleCreateCampaign={handleCreateCampaign}
+          isVersion2={isVersion2}
+          isDashboardV2={isDashboardV2}
+          isInspirationsV2={isInspirationsV2}
+          isCampaignsV2={isCampaignsV2}
+          isVersion2TabOpen={isVersion2TabOpen}
+          toggleIsVersion2TabOpen={toggleIsVersion2Open}
         />
       )}
     </>

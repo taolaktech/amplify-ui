@@ -300,7 +300,7 @@ export const useEmailLogin = (
             handleGetCurrentSubscriptionPlan(response.data?.access_token),
           ]);
           login(response.data?.access_token, response.data?.user);
-          router.push("/");
+          router.push("/dashboard-v2");
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -384,7 +384,7 @@ export const useGoogleLogin = (
             ]);
             login(response.data?.access_token, response.data?.user);
 
-            router.push("/");
+            router.push("/dashboard-v2");
           } catch (error) {
             console.error("Error fetching data:", error);
           }
