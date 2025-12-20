@@ -1,0 +1,565 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-12-20",
+  "totalAssets": 30,
+  "assets": {
+    "images": [
+      {
+        "id": "img-001",
+        "filename": "1b4739e4-836e-4d2c-ac1c-4ff3647179de_1766214497618.png",
+        "path": "/attached_assets/1b4739e4-836e-4d2c-ac1c-4ff3647179de_1766214497618.png",
+        "type": "image",
+        "format": "png",
+        "category": "Ad Library - Image Ads",
+        "title": "Glow Skin Model Shot",
+        "description": "Single model showcasing skincare product with dewy finish",
+        "brand": "MUSE Skin",
+        "niche": "Beauty & Personal Care",
+        "subNiche": "Skincare",
+        "style": "Editorial",
+        "modelType": "Single Model",
+        "tags": ["skincare", "beauty", "model", "product-showcase", "dewy", "glow"]
+      },
+      {
+        "id": "img-002",
+        "filename": "46785d59-5c10-456f-bf7a-c0e798345b40_1766214497621.png",
+        "path": "/attached_assets/46785d59-5c10-456f-bf7a-c0e798345b40_1766214497621.png",
+        "type": "image",
+        "format": "png",
+        "category": "Ad Library - Image Ads",
+        "title": "Brand Campaign Grid",
+        "description": "Multi-shot grid layout with cohesive pink branding",
+        "brand": "Rhode",
+        "niche": "Beauty & Personal Care",
+        "subNiche": "Makeup & Cosmetics",
+        "style": "Campaign",
+        "modelType": "Single Model",
+        "tags": ["beauty", "pink", "grid-layout", "campaign", "lip-product", "branding"]
+      },
+      {
+        "id": "img-003",
+        "filename": "7732f5a9-e556-48ed-9637-faeb04d83e27_1766214497622.png",
+        "path": "/attached_assets/7732f5a9-e556-48ed-9637-faeb04d83e27_1766214497622.png",
+        "type": "image",
+        "format": "png",
+        "category": "Ad Library - Image Ads",
+        "title": "SPF Lifestyle",
+        "description": "Natural light lifestyle shots with product close-ups",
+        "brand": "Naked Sundays",
+        "niche": "Beauty & Personal Care",
+        "subNiche": "Skincare",
+        "style": "Lifestyle",
+        "modelType": "Single Model",
+        "tags": ["spf", "sunscreen", "skincare", "lifestyle", "natural-light", "purple"]
+      },
+      {
+        "id": "img-004",
+        "filename": "48c5e4d2-fe9d-4eff-ba45-dfb03ace2ffc_1766214497622.png",
+        "path": "/attached_assets/48c5e4d2-fe9d-4eff-ba45-dfb03ace2ffc_1766214497622.png",
+        "type": "image",
+        "format": "png",
+        "category": "Ad Library - Image Ads",
+        "title": "UGC Hand Cream",
+        "description": "Authentic UGC-style product application shot",
+        "brand": "Mary Kay Satin Hands",
+        "niche": "Beauty & Personal Care",
+        "subNiche": "Skincare",
+        "style": "UGC",
+        "modelType": "UGC-Style (Phone-shot)",
+        "tags": ["hand-cream", "ugc", "product-application", "skincare", "natural"]
+      },
+      {
+        "id": "img-005",
+        "filename": "0b113324-a1a5-415b-99e2-1a8139f6529e_1766197795897.png",
+        "path": "/attached_assets/0b113324-a1a5-415b-99e2-1a8139f6529e_1766197795897.png",
+        "type": "image",
+        "format": "png",
+        "category": "Competitor Ads",
+        "title": "Competitor Ad Sample 1",
+        "description": "Sample competitor advertisement",
+        "niche": "General",
+        "tags": ["competitor", "ad-sample"]
+      },
+      {
+        "id": "img-006",
+        "filename": "29f2b7d0-0ca0-42b6-ab01-e94ad8a007ad_1766197795898.png",
+        "path": "/attached_assets/29f2b7d0-0ca0-42b6-ab01-e94ad8a007ad_1766197795898.png",
+        "type": "image",
+        "format": "png",
+        "category": "Competitor Ads",
+        "title": "Competitor Ad Sample 2",
+        "description": "Sample competitor advertisement",
+        "niche": "General",
+        "tags": ["competitor", "ad-sample"]
+      },
+      {
+        "id": "img-007",
+        "filename": "6da1073c-b66a-4448-9269-80afa64e9ac9_1766197795895.png",
+        "path": "/attached_assets/6da1073c-b66a-4448-9269-80afa64e9ac9_1766197795895.png",
+        "type": "image",
+        "format": "png",
+        "category": "Competitor Ads",
+        "title": "Competitor Ad Sample 3",
+        "description": "Sample competitor advertisement",
+        "niche": "General",
+        "tags": ["competitor", "ad-sample"]
+      },
+      {
+        "id": "img-008",
+        "filename": "9b63b13f-e770-42dd-a300-36cef414b8c1_1766197795898.png",
+        "path": "/attached_assets/9b63b13f-e770-42dd-a300-36cef414b8c1_1766197795898.png",
+        "type": "image",
+        "format": "png",
+        "category": "Competitor Ads",
+        "title": "Competitor Ad Sample 4",
+        "description": "Sample competitor advertisement",
+        "niche": "General",
+        "tags": ["competitor", "ad-sample"]
+      },
+      {
+        "id": "img-009",
+        "filename": "Winter_Gala_Ready_version_1_1766197795900.png",
+        "path": "/attached_assets/Winter_Gala_Ready_version_1_1766197795900.png",
+        "type": "image",
+        "format": "png",
+        "category": "Seasonal",
+        "title": "Winter Gala Ready",
+        "description": "Winter seasonal promotional image",
+        "niche": "Fashion & Apparel",
+        "subNiche": "Occasion Wear",
+        "style": "Seasonal",
+        "tags": ["winter", "gala", "seasonal", "fashion", "occasion"]
+      },
+      {
+        "id": "img-010",
+        "filename": "Screenshot_2025-12-19_at_2.38.59_PM_1766196002048.png",
+        "path": "/attached_assets/Screenshot_2025-12-19_at_2.38.59_PM_1766196002048.png",
+        "type": "image",
+        "format": "png",
+        "category": "Screenshots",
+        "title": "UI Screenshot",
+        "description": "Application UI screenshot",
+        "tags": ["screenshot", "ui", "reference"]
+      },
+      {
+        "id": "img-011",
+        "filename": "image_1766193034413.png",
+        "path": "/attached_assets/image_1766193034413.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 1",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-012",
+        "filename": "image_1766194937923.png",
+        "path": "/attached_assets/image_1766194937923.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 2",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-013",
+        "filename": "image_1766197016508.png",
+        "path": "/attached_assets/image_1766197016508.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 3",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-014",
+        "filename": "image_1766201489721.png",
+        "path": "/attached_assets/image_1766201489721.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 4",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-015",
+        "filename": "image_1766201836445.png",
+        "path": "/attached_assets/image_1766201836445.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 5",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-016",
+        "filename": "image_1766204754520.png",
+        "path": "/attached_assets/image_1766204754520.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 6",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-017",
+        "filename": "image_1766206627455.png",
+        "path": "/attached_assets/image_1766206627455.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 7",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-018",
+        "filename": "image_1766207191973.png",
+        "path": "/attached_assets/image_1766207191973.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 8",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-019",
+        "filename": "image_1766208176253.png",
+        "path": "/attached_assets/image_1766208176253.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 9",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-020",
+        "filename": "image_1766208276646.png",
+        "path": "/attached_assets/image_1766208276646.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 10",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-021",
+        "filename": "image_1766209725663.png",
+        "path": "/attached_assets/image_1766209725663.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 11",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-022",
+        "filename": "image_1766212133446.png",
+        "path": "/attached_assets/image_1766212133446.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 12",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      },
+      {
+        "id": "img-023",
+        "filename": "image_1766212139962.png",
+        "path": "/attached_assets/image_1766212139962.png",
+        "type": "image",
+        "format": "png",
+        "category": "UI Reference",
+        "title": "Reference Image 13",
+        "description": "UI design reference image",
+        "tags": ["reference", "ui", "design"]
+      }
+    ],
+    "videos": [
+      {
+        "id": "vid-001",
+        "filename": "a069269c-49e5-4068-a750-007e54a3d580_1766197795899.mp4",
+        "path": "/attached_assets/a069269c-49e5-4068-a750-007e54a3d580_1766197795899.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 1",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "Demo",
+        "tags": ["video", "ad-sample", "demo"]
+      },
+      {
+        "id": "vid-002",
+        "filename": "a5928bf1-8cca-4f11-80c1-d48602facf5a_1766197795899.mp4",
+        "path": "/attached_assets/a5928bf1-8cca-4f11-80c1-d48602facf5a_1766197795899.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 2",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "Tutorial",
+        "tags": ["video", "ad-sample", "tutorial"]
+      },
+      {
+        "id": "vid-003",
+        "filename": "a7aa648c-6d7b-463a-8c47-998e25342aaa_1766197795900.mp4",
+        "path": "/attached_assets/a7aa648c-6d7b-463a-8c47-998e25342aaa_1766197795900.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 3",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "Promotional",
+        "tags": ["video", "ad-sample", "promotional"]
+      },
+      {
+        "id": "vid-004",
+        "filename": "AQM5E_KyXvEkXlDaJzULHef3U3ucw0ALNHOBTdWQhm0THUpyVxZEBzJ6uwhfAS_1766202310700.mp4",
+        "path": "/attached_assets/AQM5E_KyXvEkXlDaJzULHef3U3ucw0ALNHOBTdWQhm0THUpyVxZEBzJ6uwhfAS_1766202310700.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Competitor Ads",
+        "title": "Competitor Video 1",
+        "description": "Competitor video advertisement",
+        "niche": "General",
+        "tags": ["competitor", "video", "ad-sample"]
+      },
+      {
+        "id": "vid-005",
+        "filename": "AQP8eyx5D8yntxpO7rCFFWxb7gSKlojV0dcA6loTB-tl462LjLSTB4CaYtV57e_1766202310701.mp4",
+        "path": "/attached_assets/AQP8eyx5D8yntxpO7rCFFWxb7gSKlojV0dcA6loTB-tl462LjLSTB4CaYtV57e_1766202310701.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Competitor Ads",
+        "title": "Competitor Video 2",
+        "description": "Competitor video advertisement",
+        "niche": "General",
+        "tags": ["competitor", "video", "ad-sample"]
+      },
+      {
+        "id": "vid-006",
+        "filename": "AQPRTgBVdYj83IchzmGk4NrNf2XZQR3IcDDCwIx8X96g8Fvy7mSQjyFl24hnUi_1766202310701.mp4",
+        "path": "/attached_assets/AQPRTgBVdYj83IchzmGk4NrNf2XZQR3IcDDCwIx8X96g8Fvy7mSQjyFl24hnUi_1766202310701.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Competitor Ads",
+        "title": "Competitor Video 3",
+        "description": "Competitor video advertisement",
+        "niche": "General",
+        "tags": ["competitor", "video", "ad-sample"]
+      },
+      {
+        "id": "vid-007",
+        "filename": "b45b2243-c01d-4719-a6d7-4aec7dfac4e5_1766202310701.mp4",
+        "path": "/attached_assets/b45b2243-c01d-4719-a6d7-4aec7dfac4e5_1766202310701.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 4",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "UGC",
+        "tags": ["video", "ad-sample", "ugc"]
+      },
+      {
+        "id": "vid-008",
+        "filename": "c75be66a-b6a9-4cfb-add1-d2a98fa78080_1766197795900.mp4",
+        "path": "/attached_assets/c75be66a-b6a9-4cfb-add1-d2a98fa78080_1766197795900.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 5",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "Lifestyle",
+        "tags": ["video", "ad-sample", "lifestyle"]
+      },
+      {
+        "id": "vid-009",
+        "filename": "c75be66a-b6a9-4cfb-add1-d2a98fa78080_1766202310696.mp4",
+        "path": "/attached_assets/c75be66a-b6a9-4cfb-add1-d2a98fa78080_1766202310696.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 6",
+        "description": "Sample video advertisement (duplicate)",
+        "niche": "General",
+        "style": "Lifestyle",
+        "tags": ["video", "ad-sample", "lifestyle"]
+      },
+      {
+        "id": "vid-010",
+        "filename": "d3b6fcfd-4074-4e98-9fb9-8e81d0d78cbe_1766197795901.mp4",
+        "path": "/attached_assets/d3b6fcfd-4074-4e98-9fb9-8e81d0d78cbe_1766197795901.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Video Ad Sample 7",
+        "description": "Sample video advertisement",
+        "niche": "General",
+        "style": "Unboxing",
+        "tags": ["video", "ad-sample", "unboxing"]
+      },
+      {
+        "id": "vid-011",
+        "filename": "Download_(1)_1766197795901.mp4",
+        "path": "/attached_assets/Download_(1)_1766197795901.mp4",
+        "type": "video",
+        "format": "mp4",
+        "category": "Ad Library - Video Ads",
+        "title": "Downloaded Video",
+        "description": "Downloaded video advertisement",
+        "niche": "General",
+        "tags": ["video", "ad-sample", "downloaded"]
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-001",
+        "filename": "Pasted-Fashion-Apparel-Women-s-Clothing-Men-s-Clothing-Activew_1766197170064.txt",
+        "path": "/attached_assets/Pasted-Fashion-Apparel-Women-s-Clothing-Men-s-Clothing-Activew_1766197170064.txt",
+        "type": "text",
+        "format": "txt",
+        "category": "Documentation",
+        "title": "Niche Categories List",
+        "description": "List of fashion and apparel niche categories",
+        "tags": ["documentation", "niches", "categories"]
+      },
+      {
+        "id": "doc-002",
+        "filename": "Pasted-Fashion-Apparel-Women-s-Clothing-Men-s-Clothing-Activew_1766197337891.txt",
+        "path": "/attached_assets/Pasted-Fashion-Apparel-Women-s-Clothing-Men-s-Clothing-Activew_1766197337891.txt",
+        "type": "text",
+        "format": "txt",
+        "category": "Documentation",
+        "title": "Niche Categories List (Copy)",
+        "description": "List of fashion and apparel niche categories",
+        "tags": ["documentation", "niches", "categories"]
+      },
+      {
+        "id": "doc-003",
+        "filename": "Pasted-Hiverr-Privacy-Policy-Last-updated-December-19-2025-1-I_1766198104116.txt",
+        "path": "/attached_assets/Pasted-Hiverr-Privacy-Policy-Last-updated-December-19-2025-1-I_1766198104116.txt",
+        "type": "text",
+        "format": "txt",
+        "category": "Legal",
+        "title": "Hiverr Privacy Policy",
+        "description": "Privacy policy document",
+        "tags": ["legal", "privacy-policy", "documentation"]
+      },
+      {
+        "id": "doc-004",
+        "filename": "Pasted-Hiverr-Privacy-Policy-Last-updated-December-19-2025-1-I_1766198254100.txt",
+        "path": "/attached_assets/Pasted-Hiverr-Privacy-Policy-Last-updated-December-19-2025-1-I_1766198254100.txt",
+        "type": "text",
+        "format": "txt",
+        "category": "Legal",
+        "title": "Hiverr Privacy Policy (Copy)",
+        "description": "Privacy policy document",
+        "tags": ["legal", "privacy-policy", "documentation"]
+      }
+    ]
+  },
+  "categories": {
+    "Ad Library - Image Ads": {
+      "description": "Image templates for the Ad Library component",
+      "count": 4
+    },
+    "Ad Library - Video Ads": {
+      "description": "Video templates for the Ad Library component",
+      "count": 8
+    },
+    "Competitor Ads": {
+      "description": "Sample competitor advertisements for inspiration",
+      "count": 7
+    },
+    "Seasonal": {
+      "description": "Seasonal promotional content",
+      "count": 1
+    },
+    "UI Reference": {
+      "description": "UI design reference images",
+      "count": 13
+    },
+    "Screenshots": {
+      "description": "Application screenshots",
+      "count": 1
+    },
+    "Documentation": {
+      "description": "Text documentation files",
+      "count": 2
+    },
+    "Legal": {
+      "description": "Legal documents like privacy policies",
+      "count": 2
+    }
+  },
+  "filterOptions": {
+    "format": ["Image", "Video"],
+    "platform": ["Instagram", "Facebook"],
+    "niche": [
+      "Fashion & Apparel",
+      "Beauty & Personal Care",
+      "Health & Wellness",
+      "Jewelry & Accessories",
+      "Baby & Kids",
+      "Food & Beverage",
+      "Home & Living",
+      "Digital Products",
+      "Arts, Crafts & Hobbies",
+      "Luxury & Premium",
+      "Seasonal & Gifting",
+      "Eco & Sustainability",
+      "B2B & Commercial",
+      "Home Improvement",
+      "Household Essentials",
+      "Services",
+      "Entertainment & Media",
+      "Sports & Outdoors",
+      "Electronics & Tech"
+    ],
+    "modelType": [
+      "No Model (Product Only)",
+      "Single Model",
+      "Couple",
+      "Group",
+      "UGC-Style (Phone-shot)",
+      "Influencer-Style",
+      "Hands-Only"
+    ],
+    "modelEthnicity": [
+      "Black / African Descent",
+      "White / Caucasian",
+      "East Asian",
+      "South Asian",
+      "Middle Eastern",
+      "Latino / Hispanic",
+      "Mixed / Multi-ethnic",
+      "Indigenous"
+    ],
+    "style": [
+      "Editorial",
+      "Campaign",
+      "Lifestyle",
+      "UGC",
+      "Demo",
+      "Tutorial",
+      "Promotional",
+      "Unboxing",
+      "Seasonal"
+    ]
+  }
+}
