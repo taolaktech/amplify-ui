@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Image as ImageIcon, Video, Gift, Copy, Heart, Eye, ArrowLeft2, Magicpen, ArrowDown2, TickCircle, ArrowRight2 } from "iconsax-react";
+import { useState, useEffect } from "react";
+import { Image as ImageIcon, Video, Gift, Copy, Heart, Eye, ArrowLeft2, Magicpen, ArrowDown2, TickCircle, ArrowRight2, ArrowLeft, ArrowRight } from "iconsax-react";
 import ConnectStore from "../modals/ConnectStore";
 
 const formatOptions = ["All", "Image", "Video"];
@@ -363,11 +363,14 @@ type FilterState = {
   ethnicity: string;
 };
 
+const ITEMS_PER_PAGE = 12;
+
 export default function AdLibrary() {
   const [activeTab, setActiveTab] = useState<"image" | "video" | "seasonal" | "ai">("image");
   const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
   const [savedAds, setSavedAds] = useState<number[]>([]);
   const [openFilter, setOpenFilter] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterState>({
     format: "All",
     platform: "All",
@@ -376,6 +379,10 @@ export default function AdLibrary() {
     model: "All",
     ethnicity: "All",
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const handleCloneAd = () => {
     setShowConnectStoreModal(true);
@@ -422,7 +429,16 @@ export default function AdLibrary() {
     }
   };
 
-  const currentAds = getAds();
+  const allAds = getAds();
+  const totalPages = Math.ceil(allAds.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentAds = allAds.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="bg-[rgba(246,246,246,0.75)] rounded-3xl p-4 lg:p-6 min-h-[400px]">
@@ -485,7 +501,7 @@ export default function AdLibrary() {
         </div>
 
         <p className="text-xs text-gray-500">
-          {currentAds.length} templates available
+          {allAds.length} templates available
         </p>
       </div>
 
@@ -639,6 +655,48 @@ export default function AdLibrary() {
           </div>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`p-2 rounded-lg transition-colors ${
+              currentPage === 1
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-purple-dark hover:bg-[#F3EFF6]"
+            }`}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => goToPage(page)}
+              className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === page
+                  ? "gradient text-white"
+                  : "text-gray-dark hover:bg-[#F3EFF6]"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-lg transition-colors ${
+              currentPage === totalPages
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-purple-dark hover:bg-[#F3EFF6]"
+            }`}
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      )}
 
       {showConnectStoreModal && (
         <ConnectStore
