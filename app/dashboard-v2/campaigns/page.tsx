@@ -110,13 +110,13 @@ export default function CampaignsV2Page() {
           <h1 className="text-2xl font-semibold text-gray-800 mb-1">Your Campaigns</h1>
           <p className="text-gray-500 text-sm">Manage your saved ads and marketing campaigns</p>
         </div>
-        <a
-          href="/dashboard-v2/inspirations"
+        <button
+          onClick={handleCloneAd}
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white text-sm rounded-xl hover:opacity-90 transition-opacity font-medium"
         >
           <Add size={18} />
           Create Campaign
-        </a>
+        </button>
       </div>
 
       <div className="space-y-10">
@@ -234,13 +234,13 @@ export default function CampaignsV2Page() {
               <Calendar size={40} className="text-purple-500 mb-3" />
               <p className="text-gray-800 text-lg font-medium mb-1">No campaigns yet</p>
               <p className="text-gray-500 text-sm mb-4 text-center">Create your first marketing campaign</p>
-              <a
-                href="/dashboard-v2/inspirations"
+              <button
+                onClick={handleCloneAd}
                 className="px-4 py-2 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
               >
                 <Add size={16} />
                 Create Campaign
-              </a>
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
