@@ -312,17 +312,64 @@ const platformOptions = ["All", "Meta", "TikTok"];
 const statusOptions = ["All", "Active", "Inactive"];
 const sortOptions = ["Newest", "Oldest", "Most Popular"];
 
-const hookCategories = [
-  { id: 1, hook: '"I just got ___ and you need to get this for ___."', videoCount: 128, color: "bg-green-500" },
-  { id: 2, hook: '"If you want ___, you need to ___."', videoCount: 93, color: "bg-blue-500" },
-  { id: 3, hook: '"Hey sweetie, you ready to go? What did you get me?"', videoCount: 87, color: "bg-yellow-500" },
-  { id: 4, hook: '"This might be controversial, but here are three reasons why you should not buy [product]."', videoCount: 79, color: "bg-red-500" },
-  { id: 5, hook: '"Early Black Friday sale. Buy two, get two free."', videoCount: 78, color: "bg-purple-500" },
-  { id: 6, hook: '"Hey guys, I\'m [Name]. [Engaging statement or question related to the topic]."', videoCount: 76, color: "bg-orange-500" },
-  { id: 7, hook: '"Looking for a ___ that ___?"', videoCount: 65, color: "bg-teal-500" },
-  { id: 8, hook: '"Neat earrings you ___ out. This is the piece that no one else knows about. It\'s our ___ and the..."', videoCount: 62, color: "bg-pink-500" },
-  { id: 9, hook: '"Seriously, what was ___? ___ for you."', videoCount: 58, color: "bg-indigo-500" },
-];
+const getHooksForAd = (ad: Ad): string[] => {
+  const productName = ad.productName;
+  const niche = ad.niche;
+  
+  const hookTemplates: Record<string, string[]> = {
+    "Beauty & Personal Care": [
+      `"I just got this ${productName} and you need to get this for yourself."`,
+      `"If you want flawless skin, you need to try this."`,
+      `"Hey sweetie, you ready to go? What did you get me?" *shows ${productName}*`,
+    ],
+    "Fashion & Apparel": [
+      `"Looking for activewear that actually performs?"`,
+      `"This might be controversial, but here are three reasons why you should not buy cheap ${productName}."`,
+      `"I just got this ${productName} and you need to get this for the gym."`,
+    ],
+    "Health & Wellness": [
+      `"If you want to transform your health, you need to try this."`,
+      `"Hey guys, I'm sharing my fitness journey with this ${productName}."`,
+      `"Seriously, what was I doing before this? Life-changing for you."`,
+    ],
+    "Jewelry & Accessories": [
+      `"Neat ${productName} you'll want to check out. This is the piece that no one else knows about."`,
+      `"Looking for a bag that's both stylish and practical?"`,
+      `"Hey sweetie, you ready to go? What did you get me?" *reveals ${productName}*`,
+    ],
+    "Food & Beverages": [
+      `"I just got this ${productName} and you need to get this for your morning routine."`,
+      `"If you want the perfect cup, you need to try this."`,
+      `"Seriously, what was I drinking before? Game-changer for you."`,
+    ],
+    "Home & Living": [
+      `"Looking for bedding that feels like a cloud?"`,
+      `"I just got this ${productName} and you need to get this for your home."`,
+      `"This might be controversial, but here are three reasons why you should invest in quality ${productName}."`,
+    ],
+    "Tech & Electronics": [
+      `"If you want crystal-clear audio, you need to try this."`,
+      `"I just got these ${productName} and you need to get this for yourself."`,
+      `"Seriously, what was I using before? These are next level."`,
+    ],
+    "Sports & Outdoors": [
+      `"Looking for gear that can keep up with you?"`,
+      `"I just got this ${productName} and you need to get this for your next adventure."`,
+      `"If you want to level up your game, you need to try this."`,
+    ],
+    "Baby & Kids": [
+      `"Hey parents! Looking for something your little one will love?"`,
+      `"I just got this ${productName} and you need to get this for your family."`,
+      `"This might be controversial, but here are three reasons why every parent needs this."`,
+    ],
+  };
+
+  return hookTemplates[niche] || [
+    `"I just got this ${productName} and you need to get this for yourself."`,
+    `"If you want the best, you need to try this."`,
+    `"Looking for a ${productName} that actually delivers?"`,
+  ];
+};
 
 export default function CompetitorAds() {
   const [activeTab, setActiveTab] = useState<"explore" | "besthooks">("explore");
@@ -621,29 +668,78 @@ export default function CompetitorAds() {
       </div>
 
       {activeTab === "besthooks" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {hookCategories.map((category) => (
-            <div
-              key={category.id}
-              className="bg-[#1A1A2E] rounded-xl p-4 cursor-pointer hover:bg-[#252542] transition-colors"
+        filteredAds.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <p className="text-gray-dark text-lg mb-2">No ads found</p>
+            <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-purple-normal text-white rounded-xl text-sm font-medium hover:bg-purple-dark transition-colors"
             >
-              <div className="flex items-start gap-3">
-                <span className={`${category.color} text-white text-xs font-bold w-6 h-6 rounded flex items-center justify-center flex-shrink-0`}>
-                  {category.id}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium leading-relaxed mb-2">
-                    {category.hook}
-                  </p>
-                  <div className="flex items-center gap-1 text-gray-400 text-xs">
-                    <Video size={12} />
-                    <span>{category.videoCount} videos</span>
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredAds.map((ad) => {
+              const hooks = getHooksForAd(ad);
+              return (
+                <div key={ad.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-square">
+                    {ad.previewType === "video" ? (
+                      <video
+                        src={ad.previewUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                    ) : (
+                      <img src={ad.previewUrl} alt={ad.productName} className="w-full h-full object-cover" />
+                    )}
+                    <div className="absolute top-2 left-2 bg-purple-normal text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                      <Video size={10} />
+                      Best Hook
+                    </div>
+                    {ad.adScore >= 85 && (
+                      <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                        🔥 Winning Ad
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-normal to-purple-dark flex items-center justify-center text-white text-[10px] font-bold">
+                        {ad.brand.charAt(0)}
+                      </div>
+                      <span className="text-sm font-medium text-purple-dark truncate">{ad.brand}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-[#F3EFF6] text-gray-dark rounded capitalize">{ad.platform}</span>
+                    </div>
+                    <div className="bg-[#1A1A2E] rounded-lg p-3 mb-2">
+                      <p className="text-white text-xs font-medium leading-relaxed">
+                        {hooks[0]}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-dark">{ad.niche}</span>
+                      <button
+                        onClick={() => toggleSaveAd(ad.id)}
+                        className="p-1 hover:bg-[#F3EFF6] rounded-full transition-colors"
+                      >
+                        <Heart size={14} variant={ad.saved ? "Bold" : "Linear"} className={ad.saved ? "text-red-500" : "text-gray-dark"} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )
       ) : filteredAds.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-gray-dark text-lg mb-2">No ads found</p>
