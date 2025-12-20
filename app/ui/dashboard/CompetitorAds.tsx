@@ -1,8 +1,111 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video } from "iconsax-react";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video, Gift, Calendar } from "iconsax-react";
 import ConnectStore from "../modals/ConnectStore";
+
+type SeasonalCampaign = {
+  id: number;
+  title: string;
+  description: string;
+  previewType: "video" | "image";
+  previewUrl: string;
+  season: string;
+  category: string;
+  suggestedHook: string;
+  targetAudience: string;
+};
+
+const getSeasonalCampaigns = (): SeasonalCampaign[] => {
+  const now = new Date();
+  const month = now.getMonth();
+  const day = now.getDate();
+
+  if (month === 11 || (month === 0 && day <= 5)) {
+    return [
+      {
+        id: 1,
+        title: "Holiday Gift Guide",
+        description: "Showcase your products as perfect holiday gifts with festive visuals and gift-wrapping themes",
+        previewType: "video",
+        previewUrl: "https://videos.pexels.com/video-files/5765191/5765191-uhd_2160_3840_25fps.mp4",
+        season: "Christmas",
+        category: "Gift Ideas",
+        suggestedHook: "Looking for the perfect gift? Here's what everyone's asking for this Christmas!",
+        targetAudience: "Gift shoppers, last-minute buyers"
+      },
+      {
+        id: 2,
+        title: "Christmas Sale Countdown",
+        description: "Create urgency with countdown timers and limited-time holiday discounts",
+        previewType: "image",
+        previewUrl: "https://images.pexels.com/photos/3303614/pexels-photo-3303614.jpeg?auto=compress&cs=tinysrgb&w=800",
+        season: "Christmas",
+        category: "Sales & Promotions",
+        suggestedHook: "Our biggest Christmas sale ends in 48 hours! Don't miss out!",
+        targetAudience: "Deal seekers, bargain hunters"
+      },
+      {
+        id: 3,
+        title: "Cozy Winter Vibes",
+        description: "Highlight comfort products with warm, cozy winter aesthetics",
+        previewType: "video",
+        previewUrl: "https://videos.pexels.com/video-files/5765146/5765146-uhd_2160_3840_25fps.mp4",
+        season: "Christmas",
+        category: "Lifestyle",
+        suggestedHook: "There's nothing like getting cozy this holiday season with...",
+        targetAudience: "Home lovers, comfort seekers"
+      },
+      {
+        id: 4,
+        title: "New Year Resolution Ready",
+        description: "Position products as essential for New Year goals and fresh starts",
+        previewType: "image",
+        previewUrl: "https://images.pexels.com/photos/6479601/pexels-photo-6479601.jpeg?auto=compress&cs=tinysrgb&w=800",
+        season: "Christmas",
+        category: "New Year",
+        suggestedHook: "Start 2025 right with these must-haves for your new year goals!",
+        targetAudience: "Goal setters, self-improvement focused"
+      },
+      {
+        id: 5,
+        title: "Family Moments",
+        description: "Capture the spirit of family gatherings and togetherness",
+        previewType: "video",
+        previewUrl: "https://videos.pexels.com/video-files/5737549/5737549-uhd_2160_3840_25fps.mp4",
+        season: "Christmas",
+        category: "Family",
+        suggestedHook: "This holiday season, make memories that last with...",
+        targetAudience: "Families, parents, grandparents"
+      },
+      {
+        id: 6,
+        title: "Stocking Stuffers",
+        description: "Promote affordable, giftable products perfect for stockings",
+        previewType: "image",
+        previewUrl: "https://images.pexels.com/photos/5765147/pexels-photo-5765147.jpeg?auto=compress&cs=tinysrgb&w=800",
+        season: "Christmas",
+        category: "Gift Ideas",
+        suggestedHook: "These stocking stuffers under $25 are flying off the shelves!",
+        targetAudience: "Budget-conscious shoppers"
+      },
+    ];
+  }
+  
+  return [
+    {
+      id: 1,
+      title: "Winter Essentials",
+      description: "Showcase must-have products for the winter season",
+      previewType: "image",
+      previewUrl: "https://images.pexels.com/photos/5765147/pexels-photo-5765147.jpeg?auto=compress&cs=tinysrgb&w=800",
+      season: "Winter",
+      category: "Seasonal",
+      suggestedHook: "Beat the cold with these winter must-haves!",
+      targetAudience: "Winter shoppers"
+    },
+  ];
+};
 
 type Ad = {
   id: number;
@@ -482,7 +585,7 @@ type CompetitorAdsProps = {
 };
 
 export default function CompetitorAds({ limit, showViewAllButton = false }: CompetitorAdsProps) {
-  const [activeTab, setActiveTab] = useState<"explore" | "besthooks">("explore");
+  const [activeTab, setActiveTab] = useState<"explore" | "besthooks" | "seasonal">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -682,6 +785,17 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
           >
             Best Hooks
           </button>
+          <button
+            onClick={() => setActiveTab("seasonal")}
+            className={`text-sm font-medium pb-1 border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === "seasonal"
+                ? "text-purple-dark border-purple-normal"
+                : "text-gray-dark border-transparent hover:text-purple-dark"
+            }`}
+          >
+            <Gift size={14} />
+            Seasonal
+          </button>
         </div>
 
         {showBanner && (
@@ -813,7 +927,105 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         </div>
       </div>
 
-      {activeTab === "besthooks" ? (
+      {activeTab === "seasonal" ? (
+        (() => {
+          const seasonalCampaigns = getSeasonalCampaigns();
+          const currentSeason = seasonalCampaigns[0]?.season || "Winter";
+          return (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-red-500 to-green-600 rounded-2xl p-6 text-white">
+                <div className="flex items-center gap-3 mb-3">
+                  <Gift size={28} />
+                  <div>
+                    <h3 className="text-xl font-bold">{currentSeason} Campaign Ideas</h3>
+                    <p className="text-white/80 text-sm">Trending templates for the holiday season</p>
+                  </div>
+                </div>
+                <p className="text-white/90 text-sm">
+                  These campaign templates are optimized for the current season. Use them as inspiration to create timely, relevant ads that resonate with your audience.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {seasonalCampaigns.map((campaign) => (
+                  <div key={campaign.id} className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group">
+                    <div className="relative h-[250px]">
+                      {campaign.previewType === "video" ? (
+                        <>
+                          <video
+                            src={campaign.previewUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            playsInline
+                            onMouseEnter={(e) => e.currentTarget.play()}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.pause();
+                              e.currentTarget.currentTime = 0;
+                            }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none group-hover:opacity-0 transition-opacity">
+                            <div className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
+                              <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-purple-dark ml-1"></div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <img
+                          src={campaign.previewUrl}
+                          alt={campaign.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      <div className="absolute top-2 left-2 flex items-center gap-2">
+                        <span className={`text-[10px] font-medium px-2 py-1 rounded-full ${
+                          campaign.previewType === "video" 
+                            ? "bg-purple-500 text-white" 
+                            : "bg-blue-500 text-white"
+                        }`}>
+                          {campaign.previewType === "video" ? <Video size={10} className="inline mr-1" /> : null}
+                          {campaign.previewType}
+                        </span>
+                        <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-red-500 text-white flex items-center gap-1">
+                          <Gift size={10} />
+                          {campaign.season}
+                        </span>
+                      </div>
+                      <div className="absolute top-2 right-2">
+                        <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-green-500 text-white">
+                          {campaign.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h4 className="text-purple-dark font-semibold mb-1">{campaign.title}</h4>
+                      <p className="text-gray-dark text-xs mb-3 line-clamp-2">{campaign.description}</p>
+                      
+                      <div className="bg-[#1A1A2E] rounded-lg p-3 mb-3">
+                        <p className="text-[10px] text-gray-400 mb-1">Suggested Hook:</p>
+                        <p className="text-white text-xs font-medium leading-relaxed">"{campaign.suggestedHook}"</p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-[10px] text-gray-500">Target:</span>
+                        <span className="text-[10px] text-purple-dark font-medium">{campaign.targetAudience}</span>
+                      </div>
+                      
+                      <button
+                        onClick={handleCloneAd}
+                        className="w-full py-2.5 gradient text-white text-sm rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 font-medium"
+                      >
+                        <Copy size={16} />
+                        Use This Template
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()
+      ) : activeTab === "besthooks" ? (
         (() => {
           const videoAdsWithHooks = filteredAds.filter((ad) => ad.previewType === "video" && ad.hook);
           return videoAdsWithHooks.length === 0 ? (
