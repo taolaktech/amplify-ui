@@ -8,24 +8,12 @@ import StepsV2 from "./StepsV2";
 function GettingStartedV2() {
   const [stepsComplete, setStepsComplete] = useState(false);
 
-  const firstName = "Unknown";
-
   const handleStartCampaign = () => {
     console.log("Start Campaign clicked");
   };
 
   return (
     <div className="flex flex-col gap-7">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-lg lg:text-2xl">
-            Welcome {firstName} 👋
-          </p>
-          <p className="text-sm lg:text-base">
-            Let's start growing your business.
-          </p>
-        </div>
-      </div>
       {!stepsComplete && (
         <div className="h-[280px] md:h-[320px] flex gap-2">
           <div className="w-[100%] h-full">
