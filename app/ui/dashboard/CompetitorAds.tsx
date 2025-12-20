@@ -808,6 +808,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         )}
       </div>
 
+      {activeTab === "explore" && (
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-shrink-0 w-full sm:w-[200px]">
@@ -926,6 +927,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
           </button>
         </div>
       </div>
+      )}
 
       {activeTab === "seasonal" ? (
         (() => {
