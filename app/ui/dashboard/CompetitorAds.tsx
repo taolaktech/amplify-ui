@@ -866,13 +866,28 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
                         "{ad.hook}"
                       </p>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] text-gray-dark">{ad.niche}</span>
                       <button
                         onClick={() => toggleSaveAd(ad.id)}
                         className="p-1 hover:bg-[#F3EFF6] rounded-full transition-colors"
                       >
                         <Heart size={14} variant={ad.saved ? "Bold" : "Linear"} className={ad.saved ? "text-red-500" : "text-gray-dark"} />
+                      </button>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        className="w-full py-2 bg-[#F3EFF6] text-purple-dark text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1.5 font-medium"
+                      >
+                        <Eye size={14} />
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => window.location.href = "/create-campaign/campaign-snapshots"}
+                        className="w-full py-2 gradient text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
+                      >
+                        <Copy size={14} />
+                        Clone this video ad
                       </button>
                     </div>
                   </div>
@@ -1360,7 +1375,7 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
             className="w-full py-2.5 bg-[#F3EFF6] text-purple-dark text-sm rounded-xl hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-2 font-medium"
           >
             <Eye size={16} />
-            View insights
+            View Details
           </button>
           <button
             onClick={handleClone}
