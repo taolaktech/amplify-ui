@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle } from "iconsax-react";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2, InfoCircle, Video } from "iconsax-react";
 
 type Ad = {
   id: number;
@@ -312,8 +312,20 @@ const platformOptions = ["All", "Meta", "TikTok"];
 const statusOptions = ["All", "Active", "Inactive"];
 const sortOptions = ["Newest", "Oldest", "Most Popular"];
 
+const hookCategories = [
+  { id: 1, hook: '"I just got ___ and you need to get this for ___."', videoCount: 128, color: "bg-green-500" },
+  { id: 2, hook: '"If you want ___, you need to ___."', videoCount: 93, color: "bg-blue-500" },
+  { id: 3, hook: '"Hey sweetie, you ready to go? What did you get me?"', videoCount: 87, color: "bg-yellow-500" },
+  { id: 4, hook: '"This might be controversial, but here are three reasons why you should not buy [product]."', videoCount: 79, color: "bg-red-500" },
+  { id: 5, hook: '"Early Black Friday sale. Buy two, get two free."', videoCount: 78, color: "bg-purple-500" },
+  { id: 6, hook: '"Hey guys, I\'m [Name]. [Engaging statement or question related to the topic]."', videoCount: 76, color: "bg-orange-500" },
+  { id: 7, hook: '"Looking for a ___ that ___?"', videoCount: 65, color: "bg-teal-500" },
+  { id: 8, hook: '"Neat earrings you ___ out. This is the piece that no one else knows about. It\'s our ___ and the..."', videoCount: 62, color: "bg-pink-500" },
+  { id: 9, hook: '"Seriously, what was ___? ___ for you."', videoCount: 58, color: "bg-indigo-500" },
+];
+
 export default function CompetitorAds() {
-  const [activeTab, setActiveTab] = useState<"explore" | "foryou">("explore");
+  const [activeTab, setActiveTab] = useState<"explore" | "besthooks" | "foryou">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -488,6 +500,16 @@ export default function CompetitorAds() {
             Explore
           </button>
           <button
+            onClick={() => setActiveTab("besthooks")}
+            className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
+              activeTab === "besthooks"
+                ? "text-purple-dark border-purple-normal"
+                : "text-gray-dark border-transparent hover:text-purple-dark"
+            }`}
+          >
+            Best Hooks
+          </button>
+          <button
             onClick={() => setActiveTab("foryou")}
             className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
               activeTab === "foryou"
@@ -612,7 +634,31 @@ export default function CompetitorAds() {
         </div>
       </div>
 
-      {filteredAds.length === 0 ? (
+      {activeTab === "besthooks" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {hookCategories.map((category) => (
+            <div
+              key={category.id}
+              className="bg-[#1A1A2E] rounded-xl p-4 cursor-pointer hover:bg-[#252542] transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <span className={`${category.color} text-white text-xs font-bold w-6 h-6 rounded flex items-center justify-center flex-shrink-0`}>
+                  {category.id}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium leading-relaxed mb-2">
+                    {category.hook}
+                  </p>
+                  <div className="flex items-center gap-1 text-gray-400 text-xs">
+                    <Video size={12} />
+                    <span>{category.videoCount} videos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredAds.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-gray-dark text-lg mb-2">No ads found</p>
           <p className="text-gray-light text-sm mb-4">Try adjusting your filters or search query</p>
