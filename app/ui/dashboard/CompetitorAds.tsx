@@ -1298,7 +1298,7 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
 
         <p className="px-3 text-gray-dark text-xs line-clamp-2 mb-2">{ad.headline}</p>
 
-        <div className="relative flex-1 min-h-[200px] bg-[#F3EFF6] mx-3 rounded-xl overflow-hidden cursor-pointer" onClick={() => setShowInsights(true)}>
+        <div className="relative h-[250px] bg-[#F3EFF6] mx-3 rounded-xl overflow-hidden cursor-pointer" onClick={() => setShowInsights(true)}>
           {ad.previewType === "image" ? (
             <img
               src={ad.previewUrl}
