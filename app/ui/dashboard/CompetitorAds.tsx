@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle } from "iconsax-react";
+import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2 } from "iconsax-react";
 
 type Ad = {
   id: number;
@@ -13,10 +13,95 @@ type Ad = {
   productName: string;
   cta: string;
   platform: "meta" | "tiktok";
-  industry: string;
+  niche: string;
+  subNiche: string;
   status: "active" | "inactive";
   saved: boolean;
 };
+
+type NicheCategory = {
+  name: string;
+  subNiches: string[];
+};
+
+const nicheCategories: NicheCategory[] = [
+  {
+    name: "Fashion & Apparel",
+    subNiches: ["Women's Clothing", "Men's Clothing", "Activewear & Athleisure", "Loungewear & Sleepwear", "Streetwear", "Modest Fashion", "Plus Size Apparel", "Kids & Baby Clothing", "Occasion Wear", "Sustainable Fashion"]
+  },
+  {
+    name: "Beauty & Personal Care",
+    subNiches: ["Skincare", "Haircare", "Makeup & Cosmetics", "Fragrances", "Men's Grooming", "Beauty Tools & Devices", "Natural & Organic Beauty", "K-Beauty", "Nail Care", "Beauty Subscriptions"]
+  },
+  {
+    name: "Health & Wellness",
+    subNiches: ["Supplements & Vitamins", "Fitness Accessories", "Yoga & Mindfulness", "Weight Loss Products", "Sleep Aids", "Recovery & Therapy Tools", "Mental Wellness Tools", "Women's Health", "Men's Health", "Holistic Health"]
+  },
+  {
+    name: "Jewelry & Accessories",
+    subNiches: ["Fine Jewelry", "Fashion Jewelry", "Watches", "Sunglasses", "Bags & Wallets", "Scarves & Belts", "Custom Jewelry", "Bridal Jewelry", "Men's Accessories"]
+  },
+  {
+    name: "Baby & Kids",
+    subNiches: ["Baby Gear", "Baby Care Products", "Educational Toys", "Kids Furniture", "Kids Apparel", "Baby Feeding", "Maternity Products", "Kids Safety", "Subscription Boxes"]
+  },
+  {
+    name: "Food & Beverages",
+    subNiches: ["Snacks & Treats", "Coffee & Tea", "Health Foods", "Supplement Drinks", "Gourmet Foods", "Cultural Foods", "Meal Kits", "Subscription Food Boxes"]
+  },
+  {
+    name: "Home & Living",
+    subNiches: ["Bedding & Mattresses", "Bath & Towels", "Kitchen Tools", "Home Fragrance", "Wall Art & Prints", "Storage Solutions", "Minimalist Home", "Eco Home Products"]
+  },
+  {
+    name: "Digital Products",
+    subNiches: ["Online Courses", "Templates", "E-books & Guides", "Presets & Filters", "Stock Assets", "Membership Communities", "SaaS Add-ons", "AI Tools & Prompts"]
+  },
+  {
+    name: "Hobbies & Lifestyle",
+    subNiches: ["Art Supplies", "Craft Kits", "Photography Gear", "Music Accessories", "Collectibles", "DIY Kits", "Gaming Accessories", "Board Games & Puzzles"]
+  },
+  {
+    name: "Luxury & Premium",
+    subNiches: ["Designer-inspired Goods", "Premium Home Goods", "Luxury Candles", "High-end Beauty", "Bespoke Products", "Limited Edition Drops"]
+  },
+  {
+    name: "Seasonal & Occasions",
+    subNiches: ["Holiday Decor", "Gift Boxes", "Wedding Products", "Party Supplies", "Corporate Gifting", "Back-to-School"]
+  },
+  {
+    name: "Sustainability & Impact",
+    subNiches: ["Zero-Waste Products", "Reusable Household", "Sustainable Fashion", "Ethical Beauty", "Carbon-Neutral Brands", "Refill Products"]
+  },
+  {
+    name: "B2B & Professional",
+    subNiches: ["Office Supplies", "Corporate Merch", "Branded Swag", "POS Accessories", "Restaurant Supplies", "Salon Supplies"]
+  },
+  {
+    name: "Home Improvement",
+    subNiches: ["Furniture", "Home Decor", "Lighting", "Smart Home Devices", "DIY Tools", "Paint & Wall Treatments", "Flooring & Rugs", "Storage & Organization", "Home Security", "Garden & Outdoor"]
+  },
+  {
+    name: "Household Products",
+    subNiches: ["Cleaning Supplies", "Laundry Products", "Kitchen Essentials", "Storage & Containers", "Paper Products", "Air Fresheners", "Pest Control", "Home Safety", "Eco-friendly Items"]
+  },
+  {
+    name: "Life Services",
+    subNiches: ["Personal Care Services", "Home Cleaning Services", "Moving & Storage", "Repair & Maintenance", "Wellness & Therapy", "Childcare Services", "Elder Care", "Event Services"]
+  },
+  {
+    name: "News & Entertainment",
+    subNiches: ["Streaming Services", "Digital Publications", "Magazines", "Gaming Content", "Podcasts", "Event Tickets", "Books & Audiobooks", "Music Platforms"]
+  },
+  {
+    name: "Sports & Outdoors",
+    subNiches: ["Fitness Equipment", "Sports Apparel", "Outdoor Gear", "Camping & Hiking", "Cycling", "Water Sports", "Team Sports Gear", "Hunting & Fishing", "Recovery Tools"]
+  },
+  {
+    name: "Tech & Electronics",
+    subNiches: ["Mobile Phones", "Phone Accessories", "Laptops & Computers", "Audio Equipment", "Wearables", "Smart Devices", "Gaming Consoles", "Tech Accessories"]
+  }
+];
 
 const mockAds: Ad[] = [
   {
@@ -30,7 +115,8 @@ const mockAds: Ad[] = [
     productName: "BURLEBO Baby Zip Ups",
     cta: "Shop Now",
     platform: "meta",
-    industry: "Fashion",
+    niche: "Fashion & Apparel",
+    subNiche: "Kids & Baby Clothing",
     status: "active",
     saved: false,
   },
@@ -45,7 +131,8 @@ const mockAds: Ad[] = [
     productName: "Could your living room or wardrob...",
     cta: "Learn More",
     platform: "meta",
-    industry: "Home & Garden",
+    niche: "Home & Living",
+    subNiche: "Bedding & Mattresses",
     status: "active",
     saved: true,
   },
@@ -60,7 +147,8 @@ const mockAds: Ad[] = [
     productName: "Discover Exclusive Deals at Luo's...",
     cta: "Learn More",
     platform: "tiktok",
-    industry: "Fashion",
+    niche: "Fashion & Apparel",
+    subNiche: "Women's Clothing",
     status: "active",
     saved: false,
   },
@@ -75,7 +163,8 @@ const mockAds: Ad[] = [
     productName: "Discover Unbeatable Deal...",
     cta: "Learn More",
     platform: "meta",
-    industry: "E-commerce",
+    niche: "Digital Products",
+    subNiche: "Online Courses",
     status: "inactive",
     saved: false,
   },
@@ -90,7 +179,8 @@ const mockAds: Ad[] = [
     productName: "BURLEBO Father & Son BURLEBO...",
     cta: "Shop Now",
     platform: "meta",
-    industry: "Fashion",
+    niche: "Fashion & Apparel",
+    subNiche: "Men's Clothing",
     status: "active",
     saved: true,
   },
@@ -105,7 +195,8 @@ const mockAds: Ad[] = [
     productName: "Ultimate Support Bra",
     cta: "Shop Now",
     platform: "tiktok",
-    industry: "Health & Beauty",
+    niche: "Beauty & Personal Care",
+    subNiche: "Women's Clothing",
     status: "active",
     saved: false,
   },
@@ -114,7 +205,6 @@ const mockAds: Ad[] = [
 const formatOptions = ["All", "Video", "Image"];
 const platformOptions = ["All", "Meta", "TikTok"];
 const statusOptions = ["All", "Active", "Inactive"];
-const industryOptions = ["All", "Fashion", "Home & Garden", "E-commerce", "Health & Beauty"];
 const sortOptions = ["Newest", "Oldest", "Most Popular"];
 
 export default function CompetitorAds() {
@@ -130,7 +220,8 @@ export default function CompetitorAds() {
     format: "All",
     platform: "All",
     status: "All",
-    industry: "All",
+    niche: "All",
+    subNiche: "All",
   });
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
@@ -144,12 +235,21 @@ export default function CompetitorAds() {
     setOpenFilter(null);
   };
 
+  const updateNicheFilter = (niche: string, subNiche?: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      niche: niche,
+      subNiche: subNiche || "All",
+    }));
+    setOpenFilter(null);
+  };
+
   const getActiveFilterCount = () => {
     let count = 0;
     if (filters.format !== "All") count++;
     if (filters.platform !== "All") count++;
     if (filters.status !== "All") count++;
-    if (filters.industry !== "All") count++;
+    if (filters.niche !== "All") count++;
     return count;
   };
 
@@ -178,8 +278,11 @@ export default function CompetitorAds() {
       result = result.filter((ad) => ad.status === filters.status.toLowerCase());
     }
 
-    if (filters.industry !== "All") {
-      result = result.filter((ad) => ad.industry === filters.industry);
+    if (filters.niche !== "All") {
+      result = result.filter((ad) => ad.niche === filters.niche);
+      if (filters.subNiche !== "All") {
+        result = result.filter((ad) => ad.subNiche === filters.subNiche);
+      }
     }
 
     if (showSavedOnly) {
@@ -208,7 +311,8 @@ export default function CompetitorAds() {
       format: "All",
       platform: "All",
       status: "All",
-      industry: "All",
+      niche: "All",
+      subNiche: "All",
     });
     setSearchQuery("");
     setShowSavedOnly(false);
@@ -294,13 +398,12 @@ export default function CompetitorAds() {
             onToggle={() => toggleFilter("status")}
             onSelect={(value) => updateFilter("status", value)}
           />
-          <FilterDropdown
-            label="Industry"
-            value={filters.industry}
-            options={industryOptions}
-            isOpen={openFilter === "industry"}
-            onToggle={() => toggleFilter("industry")}
-            onSelect={(value) => updateFilter("industry", value)}
+          <NicheDropdown
+            selectedNiche={filters.niche}
+            selectedSubNiche={filters.subNiche}
+            isOpen={openFilter === "niche"}
+            onToggle={() => toggleFilter("niche")}
+            onSelect={updateNicheFilter}
           />
           {getActiveFilterCount() > 0 && (
             <button
@@ -425,6 +528,106 @@ function FilterDropdown({
   );
 }
 
+function NicheDropdown({
+  selectedNiche,
+  selectedSubNiche,
+  isOpen,
+  onToggle,
+  onSelect,
+}: {
+  selectedNiche: string;
+  selectedSubNiche: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelect: (niche: string, subNiche?: string) => void;
+}) {
+  const [expandedNiche, setExpandedNiche] = useState<string | null>(null);
+  const isActive = selectedNiche !== "All";
+
+  const getDisplayLabel = () => {
+    if (selectedNiche === "All") return null;
+    if (selectedSubNiche !== "All") return selectedSubNiche;
+    return selectedNiche;
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className={`flex items-center gap-1 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+          isActive
+            ? "bg-[#F3EFF6] border-purple-normal text-purple-dark"
+            : "bg-white border-input-border text-gray-dark hover:border-purple-normal"
+        }`}
+      >
+        Niche
+        {isActive && <span className="text-purple-normal truncate max-w-[100px]">: {getDisplayLabel()}</span>}
+        <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-20 w-[280px] max-h-[400px] overflow-auto">
+          <button
+            onClick={() => onSelect("All")}
+            className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] rounded-t-xl flex items-center justify-between ${
+              selectedNiche === "All" ? "text-purple-normal font-medium" : "text-gray-dark"
+            }`}
+          >
+            All Niches
+            {selectedNiche === "All" && <TickCircle size={14} variant="Bold" />}
+          </button>
+          {nicheCategories.map((category, idx) => (
+            <div key={category.name} className={idx === nicheCategories.length - 1 ? "rounded-b-xl" : ""}>
+              <button
+                onClick={() => {
+                  if (expandedNiche === category.name) {
+                    setExpandedNiche(null);
+                  } else {
+                    setExpandedNiche(category.name);
+                  }
+                }}
+                className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] flex items-center justify-between ${
+                  selectedNiche === category.name ? "text-purple-normal font-medium" : "text-gray-dark"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  {category.name}
+                  <span className="text-[10px] text-gray-light">({category.subNiches.length})</span>
+                </span>
+                <ArrowRight2 size={12} className={`transition-transform ${expandedNiche === category.name ? "rotate-90" : ""}`} />
+              </button>
+              {expandedNiche === category.name && (
+                <div className="bg-[#FAFAFA]">
+                  <button
+                    onClick={() => onSelect(category.name)}
+                    className={`w-full pl-6 pr-3 py-1.5 text-left text-xs hover:bg-[#F3EFF6] flex items-center justify-between ${
+                      selectedNiche === category.name && selectedSubNiche === "All" ? "text-purple-normal font-medium" : "text-gray-dark"
+                    }`}
+                  >
+                    All {category.name}
+                    {selectedNiche === category.name && selectedSubNiche === "All" && <TickCircle size={12} variant="Bold" />}
+                  </button>
+                  {category.subNiches.map((subNiche) => (
+                    <button
+                      key={subNiche}
+                      onClick={() => onSelect(category.name, subNiche)}
+                      className={`w-full pl-6 pr-3 py-1.5 text-left text-xs hover:bg-[#F3EFF6] flex items-center justify-between ${
+                        selectedNiche === category.name && selectedSubNiche === subNiche ? "text-purple-normal font-medium" : "text-gray-dark"
+                      }`}
+                    >
+                      {subNiche}
+                      {selectedNiche === category.name && selectedSubNiche === subNiche && <TickCircle size={12} variant="Bold" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => void }) {
   const [showInsights, setShowInsights] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
@@ -525,7 +728,7 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
                 </div>
                 <div>
                   <h3 className="text-purple-dark font-semibold">{ad.brand}</h3>
-                  <p className="text-gray-dark text-xs">{ad.industry} • {ad.platform === "meta" ? "Meta" : "TikTok"}</p>
+                  <p className="text-gray-dark text-xs">{ad.subNiche} • {ad.platform === "meta" ? "Meta" : "TikTok"}</p>
                 </div>
               </div>
               <button onClick={() => setShowInsights(false)} className="text-gray-dark hover:text-purple-dark">
@@ -565,8 +768,12 @@ function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => vo
                   <p className="text-purple-dark font-medium text-sm">{ad.platform === "meta" ? "Meta" : "TikTok"}</p>
                 </div>
                 <div className="bg-[#F3EFF6] rounded-xl p-3">
-                  <p className="text-gray-dark text-xs mb-1">Industry</p>
-                  <p className="text-purple-dark font-medium text-sm">{ad.industry}</p>
+                  <p className="text-gray-dark text-xs mb-1">Niche</p>
+                  <p className="text-purple-dark font-medium text-sm">{ad.niche}</p>
+                </div>
+                <div className="bg-[#F3EFF6] rounded-xl p-3 col-span-2">
+                  <p className="text-gray-dark text-xs mb-1">Sub-Niche</p>
+                  <p className="text-purple-dark font-medium text-sm">{ad.subNiche}</p>
                 </div>
               </div>
 
