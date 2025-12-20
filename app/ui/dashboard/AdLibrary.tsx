@@ -8,7 +8,8 @@ const platformOptions = ["All", "Instagram", "Facebook"];
 const modelOptions = [
   "All",
   "No Model (Product Only)",
-  "Single Model",
+  "Single Model (Male)",
+  "Single Model (Female)",
   "Couple",
   "Group",
   "UGC-Style (Phone-shot)",
