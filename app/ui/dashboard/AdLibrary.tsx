@@ -26,6 +26,27 @@ const ethnicityOptions = [
   "Mixed / Multi-ethnic",
   "Indigenous",
 ];
+const creativeDirectionOptions = [
+  "All",
+  "Minimal / Clean",
+  "Lifestyle",
+  "Editorial",
+  "Studio",
+  "UGC / Authentic",
+  "Social Proof",
+  "Before & After",
+  "Problem → Solution",
+  "Flat Lay",
+  "Close-up / Detail",
+  "Comparison",
+  "Seasonal / Promo",
+  "Luxury / Premium",
+  "Bold / High-Contrast",
+  "Playful / Fun",
+  "Educational / How-to",
+  "Unboxing",
+  "Founder / Brand Story",
+];
 
 type NicheCategory = {
   name: string;
@@ -391,6 +412,7 @@ type FilterState = {
   subNiche: string;
   model: string;
   ethnicity: string;
+  creativeDirection: string;
 };
 
 const ITEMS_PER_PAGE = 12;
@@ -408,6 +430,7 @@ export default function AdLibrary() {
     subNiche: "All",
     model: "All",
     ethnicity: "All",
+    creativeDirection: "All",
   });
 
   useEffect(() => {
@@ -574,6 +597,14 @@ export default function AdLibrary() {
           isOpen={openFilter === "ethnicity"}
           onToggle={() => toggleFilter("ethnicity")}
           onSelect={(value) => updateFilter("ethnicity", value)}
+        />
+        <FilterDropdown
+          label="Creative Direction"
+          options={creativeDirectionOptions}
+          selected={filters.creativeDirection}
+          isOpen={openFilter === "creativeDirection"}
+          onToggle={() => toggleFilter("creativeDirection")}
+          onSelect={(value) => updateFilter("creativeDirection", value)}
         />
       </div>
 
