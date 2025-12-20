@@ -2,18 +2,18 @@
 
 export default function CampaignsV2Page() {
   return (
-    <main className="">
+    <div className="min-h-[calc(100vh-56px)] relative flex flex-col flex-shrink-0 lg:gap-6">
+      <div className="mb-3 lg:hidden font-semibold text-lg">Campaigns</div>
       <div className="flex flex-col gap-7">
-        <div>
-          <p className="font-semibold text-lg lg:text-2xl">Campaigns</p>
-          <p className="text-sm lg:text-base text-gray-600">
-            Manage your marketing campaigns.
-          </p>
+        <div className="flex w-full flex-col-reverse gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="font-medium tracking-150 text-sm lg:text-base">
+            Manage your marketing campaigns
+          </div>
         </div>
-        <div className="bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl">
+        <div className="bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl min-h-[300px]">
           <p className="text-gray-500">Campaigns content coming soon...</p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
