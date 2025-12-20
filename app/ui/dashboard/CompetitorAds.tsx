@@ -651,7 +651,7 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
         <button className="text-purple-dark hover:text-purple-normal transition-colors">
           <ArrowLeft2 size={20} />
         </button>
-        <h2 className="text-purple-dark font-semibold text-lg">Meta Top Ads</h2>
+        <h2 className="text-purple-dark font-semibold text-xl">Meta Top Ads</h2>
       </div>
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
