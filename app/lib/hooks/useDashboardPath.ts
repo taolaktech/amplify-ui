@@ -4,7 +4,7 @@ export const useDashboardPath = () => {
   const pathname = usePathname().trim().replace(/\/$/, "");
 
   const pathName1 = pathname.split("/")[1] ?? "";
-  const isDashboard = pathname === "/";
+  const isDashboard = pathname === "/" || pathname === "/dashboard-v2";
   const isDashboardRoot = pathname === "";
   const isInsights = pathName1.includes("insights");
   const isCampaigns = pathName1.includes("campaigns");
