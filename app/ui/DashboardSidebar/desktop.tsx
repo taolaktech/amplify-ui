@@ -26,7 +26,11 @@ import SettingsIcon from "@/public/setting-2.svg";
 import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
+import { Version2SideBar } from "../Version2Nav";
 import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
+import { Code } from "iconsax-react";
+import CodeGradient from "@/public/code-gradient.svg";
+
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
@@ -46,6 +50,12 @@ type DesktopSideBarProps = {
   toggleIsCompanyTabOpen: () => void;
   toggleIsSettingTabOpen: () => void;
   handleCreateCampaign: () => void;
+  isVersion2: boolean;
+  isDashboardV2: boolean;
+  isInspirationsV2: boolean;
+  isCampaignsV2: boolean;
+  isVersion2TabOpen: boolean;
+  toggleIsVersion2TabOpen: () => void;
 };
 
 export default function DesktopSideBar({
@@ -65,6 +75,12 @@ export default function DesktopSideBar({
   isSettingTabOpen,
   handleCreateCampaign,
   toggleIsCompanyTabOpen,
+  isVersion2,
+  isDashboardV2,
+  isInspirationsV2,
+  isCampaignsV2,
+  isVersion2TabOpen,
+  toggleIsVersion2TabOpen,
 }: DesktopSideBarProps) {
   // const router = useRouter();
   const { navigateToCampaignPage } = useCampaignPageActions();
@@ -265,6 +281,49 @@ export default function DesktopSideBar({
                 isSidebarOpen={isSidebarOpen}
                 isIntegrations={isIntegrations}
                 isPricing={isPricing}
+              />
+            </li>
+            <li>
+              <span
+                onClick={toggleIsVersion2TabOpen}
+                className={`flex items-center px-4 rounded-xl justify-between 
+                ${
+                  isVersion2
+                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
+                    : "hover:bg-[#fdfcfd]"
+                }
+                `}
+              >
+                <span
+                  className={`flex items-center
+                ${
+                  isSidebarOpen ? "" : "justify-center"
+                }  gap-2 w-full  h-[48px] cursor-pointer `}
+                >
+                  <span>
+                    {!isVersion2 && <Code size="24" color="#BFBFBF" />}
+                    {isVersion2 && <Code size="24" color="#7C3AED" />}
+                  </span>
+                  {isSidebarOpen && (
+                    <div className="flex items-center gap-2 justify-between">
+                      <span
+                        className={`text-sm font-medium ${
+                          isVersion2 ? "text-heading" : "text-gray-dark"
+                        }`}
+                      >
+                        Version 2
+                      </span>
+                    </div>
+                  )}
+                </span>
+                {isSidebarOpen && <SelectArrow isOpen={isVersion2TabOpen} />}
+              </span>
+              <Version2SideBar
+                on={isVersion2TabOpen}
+                isSidebarOpen={isSidebarOpen}
+                isDashboardV2={isDashboardV2}
+                isInspirationsV2={isInspirationsV2}
+                isCampaignsV2={isCampaignsV2}
               />
             </li>
             {/* <li className="">

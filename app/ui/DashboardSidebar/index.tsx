@@ -9,7 +9,6 @@ import { useDashboardPath } from "@/app/lib/hooks/useDashboardPath";
 import DesktopSideBar from "./desktop";
 import MobileSideBar from "./mobile";
 import { useCampaignsActions } from "@/app/lib/hooks/campaigns";
-// import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function DashboardSideBar() {
   const logout = useAuthStore((state) => state.logout);
@@ -30,11 +29,16 @@ export default function DashboardSideBar() {
     isIntegrations,
     isDashboardRoot,
     isStoreDetails,
+    isVersion2,
+    isDashboardV2,
+    isInspirationsV2,
+    isCampaignsV2,
   } = useDashboardPath();
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isSettingTabOpen, setIsSettingTabOpen] = useState(false);
   const [isCompanyTabOpen, setIsCompanyTabOpen] = useState(false);
+  const [isVersion2TabOpen, setIsVersion2TabOpen] = useState(false);
 
   // const marketingGoals = useSetupStore((state) => state.marketingGoals);
 
@@ -57,6 +61,13 @@ export default function DashboardSideBar() {
   const toggleIsCompanyOpen = () => {
     setIsCompanyTabOpen((prev) => !prev);
     setIsSettingTabOpen(false);
+    setIsVersion2TabOpen(false);
+  };
+
+  const toggleIsVersion2Open = () => {
+    setIsVersion2TabOpen((prev) => !prev);
+    setIsSettingTabOpen(false);
+    setIsCompanyTabOpen(false);
   };
 
   const handleToggleSidebar = () => {
@@ -96,6 +107,12 @@ export default function DashboardSideBar() {
           toggleIsCompanyTabOpen={toggleIsCompanyOpen}
           isCompanyTabOpen={isCompanyTabOpen}
           handleCreateCampaign={handleCreateCampaign}
+          isVersion2={isVersion2}
+          isDashboardV2={isDashboardV2}
+          isInspirationsV2={isInspirationsV2}
+          isCampaignsV2={isCampaignsV2}
+          isVersion2TabOpen={isVersion2TabOpen}
+          toggleIsVersion2TabOpen={toggleIsVersion2Open}
         />
       )}
       {isSmallScreen && (
