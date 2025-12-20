@@ -632,7 +632,7 @@ export default function AdLibrary() {
                   className="flex-1 py-2 gradient text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
                 >
                   <Copy size={14} />
-                  Use Template
+                  {activeTab === "ai" ? "Use this Model" : "Use Template"}
                 </button>
               </div>
             </div>
