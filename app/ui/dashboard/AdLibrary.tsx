@@ -598,7 +598,24 @@ export default function AdLibrary() {
             key={ad.id}
             className="bg-white border border-[#F3EFF6] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
-            <div className="relative h-[250px]">
+            <div className="p-4 pb-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full gradient flex items-center justify-center text-white text-xs font-bold">
+                    {ad.title.charAt(0)}
+                  </div>
+                  <span className="text-purple-dark font-semibold text-sm">{ad.title}</span>
+                </div>
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-600">
+                  {ad.style}
+                </span>
+              </div>
+              <p className="text-gray-500 text-xs line-clamp-2 mb-2">
+                {ad.description}
+              </p>
+            </div>
+            
+            <div className="relative h-[220px] mx-4 rounded-xl overflow-hidden">
               {ad.previewType === "video" ? (
                 <>
                   <video
@@ -614,8 +631,8 @@ export default function AdLibrary() {
                     }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none group-hover:opacity-0 transition-opacity">
-                    <div className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
-                      <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-purple-dark ml-1"></div>
+                    <div className="w-12 h-12 rounded-full bg-white/95 flex items-center justify-center shadow-xl border-2 border-white">
+                      <div className="w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-l-[12px] border-l-purple-dark ml-1"></div>
                     </div>
                   </div>
                 </>
@@ -626,25 +643,14 @@ export default function AdLibrary() {
                   className="w-full h-full object-cover"
                 />
               )}
-              <div className="absolute top-2 left-2 flex items-center gap-2">
-                <span
-                  className={`text-[10px] font-medium px-2 py-1 rounded-full ${
-                    ad.previewType === "video"
-                      ? "bg-purple-500 text-white"
-                      : "bg-blue-500 text-white"
-                  }`}
-                >
-                  {ad.previewType === "video" ? (
-                    <Video size={10} className="inline mr-1" />
-                  ) : (
-                    <ImageIcon size={10} className="inline mr-1" />
-                  )}
-                  {ad.previewType}
-                </span>
-              </div>
               <div className="absolute top-2 right-2">
                 <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-green-500 text-white">
-                  {ad.category}
+                  Active
+                </span>
+              </div>
+              <div className="absolute bottom-2 left-2">
+                <span className="text-[10px] font-medium px-2 py-1 rounded-md bg-black/60 text-white backdrop-blur-sm">
+                  Ad Score: {75 + (ad.id % 20)}
                 </span>
               </div>
               <button
@@ -652,35 +658,35 @@ export default function AdLibrary() {
                 className="absolute bottom-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
               >
                 <Heart
-                  size={16}
+                  size={14}
                   variant={savedAds.includes(ad.id) ? "Bold" : "Linear"}
                   className={savedAds.includes(ad.id) ? "text-red-500" : "text-gray-600"}
                 />
               </button>
             </div>
-            <div className="p-4">
-              <h4 className="text-purple-dark font-semibold mb-1">{ad.title}</h4>
-              <p className="text-gray-dark text-xs mb-3 line-clamp-2">
-                {ad.description}
-              </p>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-[10px] px-2 py-1 bg-[#F3EFF6] text-gray-600 rounded-full">
-                  {ad.style}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="flex-1 py-2 bg-[#F3EFF6] text-purple-dark text-xs rounded-lg hover:bg-[#E6DCF0] transition-colors flex items-center justify-center gap-1.5 font-medium">
-                  <Eye size={14} />
-                  Preview
-                </button>
-                <button
-                  onClick={handleCloneAd}
-                  className="flex-1 py-2 gradient text-white text-xs rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
-                >
-                  <Copy size={14} />
-                  {activeTab === "ai" ? "Use this Model" : "Use Template"}
+            
+            <div className="p-4 pt-3">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-gray-400 text-[10px]">www.template.shop</p>
+                  <p className="text-purple-dark text-xs font-medium">{ad.category}</p>
+                </div>
+                <button className="text-[10px] font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                  Shop Now
                 </button>
               </div>
+              
+              <button className="w-full py-2.5 bg-white border border-[#E6DCF0] text-purple-dark text-xs rounded-full hover:bg-[#F3EFF6] transition-colors flex items-center justify-center gap-1.5 font-medium mb-2">
+                <Eye size={14} />
+                View Details
+              </button>
+              <button
+                onClick={handleCloneAd}
+                className="w-full py-2.5 gradient text-white text-xs rounded-full hover:opacity-90 transition-all flex items-center justify-center gap-1.5 font-medium"
+              >
+                <Copy size={14} />
+                {activeTab === "ai" ? "Use this Model" : "Clone this ad"}
+              </button>
             </div>
           </div>
         ))}
