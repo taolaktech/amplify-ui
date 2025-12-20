@@ -509,19 +509,62 @@ export default function CompetitorAds() {
         )}
       </div>
 
-      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
-        <div className="relative flex-shrink-0 w-full lg:w-[200px]">
-          <SearchNormal1 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-dark" />
-          <input
-            type="text"
-            placeholder="Search brands, ads..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-input-border rounded-xl pl-9 pr-3 py-2 text-sm text-purple-dark placeholder-gray-dark focus:outline-none focus:border-purple-normal"
-          />
+      <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-shrink-0 w-full sm:w-[200px]">
+            <SearchNormal1 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-dark" />
+            <input
+              type="text"
+              placeholder="Search brands, ads..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-input-border rounded-xl pl-9 pr-3 py-2 text-sm text-purple-dark placeholder-gray-dark focus:outline-none focus:border-purple-normal"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 sm:ml-auto">
+            <div className="relative">
+              <button
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex items-center gap-1 text-sm text-gray-dark hover:text-purple-dark whitespace-nowrap"
+              >
+                <span>Sort: {sortBy}</span>
+                <ArrowDown2 size={12} />
+              </button>
+              {showSortDropdown && (
+                <div className="absolute right-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 min-w-[120px]">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => {
+                        setSortBy(option);
+                        setShowSortDropdown(false);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] first:rounded-t-xl last:rounded-b-xl ${
+                        sortBy === option ? "text-purple-normal font-medium" : "text-gray-dark"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setShowSavedOnly(!showSavedOnly)}
+              className={`flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap ${
+                showSavedOnly ? "text-purple-normal" : "text-gray-dark hover:text-purple-dark"
+              }`}
+            >
+              <Heart size={16} variant={showSavedOnly ? "Bold" : "Linear"} />
+              <span className="hidden xs:inline">Saved ads</span>
+              <span className="xs:hidden">Saved</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 flex-1">
+        <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
+          <div className="flex items-center gap-2 min-w-max lg:flex-wrap">
           <FilterDropdown
             label="Format"
             value={filters.format}
@@ -553,59 +596,21 @@ export default function CompetitorAds() {
             onToggle={() => toggleFilter("niche")}
             onSelect={updateNicheFilter}
           />
-          <AdRankDropdown
+          <AdScoreDropdown
             range={adRankRange}
-            isOpen={openFilter === "adRank"}
-            onToggle={() => toggleFilter("adRank")}
+            isOpen={openFilter === "adScore"}
+            onToggle={() => toggleFilter("adScore")}
             onRangeChange={setAdRankRange}
           />
           {getActiveFilterCount() > 0 && (
             <button
               onClick={clearFilters}
-              className="px-3 py-1.5 text-sm text-purple-normal hover:text-purple-dark font-medium"
+              className="px-3 py-1.5 text-sm text-purple-normal hover:text-purple-dark font-medium whitespace-nowrap"
             >
               Clear all
             </button>
           )}
-        </div>
-
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="relative">
-            <button
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="flex items-center gap-1 text-sm text-gray-dark hover:text-purple-dark"
-            >
-              <span>Sort: {sortBy}</span>
-              <ArrowDown2 size={12} />
-            </button>
-            {showSortDropdown && (
-              <div className="absolute right-0 top-full mt-1 bg-white border border-[#F3EFF6] rounded-xl shadow-lg z-10 min-w-[120px]">
-                {sortOptions.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setSortBy(option);
-                      setShowSortDropdown(false);
-                    }}
-                    className={`w-full px-3 py-2 text-left text-sm hover:bg-[#F3EFF6] first:rounded-t-xl last:rounded-b-xl ${
-                      sortBy === option ? "text-purple-normal font-medium" : "text-gray-dark"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
-          <button
-            onClick={() => setShowSavedOnly(!showSavedOnly)}
-            className={`flex items-center gap-1 text-sm font-medium transition-colors ${
-              showSavedOnly ? "text-purple-normal" : "text-gray-dark hover:text-purple-dark"
-            }`}
-          >
-            <Heart size={16} variant={showSavedOnly ? "Bold" : "Linear"} />
-            Saved ads
-          </button>
         </div>
       </div>
 
@@ -782,7 +787,7 @@ function NicheDropdown({
   );
 }
 
-function AdRankDropdown({
+function AdScoreDropdown({
   range,
   isOpen,
   onToggle,
@@ -793,6 +798,7 @@ function AdRankDropdown({
   onToggle: () => void;
   onRangeChange: (range: [number, number]) => void;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const isActive = range[0] !== 0 || range[1] !== 100;
 
   return (
@@ -805,7 +811,26 @@ function AdRankDropdown({
             : "bg-white border-input-border text-gray-dark hover:border-purple-normal"
         }`}
       >
-        Ad Rank
+        Ad Score
+        <div className="relative">
+          <InfoCircle 
+            size={12} 
+            className="text-gray-light cursor-help"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowTooltip(!showTooltip);
+            }}
+          />
+          {showTooltip && (
+            <div 
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[200px] p-2 bg-purple-dark text-white text-[10px] rounded-lg shadow-lg z-30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Ad Score estimates how likely an ad is to perform well based on real advertiser behavior, longevity, creative reuse, scale, and conversion intent
+              <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-dark"></div>
+            </div>
+          )}
+        </div>
         {isActive && <span className="text-purple-normal">: {range[0]}-{range[1]}</span>}
         <ArrowDown2 size={12} className={isOpen ? "rotate-180" : ""} />
       </button>
