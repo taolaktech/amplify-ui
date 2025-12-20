@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Image as ImageIcon, Video, Gift, Copy, Heart, Eye, ArrowLeft2 } from "iconsax-react";
+import { Image as ImageIcon, Video, Gift, Copy, Heart, Eye, ArrowLeft2, Magicpen } from "iconsax-react";
 import ConnectStore from "../modals/ConnectStore";
 
 type LibraryAd = {
@@ -203,8 +203,71 @@ const seasonalAds: LibraryAd[] = [
   },
 ];
 
+const aiModelAds: LibraryAd[] = [
+  {
+    id: 301,
+    title: "AI Product Photoshoot",
+    description: "Generate studio-quality product images with AI",
+    previewType: "image",
+    previewUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800",
+    category: "AI Generated",
+    style: "Studio",
+    saved: false,
+  },
+  {
+    id: 302,
+    title: "AI Lifestyle Scene",
+    description: "Place your product in any AI-generated environment",
+    previewType: "image",
+    previewUrl: "https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800",
+    category: "AI Generated",
+    style: "Lifestyle",
+    saved: false,
+  },
+  {
+    id: 303,
+    title: "AI Model Integration",
+    description: "Add AI-generated models showcasing your product",
+    previewType: "image",
+    previewUrl: "https://images.pexels.com/photos/8386365/pexels-photo-8386365.jpeg?auto=compress&cs=tinysrgb&w=800",
+    category: "AI Generated",
+    style: "Fashion",
+    saved: false,
+  },
+  {
+    id: 304,
+    title: "AI Background Swap",
+    description: "Replace backgrounds with AI-generated scenes",
+    previewType: "image",
+    previewUrl: "https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=800",
+    category: "AI Generated",
+    style: "Dynamic",
+    saved: false,
+  },
+  {
+    id: 305,
+    title: "AI Video Avatar",
+    description: "Create spokesperson videos with AI avatars",
+    previewType: "video",
+    previewUrl: "https://videos.pexels.com/video-files/6774125/6774125-uhd_2732_1440_25fps.mp4",
+    category: "AI Generated",
+    style: "Spokesperson",
+    saved: false,
+  },
+  {
+    id: 306,
+    title: "AI Product Animation",
+    description: "Animate static products with AI motion",
+    previewType: "video",
+    previewUrl: "https://videos.pexels.com/video-files/5585798/5585798-uhd_2160_3840_25fps.mp4",
+    category: "AI Generated",
+    style: "Animation",
+    saved: false,
+  },
+];
+
 export default function AdLibrary() {
-  const [activeTab, setActiveTab] = useState<"image" | "video" | "seasonal">("image");
+  const [activeTab, setActiveTab] = useState<"image" | "video" | "seasonal" | "ai">("image");
   const [showConnectStoreModal, setShowConnectStoreModal] = useState(false);
   const [savedAds, setSavedAds] = useState<number[]>([]);
 
@@ -226,6 +289,8 @@ export default function AdLibrary() {
         return videoAds;
       case "seasonal":
         return seasonalAds;
+      case "ai":
+        return aiModelAds;
       default:
         return imageAds;
     }
@@ -279,6 +344,17 @@ export default function AdLibrary() {
           >
             <Gift size={14} />
             Seasonal
+          </button>
+          <button
+            onClick={() => setActiveTab("ai")}
+            className={`text-sm font-medium pb-1 border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === "ai"
+                ? "text-purple-dark border-purple-normal"
+                : "text-gray-dark border-transparent hover:text-purple-dark"
+            }`}
+          >
+            <Magicpen size={14} />
+            AI Models
           </button>
         </div>
 
