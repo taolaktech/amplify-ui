@@ -756,11 +756,14 @@ export default function CompetitorAds({ limit, showViewAllButton = false }: Comp
 
   return (
     <div className="bg-[rgba(246,246,246,0.75)] rounded-3xl p-4 lg:p-6 min-h-[600px]">
-      <div className="flex items-center gap-2 mb-4">
-        <button className="text-purple-dark hover:text-purple-normal transition-colors">
-          <ArrowLeft2 size={20} />
-        </button>
-        <h2 className="text-purple-dark font-semibold text-xl">Competitor Ads</h2>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <button className="text-purple-dark hover:text-purple-normal transition-colors">
+            <ArrowLeft2 size={20} />
+          </button>
+          <h2 className="text-purple-dark font-semibold text-xl">Competitor Ads</h2>
+        </div>
+        <p className="text-gray-500 text-sm ml-7">See what's working for your competitors and borrow proven hooks, formats, and angles.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
