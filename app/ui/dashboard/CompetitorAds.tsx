@@ -325,7 +325,7 @@ const hookCategories = [
 ];
 
 export default function CompetitorAds() {
-  const [activeTab, setActiveTab] = useState<"explore" | "besthooks" | "foryou">("explore");
+  const [activeTab, setActiveTab] = useState<"explore" | "besthooks">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -410,10 +410,6 @@ export default function CompetitorAds() {
 
     if (showSavedOnly) {
       result = result.filter((ad) => ad.saved);
-    }
-
-    if (activeTab === "foryou") {
-      result = result.filter((ad) => ad.saved || ad.isNew);
     }
 
     if (sortBy === "Oldest") {
@@ -508,16 +504,6 @@ export default function CompetitorAds() {
             }`}
           >
             Best Hooks
-          </button>
-          <button
-            onClick={() => setActiveTab("foryou")}
-            className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
-              activeTab === "foryou"
-                ? "text-purple-dark border-purple-normal"
-                : "text-gray-dark border-transparent hover:text-purple-dark"
-            }`}
-          >
-            For You
           </button>
         </div>
 
