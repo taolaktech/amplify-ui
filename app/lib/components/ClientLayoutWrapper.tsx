@@ -2,33 +2,58 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useAuthStore } from "../stores/authStore";
-import { useIdleTimer } from "react-idle-timer";
 import Navbar from "@/app/ui/Navbar";
 import AuthBlock from "./AuthBlock";
-import SplashScreen from "@/app/ui/loaders/SplashScreen";
-import { useRouter } from "next/navigation";
-import useRefreshInitialize from "../hooks/useRefreshInitialize";
 import { useDashboardPath } from "../hooks/useDashboardPath";
 import DashboardSideBar from "@/app/ui/DashboardSidebar";
 import DashboardChildren from "@/app/ui/dashboard/DashboardChildren";
 import useClickOutside from "../hooks/useClickOutside";
 
+// DEV MODE: Auth bypassed
+const BYPASS_AUTH = true;
+
 const queryClient = new QueryClient();
-const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
-// const INACTIVITY_LIMIT_D = 20 * 24 * 60 * 60 * 1000; // 20 days
 
 export default function ClientLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { logout, isAuth } = useAuthStore();
-  const router = useRouter();
   const { allPaths } = useDashboardPath();
-
   const inDashboard = allPaths.some((path) => path);
 
+  useClickOutside();
+
+  // DEV MODE: Skip auth checks and always show dashboard
+  if (BYPASS_AUTH) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Navbar />
+        <AuthBlock>
+          {inDashboard ? (
+            <div className="flex flex-col xl:flex-row xl:max-w-full">
+              <DashboardSideBar />
+              <DashboardChildren>{children}</DashboardChildren>
+            </div>
+          ) : (
+            <div>{children}</div>
+          )}
+        </AuthBlock>
+      </QueryClientProvider>
+    );
+  }
+
+  // Original code commented out for reference
+  /*
+  import { useAuthStore } from "../stores/authStore";
+  import { useIdleTimer } from "react-idle-timer";
+  import SplashScreen from "@/app/ui/loaders/SplashScreen";
+  import { useRouter } from "next/navigation";
+  import useRefreshInitialize from "../hooks/useRefreshInitialize";
+  
+  const INACTIVITY_LIMIT = 24 * 60 * 60 * 1000;
+  const { logout, isAuth } = useAuthStore();
+  const router = useRouter();
   const { loading } = useRefreshInitialize();
   const onIdle = () => {
     if (isAuth) {
@@ -42,17 +67,13 @@ export default function ClientLayoutWrapper({
     debounce: 500,
   });
 
-  useClickOutside();
-
   return (
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <AuthBlock>
         {inDashboard && isAuth ? (
           <div className="flex flex-col xl:flex-row xl:max-w-full">
-            {/* Sidebar */}
             <DashboardSideBar />
-            {/* Main Content */}
             <DashboardChildren>{children}</DashboardChildren>
           </div>
         ) : (
@@ -62,4 +83,7 @@ export default function ClientLayoutWrapper({
       <SplashScreen isRefreshing={loading} />
     </QueryClientProvider>
   );
+  */
+
+  return null;
 }
