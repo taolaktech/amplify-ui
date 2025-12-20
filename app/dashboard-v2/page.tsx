@@ -1,12 +1,10 @@
 "use client";
-import GettingStarted from "../ui/dashboard/GettingStarted";
-import Metrics from "../ui/dashboard/metrics";
+import GettingStartedV2 from "../ui/dashboard/GettingStartedV2";
 
 export default function DashboardV2Page() {
   return (
     <main className="">
-      <GettingStarted />
-      <Metrics />
+      <GettingStartedV2 />
     </main>
   );
 }
