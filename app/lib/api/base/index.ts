@@ -18,6 +18,12 @@ export enum AuthErrorCode {
 }
 
 export const handleGoogleLogin = async () => {
+  if (!auth) {
+    throw new Error(JSON.stringify({ 
+      message: "Firebase is not configured. Please add your Firebase credentials.", 
+      code: "firebase/not-configured" 
+    }));
+  }
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
   const user = result.user;
@@ -36,6 +42,12 @@ export const handleEmailLogin: (data: {
   email: string;
   password: string;
 }) => Promise<any> = async (data) => {
+  if (!auth) {
+    throw new Error(JSON.stringify({ 
+      message: "Firebase is not configured. Please add your Firebase credentials.", 
+      code: "firebase/not-configured" 
+    }));
+  }
   try {
     const result = await signInWithEmailAndPassword(
       auth,
