@@ -65,7 +65,7 @@ export const Version2SideBar = ({
                 isInspirationsV2 ? "text-[#000]" : "text-[#595959]"
               }`}
             >
-              Inspirations
+              Competitor Ads
             </span>
           )}
         </Link>

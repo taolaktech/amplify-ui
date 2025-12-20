@@ -8,7 +8,7 @@ export default function DashboardV2Page() {
       <div className="mb-3 lg:hidden font-semibold text-lg">Dashboard V2</div>
       <GettingStartedV2 />
       <div className="mt-6">
-        <CompetitorAds />
+        <CompetitorAds limit={10} showViewAllButton={true} />
       </div>
     </div>
   );

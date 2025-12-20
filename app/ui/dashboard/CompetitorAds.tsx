@@ -475,7 +475,12 @@ const getHooksForAd = (ad: Ad): string[] => {
   ];
 };
 
-export default function CompetitorAds() {
+type CompetitorAdsProps = {
+  limit?: number;
+  showViewAllButton?: boolean;
+};
+
+export default function CompetitorAds({ limit, showViewAllButton = false }: CompetitorAdsProps) {
   const [activeTab, setActiveTab] = useState<"explore" | "besthooks">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Newest");
@@ -888,11 +893,24 @@ export default function CompetitorAds() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredAds.map((ad) => (
-            <AdCard key={ad.id} ad={ad} onToggleSave={toggleSaveAd} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {(limit ? filteredAds.slice(0, limit) : filteredAds).map((ad) => (
+              <AdCard key={ad.id} ad={ad} onToggleSave={toggleSaveAd} />
+            ))}
+          </div>
+          {showViewAllButton && filteredAds.length > (limit || 0) && (
+            <div className="flex justify-center mt-6">
+              <a
+                href="/dashboard-v2/inspirations"
+                className="px-6 py-3 bg-gradient-to-r from-[#A755FF] to-[#6800D7] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+              >
+                View All Competitor Ads
+                <ArrowRight2 size={16} />
+              </a>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
