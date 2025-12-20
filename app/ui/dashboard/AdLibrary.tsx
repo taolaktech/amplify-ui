@@ -141,6 +141,7 @@ type LibraryAd = {
   category: string;
   style: string;
   saved: boolean;
+  ethnicity?: string;
 };
 
 const imageAds: LibraryAd[] = [
@@ -153,6 +154,7 @@ const imageAds: LibraryAd[] = [
     category: "Beauty",
     style: "Editorial",
     saved: false,
+    ethnicity: "Latino / Hispanic",
   },
   {
     id: 2,
@@ -163,6 +165,7 @@ const imageAds: LibraryAd[] = [
     category: "Skincare",
     style: "Lifestyle",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 3,
@@ -173,6 +176,7 @@ const imageAds: LibraryAd[] = [
     category: "Skincare",
     style: "UGC",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 4,
@@ -183,6 +187,7 @@ const imageAds: LibraryAd[] = [
     category: "Skincare",
     style: "Lifestyle",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
 ];
 
@@ -322,6 +327,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Casual",
     saved: false,
+    ethnicity: "Middle Eastern",
   },
   {
     id: 302,
@@ -332,6 +338,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Natural",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 303,
@@ -342,6 +349,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Skincare",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 304,
@@ -352,6 +360,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Glam",
     saved: false,
+    ethnicity: "Latino / Hispanic",
   },
   {
     id: 305,
@@ -362,6 +371,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Natural",
     saved: false,
+    ethnicity: "Black / African Descent",
   },
   {
     id: 306,
@@ -372,6 +382,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Lifestyle",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 307,
@@ -382,6 +393,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Summer",
     saved: false,
+    ethnicity: "Mixed / Multi-ethnic",
   },
   {
     id: 308,
@@ -392,6 +404,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Beach",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
   {
     id: 309,
@@ -402,6 +415,7 @@ const aiModelAds: LibraryAd[] = [
     category: "AI Avatar",
     style: "Male",
     saved: false,
+    ethnicity: "White / Caucasian",
   },
 ];
 
@@ -435,7 +449,7 @@ export default function AdLibrary() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab]);
+  }, [activeTab, filters]);
 
   const handleCloneAd = () => {
     setShowConnectStoreModal(true);
@@ -468,18 +482,35 @@ export default function AdLibrary() {
   };
 
   const getAds = () => {
+    let ads: LibraryAd[];
     switch (activeTab) {
       case "image":
-        return imageAds;
+        ads = imageAds;
+        break;
       case "video":
-        return videoAds;
+        ads = videoAds;
+        break;
       case "seasonal":
-        return seasonalAds;
+        ads = seasonalAds;
+        break;
       case "ai":
-        return aiModelAds;
+        ads = aiModelAds;
+        break;
       default:
-        return imageAds;
+        ads = imageAds;
     }
+    
+    if (filters.ethnicity !== "All") {
+      ads = ads.filter((ad) => ad.ethnicity === filters.ethnicity);
+    }
+    
+    if (filters.format !== "All") {
+      ads = ads.filter((ad) => 
+        filters.format.toLowerCase() === ad.previewType
+      );
+    }
+    
+    return ads;
   };
 
   const allAds = getAds();
@@ -687,15 +718,7 @@ export default function AdLibrary() {
             </div>
             
             <div className="p-4 pt-3">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-gray-400 text-[10px]">www.template.shop</p>
-                  <p className="text-purple-dark text-xs font-medium">{ad.category}</p>
-                </div>
-                <button className="text-[10px] font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                  Shop Now
-                </button>
-              </div>
+              <p className="text-purple-dark text-xs font-medium mb-3">{ad.category}</p>
               
               <button className="w-full py-2.5 bg-white border border-[#E6DCF0] text-purple-dark text-xs rounded-full hover:bg-[#F3EFF6] transition-colors flex items-center justify-center gap-1.5 font-medium mb-2">
                 <Eye size={14} />
