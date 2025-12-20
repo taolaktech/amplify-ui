@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { SearchNormal1, ArrowDown2, Play, Eye, Copy, ArrowLeft2, TickCircle, Heart, CloseCircle, ArrowRight2 } from "iconsax-react";
 
 type Ad = {
@@ -757,12 +758,13 @@ function NicheDropdown({
 }
 
 function AdCard({ ad, onToggleSave }: { ad: Ad; onToggleSave: (id: number) => void }) {
+  const router = useRouter();
   const [showInsights, setShowInsights] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
 
   const handleClone = () => {
     setIsCloning(true);
-    setTimeout(() => setIsCloning(false), 1500);
+    router.push("/create-campaign/campaign-snapshots");
   };
 
   return (
