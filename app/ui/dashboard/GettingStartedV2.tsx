@@ -1,13 +1,11 @@
 "use client";
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
-import { CloseCircle, Notification } from "iconsax-react";
 import { useState } from "react";
 import Button from "../Button";
 import Image from "next/image";
 import StepsV2 from "./StepsV2";
 
 function GettingStartedV2() {
-  const [cancelNotification, setCancelNotification] = useState(false);
   const [stepsComplete, setStepsComplete] = useState(false);
 
   const firstName = "Unknown";
@@ -28,37 +26,6 @@ function GettingStartedV2() {
           </p>
         </div>
       </div>
-      {!stepsComplete && (
-        <div
-          className={`${
-            cancelNotification
-              ? "h-0 opacity-0"
-              : "h-[112px] sm:h-[84px] lg:h-[108px] opacity-100"
-          } transition-all duration-300`}
-        >
-          <div className="bg-[#FEF5EA] p-5 lg:p-7 rounded-2xl flex flex-row w-full items-center justify-between gap-3 lg:gap-0">
-            <div className="flex w-full gap-3 lg:gap-4 items-start lg:items-center">
-              <span className="w-[44px] h-[44px] flex-shrink-0 bg-[#FDE0BD] flex items-center justify-center rounded-full">
-                <Notification size={24} color="#FA9B0C" variant="Bold" />
-              </span>
-              <div>
-                <p className="text-[#C67B22] text-sm lg:text-xl font-medium mb-1">
-                  You're almost there!
-                </p>
-                <p className="text-xs lg:text-sm w-full">
-                  <span className="underline font-medium cursor-pointer">
-                    Complete your campaign setup
-                  </span>{" "}
-                  to start running ads and reach your audience effectively.
-                </p>
-              </div>
-            </div>
-            <button onClick={() => setCancelNotification(true)} className="">
-              <CloseCircle size={24} color="#333" />
-            </button>
-          </div>
-        </div>
-      )}
       {!stepsComplete && (
         <div className="h-[280px] md:h-[320px] flex gap-2">
           <div className="w-[100%] h-full">
