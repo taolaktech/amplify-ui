@@ -541,7 +541,7 @@ export default function V2CreateCampaignPreviewPage() {
                         className="h-[40px] px-4 rounded-xl bg-white/60 border border-[#E8E5EC] text-xs md:text-sm font-medium text-heading hover:bg-white transition-colors flex items-center gap-2 whitespace-nowrap"
                       >
                         <Refresh2 size={18} color="#333" />
-                        Replace ad
+                        Change Source
                       </button>
                       <button
                         type="button"
