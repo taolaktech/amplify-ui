@@ -32,13 +32,7 @@ export const useGetSetupComplete = () => {
       setLink("/settings/integrations");
     }
   }, [businessDetails, marketingGoals, connectStore, preferredSalesLocation]);
-
-  console.log("setup steps status:", {
-    connectStore: connectStore.complete,
-    businessDetails: businessDetails.complete,
-    marketingGoals: marketingGoals.complete,
-    preferredSalesLocation: preferredSalesLocation.complete,
-  });
+  
   const isSetupComplete =
     connectStore.complete &&
     businessDetails.complete &&
