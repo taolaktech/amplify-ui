@@ -1,12 +1,12 @@
 "use client";
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
-import { useState } from "react";
+import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
 import Button from "../Button";
 import Image from "next/image";
 import StepsV2 from "./StepsV2";
 
 function GettingStartedV2() {
-  const [stepsComplete, setStepsComplete] = useState(false);
+  const { shouldShowSetupSteps } = useGetSetupComplete();
 
   const handleStartCampaign = () => {
     console.log("Start Campaign clicked");
@@ -14,10 +14,10 @@ function GettingStartedV2() {
 
   return (
     <div className="flex flex-col gap-7">
-      {!stepsComplete && (
+      {shouldShowSetupSteps && (
         <div className="h-[280px] md:h-[320px] flex gap-2">
           <div className="w-[100%] h-full">
-            <StepsV2 onComplete={() => setStepsComplete(true)} />
+            <StepsV2 />
           </div>
           <div className="hidden relative flex-col xl:flex w-full overflow-hidden max-w-[400px] bg-[#1D0B30] rounded-3xl p-8">
             <div>

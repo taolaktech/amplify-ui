@@ -14,6 +14,9 @@ export const useGetSetupComplete = () => {
 
   const [link, setLink] = useState("");
 
+  const shouldShowSetupSteps =
+    !(connectStore.complete && businessDetails.complete);
+
   useEffect(() => {
     if (!connectStore.complete) {
       setLink("/setup");
@@ -44,5 +47,11 @@ export const useGetSetupComplete = () => {
 
   const hasShopifyStore = shopifyStore;
 
-  return { isSetupComplete, link, shopifyStore, hasShopifyStore };
+  return {
+    isSetupComplete,
+    shouldShowSetupSteps,
+    link,
+    shopifyStore,
+    hasShopifyStore,
+  };
 };

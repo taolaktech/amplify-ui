@@ -1,17 +1,32 @@
 "use client";
 import { TickCircle } from "iconsax-react";
 import ArrowRightIcon from "@/public/arrow-right-gradient-alt.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useGetSetupComplete } from "@/app/lib/hooks/useGetSetupComplete";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
+import useUIStore from "@/app/lib/stores/uiStore";
+import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 
 export default function StepsV2({
   onComplete,
 }: {
   onComplete?: () => void;
 }) {
-  const [storeConnected, setStoreConnected] = useState(false);
-  const [brandKitUploaded, setBrandKitUploaded] = useState(false);
+  const router = useRouter();
+  const { link } = useGetSetupComplete();
+  const { connectStore, businessDetails } = useSetupStore((state) => state);
+  const shopifyStore = useIntegrationStore((state) => state).shopifyStore;
+  const setFromDashboardStep = useUIStore(
+    (state) => state.actions.setFromDashboardStep
+  );
 
-  const completedSteps = (storeConnected ? 1 : 0) + (brandKitUploaded ? 1 : 0);
+  const storeConnected = Boolean(connectStore.complete) && Boolean(shopifyStore);
+  const brandKitUploaded = Boolean(businessDetails.complete);
+
+  const completedSteps = useMemo(() => {
+    return (storeConnected ? 1 : 0) + (brandKitUploaded ? 1 : 0);
+  }, [brandKitUploaded, storeConnected]);
 
   useEffect(() => {
     if (completedSteps === 2) {
@@ -20,11 +35,16 @@ export default function StepsV2({
   }, [completedSteps, onComplete]);
 
   const handleConnectStore = () => {
-    setStoreConnected(true);
+    setFromDashboardStep(true);
+    router.push(link);
   };
 
   const handleUploadBrandKit = () => {
-    setBrandKitUploaded(true);
+    if (!businessDetails.complete) {
+      router.push("/setup/business-details");
+      return;
+    }
+    router.push("/company/brand-assets");
   };
 
   return (
