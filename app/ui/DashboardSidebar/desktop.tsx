@@ -101,7 +101,7 @@ export default function DesktopSideBar({
                 isSidebarOpen ? "inline-block" : "hidden"
               } `}
             >
-              Amplify Ads
+              Amplify
             </span>
           </Link>
           {/* {isSidebarOpen && ( */}
