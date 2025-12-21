@@ -161,7 +161,7 @@ export default function DesktopSideBar({
                       isDashboardV2 ? "text-heading" : "text-gray-dark"
                     }`}
                   >
-                    Dashboard
+                    Inspirations
                   </span>
                 )}
               </Link>

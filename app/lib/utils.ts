@@ -8,7 +8,7 @@ export const paths = new Map<string, string>();
 
 paths.set("/", "Dashboard");
 paths.set("", "Dashboard");
-paths.set("/dashboard-v2", "Dashboard");
+paths.set("/dashboard-v2", "Inspirations");
 paths.set("/dashboard-v2/inspirations", "Inspirations");
 paths.set("/dashboard-v2/campaigns", "Campaigns");
 paths.set("/dashboard-v2/create-campaign/product-selection", "Create Campaign");

@@ -167,7 +167,7 @@ export default function MobileSideBar({
                     isDashboardV2 ? "text-heading" : "text-gray-dark"
                   }`}
                 >
-                  Dashboard
+                  Inspirations
                 </span>
               </Link>
             </li>
