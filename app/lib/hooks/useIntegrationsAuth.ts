@@ -1,10 +1,13 @@
 import { useState } from "react";
 import {
   facebookAuth,
+  googleAuth,
   facebookCallback,
   getAdPagesForAdAccount,
+  googleCallback,
   instagramAuth,
   selectFacebookPrimaryAdAccount,
+  selectGooglePrimaryCustomerAccount,
   // testAdPagesForAdAccount,
 } from "../api/integrations";
 import { useAuthStore } from "../stores/authStore";
@@ -15,7 +18,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
 
-export type IntegrationsAuthPlatform = "FACEBOOK" | "INSTAGRAM";
+export type IntegrationsAuthPlatform = "FACEBOOK" | "INSTAGRAM" | "GOOGLE";
 
 export default function useIntegrationsAuth() {
   const token = useAuthStore((state) => state.token);
@@ -23,7 +26,7 @@ export default function useIntegrationsAuth() {
   const actions = useIntegrationStore((state) => state.actions);
   const [loading, setLoading] = useState(false);
   const [fetchingProgress, setFetchingProgress] = useState(20);
-  const { facebook, instagram } = useIntegrationStore((state) => state);
+  const { facebook, instagram, google } = useIntegrationStore((state) => state);
   const [subText, setSubText] = useState("");
   const [metaPages, setMetaPages] = useState<any[]>([]);
   const [selectedMetaPage, setSelectedMetaPage] = useState<any>(null);
@@ -33,6 +36,10 @@ export default function useIntegrationsAuth() {
   const [metaPagesLoading, setMetaPagesLoading] = useState(false);
   const [selectedIGAccount, setSelectedIGAccount] = useState<any>(null);
   const [IGAccounts, setIGAccounts] = useState<any[]>([]);
+  const [selectedGoogleCustomerAccount, setSelectedGoogleCustomerAccount] =
+    useState<string | null>(null);
+  const [googleAccounts, setGoogleAccounts] = useState<string[]>([]);
+  const [googleAccountChooser, setGoogleAccountChooser] = useState(false);
   const [step, setStep] = useState(0);
   const [integrationsAuthPlatform] = useState<IntegrationsAuthPlatform>(
     (localStorage.getItem(
@@ -84,6 +91,64 @@ export default function useIntegrationsAuth() {
     },
   });
 
+  const googleCallbackMutation = useMutation({
+    mutationFn: googleCallback,
+    onMutate: () => {
+      setFetchingProgress(40);
+      setLoading(true);
+      setSubText("Finalizing Google authentication...");
+    },
+    onSuccess: (data) => {
+      console.log("Google callback data:", data);
+      setFetchingProgress(100);
+      setTimeout(() => {
+        setLoading(false);
+
+        const resourceNames: string[] =
+          data?.accessibleCustomers?.resourceNames ||
+          data?.accessibleCustomers?.resource_names ||
+          data?.accessibleCustomers ||
+          [];
+
+        setSelectedGoogleCustomerAccount(resourceNames?.[0] || null);
+        setGoogleAccounts(resourceNames || []);
+        setGoogleAccountChooser(true);
+        setFetchingProgress(20);
+      }, 1500);
+    },
+    onError: (error) => {
+      setLoading(false);
+      setToast({
+        type: "error",
+        message: `Failed to complete Google authentication.`,
+        title: "Integration Error",
+      });
+      console.error("Error during Google callback:", error);
+      setFetchingProgress(20);
+    },
+  });
+
+  const googleCustomerSelectionMutation = useMutation({
+    mutationFn: selectGooglePrimaryCustomerAccount,
+    onSuccess: () => {
+      setGoogleAccountChooser(false);
+      actions.setGoogle(true);
+      const route = localStorage.getItem("integration-route");
+      if (route) {
+        setAdsPlatform("Google", true);
+        router.push(`/create-campaign/supported-ad-platforms`);
+      }
+    },
+    onError: (error) => {
+      setToast({
+        type: "error",
+        message: `Couldn't select Google Ads account.`,
+        title: "Integration Error",
+      });
+      console.error("Error during Google customer account selection:", error);
+    },
+  });
+
   const fbAdAccSelectionMutation = useMutation({
     mutationFn: selectFacebookPrimaryAdAccount,
     onSuccess: (data) => {
@@ -125,6 +190,60 @@ export default function useIntegrationsAuth() {
         : { instagramAccountId: selectedIGAccount?.id || null }),
       token,
     });
+  };
+
+  const handleGoogleConfirm = () => {
+    if (!token || !selectedGoogleCustomerAccount) return;
+    googleCustomerSelectionMutation.mutate({
+      primaryCustomerAccount: selectedGoogleCustomerAccount,
+      token,
+    });
+  };
+
+  const handleGoogleAuth = async (
+    platform: "GOOGLE",
+    route?: string | null
+  ) => {
+    if (route) localStorage.setItem("integration-route", "create-campaign");
+    else localStorage.removeItem("integration-route");
+    setSubText(
+      `We’re securely connecting your ${capitalize(
+        platform.toLowerCase()
+      )} account.`
+    );
+    if (loading) return;
+    if (google) {
+      actions.setGoogle(false);
+      return;
+    }
+    if (!token) {
+      return;
+    }
+    try {
+      localStorage.setItem("integrations_auth_platform", platform);
+      setLoading(true);
+      const data = await googleAuth({ token });
+      setFetchingProgress(40);
+      const oauthUrl =
+        data?.oauthurl || data?.data?.oauthurl || data?.data?.oauthUrl;
+      if (!oauthUrl) {
+        throw new Error("Missing Google OAuth URL");
+      }
+      window.location.href = oauthUrl;
+    } catch (error) {
+      setToast({
+        type: "error",
+        message: `Failed to authenticate with ${capitalize(platform)}.`,
+        title: "Authentication Error",
+      });
+      console.error(`Error during ${platform} authentication:`, error);
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleCallback = async (code: string, state: string) => {
+    if (loading || !token) return;
+    googleCallbackMutation.mutate({ code, state, token: token! });
   };
 
   const handleFacebookAuth = async (
@@ -210,6 +329,8 @@ export default function useIntegrationsAuth() {
   return {
     handleFacebookAuth,
     handleFacebookCallback,
+    handleGoogleAuth,
+    handleGoogleCallback,
     loading,
     fetchingProgress,
     subText,
@@ -223,6 +344,13 @@ export default function useIntegrationsAuth() {
     metaPagesLoading,
     selectedMetaPage,
     setSelectedMetaPage,
+    googleAccountChooser,
+    setGoogleAccountChooser,
+    googleAccounts,
+    selectedGoogleCustomerAccount,
+    setSelectedGoogleCustomerAccount,
+    googleLastStepLoading: googleCustomerSelectionMutation.isPending,
+    handleGoogleConfirm,
     step,
     setStep,
     lastStepLoading: fbAdAccSelectionMutation.isPending,

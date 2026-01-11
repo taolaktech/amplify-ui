@@ -5,23 +5,27 @@ import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "@/app/ui/AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { ChooseMetaAccount } from "@/app/ui/ChooseMetaAccount";
+import { ChooseGoogleAccount } from "@/app/ui/ChooseGoogleAccount";
 
 export default function IntegrationLayout() {
-  const { shopifyStore, instagram, facebook } = useIntegrationStore(
+  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
     (state) => state
   );
   const token = useAuthStore((state) => state.token);
 
   const {
     handleFacebookAuth,
+    handleGoogleAuth,
     loading,
     fetchingProgress,
     subText,
     handleFacebookCallback,
+    handleGoogleCallback,
+    handleGoogleConfirm,
     selectedAdAccount,
     setSelectedAdAccount,
     metaAccountChooser,
@@ -40,9 +44,18 @@ export default function IntegrationLayout() {
     selectedIGAccount,
     setSelectedIGAccount,
     IGAccounts,
+    googleAccountChooser,
+    setGoogleAccountChooser,
+    googleAccounts,
+    selectedGoogleCustomerAccount,
+    setSelectedGoogleCustomerAccount,
+    googleLastStepLoading,
   } = useIntegrationsAuth();
 
-  useModal(loading || metaAccountChooser);
+  useModal(loading || metaAccountChooser || googleAccountChooser);
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   const params = useSearchParams();
 
@@ -55,18 +68,64 @@ export default function IntegrationLayout() {
     const route = params.get("route");
     console.log("params:", params);
     if (hasRun.current) return;
-    if (params.get("platform")) {
-      if (platform === "INSTAGRAM") {
-        handleFacebookAuth("INSTAGRAM", route);
-      } else if (platform === "FACEBOOK") {
-        handleFacebookAuth("FACEBOOK", route);
-      }
-    }
+
+    const cleanupUrl = () => {
+      router.replace(pathname, { scroll: false });
+    };
+
     if (code && state && token) {
-      handleFacebookCallback(code, state);
       hasRun.current = true;
+
+      const storedPlatform = localStorage.getItem(
+        "integrations_auth_platform"
+      ) as string | null;
+      const effectivePlatform = (
+        platform ||
+        storedPlatform ||
+        ""
+      ).toUpperCase();
+
+      (async () => {
+        try {
+          if (
+            effectivePlatform === "GOOGLE" ||
+            effectivePlatform === "GOOGLE_ADS"
+          ) {
+            await handleGoogleCallback(code, state);
+          } else {
+            await handleFacebookCallback(code, state);
+          }
+        } finally {
+          cleanupUrl();
+        }
+      })();
+
+      return;
     }
-  }, [params, token]);
+
+    if (platform) {
+      hasRun.current = true;
+      const p = platform.toUpperCase();
+      if (p === "INSTAGRAM") {
+        handleFacebookAuth("INSTAGRAM", route);
+      } else if (p === "FACEBOOK") {
+        handleFacebookAuth("FACEBOOK", route);
+      } else if (p === "GOOGLE" || p === "GOOGLE_ADS") {
+        handleGoogleAuth("GOOGLE", route);
+      }
+
+      cleanupUrl();
+    }
+  }, [
+    params,
+    token,
+    router,
+    pathname,
+    handleFacebookAuth,
+    handleGoogleAuth,
+    handleFacebookCallback,
+    handleGoogleCallback,
+  ]);
 
   const actions = useIntegrationStore((state) => state.actions);
   const integrations = [
@@ -81,7 +140,9 @@ export default function IntegrationLayout() {
       heading: "Google Ads",
       image: "/google_ads-icon.svg",
       writeUp:
-        "Google Ads will automatically be connected after creating a campaign",
+        "Connect your Google Ads account to manage your ads and campaigns.",
+      toggleOn: () => handleGoogleAuth("GOOGLE"),
+      on: google,
     },
     {
       heading: "Instagram",
@@ -142,6 +203,17 @@ export default function IntegrationLayout() {
           selectedIGAccount={selectedIGAccount}
           setSelectedIGAccount={setSelectedIGAccount}
           IGAccounts={IGAccounts}
+        />
+      )}
+
+      {googleAccountChooser && (
+        <ChooseGoogleAccount
+          handleClose={() => setGoogleAccountChooser(false)}
+          customerAccounts={googleAccounts}
+          selectedCustomerAccount={selectedGoogleCustomerAccount}
+          setSelectedCustomerAccount={setSelectedGoogleCustomerAccount}
+          handleConfirm={handleGoogleConfirm}
+          loading={googleLastStepLoading}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ type IntegrationActions = {
   toggleShopifyStore: () => void;
   setShopifyStoreConnected: (value: boolean) => void;
   toggleGoogle: () => void;
+  setGoogle: (value: boolean) => void;
   toggleInstagram: () => void;
   toggleFacebook: () => void;
   setInstagram: (value: boolean) => void;
@@ -49,6 +50,11 @@ export const useIntegrationStore = create<IntegrationStore>()(
         toggleGoogle: () => {
           set((state) => ({
             google: !state.google,
+          }));
+        },
+        setGoogle: (value: boolean) => {
+          set(() => ({
+            google: value,
           }));
         },
         toggleInstagram: () => {
