@@ -280,8 +280,7 @@ export const useGenerateCreatives = () => {
               }
             }
             if (
-              (creativeSet.creatives.length > 4 &&
-                creativeSet.status === "completed") ||
+              creativeSet.status === "completed" ||
               creativeSet.status === "failed"
             ) {
               break;
