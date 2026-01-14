@@ -23,6 +23,44 @@ export type BusinessDetails = {
 };
 
 const INTEGRATION_HOST = process.env.NEXT_PUBLIC_API_INTEGRATION_HOST;
+
+export const getIntegrationsStatus = async (data: { token: string }) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/api/integrations/status`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export enum IntegrationPlatform {
+  SHOPIFY = "SHOPIFY",
+  GOOGLE_ADS = "GOOGLE_ADS",
+  FACEBOOK = "FACEBOOK",
+  INSTAGRAM = "INSTAGRAM",
+}
+
+export const disconnectIntegration = async (data: {
+  token: string;
+  platform: IntegrationPlatform;
+}) => {
+  const response = await axios.post(
+    `${INTEGRATION_HOST}/api/integrations/disconnect`,
+    {
+      platform: data.platform,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
 export const facebookAuth = async (data: { token: string }) => {
   const response = await axios.get(
     `${INTEGRATION_HOST}/facebook-auth?platforms=facebook`,

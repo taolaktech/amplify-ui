@@ -10,6 +10,11 @@ import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { ChooseMetaAccount } from "@/app/ui/ChooseMetaAccount";
 import { ChooseGoogleAccount } from "@/app/ui/ChooseGoogleAccount";
+import {
+  disconnectIntegration,
+  getIntegrationsStatus,
+  IntegrationPlatform,
+} from "@/app/lib/api/integrations";
 
 export default function IntegrationLayout() {
   const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
@@ -128,12 +133,57 @@ export default function IntegrationLayout() {
   ]);
 
   const actions = useIntegrationStore((state) => state.actions);
+
+  const syncIntegrationStatus = async () => {
+    if (!token) return;
+    const res = await getIntegrationsStatus({ token });
+    const status = res?.data?.status;
+    if (!status) return;
+
+    actions.setShopifyStoreConnected(Boolean(status?.shopify?.connected));
+    actions.setGoogle(Boolean(status?.googleAds?.connected));
+    actions.setInstagram(Boolean(status?.instagram?.connected));
+    actions.setFacebook(Boolean(status?.facebook?.connected));
+  };
+
+  const disconnectAndSync = async (platform: IntegrationPlatform) => {
+    if (!token) return;
+
+    try {
+      await disconnectIntegration({ token, platform });
+    } catch (e) {
+      console.error("Failed to disconnect integration", platform, e);
+    } finally {
+      try {
+        await syncIntegrationStatus();
+      } catch (e) {
+        console.error("Failed to sync integrations status after disconnect", e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const code = params.get("code");
+    const state = params.get("state");
+    if (code && state) return;
+
+    (async () => {
+      try {
+        await syncIntegrationStatus();
+      } catch (e) {
+        console.error("Failed to fetch integrations status", e);
+      }
+    })();
+  }, [token, params, actions]);
+
   const integrations = [
     {
       heading: "Shopify Store",
       image: "/shopify-icon.svg",
       writeUp: "Connect your shopify store to manage your product and orders.",
-      toggleOn: () => actions.toggleShopifyStore(),
+      toggleOn: () => disconnectAndSync(IntegrationPlatform.SHOPIFY),
       on: shopifyStore,
     },
     {
@@ -141,7 +191,10 @@ export default function IntegrationLayout() {
       image: "/google_ads-icon.svg",
       writeUp:
         "Connect your Google Ads account to manage your ads and campaigns.",
-      toggleOn: () => handleGoogleAuth("GOOGLE"),
+      toggleOn: () =>
+        google
+          ? disconnectAndSync(IntegrationPlatform.GOOGLE_ADS)
+          : handleGoogleAuth("GOOGLE"),
       on: google,
     },
     {
@@ -149,7 +202,10 @@ export default function IntegrationLayout() {
       image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
-      toggleOn: () => handleFacebookAuth("INSTAGRAM"),
+      toggleOn: () =>
+        instagram
+          ? disconnectAndSync(IntegrationPlatform.INSTAGRAM)
+          : handleFacebookAuth("INSTAGRAM"),
       on: instagram,
     },
     {
@@ -157,7 +213,10 @@ export default function IntegrationLayout() {
       image: "/facebook.svg",
       writeUp:
         "Connect your Facebook account to manage your product and orders.",
-      toggleOn: () => handleFacebookAuth("FACEBOOK"),
+      toggleOn: () =>
+        facebook
+          ? disconnectAndSync(IntegrationPlatform.FACEBOOK)
+          : handleFacebookAuth("FACEBOOK"),
       on: facebook,
     },
   ];
