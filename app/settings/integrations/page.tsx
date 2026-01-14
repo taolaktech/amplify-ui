@@ -183,7 +183,10 @@ export default function IntegrationLayout() {
       heading: "Shopify Store",
       image: "/shopify-icon.svg",
       writeUp: "Connect your shopify store to manage your product and orders.",
-      toggleOn: () => disconnectAndSync(IntegrationPlatform.SHOPIFY),
+      toggleOn: () =>
+        shopifyStore
+          ? disconnectAndSync(IntegrationPlatform.SHOPIFY)
+          : actions.toggleShopifyStore(),
       on: shopifyStore,
     },
     {
