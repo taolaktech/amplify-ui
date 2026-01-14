@@ -186,7 +186,7 @@ export default function IntegrationLayout() {
       toggleOn: () =>
         shopifyStore
           ? disconnectAndSync(IntegrationPlatform.SHOPIFY)
-          : actions.toggleShopifyStore(),
+          : undefined,
       on: shopifyStore,
     },
     {
