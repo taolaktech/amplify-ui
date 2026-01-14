@@ -3,6 +3,19 @@ import { useEffect, useState, useRef } from "react";
 import GradientCheckbox from "./GradientCheckbox";
 import { countries } from "countries-list";
 
+const BLOCKED_COUNTRY_CODES = new Set(["IR", "AF", "RU", "KP", "CU"]);
+const BLOCKED_COUNTRY_NAMES = new Set([
+  "iran",
+  "iran, islamic republic of",
+  "afghanistan",
+  "russia",
+  "russian federation",
+  "north korea",
+  "korea, democratic people's republic of",
+  "cuba",
+  "crimea",
+]);
+
 const PreferredIntlLocationSelectInput = ({
   selectedIntlLocation,
   toggleSelectedIntlLocation,
@@ -88,7 +101,14 @@ const SelectionModal = ({
   selectedIntlLocation: string[];
   toggleSelectedIntlLocation: (location: string) => void;
 }) => {
-  const countryList = Object.values(countries);
+  const countryList = Object.entries(countries)
+    .filter(([code, country]) => {
+      if (BLOCKED_COUNTRY_CODES.has(code)) return false;
+      const name = (country.name || "").trim().toLowerCase();
+      if (!name) return false;
+      return !BLOCKED_COUNTRY_NAMES.has(name);
+    })
+    .map(([, country]) => country);
 
   const handleClick = (
     e: React.MouseEvent<HTMLDivElement>,

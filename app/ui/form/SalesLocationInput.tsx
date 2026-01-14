@@ -3,6 +3,23 @@ import { CloseCircle, SearchNormal } from "iconsax-react";
 import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
 import { useDebouncedCallback } from "use-debounce";
 
+const BLOCKED_COUNTRY_TERMS = [
+  "iran",
+  "iran, islamic republic of",
+  "afghanistan",
+  "russia",
+  "russian federation",
+  "north korea",
+  "korea, democratic people's republic of",
+  "cuba",
+  "crimea",
+];
+
+const isBlockedCityPrediction = (description: string) => {
+  const normalized = (description || "").toLowerCase();
+  return BLOCKED_COUNTRY_TERMS.some((term) => normalized.includes(term));
+};
+
 const SalesLocationInput = ({
   toggleSalesLocation,
   salesLocation,
@@ -42,7 +59,9 @@ const SalesLocationInput = ({
   useEffect(() => {
     if (searchQuery.length > 0 && citiesData?.length) {
       let filteredLocations2 = citiesData?.filter(
-        (location) => !salesLocation.includes(location.description)
+        (location) =>
+          !salesLocation.includes(location.description) &&
+          !isBlockedCityPrediction(location.description)
       );
       filteredLocations2 = filteredLocations2?.map((item) => item.description);
       if (!filteredLocations2) return;
