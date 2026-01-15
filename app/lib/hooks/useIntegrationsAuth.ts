@@ -104,14 +104,19 @@ export default function useIntegrationsAuth() {
       setTimeout(() => {
         setLoading(false);
 
-        const resourceNames: string[] =
+        const rawResourceNames: string[] =
           data?.accessibleCustomers?.resourceNames ||
           data?.accessibleCustomers?.resource_names ||
           data?.accessibleCustomers ||
           [];
 
-        setSelectedGoogleCustomerAccount(resourceNames?.[0] || null);
-        setGoogleAccounts(resourceNames || []);
+        const customerIds = (rawResourceNames || [])
+          .map((v) => String(v))
+          .map((v) => v.replace(/^\/?customers\//i, ""))
+          .filter(Boolean);
+
+        setSelectedGoogleCustomerAccount(customerIds?.[0] || null);
+        setGoogleAccounts(customerIds);
         setGoogleAccountChooser(true);
         setFetchingProgress(20);
       }, 1500);
