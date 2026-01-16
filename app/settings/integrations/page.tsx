@@ -5,23 +5,32 @@ import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "@/app/ui/AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { ChooseMetaAccount } from "@/app/ui/ChooseMetaAccount";
+import { ChooseGoogleAccount } from "@/app/ui/ChooseGoogleAccount";
+import {
+  disconnectIntegration,
+  getIntegrationsStatus,
+  IntegrationPlatform,
+} from "@/app/lib/api/integrations";
 
 export default function IntegrationLayout() {
-  const { shopifyStore, instagram, facebook } = useIntegrationStore(
+  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
     (state) => state
   );
   const token = useAuthStore((state) => state.token);
 
   const {
     handleFacebookAuth,
+    handleGoogleAuth,
     loading,
     fetchingProgress,
     subText,
     handleFacebookCallback,
+    handleGoogleCallback,
+    handleGoogleConfirm,
     selectedAdAccount,
     setSelectedAdAccount,
     metaAccountChooser,
@@ -40,9 +49,18 @@ export default function IntegrationLayout() {
     selectedIGAccount,
     setSelectedIGAccount,
     IGAccounts,
+    googleAccountChooser,
+    setGoogleAccountChooser,
+    googleAccounts,
+    selectedGoogleCustomerAccount,
+    setSelectedGoogleCustomerAccount,
+    googleLastStepLoading,
   } = useIntegrationsAuth();
 
-  useModal(loading || metaAccountChooser);
+  useModal(loading || metaAccountChooser || googleAccountChooser);
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   const params = useSearchParams();
 
@@ -55,40 +73,142 @@ export default function IntegrationLayout() {
     const route = params.get("route");
     console.log("params:", params);
     if (hasRun.current) return;
-    if (params.get("platform")) {
-      if (platform === "INSTAGRAM") {
-        handleFacebookAuth("INSTAGRAM", route);
-      } else if (platform === "FACEBOOK") {
-        handleFacebookAuth("FACEBOOK", route);
-      }
-    }
+
+    const cleanupUrl = () => {
+      router.replace(pathname, { scroll: false });
+    };
+
     if (code && state && token) {
-      handleFacebookCallback(code, state);
       hasRun.current = true;
+
+      const storedPlatform = localStorage.getItem(
+        "integrations_auth_platform"
+      ) as string | null;
+      const effectivePlatform = (
+        platform ||
+        storedPlatform ||
+        ""
+      ).toUpperCase();
+
+      (async () => {
+        try {
+          if (
+            effectivePlatform === "GOOGLE" ||
+            effectivePlatform === "GOOGLE_ADS"
+          ) {
+            await handleGoogleCallback(code, state);
+          } else {
+            await handleFacebookCallback(code, state);
+          }
+        } finally {
+          cleanupUrl();
+        }
+      })();
+
+      return;
     }
-  }, [params, token]);
+
+    if (platform) {
+      hasRun.current = true;
+      const p = platform.toUpperCase();
+      if (p === "INSTAGRAM") {
+        handleFacebookAuth("INSTAGRAM", route);
+      } else if (p === "FACEBOOK") {
+        handleFacebookAuth("FACEBOOK", route);
+      } else if (p === "GOOGLE" || p === "GOOGLE_ADS") {
+        handleGoogleAuth("GOOGLE", route);
+      }
+
+      cleanupUrl();
+    }
+  }, [
+    params,
+    token,
+    router,
+    pathname,
+    handleFacebookAuth,
+    handleGoogleAuth,
+    handleFacebookCallback,
+    handleGoogleCallback,
+  ]);
 
   const actions = useIntegrationStore((state) => state.actions);
+
+  const syncIntegrationStatus = async () => {
+    if (!token) return;
+    const res = await getIntegrationsStatus({ token });
+    const status = res?.data?.status;
+    if (!status) return;
+
+    actions.setShopifyStoreConnected(Boolean(status?.shopify?.connected));
+    actions.setGoogle(Boolean(status?.googleAds?.connected));
+    actions.setInstagram(Boolean(status?.instagram?.connected));
+    actions.setFacebook(Boolean(status?.facebook?.connected));
+  };
+
+  const disconnectAndSync = async (platform: IntegrationPlatform) => {
+    if (!token) return;
+
+    try {
+      await disconnectIntegration({ token, platform });
+    } catch (e) {
+      console.error("Failed to disconnect integration", platform, e);
+    } finally {
+      try {
+        await syncIntegrationStatus();
+      } catch (e) {
+        console.error("Failed to sync integrations status after disconnect", e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const code = params.get("code");
+    const state = params.get("state");
+    if (code && state) return;
+
+    (async () => {
+      try {
+        await syncIntegrationStatus();
+      } catch (e) {
+        console.error("Failed to fetch integrations status", e);
+      }
+    })();
+  }, [token, params, actions]);
+
   const integrations = [
     {
       heading: "Shopify Store",
       image: "/shopify-icon.svg",
       writeUp: "Connect your shopify store to manage your product and orders.",
-      toggleOn: () => actions.toggleShopifyStore(),
+      toggleOn: () =>
+        shopifyStore
+          ? disconnectAndSync(IntegrationPlatform.SHOPIFY)
+          : undefined,
       on: shopifyStore,
     },
     {
       heading: "Google Ads",
       image: "/google_ads-icon.svg",
       writeUp:
-        "Google Ads will automatically be connected after creating a campaign",
+        "Connect your Google Ads account to manage your ads and campaigns.",
+      toggleOn: () =>
+        google
+          ? disconnectAndSync(IntegrationPlatform.GOOGLE_ADS)
+          : handleGoogleAuth("GOOGLE"),
+      on: google,
     },
     {
       heading: "Instagram",
       image: "/instagram_logo.svg",
       writeUp:
         "Connect your Instagram account to manage your product and orders.",
-      toggleOn: () => handleFacebookAuth("INSTAGRAM"),
+      toggleOn: () =>
+        instagram
+          ? disconnectAndSync(IntegrationPlatform.INSTAGRAM)
+          : handleFacebookAuth("INSTAGRAM"),
       on: instagram,
     },
     {
@@ -96,7 +216,10 @@ export default function IntegrationLayout() {
       image: "/facebook.svg",
       writeUp:
         "Connect your Facebook account to manage your product and orders.",
-      toggleOn: () => handleFacebookAuth("FACEBOOK"),
+      toggleOn: () =>
+        facebook
+          ? disconnectAndSync(IntegrationPlatform.FACEBOOK)
+          : handleFacebookAuth("FACEBOOK"),
       on: facebook,
     },
   ];
@@ -142,6 +265,17 @@ export default function IntegrationLayout() {
           selectedIGAccount={selectedIGAccount}
           setSelectedIGAccount={setSelectedIGAccount}
           IGAccounts={IGAccounts}
+        />
+      )}
+
+      {googleAccountChooser && (
+        <ChooseGoogleAccount
+          handleClose={() => setGoogleAccountChooser(false)}
+          customerAccounts={googleAccounts}
+          selectedCustomerAccount={selectedGoogleCustomerAccount}
+          setSelectedCustomerAccount={setSelectedGoogleCustomerAccount}
+          handleConfirm={handleGoogleConfirm}
+          loading={googleLastStepLoading}
         />
       )}
     </div>

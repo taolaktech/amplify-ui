@@ -23,6 +23,44 @@ export type BusinessDetails = {
 };
 
 const INTEGRATION_HOST = process.env.NEXT_PUBLIC_API_INTEGRATION_HOST;
+
+export const getIntegrationsStatus = async (data: { token: string }) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/api/integrations/status`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export enum IntegrationPlatform {
+  SHOPIFY = "SHOPIFY",
+  GOOGLE_ADS = "GOOGLE_ADS",
+  FACEBOOK = "FACEBOOK",
+  INSTAGRAM = "INSTAGRAM",
+}
+
+export const disconnectIntegration = async (data: {
+  token: string;
+  platform: IntegrationPlatform;
+}) => {
+  const response = await axios.post(
+    `${INTEGRATION_HOST}/api/integrations/disconnect`,
+    {
+      platform: data.platform,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
 export const facebookAuth = async (data: { token: string }) => {
   const response = await axios.get(
     `${INTEGRATION_HOST}/facebook-auth?platforms=facebook`,
@@ -35,9 +73,41 @@ export const facebookAuth = async (data: { token: string }) => {
   return response.data;
 };
 
+export const googleCallback = async (data: {
+  code: string;
+  state: string;
+  token: string;
+}) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/api/google-ads/auth/callback`,
+    {
+      params: {
+        code: data.code,
+        state: data.state,
+      },
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export const instagramAuth = async (data: { token: string }) => {
   const response = await axios.get(
     `${INTEGRATION_HOST}/facebook-auth?platforms=instagram`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const googleAuth = async (data: { token: string }) => {
+  const response = await axios.get(
+    `${INTEGRATION_HOST}/api/google-ads/auth/url`,
     {
       headers: {
         Authorization: `Bearer ${data.token}`,
@@ -128,6 +198,24 @@ export const selectFacebookPrimaryAdAccount = async (data: {
       ...(data.instagramAccountId
         ? { instagramAccountId: data.instagramAccountId }
         : {}),
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const selectGooglePrimaryCustomerAccount = async (data: {
+  primaryCustomerAccount: string;
+  token: string;
+}) => {
+  const response = await axios.post(
+    `${INTEGRATION_HOST}/api/google-ads/customers/set-primary-customer-account`,
+    {
+      primaryCustomerAccount: data.primaryCustomerAccount,
     },
     {
       headers: {
