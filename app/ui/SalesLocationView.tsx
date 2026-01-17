@@ -1,4 +1,5 @@
 import { CloseCircle } from "iconsax-react";
+import { getAllowedCountryName } from "@/app/lib/allowedCountries";
 
 export default function SalesLocationView({
   salesLocation,
@@ -15,7 +16,9 @@ export default function SalesLocationView({
           className="flex flex-shrink-0 items-center rounded-[24px] gap-2 py-4 px-3 cursor-pointer bg-[#F7F7F7]"
           key={index}
         >
-          <span className="text-sm text-heading font-medium">{location}</span>
+          <span className="text-sm text-heading font-medium">
+            {getAllowedCountryName(location)}
+          </span>
           <span className="flex-shrink-0">
             <CloseCircle size={16} color="#333" />
           </span>

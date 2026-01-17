@@ -207,10 +207,12 @@ export const useInitialize = () => {
 
       if (details.shippingLocations) {
         storePreferredSalesLocation({
-          localShippingLocations:
-            details.shippingLocations.localShippingLocations.map(
+          shippingLocations:
+            details.shippingLocations.shippingCountries ||
+            details.shippingLocations.localShippingLocations?.map(
               (location: any) => location.shorthand
-            ),
+            ) ||
+            [],
           internationalShippingLocations:
             details.shippingLocations.internationalShippingLocations,
           complete: true,
@@ -218,7 +220,7 @@ export const useInitialize = () => {
       } else {
         console.warn("No shipping details found");
         storePreferredSalesLocation({
-          localShippingLocations: [],
+          shippingLocations: [],
           internationalShippingLocations: [],
           complete: false,
         });

@@ -21,7 +21,7 @@ type BusinessDetails = {
 };
 
 type PreferredSalesLocation = {
-  localShippingLocations: string[];
+  shippingLocations: string[];
   internationalShippingLocations: string[];
   complete: boolean;
 };
@@ -53,7 +53,7 @@ const defaultBusinessDetails: BusinessDetails = {
 };
 
 const defaultPreferredSalesLocation = {
-  localShippingLocations: [],
+  shippingLocations: [],
   internationalShippingLocations: [],
   complete: false,
 };

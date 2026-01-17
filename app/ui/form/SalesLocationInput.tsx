@@ -1,24 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { CloseCircle, SearchNormal } from "iconsax-react";
-import { useGetPlaces } from "@/app/lib/hooks/useOnboardingHooks";
-import { useDebouncedCallback } from "use-debounce";
-
-const BLOCKED_COUNTRY_TERMS = [
-  "iran",
-  "iran, islamic republic of",
-  "afghanistan",
-  "russia",
-  "russian federation",
-  "north korea",
-  "korea, democratic people's republic of",
-  "cuba",
-  "crimea",
-];
-
-const isBlockedCityPrediction = (description: string) => {
-  const normalized = (description || "").toLowerCase();
-  return BLOCKED_COUNTRY_TERMS.some((term) => normalized.includes(term));
-};
+import { allowedCountries } from "@/app/lib/allowedCountries";
 
 const SalesLocationInput = ({
   toggleSalesLocation,
@@ -41,37 +23,33 @@ const SalesLocationInput = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false); // State to manage the dropdown visibility
   const selectRef = useRef<HTMLDivElement>(null); // Ref to the select input container
-  const [searchedLocation, setSearchedLocation] = useState<string[]>([]);
-
-  const { handleGetPlaces, citiesData } = useGetPlaces();
-
-  // Debounce callback
-  const debounced = useDebouncedCallback((value) => {
-    handleGetPlaces(value);
-  }, 500);
+  const [searchedLocation, setSearchedLocation] = useState<
+    { countryCode: string; countryName: string }[]
+  >([]);
 
   const handleSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    debounced(value);
   };
 
   useEffect(() => {
-    if (searchQuery.length > 0 && citiesData?.length) {
-      let filteredLocations2 = citiesData?.filter(
-        (location) =>
-          !salesLocation.includes(location.description) &&
-          !isBlockedCityPrediction(location.description)
-      );
-      filteredLocations2 = filteredLocations2?.map((item) => item.description);
-      if (!filteredLocations2) return;
-      setSearchedLocation(filteredLocations2);
-      setIsOpen(true);
+    const query = (searchQuery || "").trim().toLowerCase();
+    if (query.length > 0) {
+      const filteredLocations = allowedCountries
+        .filter(
+          (country) =>
+            country.countryName.toLowerCase().includes(query) &&
+            !salesLocation.includes(country.countryCode)
+        )
+        .slice(0, 50);
+
+      setSearchedLocation(filteredLocations);
+      setIsOpen(filteredLocations.length > 0);
     } else {
       setSearchedLocation([]);
       setIsOpen(false);
     }
-  }, [searchQuery, citiesData, salesLocation]);
+  }, [searchQuery, salesLocation]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -138,15 +116,15 @@ const SelectionModal = ({
   locations,
   selectLocation,
 }: {
-  locations: string[];
+  locations: { countryCode: string; countryName: string }[];
   selectLocation: (location: string) => void;
 }) => {
   const handleSelectLocation = (
     e: React.MouseEvent<HTMLDivElement>,
-    location: string
+    location: { countryCode: string; countryName: string }
   ) => {
     e.stopPropagation();
-    selectLocation(location);
+    selectLocation(location.countryCode);
   };
   return (
     <>
@@ -157,7 +135,7 @@ const SelectionModal = ({
           onClick={(e) => handleSelectLocation(e, location)}
         >
           <p className="text-sm text-heading max-w-[75%] truncate">
-            {location}
+            {location.countryName}
           </p>
           <button className="text-xs py-[3px] w-[44px] px-[6px] rounded-[28px] bg-[#F3EFF6]">
             Add

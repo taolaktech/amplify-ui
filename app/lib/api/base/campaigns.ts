@@ -76,8 +76,6 @@ export type LaunchCampaignPayload = {
   totalBudget: number;
   products: CampaignProduct[];
   location: {
-    city: string;
-    state: string;
     country: string;
   }[];
 };
