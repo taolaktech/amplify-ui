@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta
           name="shopify-api-key"
@@ -63,15 +63,19 @@ export default function RootLayout({
           type="text/css"
         />
       </head>
-      <body className={`antialiased ${inter.className} ${rubik.variable}`}>
+      <body
+        className={`antialiased ${inter.className} ${rubik.variable}`}
+        suppressHydrationWarning
+      >
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
         <Toast />
+        <Script
+          async
+          src="//mozilla.github.io/pdf.js/build/pdf.mjs"
+          type="module"
+          strategy="afterInteractive"
+        />
       </body>
-      <script
-        async
-        src="//mozilla.github.io/pdf.js/build/pdf.mjs"
-        type="module"
-      ></script>
     </html>
   );
 }

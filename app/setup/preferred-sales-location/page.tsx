@@ -10,6 +10,7 @@ import { useSetupStore } from "@/app/lib/stores/setupStore";
 import SalesLocationView from "@/app/ui/SalesLocationView";
 import useLocalSalesLocation from "@/app/lib/hooks/useLocalSalesLocation";
 import { useToastStore } from "@/app/lib/stores/toastStore";
+import { getAllowedCountryCode } from "@/app/lib/allowedCountries";
 
 function PreferredSalesLocation() {
   const [merchantOutsideUsCanada, setMerchantOutsideUsCanada] = useState(false);
@@ -35,7 +36,11 @@ function PreferredSalesLocation() {
         "preferredSalesLocationFromStore",
         preferredSalesLocationFromStore
       );
-      setSalesLocation(preferredSalesLocationFromStore.localShippingLocations);
+      setSalesLocation(
+        preferredSalesLocationFromStore.shippingLocations.map(
+          (location: string) => getAllowedCountryCode(location)
+        )
+      );
       if (merchantOutsideUsCanada) {
         setSelectedIntLocation(
           preferredSalesLocationFromStore.internationalShippingLocations
@@ -62,13 +67,13 @@ function PreferredSalesLocation() {
 
   const handleNext = () => {
     const data = {
-      localShippingLocations: salesLocation,
+      shippingLocations: salesLocation,
       internationalShippingLocations: merchantOutsideUsCanada
         ? selectedIntLocation
         : ["USA", "Canada"],
     };
     if (
-      data.localShippingLocations.length === 0 &&
+      data.shippingLocations.length === 0 &&
       data.internationalShippingLocations.length === 0
     ) {
       setToast({

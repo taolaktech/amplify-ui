@@ -253,14 +253,13 @@ export const useLaunchCampaign = (
           ).toISOString(),
       totalBudget: amount,
       products: productsPayload,
-      location: locations.map((location) => {
-        const splitted = location.split(",").map((part) => part.trim());
-        return {
-          city: splitted[0],
-          state: splitted[1] || "",
-          country: splitted[2] || "",
-        };
-      }),
+      location: locations
+        .map((location) => {
+          const splitted = location.split(",").map((part) => part.trim());
+          return splitted[splitted.length - 1] || "";
+        })
+        .filter((country) => Boolean(country))
+        .map((country) => ({ country })),
     };
     const idempotencyKey = crypto.randomUUID();
 

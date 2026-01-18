@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useSetupStore } from "../stores/setupStore";
+import { getAllowedCountryCode } from "../allowedCountries";
 
 function useLocalSalesLocation() {
   const [searchQuery, setSearchQuery] = useState("");
   const localSalesLocation = useSetupStore(
-    (state) => state.preferredSalesLocation?.localShippingLocations || []
+    (state) => state.preferredSalesLocation?.shippingLocations || []
   );
   const [salesLocation, setSalesLocation] = useState<string[]>([]);
   const toggleSalesLocation = (location: string) => {
@@ -20,7 +21,11 @@ function useLocalSalesLocation() {
   useEffect(() => {
     if (localSalesLocation.length > 0) {
       console.log("Setting local sales location:", localSalesLocation);
-      setSalesLocation(localSalesLocation);
+      setSalesLocation(
+        localSalesLocation.map((location: string) =>
+          getAllowedCountryCode(location)
+        )
+      );
     }
   }, [localSalesLocation]);
 
