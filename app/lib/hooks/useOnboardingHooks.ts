@@ -289,10 +289,10 @@ export const useSubmitPreferredLocation = () => {
   const isRouteToCampaigns =
     useSearchParams().get("redirect") === "create-campaign";
   const [preferredSalesLocation, setPreferredSalesLocation] = useState<{
-    localShippingLocations: string[];
+    shippingLocations: string[];
     internationalShippingLocations: string[];
   }>({
-    localShippingLocations: [],
+    shippingLocations: [],
     internationalShippingLocations: [],
   });
   const storePreferredSalesLocation = useSetupStore(
@@ -319,13 +319,13 @@ export const useSubmitPreferredLocation = () => {
   });
 
   const handleSubmitPreferredLocation = (data: {
-    localShippingLocations: string[];
+    shippingLocations: string[];
     internationalShippingLocations: string[];
   }) => {
     if (!token) return;
 
     const normalizedNewData = {
-      localShippingLocations: data.localShippingLocations,
+      shippingLocations: data.shippingLocations,
       internationalShippingLocations: data.internationalShippingLocations,
       complete: true,
     };
@@ -343,20 +343,9 @@ export const useSubmitPreferredLocation = () => {
     }
 
     setPreferredSalesLocation(data);
-    const localShippingLocations = data.localShippingLocations.map(
-      (location) => {
-        const [city, state, country] = location.split(", ");
-        return {
-          shorthand: location,
-          country,
-          city,
-          state,
-        };
-      }
-    );
     submitPreferredLocationMutation.mutate({
       data: {
-        localShippingLocations,
+        shippingCountries: data.shippingLocations,
         internationalShippingLocations: data.internationalShippingLocations,
       },
       token,

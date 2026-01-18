@@ -288,12 +288,7 @@ export const handlePostBusinessDetails = async (data: {
 
 export const postPreferredSalesLocation = async (data: {
   data: {
-    localShippingLocations: {
-      shorthand: string;
-      country: string;
-      city: string;
-      state: string;
-    }[];
+    shippingCountries: string[];
     internationalShippingLocations: string[];
   };
   token: string;

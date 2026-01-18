@@ -15,6 +15,8 @@ import FacebookPostLG from "@/public/facebook_post_lg.webp";
 import { useModal } from "@/app/lib/hooks/useModal";
 import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import AdPlatformConnect from "@/app/ui/modals/AdPlatformConnect";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { getIntegrationsStatus } from "@/app/lib/api/integrations";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
@@ -36,7 +38,9 @@ const SupportedAdPlatforms = () => {
 
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { instagram, facebook } = useIntegrationStore((state) => state);
+  const token = useAuthStore((state) => state.token);
+  const { instagram, facebook, google } = useIntegrationStore((state) => state);
+  const integrationActions = useIntegrationStore((state) => state.actions);
   const [socialModalKind, setSocialModalKind] = useState<
     "INSTAGRAM" | "FACEBOOK"
   >("FACEBOOK");
@@ -59,6 +63,27 @@ const SupportedAdPlatforms = () => {
   }, []);
 
   useEffect(() => {
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await getIntegrationsStatus({ token });
+        const status = res?.status;
+        if (!status) return;
+
+        integrationActions.setShopifyStoreConnected(
+          Boolean(status.shopify?.connected)
+        );
+        integrationActions.setGoogle(Boolean(status.googleAds?.connected));
+        integrationActions.setFacebook(Boolean(status.facebook?.connected));
+        integrationActions.setInstagram(Boolean(status.instagram?.connected));
+      } catch (e) {
+        console.error("Failed to sync integrations status:", e);
+      }
+    })();
+  }, [token]);
+
+  useEffect(() => {
     if (!instagram) {
       actions.setAdsPlatform("Instagram", false);
     }
@@ -66,7 +91,11 @@ const SupportedAdPlatforms = () => {
     if (!facebook) {
       actions.setAdsPlatform("Facebook", false);
     }
-  }, [instagram, facebook]);
+
+    if (!google) {
+      actions.setAdsPlatform("Google", false);
+    }
+  }, [instagram, facebook, google]);
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -75,9 +104,9 @@ const SupportedAdPlatforms = () => {
   }, []);
 
   const canProceed =
-    supportedAdPlatforms.Google ||
-    supportedAdPlatforms.Instagram ||
-    supportedAdPlatforms.Facebook;
+    (supportedAdPlatforms.Google && google) ||
+    (supportedAdPlatforms.Instagram && instagram) ||
+    (supportedAdPlatforms.Facebook && facebook);
 
   const handleProceed = () => {
     actions.completeAdsPlatform();
@@ -112,6 +141,20 @@ const SupportedAdPlatforms = () => {
     actions.toggleAdsPlatform("Instagram");
   };
 
+  const handleToggleGoogle = () => {
+    if (supportedAdPlatforms.Google) {
+      actions.toggleAdsPlatform("Google");
+      return;
+    }
+    if (!google) {
+      router.push(
+        `/settings/integrations?platform=GOOGLE&route=create-campaign`
+      );
+      return;
+    }
+    actions.toggleAdsPlatform("Google");
+  };
+
   return (
     <div className="mt-6 pb-10">
       <div className="lg:flex-row flex-col flex gap-4 lg:items-center lg:justify-between">
@@ -136,7 +179,9 @@ const SupportedAdPlatforms = () => {
                 layout="fill"
                 objectFit="cover"
                 className={`duration-300 transition-all rounded-3xl ${
-                  supportedAdPlatforms.Google ? "" : "grayscale opacity-70"
+                  supportedAdPlatforms.Google && google
+                    ? ""
+                    : "grayscale opacity-70"
                 }`}
                 placeholder="blur"
               />
@@ -149,12 +194,14 @@ const SupportedAdPlatforms = () => {
               height={18}
               width={100}
               className={`rounded-3xl duration-300 transition-all ${
-                supportedAdPlatforms.Google ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Google && google
+                  ? ""
+                  : "grayscale opacity-60"
               }`}
             />
             <Toggle
-              on={supportedAdPlatforms.Google}
-              toggle={() => actions.toggleAdsPlatform("Google")}
+              on={supportedAdPlatforms.Google && google}
+              toggle={handleToggleGoogle}
             />
           </div>
         </div>
@@ -167,7 +214,9 @@ const SupportedAdPlatforms = () => {
                 layout="fill"
                 objectFit="cover"
                 className={`duration-300 transition-all rounded-3xl ${
-                  supportedAdPlatforms.Instagram ? "" : "grayscale opacity-70"
+                  supportedAdPlatforms.Instagram && instagram
+                    ? ""
+                    : "grayscale opacity-70"
                 }`}
                 placeholder="blur"
               />
@@ -178,7 +227,9 @@ const SupportedAdPlatforms = () => {
               src="/instagram-custom-logo.png"
               alt="Instagram Custom Logo"
               className={`duration-300 transition-all ${
-                supportedAdPlatforms.Instagram ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Instagram && instagram
+                  ? ""
+                  : "grayscale opacity-60"
               }`}
               height={18}
               width={100}
@@ -198,7 +249,9 @@ const SupportedAdPlatforms = () => {
                 layout="fill"
                 objectFit="cover"
                 className={`duration-300 transition-all rounded-3xl ${
-                  supportedAdPlatforms.Facebook ? "" : "grayscale opacity-70"
+                  supportedAdPlatforms.Facebook && facebook
+                    ? ""
+                    : "grayscale opacity-70"
                 }`}
                 placeholder="blur"
               />
@@ -211,7 +264,9 @@ const SupportedAdPlatforms = () => {
               height={18}
               width={100}
               className={`rounded-3xl ${
-                supportedAdPlatforms.Facebook ? "" : "grayscale opacity-60"
+                supportedAdPlatforms.Facebook && facebook
+                  ? ""
+                  : "grayscale opacity-60"
               }`}
             />
             <Toggle

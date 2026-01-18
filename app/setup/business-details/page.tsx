@@ -90,14 +90,21 @@ export default function BusinessDetails() {
             label="Category of products"
             options={[
               "Fashion & Apparel",
-              "Beauty & Personal Care",
+              // "Beauty & Personal Care",
+              // "Health & Wellness",
+              // "Home & Living",
+              // "Consumer Electronics & Accessories",
+              // "Pet Supplies",
+              // "Baby & Kids",
+              // "Food & Beverages",
+              // "Others",
+              "Beauty & Cosmetics",
+              "Electronics & Gadgets",
+              "Home & Furniture",
               "Health & Wellness",
-              "Home & Living",
-              "Consumer Electronics & Accessories",
-              "Pet Supplies",
-              "Baby & Kids",
-              "Food & Beverages",
-              "Others",
+              "Pet Care & Supplies",
+              "Jewelry & Luxury Goods",
+              "Food & Beverage",
             ]}
             setSelected={setProductCategory}
             selected={productCategory}

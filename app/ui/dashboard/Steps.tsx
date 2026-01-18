@@ -6,15 +6,22 @@ import ArrowRightIcon from "@/public/arrow-right-gradient-alt.svg";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
+import { getIntegrationsStatus } from "@/app/lib/api/integrations";
 import AuthLoading from "../AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
 import useUIStore from "@/app/lib/stores/uiStore";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 export default function Steps2() {
   const { isSetupComplete, link } = useGetSetupComplete();
   const [step, setStep] = useState(1);
-  const { handleFacebookAuth, loading, fetchingProgress, subText } =
-    useIntegrationsAuth();
+  const {
+    handleFacebookAuth,
+    handleGoogleAuth,
+    loading,
+    fetchingProgress,
+    subText,
+  } = useIntegrationsAuth();
 
   useModal(loading);
 
@@ -23,33 +30,54 @@ export default function Steps2() {
   // );
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
 
-  const { shopifyStore, instagram, facebook } = useIntegrationStore(
+  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
     (state) => state
   );
+  const integrationActions = useIntegrationStore((state) => state.actions);
   const setFromDashboardStep = useUIStore(
     (state) => state.actions.setFromDashboardStep
   );
 
   useEffect(() => {
-    console.log("isSetupComplete", isSetupComplete);
-    console.log("isFacebook", facebook);
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await getIntegrationsStatus({ token });
+        const status = res?.status || res?.data?.status;
+        if (!status) return;
+
+        integrationActions.setShopifyStoreConnected(
+          Boolean(status.shopify?.connected)
+        );
+        integrationActions.setGoogle(Boolean(status.googleAds?.connected));
+        integrationActions.setInstagram(Boolean(status.instagram?.connected));
+        integrationActions.setFacebook(Boolean(status.facebook?.connected));
+      } catch (e) {
+        console.error("Failed to sync integrations status:", e);
+      }
+    })();
+  }, [token, integrationActions]);
+
+  useEffect(() => {
     let step = 0;
     // if (primaryLogo && (brandGuide || brandGuideName)) {
     if (primaryLogo) {
       step += 1;
     }
+    if (google) step += 1;
     if (instagram) step += 1;
 
     if (facebook) step += 1;
 
     if (isSetupComplete) step += 1;
-    console.log("step", step);
-
     setStep(step);
   }, [
     isSetupComplete,
     link,
+    google,
     instagram,
     facebook,
     primaryLogo,
@@ -72,12 +100,12 @@ export default function Steps2() {
         <h2 className="font-medium md:text-xl">Complete your Setup</h2>
         <div className="flex flex-row mt-2 items-center flex-shrink-0">
           <div className="text-xs font-medium text-[#787779] w-[70px]">
-            {step} / 4 Steps
+            {step} / 5 Steps
           </div>
           <div className="w-full bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
             <div
               style={{
-                width: `${(step / 4) * 100}%`,
+                width: `${(step / 5) * 100}%`,
                 backgroundColor: "#27AE60",
                 borderRadius: 2.5,
                 height: 3,
@@ -91,11 +119,11 @@ export default function Steps2() {
             connected={Boolean(isSetupComplete) && shopifyStore}
             action={handleConnectStore}
           />
-          {/* <StepsItem
-          text="Connect to Google Ads"
-          connected={google}
-          action={() => router.push("/settings/integrations")}
-        /> */}
+          <StepsItem
+            text="Connect your Google Ads account"
+            connected={google}
+            action={() => handleGoogleAuth("GOOGLE")}
+          />
           <StepsItem
             text="Connect your Instagram account"
             connected={instagram}
