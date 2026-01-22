@@ -19,16 +19,46 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    domains: [
-      "lh3.googleusercontent.com",
-      "cdn.shopify.com",
-      "cdn.pixabay.com",
-      "s3.us-east-2.amazonaws.com",
-      "amplify-shopify-uploads.s3.us-east-2.amazonaws.com",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.pixabay.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "s3.us-east-2.amazonaws.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "s3.us-east-2.amazonaws.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "amplify-shopify-uploads.s3.us-east-2.amazonaws.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "amplify-shopify-uploads.s3.us-east-2.amazonaws.com",
+        pathname: "/**",
+      },
     ],
   },
   experimental: {
-    allowedDevOrigins: ["http://172.20.10.6:3000", "http://192.168.1.168:3000"], // <-- 🔥 This is what you need
+    allowedDevOrigins: ["http://172.20.10.6:3000", "http://192.168.1.168:3000"],
     turbo: {
       rules: {
         "*.svg": {

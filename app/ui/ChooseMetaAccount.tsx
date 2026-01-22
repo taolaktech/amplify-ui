@@ -39,13 +39,12 @@ export const ChooseMetaAccount = ({
   step: number;
   setStep: (step: number) => void;
   lastStepLoading: boolean;
-  handleLastStep: (metaPixelId: string) => void;
+  handleLastStep: (metaPixelId?: string) => void;
   selectedIGAccount: any;
   IGAccounts: any[];
   setSelectedIGAccount: (account: any) => void;
 }) => {
   console.log("Ad Accounts in ChooseMetaAccount:", adAccounts);
-  const [metaPixelId, setMetaPixelId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export const ChooseMetaAccount = ({
 
   const isFacebook = useMemo(
     () => integrationsAuthPlatform === "FACEBOOK",
-    [integrationsAuthPlatform]
+    [integrationsAuthPlatform],
   );
 
   const headerText = useMemo(() => {
@@ -67,8 +66,6 @@ export const ChooseMetaAccount = ({
         return isFacebook
           ? "Select Ad Account Page"
           : "Select Instagram Account";
-      case 2:
-        return "Meta Pixel";
       default:
         return isFacebook ? "Choose Ad Account" : "Choose Instagram Account";
     }
@@ -80,10 +77,6 @@ export const ChooseMetaAccount = ({
         return "";
       case 1:
         return isFacebook ? "Choose Ad Account" : "Choose Instagram Account";
-      case 2:
-        return isFacebook
-          ? "Select Ad Account Page"
-          : "Select Instagram Account Page";
       default:
         return "";
     }
@@ -114,14 +107,6 @@ export const ChooseMetaAccount = ({
             setSelectedPage={setSelectedMetaPage}
           />
         );
-      case 2:
-        return (
-          <MetaPixelId
-            metaPixelId={metaPixelId}
-            setMetaPixelId={setMetaPixelId}
-            error={error}
-          />
-        );
       default:
         return (
           <AdAccounts
@@ -136,8 +121,6 @@ export const ChooseMetaAccount = ({
     adAccounts,
     selectedAdAccount,
     setSelectedAdAccount,
-    metaPixelId,
-    setMetaPixelId,
     metaPages,
     selectedMetaPage,
     setSelectedMetaPage,
@@ -156,15 +139,8 @@ export const ChooseMetaAccount = ({
       }
       handleGetPagesForAdAccount();
     } else if (step === 1) {
-      setStep(2);
-    } else if (step === 2) {
-      console.log("Meta Pixel ID to confirm:", metaPixelId.length);
-      if (metaPixelId.length < 15 || metaPixelId.length > 16) {
-        setError("Meta Pixel ID must be 15-16 digits");
-        return;
-      }
       setError(null);
-      handleLastStep(metaPixelId);
+      handleLastStep();
     } else {
       handleClose();
     }
@@ -185,9 +161,7 @@ export const ChooseMetaAccount = ({
 
       <div
         className={`bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
-      h-[80vh] w-[90vw] ${
-        step === 2 ? "max-h-[450px]" : "max-h-[650px]"
-      } custom-shadow max-w-[620px]
+      h-[80vh] w-[90vw] ${"max-h-[650px]"} custom-shadow max-w-[620px]
       z-30 rounded-2xl flex flex-col overflow-hidden
         `}
       >
