@@ -43,12 +43,12 @@ export default function useIntegrationsAuth() {
   const [step, setStep] = useState(0);
   const [integrationsAuthPlatform] = useState<IntegrationsAuthPlatform>(
     (localStorage.getItem(
-      "integrations_auth_platform"
-    ) as IntegrationsAuthPlatform) || "FACEBOOK"
+      "integrations_auth_platform",
+    ) as IntegrationsAuthPlatform) || "FACEBOOK",
   );
 
   const setAdsPlatform = useCreateCampaignStore(
-    (state) => state.actions.setAdsPlatform
+    (state) => state.actions.setAdsPlatform,
   );
 
   const router = useRouter();
@@ -181,7 +181,7 @@ export default function useIntegrationsAuth() {
     },
   });
 
-  const handleLastStep = (metaPixelId: string) => {
+  const handleLastStep = (metaPixelId?: string) => {
     const isFacebook = integrationsAuthPlatform === "FACEBOOK";
 
     if (!token || !selectedAdAccount || (isFacebook && !selectedMetaPage))
@@ -189,7 +189,7 @@ export default function useIntegrationsAuth() {
     fbAdAccSelectionMutation.mutate({
       adAccountId: selectedAdAccount.id,
       pageId: isFacebook ? selectedMetaPage.pageId : selectedIGAccount.pageId,
-      metaPixelId: metaPixelId,
+      ...(metaPixelId ? { metaPixelId } : {}),
       ...(isFacebook
         ? {}
         : { instagramAccountId: selectedIGAccount?.id || null }),
@@ -207,14 +207,14 @@ export default function useIntegrationsAuth() {
 
   const handleGoogleAuth = async (
     platform: "GOOGLE",
-    route?: string | null
+    route?: string | null,
   ) => {
     if (route) localStorage.setItem("integration-route", "create-campaign");
     else localStorage.removeItem("integration-route");
     setSubText(
       `We’re securely connecting your ${capitalize(
-        platform.toLowerCase()
-      )} account.`
+        platform.toLowerCase(),
+      )} account.`,
     );
     if (loading) return;
     if (google) {
@@ -253,14 +253,14 @@ export default function useIntegrationsAuth() {
 
   const handleFacebookAuth = async (
     platform: "FACEBOOK" | "INSTAGRAM",
-    route?: string | null
+    route?: string | null,
   ) => {
     if (route) localStorage.setItem("integration-route", "create-campaign");
     else localStorage.removeItem("integration-route");
     setSubText(
       `We’re securely connecting your ${capitalize(
-        platform.toLowerCase()
-      )} account.`
+        platform.toLowerCase(),
+      )} account.`,
     );
     if (loading) return;
     if (facebook && platform === "FACEBOOK") {
