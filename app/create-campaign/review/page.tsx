@@ -19,14 +19,8 @@ import {
   useCampaignPageActions,
   useLaunchCampaign,
 } from "@/app/lib/hooks/campaigns";
+import { COUNTRY_CODE_TO_NAME } from "@/app/lib/utils";
 
-const countries = {
-  usa: "United States",
-  canada: "Canada",
-  mexico: "Mexico",
-  gbr: "United Kingdom",
-  aus: "Australia",
-};
 export default function ReviewPage() {
   const {
     productSelection,
@@ -38,7 +32,7 @@ export default function ReviewPage() {
     fundCampaign,
   } = useCreateCampaignStore((state) => state);
   const { getLocationCountries } = useCreateCampaignStore(
-    (state) => state.actions
+    (state) => state.actions,
   );
   const [adPlatforms, setAdPlatforms] = useState<
     {
@@ -55,7 +49,7 @@ export default function ReviewPage() {
   const router = useRouter();
   const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
-    productSelection.products[0] ?? null
+    productSelection.products[0] ?? null,
   );
 
   const { navigateToCampaignPage } = useCampaignPageActions();
@@ -72,11 +66,11 @@ export default function ReviewPage() {
 
   const formattedStartDate = format(
     parseISO(campaignSnapshots.campaignStartDate || new Date().toISOString()),
-    "MMMM dd, yyyy"
+    "MMMM dd, yyyy",
   );
   const formattedEndDate = format(
     parseISO(campaignSnapshots.campaignEndDate || new Date().toISOString()),
-    "MMMM dd, yyyy"
+    "MMMM dd, yyyy",
   );
 
   const handleSetHighlightedProduct = (product: any) => {
@@ -88,7 +82,7 @@ export default function ReviewPage() {
       .filter(
         (platform) =>
           platform !== "complete" &&
-          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
+          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
         title: platform as "Instagram" | "Facebook" | "Google",
@@ -101,17 +95,17 @@ export default function ReviewPage() {
           ...(platform === "Instagram"
             ? instagramSettings
             : platform === "Facebook"
-            ? facebookSettings
-            : googleSettings),
+              ? facebookSettings
+              : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
-            ? Google?.[highlightedProduct.node.id] ?? []
+            ? (Google?.[highlightedProduct.node.id] ?? [])
             : platform === "Instagram"
-            ? Instagram?.[highlightedProduct.node.id] ?? []
-            : platform === "Facebook"
-            ? Facebook?.[highlightedProduct.node.id] ?? []
-            : []
+              ? (Instagram?.[highlightedProduct.node.id] ?? [])
+              : platform === "Facebook"
+                ? (Facebook?.[highlightedProduct.node.id] ?? [])
+                : []
           : [],
       }))
       .sort((a, b) => {
@@ -181,15 +175,13 @@ export default function ReviewPage() {
                   key={index}
                   className="text-[#555456] flex items-center gap-1 font-medium tracking-250"
                 >
-                  <Image
-                    src={`/${country.toLowerCase()}.png`}
-                    alt={country}
+                  {/* <Image
+                    src={`/${COUNTRY_CODE_TO_NAME[country]}.png`}
+                    alt={COUNTRY_CODE_TO_NAME[country]}
                     width={32}
                     height={32}
-                  />
-                  <span>
-                    {countries[country.toLowerCase() as keyof typeof countries]}{" "}
-                  </span>
+                  /> */}
+                  <span>{COUNTRY_CODE_TO_NAME[country]} </span>
                 </div>
               ))}
             </div>
@@ -224,8 +216,8 @@ export default function ReviewPage() {
                       platform.title === "Instagram"
                         ? "/instagram_logo.svg"
                         : platform.title === "Facebook"
-                        ? "/facebook_logo.svg"
-                        : "/google_ads-icon.svg"
+                          ? "/facebook_logo.svg"
+                          : "/google_ads-icon.svg"
                     }
                     alt={platform.title}
                     width={20}
@@ -333,7 +325,7 @@ export default function ReviewPage() {
                 ${fundCampaign.amount || "0"}
               </p>
             </div>
-            <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
+            {/*  <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
               <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
                 <Image
                   src={
@@ -355,7 +347,7 @@ export default function ReviewPage() {
                   **** **** **** {fundCampaign.cardDetails?.last4Numbers}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </section>
         <div className="mt-5 md:mt-20 sm:max-w-[242px] mx-auto">
