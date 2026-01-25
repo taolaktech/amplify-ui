@@ -67,7 +67,7 @@ type CreateCampaignActions = {
   toggleAdsPlatform: (platform: keyof SupportedAdPlatforms) => void;
   setAdsPlatform: (
     platform: keyof SupportedAdPlatforms,
-    value: boolean
+    value: boolean,
   ) => void;
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
@@ -155,7 +155,8 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           const countries: string[] = [];
           const locations = get().adsShow.location;
           locations.forEach((location) => {
-            const country = location.trim().split(",")[2]?.trim();
+            console.log({ locations });
+            const country = location;
             if (!countries.includes(country)) {
               countries.push(country);
             }
@@ -218,7 +219,7 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         },
         setAdsPlatform: (
           platform: keyof SupportedAdPlatforms,
-          value: boolean
+          value: boolean,
         ) => {
           set((state) => ({
             supportedAdPlatforms: {
@@ -284,6 +285,6 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         //   state.supportedAdPlatforms.complete = false;
         // }
       },
-    }
-  )
+    },
+  ),
 );
