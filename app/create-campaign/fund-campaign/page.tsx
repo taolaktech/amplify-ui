@@ -16,18 +16,18 @@ import { useToastStore } from "@/app/lib/stores/toastStore";
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
   const cardDetails = useCreateCampaignStore(
-    (state) => state.fundCampaign.cardDetails
+    (state) => state.fundCampaign.cardDetails,
   );
   const actions = useCreateCampaignStore((state) => state.actions);
   const [, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderFuncRef = useRef<any>(null);
   const campaignSnapshots = useCreateCampaignStore(
-    (state) => state.campaignSnapshots
+    (state) => state.campaignSnapshots,
   );
   const { isPending } = useTopUpWallet(handleProceed);
   const adFundAmount = useCreateCampaignStore(
-    (state) => state.fundCampaign.amount
+    (state) => state.fundCampaign.amount,
   );
   const [isEditing, setIsEditing] = useState(false);
   const setToast = useToastStore((state) => state.setToast);
@@ -90,7 +90,7 @@ export default function FundCampaignPage() {
         onRangeDragEnd: () => {
           console.log("Slider drag ended");
         },
-      }
+      },
     );
 
     sliderFuncRef.current = slider;
@@ -108,14 +108,14 @@ export default function FundCampaignPage() {
   }, []);
 
   function handleProceed() {
-    if (!cardDetails) {
-      setToast({
-        type: "error",
-        title: "Card Required",
-        message: "Please add a card to proceed",
-      });
-      return;
-    }
+    // if (!cardDetails) {
+    //   setToast({
+    //     type: "error",
+    //     title: "Card Required",
+    //     message: "Please add a card to proceed",
+    //   });
+    //   return;
+    // }
     actions.storeFundCampaign({
       amount,
       complete: true,
@@ -207,7 +207,7 @@ export default function FundCampaignPage() {
             </div>
           </div>
         </div>
-        <div className="lg:w-[50%] mt-20 lg:mt-0">
+        {/*  <div className="lg:w-[50%] mt-20 lg:mt-0">
           <div className="flex items-center mb-4 justify-between w-full">
             <span className="text-sm tracking-60 text-[#595959]">
               Select Payment Options
@@ -222,7 +222,7 @@ export default function FundCampaignPage() {
           <div>
             <Checkout isAddCardPage setRightSideOpen={setRightSideOpen} />
           </div>
-        </div>
+        </div> */}
       </div>
       <div
         className={`flex flex-col transition-all duration-300 ease-in-out justify-end sm:max-w-[200px] mx-auto h-[160px]`}

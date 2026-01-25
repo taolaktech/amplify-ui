@@ -81,20 +81,14 @@ export type LaunchCampaignPayload = {
 };
 
 export async function launchCampaign(data: {
-  token: string;
   campaignPayload: LaunchCampaignPayload;
-  amount: number;
-  paymentMethodId: string;
-  idempotencyKey: string;
+  token: string;
+  // amount: number;
+  // paymentMethodId: string;
+  // idempotencyKey: string;
 }) {
-  const { token, campaignPayload, idempotencyKey } = data;
+  const { token, campaignPayload } = data;
 
-  await topUpWallet({
-    token,
-    amount: data.amount,
-    paymentMethodId: data.paymentMethodId,
-    idempotencyKey,
-  });
   const response = await instance.post(`/campaign`, campaignPayload, {
     headers: {
       Authorization: `Bearer ${token}`,

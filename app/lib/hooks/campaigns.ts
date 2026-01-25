@@ -18,7 +18,7 @@ import { useGetSetupComplete } from "./useGetSetupComplete";
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
   const { page, sortBy, type, status, platforms } = useCampaignsStore(
-    (state) => state
+    (state) => state,
   );
   const isLoading = useCampaignsStore((state) => state.isLoading);
   const actions = useCampaignsStore((state) => state.actions);
@@ -97,23 +97,23 @@ export const useCampaignsActions = () => {
 };
 
 export const useLaunchCampaign = (
-  setIsLaunchCampaign: (val: boolean) => void
+  setIsLaunchCampaign: (val: boolean) => void,
 ) => {
   const authToken = useAuthStore((state) => state.token);
   const businessDetails = useSetupStore((state) => state.businessDetails);
   const { toneOfVoice, primaryColor, secondaryColor } = useBrandAssetStore(
-    (state) => state
+    (state) => state,
   );
   const products = useCreateCampaignStore(
-    (state) => state.productSelection.products
+    (state) => state.productSelection.products,
   );
   const locations = useCreateCampaignStore((state) => state.adsShow.location);
   const amount = useCreateCampaignStore((state) => state.fundCampaign.amount);
   const supportedAdPlatforms = useCreateCampaignStore(
-    (state) => state.supportedAdPlatforms
+    (state) => state.supportedAdPlatforms,
   );
   const paymentMethodId = useCreateCampaignStore(
-    (state) => state.fundCampaign.cardDetails?.id
+    (state) => state.fundCampaign.cardDetails?.id,
   );
 
   const {
@@ -178,7 +178,7 @@ export const useLaunchCampaign = (
                 key: creative?.key,
                 description: creative?.description,
                 title: creative?.title,
-              })
+              }),
             ) || [],
         });
       }
@@ -197,7 +197,7 @@ export const useLaunchCampaign = (
               caption: creative?.bodyText,
               productUrl: creative?.productUrl,
               key: creative?.key,
-            })
+            }),
           ),
           budget: amount / products.length / campaignPlatforms.length,
         });
@@ -208,7 +208,7 @@ export const useLaunchCampaign = (
             .creatives || [];
 
         const creativesData = formatCreatives?.map((creative: string) =>
-          JSON.stringify(creative)
+          JSON.stringify(creative),
         );
         creatives.push({
           channel: "google",
@@ -249,7 +249,7 @@ export const useLaunchCampaign = (
       endDate: campaignEndDate
         ? new Date(campaignEndDate).toISOString()
         : new Date(
-            new Date().setMonth(new Date().getMonth() + 1)
+            new Date().setMonth(new Date().getMonth() + 1),
           ).toISOString(),
       totalBudget: amount,
       products: productsPayload,
@@ -261,14 +261,10 @@ export const useLaunchCampaign = (
         .filter((country) => Boolean(country))
         .map((country) => ({ country })),
     };
-    const idempotencyKey = crypto.randomUUID();
 
     mutate({
       token: authToken,
       campaignPayload: campaignData,
-      idempotencyKey,
-      amount,
-      paymentMethodId: paymentMethodId!,
     });
   };
 
