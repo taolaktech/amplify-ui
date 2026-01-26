@@ -1,6 +1,7 @@
 "use client";
 import CompetitorAds from "../../ui/dashboard/CompetitorAds";
 import AdLibrary from "../../ui/dashboard/AdLibrary";
+import TrendingVideos from "../../ui/dashboard/TrendingVideos";
 
 export default function CompetitorAdsPage() {
   return (
@@ -12,7 +13,8 @@ export default function CompetitorAdsPage() {
             Get inspired with top performing ads from competitors or from our templates
           </div>
         </div>
-        <CompetitorAds />
+        {/* <CompetitorAds /> */}
+        <TrendingVideos />
         <AdLibrary />
       </div>
     </div>

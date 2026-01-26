@@ -74,15 +74,10 @@ const SupportedAdPlatforms = () => {
     }
   }, []);
 
-  const canProceed =
-    supportedAdPlatforms.Google ||
-    supportedAdPlatforms.Instagram ||
-    supportedAdPlatforms.Facebook;
-
   const handleProceed = () => {
     actions.completeAdsPlatform();
 
-    router.push("/create-campaign/campaign-snapshots");
+    router.push("/create-campaign/creative-templates");
   };
 
   const handleToggleFacebook = () => {
@@ -225,7 +220,6 @@ const SupportedAdPlatforms = () => {
         <Button
           text="Proceed"
           action={handleProceed}
-          disabled={!canProceed}
           hasIconOrLoader
           loading={isLoading}
           icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
