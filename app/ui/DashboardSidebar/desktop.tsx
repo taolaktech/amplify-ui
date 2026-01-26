@@ -82,6 +82,9 @@ export default function DesktopSideBar({
   // const router = useRouter();
   const { navigateToCampaignPage } = useCampaignPageActions();
 
+  const isDashboardActive = isVersion2 ? isDashboardV2 : isDashboard;
+  const isCampaignsActive = isVersion2 ? isCampaignsV2 : isCampaigns;
+
   return (
     <>
       <div
@@ -94,7 +97,10 @@ export default function DesktopSideBar({
             isSidebarOpen ? "justify-between px-8" : "justify-center px-5"
           } h-[81px] py-7`}
         >
-          <Link href="/" className="flex items-center gap-2">
+          <Link
+            href={isVersion2 ? "/dashboard-v2" : "/"}
+            className="flex items-center gap-2"
+          >
             <DashboardLogoIcon width={32} height={32} />
             <span
               className={`font-medium text-xl ${
@@ -144,24 +150,24 @@ export default function DesktopSideBar({
           <ul className={`flex flex-col gap-2`}>
             <li>
               <Link
-                href="/dashboard-v2"
+                href={isVersion2 ? "/dashboard-v2" : "/"}
                 className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isDashboardV2 ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                  isDashboardActive ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isDashboardV2 && <HomeTrendUp size="24" color="#BFBFBF" />}
-                  {isDashboardV2 && <HomeTrendUpGrad width="24" height="24" />}
+                  {!isDashboardActive && <HomeTrendUp size="24" color="#BFBFBF" />}
+                  {isDashboardActive && <HomeTrendUpGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isDashboardV2 ? "text-heading" : "text-gray-dark"
+                      isDashboardActive ? "text-heading" : "text-gray-dark"
                     }`}
                   >
-                    Inspirations
+                    {isVersion2 ? "Inspirations" : "Dashboard"}
                   </span>
                 )}
               </Link>
@@ -173,19 +179,19 @@ export default function DesktopSideBar({
                 className={`flex items-center rounded-xl  gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isCampaignsV2
+                  isCampaignsActive
                     ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
                     : "hover:bg-[#fdfcfd]"
                 }`}
               >
                 <span>
-                  {!isCampaignsV2 && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaignsV2 && <CalenderEditGrad width="24" height="24" />}
+                  {!isCampaignsActive && <CalendarEdit size="24" color="#BFBFBF" />}
+                  {isCampaignsActive && <CalenderEditGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isCampaignsV2 ? "text-heading" : "text-gray-dark"
+                      isCampaignsActive ? "text-heading" : "text-gray-dark"
                     }`}
                   >
                     Campaigns

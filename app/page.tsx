@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import DashboardGettingStarted from "./ui/dashboard/GettingStarted";
 
 export default function DashboardPage() {
-  redirect("/dashboard-v2");
+  return <DashboardGettingStarted />;
 }

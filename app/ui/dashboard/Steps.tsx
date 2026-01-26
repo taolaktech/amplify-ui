@@ -9,6 +9,9 @@ import useIntegrationsAuth from "@/app/lib/hooks/useIntegrationsAuth";
 import AuthLoading from "../AuthLoading";
 import { useModal } from "@/app/lib/hooks/useModal";
 import useUIStore from "@/app/lib/stores/uiStore";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import { googleAdsAuth } from "@/app/lib/api/integrations";
 
 export default function Steps2() {
   const { isSetupComplete, link } = useGetSetupComplete();
@@ -16,7 +19,13 @@ export default function Steps2() {
   const { handleFacebookAuth, loading, fetchingProgress, subText } =
     useIntegrationsAuth();
 
-  useModal(loading);
+  const token = useAuthStore((state) => state.token);
+  const setToast = useToastStore((state) => state.setToast);
+  const [googleAdsLoading, setGoogleAdsLoading] = useState(false);
+  const [googleAdsFetchingProgress, setGoogleAdsFetchingProgress] = useState(20);
+  const [googleAdsSubText, setGoogleAdsSubText] = useState("");
+
+  useModal(loading || googleAdsLoading);
 
   // const { primaryLogo, brandGuide, brandGuideName } = useBrandAssetStore(
   //   (state) => state
@@ -24,7 +33,7 @@ export default function Steps2() {
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
   const router = useRouter();
 
-  const { shopifyStore, instagram, facebook } = useIntegrationStore(
+  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
     (state) => state
   );
   const setFromDashboardStep = useUIStore(
@@ -39,6 +48,7 @@ export default function Steps2() {
     if (primaryLogo) {
       step += 1;
     }
+    if (google) step += 1;
     if (instagram) step += 1;
 
     if (facebook) step += 1;
@@ -52,6 +62,7 @@ export default function Steps2() {
     link,
     instagram,
     facebook,
+    google,
     primaryLogo,
     // brandGuide,
     // brandGuideName,
@@ -66,18 +77,45 @@ export default function Steps2() {
     router.push(link);
   };
 
+  const handleGoogleAdsConnect = async () => {
+    if (!token || googleAdsLoading) return;
+    try {
+      setGoogleAdsSubText("We’re securely connecting your Google Ads account.");
+      setGoogleAdsFetchingProgress(40);
+      setGoogleAdsLoading(true);
+      const data: any = await googleAdsAuth({ token });
+      setGoogleAdsFetchingProgress(70);
+
+      const oauthUrl = data?.data?.oauthUrl;
+      if (!oauthUrl) {
+        throw new Error("Missing oauthUrl");
+      }
+      setGoogleAdsFetchingProgress(100);
+      window.location.href = oauthUrl;
+    } catch (error) {
+      setGoogleAdsLoading(false);
+      setGoogleAdsFetchingProgress(20);
+      setToast({
+        type: "error",
+        title: "Integration Error",
+        message: "Failed to authenticate with Google Ads.",
+      });
+      console.error("Error during Google Ads authentication:", error);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col bg-[rgba(246,246,246,0.75)] p-6 rounded-3xl flex-1 h-full">
         <h2 className="font-medium md:text-xl">Complete your Setup</h2>
         <div className="flex flex-row mt-2 items-center flex-shrink-0">
           <div className="text-xs font-medium text-[#787779] w-[70px]">
-            {step} / 4 Steps
+            {step} / 5 Steps
           </div>
           <div className="w-full bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
             <div
               style={{
-                width: `${(step / 4) * 100}%`,
+                width: `${(step / 5) * 100}%`,
                 backgroundColor: "#27AE60",
                 borderRadius: 2.5,
                 height: 3,
@@ -91,11 +129,11 @@ export default function Steps2() {
             connected={Boolean(isSetupComplete) && shopifyStore}
             action={handleConnectStore}
           />
-          {/* <StepsItem
-          text="Connect to Google Ads"
-          connected={google}
-          action={() => router.push("/settings/integrations")}
-        /> */}
+          <StepsItem
+            text="Connect your Google Ads account"
+            connected={google}
+            action={handleGoogleAdsConnect}
+          />
           <StepsItem
             text="Connect your Instagram account"
             connected={instagram}
@@ -123,6 +161,13 @@ export default function Steps2() {
           fetchingProgress={fetchingProgress}
           headingText="Just a moment…"
           subText={subText}
+        />
+      )}
+      {googleAdsLoading && (
+        <AuthLoading
+          fetchingProgress={googleAdsFetchingProgress}
+          headingText="Just a moment…"
+          subText={googleAdsSubText}
         />
       )}
     </>

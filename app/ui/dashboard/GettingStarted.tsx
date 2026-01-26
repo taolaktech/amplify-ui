@@ -1,3 +1,5 @@
+"use client";
+
 import HomeTrendIcon from "@/public/dashboard-home-trend-up.svg";
 import { CloseCircle, Notification } from "iconsax-react";
 import { useAuthStore } from "@/app/lib/stores/authStore";

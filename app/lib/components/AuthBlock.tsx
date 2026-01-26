@@ -48,7 +48,7 @@ export default function AuthBlock({
     if (!isPublicRoute && !isAuth) {
       router.replace("/auth/login");
     } else if (isPublicRoute && isAuth && !validated) {
-      router.replace("/dashboard-v2");
+      router.replace("/");
     }
   }, [isMounted, isAuth, pathname, router]);
 

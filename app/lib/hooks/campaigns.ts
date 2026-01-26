@@ -14,6 +14,7 @@ import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import { useToastStore } from "../stores/toastStore";
 import { useGetSetupComplete } from "./useGetSetupComplete";
+import { useDashboardPath } from "./useDashboardPath";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
@@ -283,10 +284,11 @@ export const useCampaignPageActions = () => {
   const router = useRouter();
   const token = useAuthStore((state) => state.token);
   const { fetchCampaigns } = useGetCampaigns();
+  const { isVersion2 } = useDashboardPath();
 
   const navigateToCampaignPage = () => {
     if (token) fetchCampaigns(token, true);
-    router.push(`/dashboard-v2/campaigns`);
+    router.push(isVersion2 ? "/dashboard-v2/campaigns" : "/campaigns");
   };
 
   return { navigateToCampaignPage };

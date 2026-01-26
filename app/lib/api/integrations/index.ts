@@ -23,6 +23,16 @@ export type BusinessDetails = {
 };
 
 const INTEGRATION_HOST = process.env.NEXT_PUBLIC_API_INTEGRATION_HOST;
+
+export const googleAdsAuth = async (data: { token: string }) => {
+  const response = await axios.get(`${INTEGRATION_HOST}/google-ads-auth`, {
+    headers: {
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
+  return response.data;
+};
+
 export const facebookAuth = async (data: { token: string }) => {
   const response = await axios.get(
     `${INTEGRATION_HOST}/facebook-auth?platforms=facebook`,
