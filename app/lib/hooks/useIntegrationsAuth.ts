@@ -29,6 +29,7 @@ export default function useIntegrationsAuth() {
   const { facebook, instagram, google } = useIntegrationStore((state) => state);
   const [subText, setSubText] = useState("");
   const [metaPages, setMetaPages] = useState<any[]>([]);
+  const [callbackPages, setCallbackPages] = useState<any[]>([]);
   const [selectedMetaPage, setSelectedMetaPage] = useState<any>(null);
   const [metaAccountChooser, setMetaAccountChooser] = useState(false);
   const [metaAccounts, setMetaAccounts] = useState<any[]>([]);
@@ -69,12 +70,27 @@ export default function useIntegrationsAuth() {
       setFetchingProgress(100);
       setTimeout(() => {
         setLoading(false);
+
+        const rawPages = data?.data?.pages || [];
+        const normalizedPages = (rawPages || []).map((p: any) => ({
+          pageId: p?.id,
+          pageName: p?.name,
+          pageCategory: p?.category,
+          _id: p?.id,
+        }));
+        setCallbackPages(normalizedPages);
+
         if (integrationsAuthPlatform === "INSTAGRAM") {
           setSelectedIGAccount(data.data.instagramAccounts[0] || null);
           setIGAccounts(data.data.instagramAccounts || []);
         }
         setSelectedAdAccount(data.data.adAccounts[0] || null);
         setMetaAccounts(data.data.adAccounts || []);
+
+        if (integrationsAuthPlatform === "FACEBOOK") {
+          setMetaPages(normalizedPages);
+          setSelectedMetaPage(normalizedPages[0] || null);
+        }
         setMetaAccountChooser(true);
         setFetchingProgress(20);
       }, 1500);
@@ -316,8 +332,17 @@ export default function useIntegrationsAuth() {
       //   token,
       // });
       console.log("Pages for Ad Account data:", data);
-      setMetaPages(data.data);
-      setSelectedMetaPage(data.data[0] || null);
+      const fetchedPages = data?.data || [];
+      if (Array.isArray(fetchedPages) && fetchedPages.length > 0) {
+        setMetaPages(fetchedPages);
+        setSelectedMetaPage(fetchedPages[0] || null);
+      } else if (callbackPages.length > 0) {
+        setMetaPages(callbackPages);
+        setSelectedMetaPage(callbackPages[0] || null);
+      } else {
+        setMetaPages([]);
+        setSelectedMetaPage(null);
+      }
       setStep(1);
     } catch (error) {
       setToast({
