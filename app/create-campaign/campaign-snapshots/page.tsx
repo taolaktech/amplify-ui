@@ -79,19 +79,47 @@ const MainActions = ({
   generalUndo: (productId: string) => void;
 }) => {
   const supportedAdPlatforms = useCreateCampaignStore(
-    (state) => state.supportedAdPlatforms
+    (state) => state.supportedAdPlatforms,
   );
+  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const destinationUrl = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.destinationUrl,
+  );
+  const setToast = useToastStore((state) => state.setToast);
   const creativeLoadingStates = useUIStore(
-    (state) => state.creativeLoadingState
+    (state) => state.creativeLoadingState,
   );
+
+  const isValidHttpUrl = (value: string) => {
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const isDestinationUrlValid = isValidHttpUrl(destinationUrl);
   const isLoading = useMemo(() => {
     return (
       creativeLoadingStates?.[highlightedProduct?.node.id || ""] &&
       Object.values(
-        creativeLoadingStates?.[highlightedProduct?.node.id || ""] || {}
+        creativeLoadingStates?.[highlightedProduct?.node.id || ""] || {},
       ).some((state) => state === true)
     );
   }, [creativeLoadingStates, highlightedProduct?.node.id]);
+
+  const hasGeneratedOnce = useMemo(() => {
+    const productId = highlightedProduct?.node?.id;
+    if (!productId) return false;
+
+    const googleHas = (Google?.[productId]?.length || 0) > 0;
+    const instagramHas = (Instagram?.[productId]?.length || 0) > 0;
+    const facebookHas = (Facebook?.[productId]?.length || 0) > 0;
+
+    return googleHas || instagramHas || facebookHas;
+  }, [Facebook, Google, Instagram, highlightedProduct?.node?.id]);
 
   console.log("Supported Ad Platforms in MainActions:", supportedAdPlatforms);
   const supportedPlatformArr = useMemo(() => {
@@ -143,18 +171,26 @@ const MainActions = ({
       )}
 
       <button
-        disabled={isLoading}
+        disabled={isLoading || !isDestinationUrlValid}
         onClick={() => {
+          if (!isDestinationUrlValid) {
+            setToast({
+              type: "error",
+              title: "Destination URL Required",
+              message: "Enter a valid Destination URL to regenerate creatives.",
+            });
+            return;
+          }
           console.log("Supported Platform Array:", supportedAdPlatforms);
           console.log(
             "Regenerate clicked for",
             highlightedProduct?.node?.id,
-            supportedPlatformArr
+            supportedPlatformArr,
           );
           generateCreatives(highlightedProduct?.node?.id, supportedPlatformArr);
         }}
         className={`flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center ${
-          !isLoading
+          !isLoading && isDestinationUrlValid
             ? "bg-[#F0E6FB] border-[#D0B0F3] border"
             : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
         }`}
@@ -164,7 +200,9 @@ const MainActions = ({
         ) : (
           <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
         )}
-        <span className="text-sm font-medium">Regenerate</span>
+        <span className="text-sm font-medium">
+          {hasGeneratedOnce ? "Regenerate" : "Generate"}
+        </span>
       </button>
     </div>
   );
@@ -196,64 +234,15 @@ export default function CampaignSnapshotsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const creativeLoadingStates = useUIStore(
-    (state) => state.creativeLoadingState
+    (state) => state.creativeLoadingState,
   );
-
-  const hasRunRef = useRef<{ [key: string]: boolean }>({});
-  useEffect(() => {
-    const productId = highlightedProduct?.node.id;
-    if (!productId || hasRunRef.current[productId]) return;
-
-    const activePlatforms = [];
-    if (supportedAdPlatforms.Google) activePlatforms.push("GOOGLE ADS");
-    if (supportedAdPlatforms.Instagram) activePlatforms.push("INSTAGRAM");
-    if (supportedAdPlatforms.Facebook) activePlatforms.push("FACEBOOK");
-
-    const isLoading =
-      creativeLoadingRef?.[productId] &&
-      Object.values(creativeLoadingRef[productId] || {}).some(
-        (state) => state === true
-      );
-
-    console.log("Auto-generating creatives for", productId, activePlatforms);
-    console.log("Is Loading:", isLoading);
-    console.log(creativeLoadingRef);
-
-    if (isLoading) return;
-
-    const googleHasCreative =
-      supportedAdPlatforms.Google && Google?.[productId];
-    const instagramHasCreative =
-      supportedAdPlatforms.Instagram && Instagram?.[productId];
-    const facebookHasCreative =
-      supportedAdPlatforms.Facebook && Facebook?.[productId];
-
-    // const hasCreative =
-    //   (supportedAdPlatforms.Google && Google?.[productId]) ||
-    //   (supportedAdPlatforms.Instagram && Instagram?.[productId]) ||
-    //   (supportedAdPlatforms.Facebook && Facebook?.[productId]);
-
-    // Collect all missing platforms for this product
-    const missingPlatforms: Platform[] = [];
-    if (supportedAdPlatforms.Google && !googleHasCreative)
-      missingPlatforms.push("GOOGLE ADS");
-    if (supportedAdPlatforms.Instagram && !instagramHasCreative)
-      missingPlatforms.push("INSTAGRAM");
-    if (supportedAdPlatforms.Facebook && !facebookHasCreative)
-      missingPlatforms.push("FACEBOOK");
-
-    if (missingPlatforms.length > 0) {
-      hasRunRef.current[productId] = true;
-      generateCreatives(productId, missingPlatforms);
-    }
-  }, [highlightedProduct?.node.id]);
 
   useEffect(() => {
     const resultAdPlatforms = Object.keys(supportedAdPlatforms)
       .filter(
         (platform) =>
           platform !== "complete" &&
-          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms]
+          supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
         title: platform as "Instagram" | "Facebook" | "Google",
@@ -266,17 +255,17 @@ export default function CampaignSnapshotsPage() {
           ...(platform === "Instagram"
             ? instagramSettings
             : platform === "Facebook"
-            ? facebookSettings
-            : googleSettings),
+              ? facebookSettings
+              : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
-            ? Google?.[highlightedProduct.node.id] ?? []
+            ? (Google?.[highlightedProduct.node.id] ?? [])
             : platform === "Instagram"
-            ? Instagram?.[highlightedProduct.node.id] ?? []
-            : platform === "Facebook"
-            ? Facebook?.[highlightedProduct.node.id] ?? []
-            : []
+              ? (Instagram?.[highlightedProduct.node.id] ?? [])
+              : platform === "Facebook"
+                ? (Facebook?.[highlightedProduct.node.id] ?? [])
+                : []
           : [],
       }))
       .sort((a, b) => {
@@ -299,11 +288,21 @@ export default function CampaignSnapshotsPage() {
   const setToast = useToastStore((state) => state.setToast);
 
   const campaignDetails = useCreateCampaignStore(
-    (state) => state.campaignSnapshots
+    (state) => state.campaignSnapshots,
   );
   const setCampaignDetails = useCreateCampaignStore(
-    (state) => state.actions.storeCampaignSnapshots
+    (state) => state.actions.storeCampaignSnapshots,
   );
+
+  useEffect(() => {
+    if (!highlightedProduct?.node?.onlineStorePreviewUrl) return;
+    if (campaignDetails.destinationUrl?.trim()) return;
+
+    setCampaignDetails({
+      ...campaignDetails,
+      destinationUrl: highlightedProduct.node.onlineStorePreviewUrl,
+    });
+  }, [campaignDetails, highlightedProduct?.node?.onlineStorePreviewUrl]);
 
   const primaryColor = useBrandAssetStore((state) => state.primaryColor);
   const secondaryColor = useBrandAssetStore((state) => state.secondaryColor);
@@ -319,14 +318,46 @@ export default function CampaignSnapshotsPage() {
   }, [primaryColor, secondaryColor]);
 
   const [error, setError] = useState(false);
+  const [destinationUrlError, setDestinationUrlError] = useState<string>("");
+  const initialCampaignDetailsRef = useRef<string>("");
+
+  const isValidHttpUrl = (value: string) => {
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
 
   const handleCampaignDetails = (
     key: keyof CampaignSnapshots,
-    value: string
+    value: string,
   ) => {
     // setCampaignDetails((prev) => ({ ...prev, [key]: value }));
     setCampaignDetails({ ...campaignDetails, [key]: value });
   };
+
+  useEffect(() => {
+    if (!initialCampaignDetailsRef.current) {
+      initialCampaignDetailsRef.current = JSON.stringify(campaignDetails);
+    }
+  }, [campaignDetails]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const initial = initialCampaignDetailsRef.current;
+      const current = JSON.stringify(campaignDetails);
+      if (initial && initial !== current) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [campaignDetails]);
 
   const isLoading = useMemo(() => {
     return productSelection.products.some((product) => {
@@ -343,6 +374,10 @@ export default function CampaignSnapshotsPage() {
       setError(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
+    } else if (!isValidHttpUrl(campaignDetails.destinationUrl)) {
+      setDestinationUrlError("Please enter a valid URL");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
     } else if (isLoading) {
       setToast({
         type: "warning",
@@ -356,7 +391,7 @@ export default function CampaignSnapshotsPage() {
         productSelection.products,
         Facebook,
         Google,
-        Instagram
+        Instagram,
       )
     ) {
       setToast({
@@ -375,8 +410,9 @@ export default function CampaignSnapshotsPage() {
       campaignType: campaignDetails.campaignType,
       brandColor: campaignDetails.brandColor,
       accentColor: campaignDetails.accentColor,
+      destinationUrl: campaignDetails.destinationUrl,
       campaignStartDate: new Date(
-        campaignDetails.campaignStartDate
+        campaignDetails.campaignStartDate,
       ).toISOString(),
       campaignEndDate: new Date(campaignDetails.campaignEndDate).toISOString(),
     });
@@ -506,10 +542,44 @@ export default function CampaignSnapshotsPage() {
               accentColor={campaignDetails.accentColor}
               setBrandColor={(
                 key: "brandColor" | "accentColor",
-                value: string
+                value: string,
               ) => handleCampaignDetails(key, value)}
             />
           )}
+        </div>
+        <div className="mt-5 px-5 lg:pl-0 lg:pr-5">
+          <Input
+            type="url"
+            label="Destination URL"
+            name="destinationUrl"
+            placeholder="https://yourstore.com/products/lilac-dress"
+            large
+            background="rgba(232,232,232,0.35)"
+            borderless
+            error={destinationUrlError}
+            showErrorMessage
+            value={campaignDetails.destinationUrl}
+            onBlur={() => {
+              if (!campaignDetails.destinationUrl) {
+                setDestinationUrlError("Destination URL is required");
+                return;
+              }
+              if (!isValidHttpUrl(campaignDetails.destinationUrl)) {
+                setDestinationUrlError("Please enter a valid URL");
+                return;
+              }
+              setDestinationUrlError("");
+            }}
+            onChange={(e) => {
+              handleCampaignDetails("destinationUrl", e.target.value);
+              if (destinationUrlError) {
+                setDestinationUrlError("");
+              }
+            }}
+          />
+          <p className="mt-2 text-neutral-light tracking-40 text-xs md:text-sm">
+            Where customers land after they click your ad.
+          </p>
         </div>
         <div className="px-5 lg:pl-0 lg:pr-5">
           <DateSelection

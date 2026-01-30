@@ -8,7 +8,7 @@ import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import useUIStore from "@/app/lib/stores/uiStore";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import IGStaticPostView from "../media-creatives/ig/StaticPostView";
 import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
 import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
@@ -17,8 +17,14 @@ import FBStoryPostView from "../media-creatives/facebook/StoryPostView";
 import CircleLoader from "../loaders/CircleLoader";
 import DragScrollContainer from "../DragScrollContainer";
 import StoryPostView from "../media-creatives/ig/StoryPostView";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import UploadMetaCreative from "../modals/UploadMetaCreative";
+import {
+  useMetaCreativeUploadStore,
+  type MetaUploadedCreative,
+} from "@/app/lib/stores/metaCreativeUploadStore";
 
-type PreviewTitle = "Instagram" | "Facebook" | "Google";
+type PreviewTitle = "Instagram" | "Facebook" | "Meta" | "Google";
 
 const Preview = ({
   adPlatforms,
@@ -30,8 +36,8 @@ const Preview = ({
     title: PreviewTitle;
     platform: Platform;
     image: string;
-    settings: any;
-    creatives?: any[];
+    settings: unknown;
+    creatives?: unknown[];
   }[];
   highlightedProductId: string;
   isReview?: boolean;
@@ -44,17 +50,72 @@ const Preview = ({
     { label: "Story Post", key: "storyPost" },
   ];
   const creativeLoadingStates = useUIStore(
-    (state) => state.creativeLoadingState
+    (state) => state.creativeLoadingState,
   );
 
   const { toggleFacebookSettings, toggleInstagramSettings } =
     useCreateCampaignStore((state) => state.actions);
 
   const { undo } = useCreativesStore((state) => state.actions);
+  const destinationUrl = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.destinationUrl,
+  );
+  const setToast = useToastStore((state) => state.setToast);
+
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  const uploadedCount = useMetaCreativeUploadStore((state) => {
+    const list = state.uploadsByProductId[highlightedProductId] || [];
+    return list.length;
+  });
+
+  const isValidHttpUrl = (value: string) => {
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const normalizedAdPlatforms = useMemo(() => {
+    const hasFacebook = adPlatforms?.some((p) => p.platform === "FACEBOOK");
+    const hasInstagram = adPlatforms?.some((p) => p.platform === "INSTAGRAM");
+
+    return (adPlatforms || [])
+      .filter((p) => {
+        if (hasFacebook && hasInstagram) {
+          return p.platform !== "INSTAGRAM";
+        }
+        return true;
+      })
+      .map((p) => {
+        if (p.platform === "FACEBOOK") {
+          return { ...p, title: "Meta" as const };
+        }
+        return p;
+      });
+  }, [adPlatforms]);
+
+  const isDestinationUrlValid = isValidHttpUrl(destinationUrl);
+
+  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+
+  const hasGeneratedOnceForPlatform = (platform: Platform) => {
+    const store =
+      platform === "GOOGLE ADS"
+        ? Google
+        : platform === "INSTAGRAM"
+          ? Instagram
+          : Facebook;
+    const list = store?.[highlightedProductId];
+    return Array.isArray(list) && list.length > 0;
+  };
 
   return (
     <div className="flex flex-col gap-12">
-      {adPlatforms?.map((item) => (
+      {normalizedAdPlatforms?.map((item) => (
         <div className="flex flex-col w-full " key={item.title}>
           <div className="flex px-5 lg:pl-0 lg:pr-5  justify-between items-center">
             <div className="flex gap-16 items-center">
@@ -67,10 +128,10 @@ const Preview = ({
                       width={20}
                       height={20}
                     />
-                  ) : item.title === "Facebook" ? (
+                  ) : item.title === "Meta" ? (
                     <Image
                       src="/facebook_logo.svg"
-                      alt="facebook"
+                      alt="meta"
                       width={20}
                       height={20}
                     />
@@ -128,16 +189,45 @@ const Preview = ({
                       disabled={
                         creativeLoadingStates?.[highlightedProductId]?.[
                           item.platform
-                        ]
+                        ] || !isDestinationUrlValid
                       }
-                      onClick={() =>
-                        generateCreatives(highlightedProductId, [item.platform])
-                      }
+                      onClick={() => {
+                        if (!isDestinationUrlValid) {
+                          setToast({
+                            type: "error",
+                            title: "Destination URL Required",
+                            message:
+                              "Enter a valid Destination URL to regenerate creatives.",
+                          });
+                          return;
+                        }
+                        generateCreatives(highlightedProductId, [
+                          item.platform,
+                        ]);
+                      }}
                       className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
                     >
                       <Magicpen size={12} color="#000" />
-                      <span className="text-xs tracking-100">Regenerate</span>
+                      <span className="text-xs tracking-100">
+                        {hasGeneratedOnceForPlatform(item.platform)
+                          ? "Regenerate"
+                          : "Generate"}
+                      </span>
                     </button>
+
+                    {item.title !== "Google" && (
+                      <button
+                        onClick={() => setIsUploadOpen(true)}
+                        className="flex border border-[#E0E0E0] gap-2 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                      >
+                        <span className="text-xs tracking-100">Upload</span>
+                        {uploadedCount > 0 && (
+                          <span className="text-[10px] font-medium px-2 h-[18px] rounded-[39px] bg-[#F0E6FB] border border-[#D0B0F3] flex items-center">
+                            {uploadedCount}
+                          </span>
+                        )}
+                      </button>
+                    )}
                   </div>
                 )}
             </div>
@@ -159,11 +249,39 @@ const Preview = ({
           />
         </div>
       ))}
+
+      {isUploadOpen && (
+        <UploadMetaCreative
+          isOpen={isUploadOpen}
+          productId={highlightedProductId}
+          onClose={() => setIsUploadOpen(false)}
+        />
+      )}
     </div>
   );
 };
 
 export default Preview;
+
+const EMPTY_UPLOADS: MetaUploadedCreative[] = [];
+
+const hashString = (value: string) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash >>> 0;
+};
+
+const mulberry32 = (seed: number) => {
+  return () => {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
 
 const PreviewContainer = ({
   item,
@@ -176,14 +294,14 @@ const PreviewContainer = ({
   settings?: { label: string; key: SocialSettingsKey }[];
 }) => {
   const creativeLoadingStates = useUIStore(
-    (state) => state.creativeLoadingState
+    (state) => state.creativeLoadingState,
   );
 
   const instagramSettings = useCreateCampaignStore(
-    (state) => state.instagramSettings
+    (state) => state.instagramSettings,
   );
   const facebookSettings = useCreateCampaignStore(
-    (state) => state.facebookSettings
+    (state) => state.facebookSettings,
   );
 
   const isLoading = useMemo(() => {
@@ -199,6 +317,76 @@ const PreviewContainer = ({
   const isGoogleAds = platform === "GOOGLE ADS";
   const isInstagram = platform === "INSTAGRAM";
   const isFacebook = platform === "FACEBOOK";
+
+  const uploaded = useMetaCreativeUploadStore(
+    (state) => state.uploadsByProductId[highlightedProductId] ?? EMPTY_UPLOADS,
+  );
+
+  const uploadedImagePreview = useMemo(() => {
+    const img = uploaded.find((u) => u.type === "image");
+    if (!img?.previewUrl) return null;
+    return {
+      url: img.previewUrl,
+      caption: "",
+    };
+  }, [uploaded]);
+
+  const uploadedVideoPreview = useMemo(() => {
+    const vid = uploaded.find((u) => u.type === "video");
+    if (!vid?.previewUrl) return null;
+    return {
+      url: "",
+      videoUrl: vid.previewUrl,
+      caption: "",
+    };
+  }, [uploaded]);
+
+  const showUploadedCreatives = uploaded.length > 0;
+
+  const uploadedImages = useMemo(() => {
+    return uploaded.filter((u) => u.type === "image" && u.previewUrl);
+  }, [uploaded]);
+
+  const uploadedSelection = useMemo(() => {
+    if (uploadedImages.length === 0) {
+      return {
+        staticCreative: null as null | { url: string; caption: string },
+        storyCreative: null as null | { url: string; caption: string },
+        carouselCreatives: [] as Array<{ url: string; caption: string }>,
+      };
+    }
+
+    const seedSource = uploadedImages.map((u) => u.id).join("|");
+    const rand = mulberry32(hashString(seedSource));
+
+    const shuffled = [...uploadedImages].sort(() => rand() - 0.5);
+    const staticIdx = Math.floor(rand() * shuffled.length);
+
+    let storyIdx = Math.floor(rand() * shuffled.length);
+    if (shuffled.length > 1) {
+      while (storyIdx === staticIdx)
+        storyIdx = Math.floor(rand() * shuffled.length);
+    }
+
+    const staticCreative = {
+      url: shuffled[staticIdx]!.previewUrl,
+      caption: "",
+    };
+
+    const storyCreative = {
+      url: shuffled[storyIdx]!.previewUrl,
+      caption: "",
+    };
+
+    // CarouselPostView renders 1 StaticPost + 4 CarouselPost tiles.
+    // Ensure we always provide 5 items by cycling through shuffled images.
+    const carouselCreatives = Array.from({ length: 5 }).map((_, idx) => {
+      const img = shuffled[idx % shuffled.length]!;
+      return { url: img.previewUrl, caption: "" };
+    });
+
+    return { staticCreative, storyCreative, carouselCreatives };
+  }, [uploadedImages]);
 
   const facebookWidthSize = useMemo(() => {
     let count = 0;
@@ -298,11 +486,12 @@ const PreviewContainer = ({
   ]);
 
   const hasMediaCreatives = useMemo(() => {
-    return (
+    const hasGenerated =
       isMediaCreative?.[mediaCreative]?.creatives &&
-      isMediaCreative[mediaCreative]?.creatives.length > 0
-    );
-  }, [isMediaCreative, mediaCreative]);
+      isMediaCreative[mediaCreative]?.creatives.length > 0;
+    const hasUploads = uploaded.length > 0;
+    return Boolean(hasGenerated || hasUploads);
+  }, [isMediaCreative, mediaCreative, uploaded.length]);
 
   const showNoPreview = !hasMediaCreatives && !isLoading;
 
@@ -361,7 +550,16 @@ const PreviewContainer = ({
       {/* Instagram */}
       {isInstagram && (
         <div className="relative min-h-[518px]">
-          {/* Content with creatives */}
+          {/* Loading State */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <CircleLoader />
+          </div>
+
+          {/* Content State */}
           <div
             className={`transition-opacity duration-300 ${
               !showNoPreview
@@ -371,44 +569,76 @@ const PreviewContainer = ({
           >
             <DragScrollContainer>
               <div className="mt-5 pl-5 lg:pl-0 flex gap-4 w-full items-center">
-                {instagramSettings.staticPost && (
-                  <div
-                    style={{ width: `${instagramWidthSize.staticPost}%` }}
-                    className="min-w-[318.6px] transition-all duration-300"
-                  >
-                    <IGStaticPostView
-                      creative={
-                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                      }
-                    />
-                  </div>
-                )}
+                {instagramSettings.staticPost &&
+                  (showUploadedCreatives ? (
+                    <>
+                      {uploadedSelection.staticCreative && (
+                        <div
+                          style={{ width: `${instagramWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <IGStaticPostView
+                            creative={uploadedSelection.staticCreative}
+                          />
+                        </div>
+                      )}
+                      {uploadedVideoPreview && (
+                        <div
+                          style={{ width: `${instagramWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <IGStaticPostView creative={uploadedVideoPreview} />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div
+                      style={{ width: `${instagramWidthSize.staticPost}%` }}
+                      className="min-w-[318.6px] transition-all duration-300"
+                    >
+                      <IGStaticPostView
+                        creative={
+                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                        }
+                      />
+                    </div>
+                  ))}
+
                 {instagramSettings.carouselPost && (
                   <div
-                    style={{
-                      width: `${instagramWidthSize.carouselPost}%`,
-                    }}
+                    style={{ width: `${instagramWidthSize.carouselPost}%` }}
                     className="min-w-[529.6px] transition-all duration-300"
                   >
-                    <IGCarouselPostView
-                      creatives={
-                        isMediaCreative?.[mediaCreative]?.creatives || []
-                      }
-                    />
+                    {showUploadedCreatives ? (
+                      <IGCarouselPostView
+                        creatives={uploadedSelection.carouselCreatives}
+                      />
+                    ) : (
+                      <IGCarouselPostView
+                        creatives={
+                          isMediaCreative?.[mediaCreative]?.creatives || []
+                        }
+                      />
+                    )}
                   </div>
                 )}
+
                 {instagramSettings.storyPost && (
                   <div
-                    style={{
-                      width: `${instagramWidthSize.storyPost}%`,
-                    }}
+                    style={{ width: `${instagramWidthSize.storyPost}%` }}
                     className="min-w-[318.6px] transition-all duration-300"
                   >
-                    <StoryPostView
-                      creative={
-                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                      }
-                    />
+                    {showUploadedCreatives ? (
+                      <StoryPostView
+                        creative={uploadedSelection.storyCreative}
+                      />
+                    ) : (
+                      <StoryPostView
+                        creative={
+                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                        }
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -443,44 +673,76 @@ const PreviewContainer = ({
           >
             <DragScrollContainer>
               <div className="mt-5 pl-5 lg:pl-0 flex gap-4 w-full items-center">
-                {facebookSettings.staticPost && (
-                  <div
-                    style={{ width: `${facebookWidthSize.staticPost}%` }}
-                    className="min-w-[318.6px] transition-all duration-300"
-                  >
-                    <FBStaticPostView
-                      creative={
-                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                      }
-                    />
-                  </div>
-                )}
+                {facebookSettings.staticPost &&
+                  (showUploadedCreatives ? (
+                    <>
+                      {uploadedSelection.staticCreative && (
+                        <div
+                          style={{ width: `${facebookWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <FBStaticPostView
+                            creative={uploadedSelection.staticCreative}
+                          />
+                        </div>
+                      )}
+                      {uploadedVideoPreview && (
+                        <div
+                          style={{ width: `${facebookWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <FBStaticPostView creative={uploadedVideoPreview} />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div
+                      style={{ width: `${facebookWidthSize.staticPost}%` }}
+                      className="min-w-[318.6px] transition-all duration-300"
+                    >
+                      <FBStaticPostView
+                        creative={
+                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                        }
+                      />
+                    </div>
+                  ))}
+
                 {facebookSettings.carouselPost && (
                   <div
-                    style={{
-                      width: `${facebookWidthSize.carouselPost}%`,
-                    }}
+                    style={{ width: `${facebookWidthSize.carouselPost}%` }}
                     className="min-w-[529.6px] transition-all duration-300"
                   >
-                    <FBCarouselPostView
-                      creatives={
-                        isMediaCreative?.[mediaCreative]?.creatives || []
-                      }
-                    />
+                    {showUploadedCreatives ? (
+                      <FBCarouselPostView
+                        creatives={uploadedSelection.carouselCreatives}
+                      />
+                    ) : (
+                      <FBCarouselPostView
+                        creatives={
+                          isMediaCreative?.[mediaCreative]?.creatives || []
+                        }
+                      />
+                    )}
                   </div>
                 )}
+
                 {facebookSettings.storyPost && (
                   <div
-                    style={{
-                      width: `${facebookWidthSize.storyPost}%`,
-                    }}
+                    style={{ width: `${facebookWidthSize.storyPost}%` }}
                     className="min-w-[318.6px] transition-all duration-300"
                   >
-                    <FBStoryPostView
-                      creative={
-                        isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                      }
-                    />
+                    {showUploadedCreatives ? (
+                      <FBStoryPostView
+                        creative={uploadedSelection.storyCreative}
+                      />
+                    ) : (
+                      <FBStoryPostView
+                        creative={
+                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                        }
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -523,7 +785,7 @@ const MediaSettingBox = ({
           onClick={() => {
             if (item.title === "Instagram") {
               toggleInstagramSettings(setting.key);
-            } else if (item.title === "Facebook") {
+            } else if (item.title === "Facebook" || item.title === "Meta") {
               toggleFacebookSettings(setting.key);
             }
           }}

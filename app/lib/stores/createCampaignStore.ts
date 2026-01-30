@@ -34,6 +34,7 @@ export type CampaignSnapshots = {
   campaignType: string;
   brandColor: string;
   accentColor: string;
+  destinationUrl: string;
   campaignStartDate: string;
   campaignEndDate: string;
 };
@@ -110,6 +111,7 @@ const initialState: CreateCampaignState = {
     campaignType: "Product Launch",
     brandColor: "",
     accentColor: "",
+    destinationUrl: "",
     campaignStartDate: new Date(new Date().setDate(new Date().getDate() + 1))
       .toISOString()
       .split("T")[0],
