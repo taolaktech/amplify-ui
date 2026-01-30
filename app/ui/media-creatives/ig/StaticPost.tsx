@@ -20,6 +20,7 @@ export default function StaticPost({
   brandName,
   location,
   photoUrl,
+  videoUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
@@ -27,6 +28,7 @@ export default function StaticPost({
   brandName: string;
   location: string;
   photoUrl: string;
+  videoUrl?: string;
   caption?: string;
   maximized?: boolean;
 }) {
@@ -146,27 +148,42 @@ export default function StaticPost({
         }}
         className="flex items-center relative justify-center bg-black"
       >
-        {photoUrl && photoUrl?.trim()?.length > 0 && (
-          <Image
-            src={photoUrl}
-            alt="Post Image"
-            width={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
-            height={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
-            style={{
-              width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              height: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
-              opacity: photoUrlLoaded && !photoError ? 1 : 0,
-              objectFit: "contain",
-            }}
-            unoptimized
-            onLoad={() => setPhotoUrlLoaded(true)}
-            onError={() => setPhotoError(true)}
+        {videoUrl && videoUrl.trim().length > 0 ? (
+          <video
+            src={videoUrl}
+            className="w-full h-full"
+            style={{ objectFit: "contain" }}
+            muted
+            playsInline
+            controls
           />
-        )}
-        {(!photoUrl || !photoUrlLoaded || photoError) && (
-          <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
-            <CircleLoader black />
-          </div>
+        ) : (
+          <>
+            {photoUrl && photoUrl?.trim()?.length > 0 && (
+              <Image
+                src={photoUrl}
+                alt="Post Image"
+                width={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
+                height={maximized ? maximizedHeight! * (260.74 / 413) : 260.74}
+                style={{
+                  width: maximized ? maximizedHeight! * (260.74 / 413) : 260.74,
+                  height: maximized
+                    ? maximizedHeight! * (260.74 / 413)
+                    : 260.74,
+                  opacity: photoUrlLoaded && !photoError ? 1 : 0,
+                  objectFit: "contain",
+                }}
+                unoptimized
+                onLoad={() => setPhotoUrlLoaded(true)}
+                onError={() => setPhotoError(true)}
+              />
+            )}
+            {(!photoUrl || !photoUrlLoaded || photoError) && (
+              <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
+                <CircleLoader black />
+              </div>
+            )}
+          </>
         )}
         {/* <Skeleton
           width="100%"
@@ -211,8 +228,8 @@ export default function StaticPost({
                   ? caption?.slice(0, 100) +
                     "<span className='text-[#6E6E6E]'> ...more</span>"
                   : caption
-                  ? caption
-                  : "",
+                    ? caption
+                    : "",
             }}
           ></div>
         ) : (

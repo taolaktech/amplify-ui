@@ -20,6 +20,7 @@ export default function StaticPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   location,
   photoUrl,
+  videoUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   caption,
   maximized,
@@ -28,6 +29,7 @@ export default function StaticPost({
   brandName: string;
   location: string;
   photoUrl: string;
+  videoUrl?: string;
   caption?: string;
   maximized?: boolean;
   title?: string;
@@ -233,27 +235,40 @@ export default function StaticPost({
           }}
           className="flex items-center relative justify-center bg-black"
         >
-          {photoUrl && photoUrl?.trim()?.length > 0 && (
-            <Image
-              src={photoUrl}
-              alt="Post Image"
-              width={maximized ? maximizedHeight! * (250 / 415.78) : 250}
-              height={maximized ? maximizedHeight! * (250 / 415.78) : 250}
-              style={{
-                width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
-                height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
-                opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
-                objectFit: "contain",
-              }}
-              unoptimized
-              onLoad={() => setPhotoUrlLoaded(true)}
-              onError={() => setPhotoUrlError(true)}
+          {videoUrl && videoUrl.trim().length > 0 ? (
+            <video
+              src={videoUrl}
+              className="w-full h-full"
+              style={{ objectFit: "contain" }}
+              muted
+              playsInline
+              controls
             />
-          )}
-          {(!photoUrl || !photoUrlLoaded || photoUrlError) && (
-            <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
-              <CircleLoader black />
-            </div>
+          ) : (
+            <>
+              {photoUrl && photoUrl?.trim()?.length > 0 && (
+                <Image
+                  src={photoUrl}
+                  alt="Post Image"
+                  width={maximized ? maximizedHeight! * (250 / 415.78) : 250}
+                  height={maximized ? maximizedHeight! * (250 / 415.78) : 250}
+                  style={{
+                    width: maximized ? maximizedHeight! * (250 / 415.78) : 250,
+                    height: maximized ? maximizedHeight! * (250 / 415.78) : 250,
+                    opacity: photoUrlLoaded && !photoUrlError ? 1 : 0,
+                    objectFit: "contain",
+                  }}
+                  unoptimized
+                  onLoad={() => setPhotoUrlLoaded(true)}
+                  onError={() => setPhotoUrlError(true)}
+                />
+              )}
+              {(!photoUrl || !photoUrlLoaded || photoUrlError) && (
+                <div className="absolute top-[50%] -translate-y-[50%] w-full flex items-center justify-center">
+                  <CircleLoader black />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
