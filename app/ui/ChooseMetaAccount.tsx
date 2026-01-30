@@ -342,13 +342,17 @@ const AdPages = ({
     );
   }
 
+  const getPageKey = (page: any) => page?._id || page?.pageId || page?.id;
+  const getPageName = (page: any) => page?.pageName || page?.name;
+  const getSelectedKey = (page: any) => page?._id || page?.pageId || page?.id;
+
   return (
     <>
       {pages?.map((page: any) => (
         <div
-          key={page._id}
+          key={getPageKey(page)}
           className={`flex justify-between h-[70px] mb-3 cursor-pointer items-center border ${
-            selectedPage?._id === page._id
+            getSelectedKey(selectedPage) === getSelectedKey(page)
               ? "border-[#A755FF] border-2"
               : "border-[#efefef] border-2 hover-custom-shadow-sm"
           }  rounded-xl `}
@@ -359,12 +363,12 @@ const AdPages = ({
           >
             <div className="flex flex-col justify-center w-full ">
               <div className="text-sm font-medium max-w-[70%] truncate whitespace-nowrap text-ellipsis">
-                {page.pageName}
+                {getPageName(page)}
               </div>
             </div>
           </div>
           <div className="pr-6 py-4 ">
-            {selectedPage?.id === page.id && (
+            {getSelectedKey(selectedPage) === getSelectedKey(page) && (
               <TickIcon width={24} height={24} />
             )}
           </div>
