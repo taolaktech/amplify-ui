@@ -9,14 +9,14 @@ import useUIStore from "@/app/lib/stores/uiStore";
 export default function StaticPostView({ creative }: { creative: any }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
-    (state) => state.adsShow.location[0] || "Location"
+    (state) => state.adsShow.location[0] || "Location",
   );
   const [maximize, setMaximize] = useState(false);
 
   console.log("photoUrl in StaticPostView:", creative?.url);
 
   const toggleIsPreviewMaximized = useUIStore(
-    (state) => state.actions.toggleIsPreviewMaximized
+    (state) => state.actions.toggleIsPreviewMaximized,
   );
 
   const toggleMaximize = () => {
@@ -34,6 +34,7 @@ export default function StaticPostView({ creative }: { creative: any }) {
           brandName={brandName}
           location={location}
           photoUrl={creative?.url}
+          videoUrl={creative?.videoUrl}
           caption={creative?.caption}
         />
       </div>
@@ -41,6 +42,7 @@ export default function StaticPostView({ creative }: { creative: any }) {
         <StaticPostViewMaximized
           toggleMaximize={toggleMaximize}
           photoUrl={creative?.url}
+          videoUrl={creative?.videoUrl}
           caption={creative?.caption}
         />
       )}
@@ -50,16 +52,18 @@ export default function StaticPostView({ creative }: { creative: any }) {
 
 const StaticPostViewMaximized = ({
   photoUrl,
+  videoUrl,
   caption,
   toggleMaximize,
 }: {
   photoUrl: string;
+  videoUrl?: string;
   toggleMaximize: () => void;
   caption?: string;
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
-    (state) => state.adsShow.location[0] || "Location"
+    (state) => state.adsShow.location[0] || "Location",
   );
 
   return (
@@ -80,6 +84,7 @@ const StaticPostViewMaximized = ({
             brandName={brandName}
             location={location}
             photoUrl={photoUrl}
+            videoUrl={videoUrl}
             caption={caption}
             maximized
           />
