@@ -21,10 +21,10 @@ import { getIntegrationsStatus } from "@/app/lib/api/integrations";
 const SupportedAdPlatforms = () => {
   const router = useRouter();
   const productSelection = useCreateCampaignStore(
-    (state) => state.productSelection
+    (state) => state.productSelection,
   );
   const supportedAdPlatforms = useCreateCampaignStore(
-    (state) => state.supportedAdPlatforms
+    (state) => state.supportedAdPlatforms,
   );
 
   const [activePlatform, setActivePlatform] = useState<
@@ -72,7 +72,7 @@ const SupportedAdPlatforms = () => {
         if (!status) return;
 
         integrationActions.setShopifyStoreConnected(
-          Boolean(status.shopify?.connected)
+          Boolean(status.shopify?.connected),
         );
         integrationActions.setGoogle(Boolean(status.googleAds?.connected));
         integrationActions.setFacebook(Boolean(status.facebook?.connected));
@@ -111,7 +111,7 @@ const SupportedAdPlatforms = () => {
   const handleProceed = () => {
     actions.completeAdsPlatform();
 
-    router.push("/create-campaign/campaign-snapshots");
+    router.push("/create-campaign/product-kit");
   };
 
   const handleToggleFacebook = () => {
@@ -148,7 +148,7 @@ const SupportedAdPlatforms = () => {
     }
     if (!google) {
       router.push(
-        `/settings/integrations?platform=GOOGLE&route=create-campaign`
+        `/settings/integrations?platform=GOOGLE&route=create-campaign`,
       );
       return;
     }

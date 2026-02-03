@@ -16,48 +16,67 @@ export default function CreateCampaign({
   const pathname = usePathname();
   const { currentProgressStep } = useUIStore((state) => state);
   const setProgressStep = useUIStore((state) => state.actions.setProgressStep);
-  const { adsShow, productSelection, supportedAdPlatforms } =
-    useCreateCampaignStore((state) => state);
+  const { adsShow, productSelection } = useCreateCampaignStore(
+    (state) => state,
+  );
   // const [step, setStep] = useState(1);
   const [backText, setBackText] = useState("");
   const [route, setRoute] = useState("");
 
   useEffect(() => {
     // actions.reset();
-    setProgressStep(1, 6);
+    setProgressStep(1, 7);
   }, []);
 
   useEffect(() => {
     if (pathname.includes("review")) {
-      setProgressStep(6, 6);
+      setProgressStep(7, 7);
       setBackText("Fund Campaign");
       setRoute("/create-campaign/fund-campaign");
-    } else if (pathname.includes("fund-campaign")) {
-      setProgressStep(5, 6);
+      return;
+    }
+
+    if (pathname.includes("fund-campaign")) {
+      setProgressStep(6, 7);
       setBackText("Campaign Snapshots");
       setRoute("/create-campaign/campaign-snapshots");
-    } else if (
-      supportedAdPlatforms.complete &&
-      pathname.includes("campaign-snapshots")
-    ) {
-      setProgressStep(4, 6);
+      return;
+    }
+
+    if (pathname.includes("campaign-snapshots")) {
+      setProgressStep(5, 7);
+      setBackText("Product Kit");
+      setRoute("/create-campaign/product-kit");
+      return;
+    }
+
+    if (pathname.includes("product-kit")) {
+      setProgressStep(4, 7);
       setBackText("Supported Ad Platforms");
       setRoute("/create-campaign/supported-ad-platforms");
-    } else if (
+      return;
+    }
+
+    if (
       productSelection.complete &&
       pathname.includes("supported-ad-platforms")
     ) {
-      setProgressStep(3, 6);
+      setProgressStep(3, 7);
       setBackText("Select Products");
       setRoute("/create-campaign/product-selection");
-    } else if (adsShow.complete && pathname.includes("product-selection")) {
-      setProgressStep(2, 6);
+      return;
+    }
+
+    if (adsShow.complete && pathname.includes("product-selection")) {
+      setProgressStep(2, 7);
       setBackText("Create Campaign");
       setRoute("/create-campaign");
-    } else {
-      setProgressStep(1, 6);
-      setBackText("");
+      return;
     }
+
+    setProgressStep(1, 7);
+    setBackText("");
+    setRoute("");
   }, [adsShow.complete, productSelection.complete, pathname]);
 
   const handleBack = () => {
@@ -95,7 +114,14 @@ export default function CreateCampaign({
           <span className="text-sm font-medium">Close</span>
         </button>
       </div>
-      <main className={`${currentProgressStep === 4 ? "" : "px-5"}`}>
+      <main
+        className={`${
+          pathname.includes("campaign-snapshots") ||
+          pathname.includes("product-kit")
+            ? ""
+            : "px-5"
+        }`}
+      >
         {children}
       </main>
     </div>

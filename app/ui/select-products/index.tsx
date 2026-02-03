@@ -20,7 +20,7 @@ export default function Products() {
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const { products, productCount } = useUIStore((state) => state);
   const { actions, productSelection } = useCreateCampaignStore(
-    (state) => state
+    (state) => state,
   );
   const { fetchProducts } = useGetShopifyProducts();
   const [isDoneLoading, setIsDoneLoading] = useState(false);
@@ -54,7 +54,7 @@ export default function Products() {
 
   useEffect(() => {
     if (productSelection.complete) {
-      setSelectedProducts(productSelection.products);
+      setSelectedProducts(productSelection.products.slice(0, 1));
     }
   }, [productSelection.complete]);
 
@@ -67,7 +67,7 @@ export default function Products() {
     setIsLoading(true);
     setIsLoading(false);
     actions.storeProductSelection({
-      products: selectedProducts,
+      products: selectedProducts.slice(0, 1),
       complete: true,
     });
     router.push("/create-campaign/supported-ad-platforms");
@@ -80,8 +80,7 @@ export default function Products() {
       if (prev.find((p) => p.node.id === id)) {
         return prev.filter((p) => p.node.id !== id);
       }
-      return [...prev, product];
-      // return [product];
+      return product ? [product] : [];
     });
   };
 
@@ -110,7 +109,7 @@ export default function Products() {
                 key={product?.node.id}
                 productNode={product?.node}
                 checked={selectedProducts.find(
-                  (p) => p?.node.id === product?.node.id
+                  (p) => p?.node.id === product?.node.id,
                 )}
                 toggleChecked={toggleChecked}
               />
