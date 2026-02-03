@@ -21,29 +21,17 @@ import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 
 type Mode = "standard" | "pro";
 
-type TemplateCard = {
-  label: string;
-  templateId: string;
-};
-
-const TEMPLATE_MAP: TemplateCard[] = [
-  { label: "SIMPLE UGC", templateId: "ugc_simple_v1" },
-  { label: "CLEAN\nMINIMAL", templateId: "studio_minimal_v1" },
-  { label: "UNBOXING", templateId: "unboxing_v1" },
-  { label: "CUSTOMER\nREVIEWS", templateId: "ugc_testimonial_v1" },
-  { label: "VIRAL CHAOS", templateId: "viral_fastcuts_v1" },
-  { label: "LUXURY", templateId: "luxury_macro_v1" },
-  { label: "PRODUCT\nSTORY", templateId: "product_story_v1" },
-  { label: "COZY\nMORNING", templateId: "ugc_skincare_demo_v1" },
-];
+function normalizeLabel(input?: string) {
+  return (input || "")
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
 
 const COST_BY_MODE: Record<Mode, number> = {
   standard: 38,
   pro: 76,
-};
-
-type CreditBalanceResponse = {
-  balance?: number;
 };
 
 export default function ChooseAdStylePage() {
@@ -59,21 +47,18 @@ export default function ChooseAdStylePage() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [creditBalance, setCreditBalance] = useState<number | null>(null);
-  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
-
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [presets, setPresets] = useState<VideoPreset[]>([]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const isLoadingRef = useRef(false);
+  const hasNextPageRef = useRef(true);
+  const pageRef = useRef(1);
 
   const canGenerate = Boolean(selectedTemplateId);
-
-  const requiredCredits = COST_BY_MODE[mode];
-  const hasEnoughCredits =
-    creditBalance === null ? true : creditBalance >= requiredCredits;
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -81,44 +66,13 @@ export default function ChooseAdStylePage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!token) return;
-    let mounted = true;
-
-    (async () => {
-      setIsLoadingCredits(true);
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_HOST}/credits`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        const data: CreditBalanceResponse = await res.json();
-        if (!mounted) return;
-        setCreditBalance(typeof data?.balance === "number" ? data.balance : 0);
-      } catch {
-        if (!mounted) return;
-        setCreditBalance(null);
-      } finally {
-        if (!mounted) return;
-        setIsLoadingCredits(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [token]);
-
   const fetchPage = useCallback(
     async (nextPage: number) => {
       if (!token) return;
-      if (isLoading) return;
-      if (!hasNextPage && nextPage !== 1) return;
+      if (isLoadingRef.current) return;
+      if (!hasNextPageRef.current && nextPage !== 1) return;
 
+      isLoadingRef.current = true;
       setIsLoading(true);
       try {
         const res = await listVideoPresets({
@@ -132,49 +86,59 @@ export default function ChooseAdStylePage() {
         setPresets((prev) =>
           nextPage === 1 ? nextPresets : [...prev, ...nextPresets],
         );
-        setHasNextPage(Boolean(pagination?.hasNextPage));
-        setPage(pagination?.page ?? nextPage);
+
+        const nextHasNext = Boolean(pagination?.hasNextPage);
+        hasNextPageRef.current = nextHasNext;
+        setHasNextPage(nextHasNext);
+
+        const nextPageValue = pagination?.page ?? nextPage;
+        pageRef.current = nextPageValue;
+        setPage(nextPageValue);
       } finally {
+        isLoadingRef.current = false;
         setIsLoading(false);
       }
     },
-    [token, isLoading, hasNextPage],
+    [token],
   );
 
   useEffect(() => {
+    if (!token) return;
+    hasNextPageRef.current = true;
+    pageRef.current = 1;
     fetchPage(1);
-  }, [fetchPage]);
+  }, [token, fetchPage]);
 
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
+    const rootEl = listRef.current;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
         if (!first?.isIntersecting) return;
-        if (!hasNextPage) return;
-        fetchPage(page + 1);
+        if (!hasNextPageRef.current) return;
+        fetchPage(pageRef.current + 1);
       },
-      { rootMargin: "240px" },
+      { root: rootEl, rootMargin: "240px" },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [fetchPage, hasNextPage, page]);
+  }, [fetchPage]);
 
   const cards = useMemo(() => {
-    const presetByTemplateId = new Map<string, VideoPreset>();
-    presets.forEach((p) => {
-      if (p?.templateId) {
-        presetByTemplateId.set(p.templateId, p);
-      }
+    return presets.map((preset) => {
+      const templateId = preset?._id;
+      const label = normalizeLabel(preset?.label) || "PRESET";
+      return {
+        preset,
+        templateId,
+        label,
+        disabled: !preset?.videoUrl,
+      };
     });
-
-    return TEMPLATE_MAP.map((t) => ({
-      ...t,
-      preset: presetByTemplateId.get(t.templateId),
-    }));
   }, [presets]);
 
   return (
@@ -246,11 +210,6 @@ export default function ChooseAdStylePage() {
                 if (!token) return;
                 if (!selectedTemplateId) return;
 
-                if (!hasEnoughCredits) {
-                  router.push("/pricing");
-                  return;
-                }
-
                 setError(null);
                 setIsCreating(true);
                 try {
@@ -277,7 +236,9 @@ export default function ChooseAdStylePage() {
                   });
 
                   if (res?.generationId) {
-                    router.push(`/create-campaign/generation/${res.generationId}`);
+                    router.push(
+                      `/create-campaign/generation/${res.generationId}`,
+                    );
                   } else {
                     router.push("/create-campaign/campaign-snapshots");
                   }
@@ -291,22 +252,12 @@ export default function ChooseAdStylePage() {
                   setIsCreating(false);
                 }
               }}
-              disabled={!canGenerate || isCreating || isLoadingCredits || !hasEnoughCredits}
+              disabled={!canGenerate || isCreating}
               hasIconOrLoader
               icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
               iconPosition="right"
               iconSize={16}
             />
-            {creditBalance !== null && (
-              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
-                Credits: {creditBalance} / {requiredCredits}
-              </p>
-            )}
-            {creditBalance !== null && !hasEnoughCredits && (
-              <p className="mt-2 text-xs text-[rgba(255,255,255,0.70)]">
-                Not enough credits. Upgrade to generate.
-              </p>
-            )}
             {error && (
               <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
                 {error}
@@ -321,14 +272,18 @@ export default function ChooseAdStylePage() {
             <span>Presets</span>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-2 pink-scroll">
+          <div
+            ref={listRef}
+            className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-2 pink-scroll"
+          >
             {cards.map((c) => {
-              const isSelected = selectedTemplateId === c.templateId;
-              const disabled = !c.preset;
+              const isSelected =
+                Boolean(c.templateId) && selectedTemplateId === c.templateId;
+              const disabled = c.disabled;
 
               return (
                 <button
-                  key={c.templateId}
+                  key={c.preset?._id}
                   className={`relative rounded-3xl overflow-hidden aspect-[9/16] transition-all duration-200 ${
                     disabled
                       ? "opacity-40 cursor-not-allowed"
@@ -344,7 +299,7 @@ export default function ChooseAdStylePage() {
                     setSelectedTemplateId(c.templateId);
                   }}
                 >
-                  {c.preset?.thumbnailVideoUrl ? (
+                  {c.preset?.videoUrl ? (
                     <video
                       className="absolute inset-0 w-full h-full object-cover"
                       muted
@@ -352,7 +307,7 @@ export default function ChooseAdStylePage() {
                       loop
                       autoPlay
                       poster={c.preset.thumbnailImageUrl}
-                      src={c.preset.thumbnailVideoUrl}
+                      src={c.preset.videoUrl}
                     />
                   ) : c.preset?.thumbnailImageUrl ? (
                     <img

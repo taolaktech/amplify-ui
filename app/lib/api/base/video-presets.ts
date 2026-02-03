@@ -6,6 +6,7 @@ const instance = axios.create({
 
 export type VideoPreset = {
   _id: string;
+  label?: string;
   templateId?: string;
   videoUrl: string;
   thumbnailImageUrl: string;
@@ -35,67 +36,18 @@ export async function listVideoPresets(data: {
   page?: number;
   perPage?: number;
 }) {
-  const page = data.page || 1;
-  const perPage = data.perPage || 12;
-
-  const response = await instance.get(
-    "/templates",
+  const response = await instance.get<ListVideoPresetsResponse>(
+    "/video-presets",
     {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
       params: {
-        type: "video",
-        page,
-        limit: perPage,
+        page: data.page || 1,
+        perPage: data.perPage || 12,
       },
     },
   );
 
-  const templates = response.data?.templates || [];
-  const total = response.data?.total ?? 0;
-  const pages = response.data?.pages ?? 1;
-  const totalPages = pages;
-
-  const presets: VideoPreset[] = templates.map((t: any) => {
-    const templateId =
-      t?.templateId ||
-      t?.metadata?.templateId ||
-      t?.metadata?.id ||
-      t?.metadata?.templateKey;
-
-    const videoUrl = t?.metadata?.previewVideoUrl || t?.sourceS3Url || "";
-    const thumbnailImageUrl =
-      t?.thumbnailUrl || t?.metadata?.thumbnailImageUrl || "";
-    const thumbnailVideoUrl =
-      t?.metadata?.thumbnailVideoUrl || t?.metadata?.previewVideoUrl || videoUrl;
-
-    return {
-      _id: t?._id,
-      templateId,
-      videoUrl,
-      thumbnailImageUrl,
-      thumbnailVideoUrl,
-      duration: t?.metadata?.duration,
-      resolution: t?.metadata?.resolution,
-      createdAt: t?.createdAt,
-      updatedAt: t?.updatedAt,
-    };
-  });
-
-  const normalized: ListVideoPresetsResponse = {
-    data: {
-      presets,
-      pagination: {
-        total,
-        page,
-        perPage,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
-    },
-  };
-
-  return normalized;
+  return response.data;
 }
