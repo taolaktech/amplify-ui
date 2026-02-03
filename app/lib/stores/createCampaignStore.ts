@@ -27,6 +27,11 @@ type CreateCampaignState = {
   googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
+  adStyle: {
+    templateId: string | null;
+    mode: "standard" | "pro";
+    complete: boolean;
+  };
 };
 
 export type CampaignSnapshots = {
@@ -73,6 +78,11 @@ type CreateCampaignActions = {
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
+  storeAdStyle: (adStyle: {
+    templateId?: string | null;
+    mode?: "standard" | "pro";
+    complete?: boolean;
+  }) => void;
   getLocationCountries: () => string[];
   toggleInstagramSettings: (setting: SocialSettingsKey) => void;
   toggleFacebookSettings: (setting: SocialSettingsKey) => void;
@@ -118,6 +128,11 @@ const initialState: CreateCampaignState = {
     campaignEndDate: new Date(new Date().setDate(new Date().getDate() + 30))
       .toISOString()
       .split("T")[0],
+    complete: false,
+  },
+  adStyle: {
+    templateId: null,
+    mode: "standard",
     complete: false,
   },
   instagramSettings: {
@@ -247,6 +262,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             },
           }));
         },
+        storeAdStyle: (adStyle) => {
+          set((state) => ({
+            adStyle: {
+              ...state.adStyle,
+              ...adStyle,
+            },
+          }));
+        },
         completeCampaignSnapshots: () => {
           set((state) => ({
             campaignSnapshots: {
@@ -266,6 +289,7 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         adsShow: state.adsShow,
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
+        adStyle: state.adStyle,
         fundCampaign: state.fundCampaign,
         supportedAdPlatforms: state.supportedAdPlatforms,
         instagramSettings: state.instagramSettings,

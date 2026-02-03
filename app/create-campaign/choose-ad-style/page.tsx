@@ -1,10 +1,20 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2, ArrowLeft } from "iconsax-react";
-import { listVideoPresets, VideoPreset } from "@/app/lib/api/base/video-presets";
+import {
+  listVideoPresets,
+  VideoPreset,
+} from "@/app/lib/api/base/video-presets";
+import { createGeneration } from "@/app/lib/api/base/generations";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 
@@ -35,11 +45,14 @@ export default function ChooseAdStylePage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const { productSelection } = useCreateCampaignStore((s) => s);
+  const storeAdStyle = useCreateCampaignStore((s) => s.actions.storeAdStyle);
 
   const [mode, setMode] = useState<Mode>("standard");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null,
   );
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
@@ -64,7 +77,11 @@ export default function ChooseAdStylePage() {
 
       setIsLoading(true);
       try {
-        const res = await listVideoPresets({ token, page: nextPage, perPage: 12 });
+        const res = await listVideoPresets({
+          token,
+          page: nextPage,
+          perPage: 12,
+        });
         const nextPresets = res.data.presets || [];
         const pagination = res.data.pagination;
 
@@ -127,9 +144,7 @@ export default function ChooseAdStylePage() {
               <span
                 key={i}
                 className={`h-[3px] rounded-full transition-all ${
-                  i === 0
-                    ? "w-10 bg-white"
-                    : "w-6 bg-[rgba(255,255,255,0.20)]"
+                  i === 0 ? "w-10 bg-white" : "w-6 bg-[rgba(255,255,255,0.20)]"
                 }`}
               />
             ))}
@@ -142,7 +157,8 @@ export default function ChooseAdStylePage() {
               STYLE
             </div>
             <p className="mt-3 text-sm text-[rgba(255,255,255,0.70)] tracking-40 max-w-[320px]">
-              Select a style to generate your ad. Each preset includes optimized visuals, captions, and pacing for social media.
+              Select a style to generate your ad. Each preset includes optimized
+              visuals, captions, and pacing for social media.
             </p>
           </div>
 
@@ -174,17 +190,58 @@ export default function ChooseAdStylePage() {
           <div className="mt-5">
             <Button
               text={`Generate video ✨ ${COST_BY_MODE[mode]}`}
-              action={() => {
+              action={async () => {
                 if (!canGenerate) return;
-                // Next step will trigger generation job (POST /api/generations)
-                router.push("/create-campaign/campaign-snapshots");
+                if (!token) return;
+                if (!selectedTemplateId) return;
+
+                setError(null);
+                setIsCreating(true);
+                try {
+                  storeAdStyle({
+                    templateId: selectedTemplateId,
+                    mode,
+                    complete: true,
+                  });
+
+                  const productKitId =
+                    productSelection?.products?.[0]?.node?.id;
+
+                  if (!productKitId) {
+                    throw new Error("Missing productKitId");
+                  }
+
+                  await createGeneration({
+                    token,
+                    dto: {
+                      productKitId,
+                      templateId: selectedTemplateId,
+                      mode,
+                    },
+                  });
+
+                  router.push("/create-campaign/campaign-snapshots");
+                } catch (e: any) {
+                  setError(
+                    e?.response?.data?.message ||
+                      e?.message ||
+                      "Failed to start generation",
+                  );
+                } finally {
+                  setIsCreating(false);
+                }
               }}
-              disabled={!canGenerate}
+              disabled={!canGenerate || isCreating}
               hasIconOrLoader
               icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
               iconPosition="right"
               iconSize={16}
             />
+            {error && (
+              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
+                {error}
+              </p>
+            )}
           </div>
         </div>
 
@@ -250,7 +307,9 @@ export default function ChooseAdStylePage() {
           </div>
 
           {isLoading && (
-            <div className="mt-4 text-xs text-[rgba(255,255,255,0.65)]">Loading…</div>
+            <div className="mt-4 text-xs text-[rgba(255,255,255,0.65)]">
+              Loading…
+            </div>
           )}
         </div>
       </div>

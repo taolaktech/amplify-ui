@@ -25,33 +25,40 @@ export default function CreateCampaign({
 
   useEffect(() => {
     // actions.reset();
-    setProgressStep(1, 7);
+    setProgressStep(1, 8);
   }, []);
 
   useEffect(() => {
     if (pathname.includes("review")) {
-      setProgressStep(7, 7);
+      setProgressStep(8, 8);
       setBackText("Fund Campaign");
       setRoute("/create-campaign/fund-campaign");
       return;
     }
 
     if (pathname.includes("fund-campaign")) {
-      setProgressStep(6, 7);
+      setProgressStep(7, 8);
       setBackText("Campaign Snapshots");
       setRoute("/create-campaign/campaign-snapshots");
       return;
     }
 
     if (pathname.includes("campaign-snapshots")) {
-      setProgressStep(5, 7);
+      setProgressStep(6, 8);
+      setBackText("Choose Ad Style");
+      setRoute("/create-campaign/choose-ad-style");
+      return;
+    }
+
+    if (pathname.includes("choose-ad-style")) {
+      setProgressStep(5, 8);
       setBackText("Product Kit");
       setRoute("/create-campaign/product-kit");
       return;
     }
 
     if (pathname.includes("product-kit")) {
-      setProgressStep(4, 7);
+      setProgressStep(4, 8);
       setBackText("Supported Ad Platforms");
       setRoute("/create-campaign/supported-ad-platforms");
       return;
@@ -61,20 +68,20 @@ export default function CreateCampaign({
       productSelection.complete &&
       pathname.includes("supported-ad-platforms")
     ) {
-      setProgressStep(3, 7);
+      setProgressStep(3, 8);
       setBackText("Select Products");
       setRoute("/create-campaign/product-selection");
       return;
     }
 
     if (adsShow.complete && pathname.includes("product-selection")) {
-      setProgressStep(2, 7);
+      setProgressStep(2, 8);
       setBackText("Create Campaign");
       setRoute("/create-campaign");
       return;
     }
 
-    setProgressStep(1, 7);
+    setProgressStep(1, 8);
     setBackText("");
     setRoute("");
   }, [adsShow.complete, productSelection.complete, pathname]);
@@ -117,7 +124,8 @@ export default function CreateCampaign({
       <main
         className={`${
           pathname.includes("campaign-snapshots") ||
-          pathname.includes("product-kit")
+          pathname.includes("product-kit") ||
+          pathname.includes("choose-ad-style")
             ? ""
             : "px-5"
         }`}

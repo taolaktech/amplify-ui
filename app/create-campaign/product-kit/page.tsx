@@ -382,7 +382,7 @@ export default function ProductKitPage() {
               text="Continue"
               action={() => {
                 if (!canContinue) return;
-                router.push("/create-campaign/campaign-snapshots");
+                router.push("/create-campaign/choose-ad-style");
               }}
               disabled={!canContinue}
               hasIconOrLoader
