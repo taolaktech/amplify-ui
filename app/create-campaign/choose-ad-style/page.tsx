@@ -17,6 +17,7 @@ import {
 import { createGeneration } from "@/app/lib/api/base/generations";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
 
 type Mode = "standard" | "pro";
 
@@ -41,6 +42,10 @@ const COST_BY_MODE: Record<Mode, number> = {
   pro: 76,
 };
 
+type CreditBalanceResponse = {
+  balance?: number;
+};
+
 export default function ChooseAdStylePage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
@@ -54,6 +59,9 @@ export default function ChooseAdStylePage() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +71,47 @@ export default function ChooseAdStylePage() {
 
   const canGenerate = Boolean(selectedTemplateId);
 
+  const requiredCredits = COST_BY_MODE[mode];
+  const hasEnoughCredits =
+    creditBalance === null ? true : creditBalance >= requiredCredits;
+
   useEffect(() => {
     if (!productSelection.complete) {
       router.push("/create-campaign/");
     }
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    let mounted = true;
+
+    (async () => {
+      setIsLoadingCredits(true);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_HOST}/credits`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        const data: CreditBalanceResponse = await res.json();
+        if (!mounted) return;
+        setCreditBalance(typeof data?.balance === "number" ? data.balance : 0);
+      } catch {
+        if (!mounted) return;
+        setCreditBalance(null);
+      } finally {
+        if (!mounted) return;
+        setIsLoadingCredits(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
 
   const fetchPage = useCallback(
     async (nextPage: number) => {
@@ -120,17 +164,24 @@ export default function ChooseAdStylePage() {
   }, [fetchPage, hasNextPage, page]);
 
   const cards = useMemo(() => {
-    // Pair UI labels + templateIds with backend presets, best-effort matching
-    const presetByIndex = presets;
-    return TEMPLATE_MAP.map((t, idx) => ({
+    const presetByTemplateId = new Map<string, VideoPreset>();
+    presets.forEach((p) => {
+      if (p?.templateId) {
+        presetByTemplateId.set(p.templateId, p);
+      }
+    });
+
+    return TEMPLATE_MAP.map((t) => ({
       ...t,
-      preset: presetByIndex[idx],
+      preset: presetByTemplateId.get(t.templateId),
     }));
   }, [presets]);
 
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
-      <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
+      {isCreating && <CircleLoaderModal text="Starting generation…" />}
+
+      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8 items-start">
         <div className="bg-[#111] rounded-3xl p-8 lg:sticky lg:top-24">
           <button
             className="w-10 h-10 rounded-2xl bg-[rgba(255,255,255,0.08)] flex items-center justify-center"
@@ -195,6 +246,11 @@ export default function ChooseAdStylePage() {
                 if (!token) return;
                 if (!selectedTemplateId) return;
 
+                if (!hasEnoughCredits) {
+                  router.push("/pricing");
+                  return;
+                }
+
                 setError(null);
                 setIsCreating(true);
                 try {
@@ -211,7 +267,7 @@ export default function ChooseAdStylePage() {
                     throw new Error("Missing productKitId");
                   }
 
-                  await createGeneration({
+                  const res = await createGeneration({
                     token,
                     dto: {
                       productKitId,
@@ -220,7 +276,11 @@ export default function ChooseAdStylePage() {
                     },
                   });
 
-                  router.push("/create-campaign/campaign-snapshots");
+                  if (res?.generationId) {
+                    router.push(`/create-campaign/generation/${res.generationId}`);
+                  } else {
+                    router.push("/create-campaign/campaign-snapshots");
+                  }
                 } catch (e: any) {
                   setError(
                     e?.response?.data?.message ||
@@ -231,12 +291,22 @@ export default function ChooseAdStylePage() {
                   setIsCreating(false);
                 }
               }}
-              disabled={!canGenerate || isCreating}
+              disabled={!canGenerate || isCreating || isLoadingCredits || !hasEnoughCredits}
               hasIconOrLoader
               icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
               iconPosition="right"
               iconSize={16}
             />
+            {creditBalance !== null && (
+              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
+                Credits: {creditBalance} / {requiredCredits}
+              </p>
+            )}
+            {creditBalance !== null && !hasEnoughCredits && (
+              <p className="mt-2 text-xs text-[rgba(255,255,255,0.70)]">
+                Not enough credits. Upgrade to generate.
+              </p>
+            )}
             {error && (
               <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
                 {error}

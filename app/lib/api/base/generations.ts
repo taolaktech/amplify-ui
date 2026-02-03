@@ -22,6 +22,19 @@ export type CreateGenerationResponse = {
   outputVideoUrl?: string;
 };
 
+export type GetGenerationResponse = {
+  generationId: string;
+  status:
+    | "queued"
+    | "generating_shots"
+    | "assembling"
+    | "adding_overlays"
+    | "completed"
+    | "failed";
+  outputVideoUrl?: string;
+  errorMessage?: string;
+};
+
 export async function createGeneration(data: {
   token: string;
   dto: CreateGenerationRequest;
@@ -29,6 +42,19 @@ export async function createGeneration(data: {
   const response = await instance.post<CreateGenerationResponse>(
     "/generations",
     data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export async function getGeneration(data: { token: string; generationId: string }) {
+  const response = await instance.get<GetGenerationResponse>(
+    `/generations/${data.generationId}`,
     {
       headers: {
         Authorization: `Bearer ${data.token}`,
