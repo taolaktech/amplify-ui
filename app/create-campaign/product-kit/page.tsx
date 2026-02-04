@@ -158,6 +158,9 @@ export default function ProductKitPage() {
   const { productSelection, supportedAdPlatforms } = useCreateCampaignStore(
     (state) => state,
   );
+  const storeCampaignSnapshots = useCreateCampaignStore(
+    (state) => state.actions.storeCampaignSnapshots,
+  );
 
   const product = productSelection.products?.[0]?.node;
 
@@ -382,6 +385,10 @@ export default function ProductKitPage() {
               text="Continue"
               action={() => {
                 if (!canContinue) return;
+                storeCampaignSnapshots({
+                  brandColor: colors.primary,
+                  accentColor: colors.secondary,
+                });
                 router.push("/create-campaign/choose-ad-style");
               }}
               disabled={!canContinue}

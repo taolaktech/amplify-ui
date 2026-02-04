@@ -59,10 +59,10 @@ export default function ReviewPage() {
   }, [productSelection]);
 
   useEffect(() => {
-    if (!fundCampaign.complete) {
+    if (!campaignSnapshots.complete) {
       router.push("/create-campaign/");
     }
-  }, []);
+  }, [campaignSnapshots.complete, router]);
 
   const formattedStartDate = format(
     parseISO(campaignSnapshots.campaignStartDate || new Date().toISOString()),
@@ -300,56 +300,58 @@ export default function ReviewPage() {
           />
         </section>
 
-        <section className="mt-14">
-          <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
-            <h3 className="text-heading md:text-lg font-medium ">
-              Campaign Fund
-            </h3>
-            <Link
-              href={"/create-campaign/fund-campaign"}
-              className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
-            >
-              <EditIcon width={16} height={16} />
-              <span className="text-heading tracking-100 text-sm font-medium">
-                Edit
-              </span>
-            </Link>
-          </div>
-
-          <div className="py-8 flex items-center gap-12 border-b-[0.5px] border-[#BFBFBF]">
-            <div className="flex flex-col gap-1 h-[60px]">
-              <p className="text-[#595959] text-sm tracking-200">
-                Amount Funded
-              </p>
-              <p className="text-[#555456] font-medium tracking-250">
-                ${fundCampaign.amount || "0"}
-              </p>
+        {fundCampaign.complete && (
+          <section className="mt-14">
+            <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
+              <h3 className="text-heading md:text-lg font-medium ">
+                Campaign Fund
+              </h3>
+              <Link
+                href={"/create-campaign/fund-campaign"}
+                className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
+              >
+                <EditIcon width={16} height={16} />
+                <span className="text-heading tracking-100 text-sm font-medium">
+                  Edit
+                </span>
+              </Link>
             </div>
-            {/*  <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
-              <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
-                <Image
-                  src={
-                    brandIconMap[
-                      fundCampaign.cardDetails?.cardBrand.toLowerCase() ||
-                        "unknown"
-                    ]
-                  }
-                  alt={fundCampaign.cardDetails?.cardBrand || ""}
-                  width={48}
-                  height={48}
-                />
+
+            <div className="py-8 flex items-center gap-12 border-b-[0.5px] border-[#BFBFBF]">
+              <div className="flex flex-col gap-1 h-[60px]">
+                <p className="text-[#595959] text-sm tracking-200">
+                  Amount Funded
+                </p>
+                <p className="text-[#555456] font-medium tracking-250">
+                  ${fundCampaign.amount || "0"}
+                </p>
               </div>
-              <div className="flex flex-col gap-1 justify-between">
-                <div className="text-[#595959] text-sm tracking-200">
-                  Credit Card
+              {/*  <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
+                <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
+                  <Image
+                    src={
+                      brandIconMap[
+                        fundCampaign.cardDetails?.cardBrand.toLowerCase() ||
+                          "unknown"
+                      ]
+                    }
+                    alt={fundCampaign.cardDetails?.cardBrand || ""}
+                    width={48}
+                    height={48}
+                  />
                 </div>
-                <div className="font-medium tracking-250 leading-tight text-sm ">
-                  **** **** **** {fundCampaign.cardDetails?.last4Numbers}
+                <div className="flex flex-col gap-1 justify-between">
+                  <div className="text-[#595959] text-sm tracking-200">
+                    Credit Card
+                  </div>
+                  <div className="font-medium tracking-250 leading-tight text-sm ">
+                    **** **** **** {fundCampaign.cardDetails?.last4Numbers}
+                  </div>
                 </div>
-              </div>
-            </div> */}
-          </div>
-        </section>
+              </div> */}
+            </div>
+          </section>
+        )}
         <div className="mt-5 md:mt-20 sm:max-w-[242px] mx-auto">
           <Button
             text="Launch Campaign"

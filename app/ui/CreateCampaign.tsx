@@ -31,8 +31,8 @@ export default function CreateCampaign({
   useEffect(() => {
     if (pathname.includes("review")) {
       setProgressStep(8, 8);
-      setBackText("Fund Campaign");
-      setRoute("/create-campaign/fund-campaign");
+      setBackText("Campaign Snapshot");
+      setRoute("/create-campaign/campaign-snapshots");
       return;
     }
 
@@ -44,6 +44,13 @@ export default function CreateCampaign({
     }
 
     if (pathname.includes("campaign-snapshots")) {
+      setProgressStep(6, 8);
+      setBackText("Choose Ad Style");
+      setRoute("/create-campaign/choose-ad-style");
+      return;
+    }
+
+    if (pathname.includes("creative-ready")) {
       setProgressStep(6, 8);
       setBackText("Choose Ad Style");
       setRoute("/create-campaign/choose-ad-style");
@@ -125,7 +132,8 @@ export default function CreateCampaign({
         className={`${
           pathname.includes("campaign-snapshots") ||
           pathname.includes("product-kit") ||
-          pathname.includes("choose-ad-style")
+          pathname.includes("choose-ad-style") ||
+          pathname.includes("creative-ready")
             ? ""
             : "px-5"
         }`}

@@ -42,6 +42,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [currentType, setCurrentType] = useState(type);
     const isPassword = type === "password";
 
+    const hasValueProp = Object.prototype.hasOwnProperty.call(props, "value");
+    const { value, ...inputProps } = props;
+
     const togglePasswordVisibility = (
       e: React.MouseEvent<HTMLButtonElement>
     ) => {
@@ -83,7 +86,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ? "border-2"
                 : "border-[1.2px]"
             } `}
-            {...props}
+            {...inputProps}
+            {...(hasValueProp ? { value: value ?? "" } : {})}
           />
           {isPassword && (
             <button

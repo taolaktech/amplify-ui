@@ -30,6 +30,14 @@ type CreateCampaignState = {
   adStyle: {
     templateId: string | null;
     imageTemplateIds: string[];
+    videoPreset: {
+      id: string;
+      title: string;
+      videoUrl: string;
+      thumbnailImageUrl?: string;
+      duration?: number;
+    } | null;
+    generationId: string | null;
     mode: "standard" | "pro";
     complete: boolean;
   };
@@ -41,6 +49,8 @@ export type CampaignSnapshots = {
   brandColor: string;
   accentColor: string;
   destinationUrl: string;
+  googleDailyBudget: string;
+  metaDailyBudget: string;
   campaignStartDate: string;
   campaignEndDate: string;
 };
@@ -82,6 +92,14 @@ type CreateCampaignActions = {
   storeAdStyle: (adStyle: {
     templateId?: string | null;
     imageTemplateIds?: string[];
+    videoPreset?: {
+      id: string;
+      title: string;
+      videoUrl: string;
+      thumbnailImageUrl?: string;
+      duration?: number;
+    } | null;
+    generationId?: string | null;
     mode?: "standard" | "pro";
     complete?: boolean;
   }) => void;
@@ -124,6 +142,8 @@ const initialState: CreateCampaignState = {
     brandColor: "",
     accentColor: "",
     destinationUrl: "",
+    googleDailyBudget: "5",
+    metaDailyBudget: "5",
     campaignStartDate: new Date(new Date().setDate(new Date().getDate() + 1))
       .toISOString()
       .split("T")[0],
@@ -135,6 +155,8 @@ const initialState: CreateCampaignState = {
   adStyle: {
     templateId: null,
     imageTemplateIds: [],
+    videoPreset: null,
+    generationId: null,
     mode: "standard",
     complete: false,
   },

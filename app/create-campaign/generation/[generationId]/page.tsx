@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2, ArrowLeft } from "iconsax-react";
 import {
@@ -13,8 +13,11 @@ import { useAuthStore } from "@/app/lib/stores/authStore";
 export default function GenerationStatusPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const generationId = (params as any)?.generationId as string | undefined;
   const token = useAuthStore((s) => s.token);
+
+  const nextRoute = searchParams?.get("next") || "/create-campaign/campaign-snapshots";
 
   const [job, setJob] = useState<GetGenerationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +101,7 @@ export default function GenerationStatusPage() {
                 text={isTerminal ? "Continue" : "Working…"}
                 action={() => {
                   if (job?.status === "completed") {
-                    router.push("/create-campaign/campaign-snapshots");
+                    router.push(nextRoute);
                     return;
                   }
                   if (job?.status === "failed") {

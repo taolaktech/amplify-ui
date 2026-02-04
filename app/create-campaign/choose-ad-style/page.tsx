@@ -255,18 +255,32 @@ export default function ChooseAdStylePage() {
 
           <div className="mt-5">
             <Button
-              text={"Continue"}
-              action={() => {
+              text={"Generate ads"}
+              action={async () => {
                 if (!canContinue) return;
+
+                const picked = cards.find(
+                  (c) => c.templateId === selectedVideoTemplateId,
+                );
 
                 storeAdStyle({
                   templateId: selectedVideoTemplateId,
                   imageTemplateIds: selectedImageTemplateIds,
+                  videoPreset: picked?.preset
+                    ? {
+                        id: picked.preset._id,
+                        title: picked.label,
+                        videoUrl: picked.preset.videoUrl,
+                        thumbnailImageUrl: picked.preset.thumbnailImageUrl,
+                        duration: (picked.preset as any).duration,
+                      }
+                    : null,
+                  generationId: null,
                   mode,
                   complete: true,
                 });
 
-                router.push("/create-campaign/campaign-snapshots");
+                router.push("/create-campaign/creative-ready");
               }}
               disabled={!canContinue}
               hasIconOrLoader

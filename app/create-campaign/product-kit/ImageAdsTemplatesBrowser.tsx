@@ -1164,6 +1164,10 @@ function seededTemplates(primaryNiche: string | null): ImageAdTemplate[] {
   });
 }
 
+export function getSeededImageAdTemplates(primaryNiche: string | null) {
+  return seededTemplates(primaryNiche);
+}
+
 function rankTemplates(args: {
   templates: ImageAdTemplate[];
   niche: string | null;

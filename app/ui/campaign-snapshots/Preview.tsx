@@ -8,7 +8,7 @@ import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import useUIStore from "@/app/lib/stores/uiStore";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import IGStaticPostView from "../media-creatives/ig/StaticPostView";
 import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
 import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
@@ -18,7 +18,7 @@ import CircleLoader from "../loaders/CircleLoader";
 import DragScrollContainer from "../DragScrollContainer";
 import StoryPostView from "../media-creatives/ig/StoryPostView";
 import { useToastStore } from "@/app/lib/stores/toastStore";
-import UploadMetaCreative from "../modals/UploadMetaCreative";
+import { useRouter } from "next/navigation";
 import {
   useMetaCreativeUploadStore,
   type MetaUploadedCreative,
@@ -44,6 +44,7 @@ const Preview = ({
   generateCreatives: (productId: string, platforms: Platform[]) => void;
   loading: boolean;
 }) => {
+  const router = useRouter();
   const settings: { label: string; key: SocialSettingsKey }[] = [
     { label: "Static Post", key: "staticPost" },
     { label: "Carousel Post", key: "carouselPost" },
@@ -61,13 +62,6 @@ const Preview = ({
     (state) => state.campaignSnapshots.destinationUrl,
   );
   const setToast = useToastStore((state) => state.setToast);
-
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-
-  const uploadedCount = useMetaCreativeUploadStore((state) => {
-    const list = state.uploadsByProductId[highlightedProductId] || [];
-    return list.length;
-  });
 
   const isValidHttpUrl = (value: string) => {
     if (!value) return false;
@@ -201,11 +195,22 @@ const Preview = ({
                           });
                           return;
                         }
+
+                        if (hasGeneratedOnceForPlatform(item.platform)) {
+                          router.push("/create-campaign/product-kit");
+                          return;
+                        }
                         generateCreatives(highlightedProductId, [
                           item.platform,
                         ]);
                       }}
-                      className="flex border border-[#E0E0E0] gap-1 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
+                      className={`flex gap-1 items-center h-[32px] px-4 rounded-[39px] ${
+                        !creativeLoadingStates?.[highlightedProductId]?.[
+                          item.platform
+                        ] && isDestinationUrlValid
+                          ? "bg-[#F0E6FB] border-[#D0B0F3] border"
+                          : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
+                      }`}
                     >
                       <Magicpen size={12} color="#000" />
                       <span className="text-xs tracking-100">
@@ -214,20 +219,6 @@ const Preview = ({
                           : "Generate"}
                       </span>
                     </button>
-
-                    {item.title !== "Google" && (
-                      <button
-                        onClick={() => setIsUploadOpen(true)}
-                        className="flex border border-[#E0E0E0] gap-2 items-center h-[32px] px-4 bg-[#ECECEC] rounded-[39px]"
-                      >
-                        <span className="text-xs tracking-100">Upload</span>
-                        {uploadedCount > 0 && (
-                          <span className="text-[10px] font-medium px-2 h-[18px] rounded-[39px] bg-[#F0E6FB] border border-[#D0B0F3] flex items-center">
-                            {uploadedCount}
-                          </span>
-                        )}
-                      </button>
-                    )}
                   </div>
                 )}
             </div>
@@ -249,14 +240,6 @@ const Preview = ({
           />
         </div>
       ))}
-
-      {isUploadOpen && (
-        <UploadMetaCreative
-          isOpen={isUploadOpen}
-          productId={highlightedProductId}
-          onClose={() => setIsUploadOpen(false)}
-        />
-      )}
     </div>
   );
 };
