@@ -346,7 +346,7 @@ export default function ProductKitPage() {
           className={`ml-auto text-xs px-3 h-[30px] rounded-lg border ${
             isLocked
               ? "border-purple-600 text-purple-600"
-              : "border-[rgba(255,255,255,0.12)] text-neutral-light"
+              : "border-input-border text-neutral-light"
           }`}
           onClick={(e) => {
             e.preventDefault();
@@ -366,12 +366,12 @@ export default function ProductKitPage() {
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
-        <div className="bg-[#111] rounded-3xl p-8 lg:sticky lg:top-24">
-          <div className="text-white">
+        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-8 lg:sticky lg:top-24">
+          <div className="text-heading">
             <div className="text-[34px] leading-[40px] font-bold tracking-800">
               YOUR PRODUCT KIT
             </div>
-            <p className="mt-3 text-sm text-[rgba(255,255,255,0.70)] tracking-40 max-w-[320px]">
+            <p className="mt-3 text-sm text-neutral-light tracking-40 max-w-[320px]">
               Review the details we extracted. You can edit anything before
               generating your video.
             </p>
@@ -391,7 +391,7 @@ export default function ProductKitPage() {
               iconSize={16}
             />
             {!canContinue && (
-              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
+              <p className="mt-3 text-xs text-neutral-light">
                 Select at least 1 product image to continue.
               </p>
             )}

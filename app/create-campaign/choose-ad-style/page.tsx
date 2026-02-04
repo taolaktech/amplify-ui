@@ -9,17 +9,62 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/app/ui/Button";
-import { ArrowCircleRight2, ArrowLeft } from "iconsax-react";
+import { ArrowCircleRight2 } from "iconsax-react";
 import {
   listVideoPresets,
   VideoPreset,
 } from "@/app/lib/api/base/video-presets";
-import { createGeneration } from "@/app/lib/api/base/generations";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
-import CircleLoaderModal from "@/app/ui/modals/CircleLoaderModal";
+import ImageAdsTemplatesBrowser from "../product-kit/ImageAdsTemplatesBrowser";
 
-type Mode = "standard" | "pro";
+const LOCAL_VIDEO_PRESETS: VideoPreset[] = [
+  {
+    _id: "local-video-1",
+    title: "Skincare • Lifestyle routine",
+    templateId: "local-video-1",
+    videoUrl:
+      "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4",
+    thumbnailImageUrl: "/ig_post_lg.webp",
+    thumbnailVideoUrl: "",
+  },
+  {
+    _id: "local-video-2",
+    title: "Skincare • Problem → solution",
+    templateId: "local-video-2",
+    videoUrl:
+      "https://cdn.higgsfield.ai/veo3_motion/161e7c18-6448-4e3a-80aa-86523027dc8c.mp4",
+    thumbnailImageUrl: "/facebook_post_lg.webp",
+    thumbnailVideoUrl: "",
+  },
+  {
+    _id: "local-video-3",
+    title: "Wellness • Before / after",
+    templateId: "local-video-3",
+    videoUrl:
+      "https://cdn.higgsfield.ai/veo3_motion/4faa72d7-d8a2-4037-a57e-753d0b8b76fa.mp4",
+    thumbnailImageUrl: "/google_post_lg.webp",
+    thumbnailVideoUrl: "",
+  },
+  {
+    _id: "local-video-4",
+    title: "Supplements • Offers & urgency",
+    templateId: "local-video-4",
+    videoUrl:
+      "https://cdn.higgsfield.ai/veo3_motion/161e7c18-6448-4e3a-80aa-86523027dc8c.mp4",
+    thumbnailImageUrl: "/facebook_post_lg_compressed.webp",
+    thumbnailVideoUrl: "",
+  },
+  {
+    _id: "local-video-5",
+    title: "Beauty • Testimonials",
+    templateId: "local-video-5",
+    videoUrl:
+      "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4",
+    thumbnailImageUrl: "/ig_post_lg_compressed.webp",
+    thumbnailVideoUrl: "",
+  },
+];
 
 function normalizeLabel(input?: string) {
   return (input || "")
@@ -29,23 +74,24 @@ function normalizeLabel(input?: string) {
     .toUpperCase();
 }
 
-const COST_BY_MODE: Record<Mode, number> = {
-  standard: 38,
-  pro: 76,
-};
-
 export default function ChooseAdStylePage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
   const { productSelection } = useCreateCampaignStore((s) => s);
   const storeAdStyle = useCreateCampaignStore((s) => s.actions.storeAdStyle);
 
-  const [mode, setMode] = useState<Mode>("standard");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    null,
-  );
-  const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const selectedProductNode = productSelection.products?.[0]?.node;
+
+  const mode: "standard" = "standard";
+  const [presetType, setPresetType] = useState<"video" | "image">("video");
+  const [selectedVideoTemplateId, setSelectedVideoTemplateId] = useState<
+    string | null
+  >(null);
+  const [selectedImageTemplateIds, setSelectedImageTemplateIds] = useState<
+    string[]
+  >([]);
+  const [presetLoadError, setPresetLoadError] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
@@ -58,7 +104,25 @@ export default function ChooseAdStylePage() {
   const hasNextPageRef = useRef(true);
   const pageRef = useRef(1);
 
-  const canGenerate = Boolean(selectedTemplateId);
+  const canContinue =
+    Boolean(selectedVideoTemplateId) && selectedImageTemplateIds.length > 0;
+
+  const friendlyPresetLoadError = useMemo(() => {
+    if (!presetLoadError) return null;
+    if (/^Cannot\s+(GET|POST|PUT|DELETE)\s+/i.test(presetLoadError)) {
+      return "We couldn’t connect to the service. Please check your connection and try again.";
+    }
+    return presetLoadError;
+  }, [presetLoadError]);
+
+  const showLocalVideoPresets = useMemo(() => {
+    if (presetType !== "video") return false;
+    if (!hasHydrated) return false;
+    if (!token) return true;
+    if (Boolean(friendlyPresetLoadError)) return true;
+    if (!isLoading && presets.length === 0) return true;
+    return false;
+  }, [presetType, hasHydrated, token, friendlyPresetLoadError, isLoading, presets.length]);
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -68,6 +132,7 @@ export default function ChooseAdStylePage() {
 
   const fetchPage = useCallback(
     async (nextPage: number) => {
+      if (presetType !== "video") return;
       if (!token) return;
       if (isLoadingRef.current) return;
       if (!hasNextPageRef.current && nextPage !== 1) return;
@@ -75,6 +140,7 @@ export default function ChooseAdStylePage() {
       isLoadingRef.current = true;
       setIsLoading(true);
       try {
+        setPresetLoadError(null);
         const res = await listVideoPresets({
           token,
           page: nextPage,
@@ -94,20 +160,36 @@ export default function ChooseAdStylePage() {
         const nextPageValue = pagination?.page ?? nextPage;
         pageRef.current = nextPageValue;
         setPage(nextPageValue);
+      } catch (e: any) {
+        setPresets([]);
+        setHasNextPage(false);
+        hasNextPageRef.current = false;
+        const status = e?.response?.status;
+        const isNetworkError =
+          e?.message === "Network Error" ||
+          e?.code === "ERR_NETWORK" ||
+          e?.code === "ECONNABORTED";
+        const friendly = isNetworkError
+          ? "We couldn’t connect to the service. Please check your connection and try again."
+          : status === 401
+            ? "Your session has expired. Please sign in again."
+            : "We couldn’t load ad styles right now. Please try again.";
+        setPresetLoadError(friendly);
       } finally {
         isLoadingRef.current = false;
         setIsLoading(false);
       }
     },
-    [token],
+    [token, presetType],
   );
 
   useEffect(() => {
     if (!token) return;
+    if (presetType !== "video") return;
     hasNextPageRef.current = true;
     pageRef.current = 1;
     fetchPage(1);
-  }, [token, fetchPage]);
+  }, [token, fetchPage, presetType]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -118,6 +200,7 @@ export default function ChooseAdStylePage() {
       (entries) => {
         const first = entries[0];
         if (!first?.isIntersecting) return;
+        if (presetType !== "video") return;
         if (!hasNextPageRef.current) return;
         fetchPage(pageRef.current + 1);
       },
@@ -126,12 +209,15 @@ export default function ChooseAdStylePage() {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [fetchPage]);
+  }, [fetchPage, presetType]);
 
   const cards = useMemo(() => {
-    return presets.map((preset) => {
+    if (presetType === "image") return [];
+    const source = showLocalVideoPresets ? LOCAL_VIDEO_PRESETS : presets;
+    return source.map((preset) => {
       const templateId = preset?._id;
-      const label = normalizeLabel(preset?.label) || "PRESET";
+      const rawLabel = preset?.title || preset?.label || preset?.templateId;
+      const label = rawLabel?.trim() || normalizeLabel(rawLabel) || "Video";
       return {
         preset,
         templateId,
@@ -139,200 +225,185 @@ export default function ChooseAdStylePage() {
         disabled: !preset?.videoUrl,
       };
     });
-  }, [presets]);
+  }, [presets, presetType, showLocalVideoPresets]);
+
+  const toggleImageTemplateId = useCallback((templateId: string) => {
+    setSelectedImageTemplateIds((prev) => {
+      if (prev.includes(templateId)) {
+        return prev.filter((id) => id !== templateId);
+      }
+      if (prev.length >= 5) return prev;
+      return [...prev, templateId];
+    });
+  }, []);
 
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
-      {isCreating && <CircleLoaderModal text="Starting generation…" />}
-
-      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8 items-start">
-        <div className="bg-[#111] rounded-3xl p-8 lg:sticky lg:top-24">
-          <button
-            className="w-10 h-10 rounded-2xl bg-[rgba(255,255,255,0.08)] flex items-center justify-center"
-            onClick={() => router.push("/create-campaign/product-kit")}
-          >
-            <ArrowLeft size={18} color="#FFFFFF" />
-          </button>
-
-          <div className="mt-10 flex items-center justify-center gap-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-[3px] rounded-full transition-all ${
-                  i === 0 ? "w-10 bg-white" : "w-6 bg-[rgba(255,255,255,0.20)]"
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="text-white mt-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8 items-start">
+        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6 lg:sticky lg:top-24">
+          <div className="text-heading">
             <div className="text-[34px] leading-[40px] font-bold tracking-800">
               CHOOSE YOUR AD
               <br />
               STYLE
             </div>
-            <p className="mt-3 text-sm text-[rgba(255,255,255,0.70)] tracking-40 max-w-[320px]">
+            <p className="mt-3 text-sm text-neutral-light tracking-40 max-w-[320px]">
               Select a style to generate your ad. Each preset includes optimized
               visuals, captions, and pacing for social media.
             </p>
           </div>
 
-          <div className="mt-10 flex items-center justify-between">
-            <div className="flex items-center gap-2 bg-[rgba(255,255,255,0.06)] p-1 rounded-2xl">
-              <button
-                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
-                  mode === "standard"
-                    ? "bg-white text-black"
-                    : "text-[rgba(255,255,255,0.70)]"
-                }`}
-                onClick={() => setMode("standard")}
-              >
-                Standard
-              </button>
-              <button
-                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
-                  mode === "pro"
-                    ? "bg-white text-black"
-                    : "text-[rgba(255,255,255,0.70)]"
-                }`}
-                onClick={() => setMode("pro")}
-              >
-                Pro
-              </button>
-            </div>
-          </div>
-
           <div className="mt-5">
             <Button
-              text={`Generate video ✨ ${COST_BY_MODE[mode]}`}
-              action={async () => {
-                if (!canGenerate) return;
-                if (!token) return;
-                if (!selectedTemplateId) return;
+              text={"Continue"}
+              action={() => {
+                if (!canContinue) return;
 
-                setError(null);
-                setIsCreating(true);
-                try {
-                  storeAdStyle({
-                    templateId: selectedTemplateId,
-                    mode,
-                    complete: true,
-                  });
+                storeAdStyle({
+                  templateId: selectedVideoTemplateId,
+                  imageTemplateIds: selectedImageTemplateIds,
+                  mode,
+                  complete: true,
+                });
 
-                  const productKitId =
-                    productSelection?.products?.[0]?.node?.id;
-
-                  if (!productKitId) {
-                    throw new Error("Missing productKitId");
-                  }
-
-                  const res = await createGeneration({
-                    token,
-                    dto: {
-                      productKitId,
-                      templateId: selectedTemplateId,
-                      mode,
-                    },
-                  });
-
-                  if (res?.generationId) {
-                    router.push(
-                      `/create-campaign/generation/${res.generationId}`,
-                    );
-                  } else {
-                    router.push("/create-campaign/campaign-snapshots");
-                  }
-                } catch (e: any) {
-                  setError(
-                    e?.response?.data?.message ||
-                      e?.message ||
-                      "Failed to start generation",
-                  );
-                } finally {
-                  setIsCreating(false);
-                }
+                router.push("/create-campaign/campaign-snapshots");
               }}
-              disabled={!canGenerate || isCreating}
+              disabled={!canContinue}
               hasIconOrLoader
               icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
               iconPosition="right"
               iconSize={16}
             />
-            {error && (
-              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
-                {error}
-              </p>
-            )}
           </div>
         </div>
 
-        <div className="bg-[#0f0f0f] rounded-3xl p-6 custom-shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 text-white text-sm font-medium">
-            <span className="w-2 h-2 rounded-full bg-[#C6FF00]" />
-            <span>Presets</span>
+        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6 overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-heading text-sm font-medium">
+              <span className="w-2 h-2 rounded-full bg-purple-600" />
+              <span>Ad styles</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-[#F3EFF6] p-1 rounded-2xl">
+              <button
+                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
+                  presetType === "video"
+                    ? "bg-white text-heading"
+                    : "text-neutral-light"
+                }`}
+                onClick={() => {
+                  setPresetType("video");
+                }}
+              >
+                Video Ads
+              </button>
+              <button
+                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
+                  presetType === "image"
+                    ? "bg-white text-heading"
+                    : "text-neutral-light"
+                }`}
+                onClick={() => {
+                  setPresetType("image");
+                }}
+              >
+                Image Ads
+              </button>
+            </div>
           </div>
 
           <div
             ref={listRef}
-            className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-2 pink-scroll"
+            className={`mt-5 max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden pr-2 pink-scroll ${
+              presetType === "video" ? "grid grid-cols-2 md:grid-cols-3 gap-4" : ""
+            }`}
           >
-            {cards.map((c) => {
-              const isSelected =
-                Boolean(c.templateId) && selectedTemplateId === c.templateId;
-              const disabled = c.disabled;
-
-              return (
-                <button
-                  key={c.preset?._id}
-                  className={`relative rounded-3xl overflow-hidden aspect-[9/16] transition-all duration-200 ${
-                    disabled
-                      ? "opacity-40 cursor-not-allowed"
-                      : "cursor-pointer hover:scale-[1.01]"
-                  } ${
-                    isSelected
-                      ? "ring-2 ring-[#C6FF00] shadow-[0_0_0_2px_rgba(198,255,0,0.25),0_0_22px_rgba(198,255,0,0.25)]"
-                      : ""
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (disabled) return;
-                    setSelectedTemplateId(c.templateId);
-                  }}
-                >
-                  {c.preset?.videoUrl ? (
-                    <video
-                      className="absolute inset-0 w-full h-full object-cover"
-                      muted
-                      playsInline
-                      loop
-                      autoPlay
-                      poster={c.preset.thumbnailImageUrl}
-                      src={c.preset.videoUrl}
-                    />
-                  ) : c.preset?.thumbnailImageUrl ? (
-                    <img
-                      src={c.preset.thumbnailImageUrl}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[#1b1b1b]" />
-                  )}
-
-                  <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[rgba(0,0,0,0.85)] to-transparent" />
-
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="text-white text-sm font-semibold tracking-100 whitespace-pre-line">
-                      {c.label}
-                    </div>
+            {presetType === "image" ? (
+              <div className="col-span-full">
+                {selectedProductNode ? (
+                  <ImageAdsTemplatesBrowser
+                    product={selectedProductNode}
+                    selectedTemplateIds={selectedImageTemplateIds}
+                    embedded
+                    onToggleTemplateId={(templateId) =>
+                      toggleImageTemplateId(templateId)
+                    }
+                  />
+                ) : (
+                  <div className="text-xs text-neutral-light">
+                    Select a product to see image ad templates.
                   </div>
-                </button>
-              );
-            })}
-            <div ref={sentinelRef} />
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="col-span-full text-sm font-medium text-heading">
+                  Video ad templates
+                </div>
+                {cards.map((c, idx) => {
+                  const isSelected =
+                    Boolean(c.templateId) &&
+                    selectedVideoTemplateId === c.templateId;
+                  const disabled = c.disabled;
+
+                  return (
+                    <button
+                      key={c.preset?._id}
+                      className={`relative rounded-3xl overflow-hidden aspect-[9/16] w-full transition-all duration-200 ${
+                        disabled
+                          ? "cursor-not-allowed"
+                          : "cursor-pointer"
+                      } ${
+                        isSelected
+                          ? "ring-2 ring-purple-600 shadow-[0_0_0_2px_rgba(104,0,215,0.18),0_0_22px_rgba(104,0,215,0.18)]"
+                          : ""
+                      }`}
+                      aria-disabled={disabled}
+                      tabIndex={disabled ? -1 : 0}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (disabled) return;
+                        setSelectedVideoTemplateId((prev) =>
+                          prev === c.templateId ? null : c.templateId,
+                        );
+                      }}
+                    >
+                      {c.preset?.videoUrl ? (
+                        <video
+                          className="absolute inset-0 w-full h-full object-cover"
+                          muted
+                          playsInline
+                          loop
+                          autoPlay
+                          poster={showLocalVideoPresets ? undefined : c.preset.thumbnailImageUrl}
+                          src={c.preset.videoUrl}
+                        />
+                      ) : c.preset?.thumbnailImageUrl ? (
+                        <img
+                          src={c.preset.thumbnailImageUrl}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[#1b1b1b]" />
+                      )}
+
+                      <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[rgba(0,0,0,0.85)] to-transparent" />
+
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="text-white text-sm font-semibold tracking-100 whitespace-pre-line">
+                          {c.label}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+                <div ref={sentinelRef} className="col-span-full w-full h-8" />
+              </>
+            )}
           </div>
 
           {isLoading && (
-            <div className="mt-4 text-xs text-[rgba(255,255,255,0.65)]">
+            <div className="mt-4 text-xs text-neutral-light">
               Loading…
             </div>
           )}

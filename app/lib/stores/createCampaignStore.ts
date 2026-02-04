@@ -29,6 +29,7 @@ type CreateCampaignState = {
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
   adStyle: {
     templateId: string | null;
+    imageTemplateIds: string[];
     mode: "standard" | "pro";
     complete: boolean;
   };
@@ -80,6 +81,7 @@ type CreateCampaignActions = {
   completeCampaignSnapshots: () => void;
   storeAdStyle: (adStyle: {
     templateId?: string | null;
+    imageTemplateIds?: string[];
     mode?: "standard" | "pro";
     complete?: boolean;
   }) => void;
@@ -132,6 +134,7 @@ const initialState: CreateCampaignState = {
   },
   adStyle: {
     templateId: null,
+    imageTemplateIds: [],
     mode: "standard",
     complete: false,
   },
