@@ -121,7 +121,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
       setToast({
         type: "success",
         title: "Saved to library",
-        message: "This image is now available in your asset library.",
+        message: "This image is now available in Saved Ads.",
       });
       await refreshAssets("image");
     } catch (err) {
@@ -161,7 +161,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
       setToast({
         type: "success",
         title: "Video uploaded",
-        message: "This video is now available in your asset library.",
+        message: "This video is now available in Saved Ads.",
       });
       await refreshAssets("video");
     } catch (err) {

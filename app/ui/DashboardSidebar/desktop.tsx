@@ -4,11 +4,13 @@ import DashboardLogoIcon from "@/public/dashboard-logo.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
 import DefaultButton from "../Button";
 import BuildingGradient from "@/public/building-gradient.svg";
+import FolderOpenGrad from "@/public/folder-open.svg";
 import {
   Add,
   AddSquare,
   Building3,
   CalendarEdit,
+  FolderOpen,
   // Data2,
   HomeTrendUp,
   LogoutCurve,
@@ -33,6 +35,7 @@ type DesktopSideBarProps = {
   handleLogout: () => void;
   isDashboard: boolean;
   isInsights: boolean;
+  isAssets: boolean;
   isCampaigns: boolean;
   isStoreDetails: boolean;
   isCompany: boolean;
@@ -53,6 +56,7 @@ export default function DesktopSideBar({
   handleToggleSidebar,
   handleLogout,
   isDashboard,
+  isAssets,
   isCampaigns,
   isStoreDetails,
   isCompanyTabOpen,
@@ -152,12 +156,10 @@ export default function DesktopSideBar({
                   </span>
                 )}
               </Link>
-            </li>
 
-            <li>
               <button
                 onClick={navigateToCampaignPage}
-                className={`flex items-center rounded-xl  gap-2 w-full ${
+                className={`mt-1 flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
                   isCampaigns
@@ -179,6 +181,31 @@ export default function DesktopSideBar({
                   </span>
                 )}
               </button>
+            </li>
+
+            <li>
+              <Link
+                href="/assets"
+                className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
+                  isSidebarOpen ? "px-4" : "justify-center"
+                } h-[48px] cursor-pointer ${
+                  isAssets ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                }`}
+              >
+                <span>
+                  {!isAssets && <FolderOpen size="24" color="#BFBFBF" />}
+                  {isAssets && <FolderOpenGrad width="24" height="24" />}
+                </span>
+                {isSidebarOpen && (
+                  <span
+                    className={`text-sm font-medium ${
+                      isAssets ? "text-heading" : "text-gray-dark"
+                    }`}
+                  >
+                    Saved Ads
+                  </span>
+                )}
+              </Link>
             </li>
 
             <li>

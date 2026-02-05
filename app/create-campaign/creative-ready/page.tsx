@@ -3,11 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowForward, Magicpen } from "iconsax-react";
+import { ArrowLeft, ArrowForward } from "iconsax-react";
 import Button from "@/app/ui/Button";
 import { useModal } from "@/app/lib/hooks/useModal";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+import {
+  useAssetLibraryStore,
+  type AssetFormat,
+  type AssetPlatform,
+} from "@/app/lib/stores/assetLibraryStore";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
 
 type ReadyCreative = {
@@ -30,6 +35,9 @@ export default function CreativeReadyPage() {
   const setToast = useToastStore((s) => s.setToast);
 
   const { productSelection, adStyle } = useCreateCampaignStore((s) => s);
+  const { campaignSnapshots } = useCreateCampaignStore((s) => s);
+  const attachedAssets = useCreateCampaignStore((s) => s.attachedAssets);
+  const assetActions = useAssetLibraryStore((s) => s.actions);
 
   const product = productSelection.products?.[0]?.node;
 
@@ -37,7 +45,6 @@ export default function CreativeReadyPage() {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
-  const [isRecloning, setIsRecloning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -49,6 +56,9 @@ export default function CreativeReadyPage() {
   const imageTemplates = useMemo(() => {
     return getSeededImageAdTemplates(null);
   }, []);
+
+  const placeholderVideoUrl =
+    "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4";
 
   const imageCreatives = useMemo((): ReadyCreative[] => {
     const ids = Array.isArray(adStyle.imageTemplateIds)
@@ -70,7 +80,9 @@ export default function CreativeReadyPage() {
   }, [adStyle.imageTemplateIds, imageTemplates]);
 
   const videoCreative = useMemo((): ReadyCreative | null => {
-    const url = adStyle.videoPreset?.videoUrl;
+    const url =
+      adStyle.videoPreset?.videoUrl ||
+      (adStyle.templateId ? placeholderVideoUrl : "");
     if (!url) return null;
 
     return {
@@ -79,14 +91,34 @@ export default function CreativeReadyPage() {
       title: adStyle.videoPreset?.title || "Video creative",
       url,
     };
-  }, [adStyle.templateId, adStyle.videoPreset?.title, adStyle.videoPreset?.videoUrl]);
+  }, [
+    adStyle.templateId,
+    adStyle.videoPreset?.title,
+    adStyle.videoPreset?.videoUrl,
+  ]);
 
   const creatives = useMemo(() => {
+    if (attachedAssets.complete && attachedAssets.assets.length > 0) {
+      const list = attachedAssets.assets.map((a): ReadyCreative => ({
+        id: a.assetId,
+        type: a.type,
+        title: a.title || (a.type === "video" ? "Saved video" : "Saved image"),
+        url: a.url,
+      }));
+
+      list.sort((x, y) => {
+        if (x.type === y.type) return 0;
+        return x.type === "video" ? -1 : 1;
+      });
+
+      return list;
+    }
+
     const list: ReadyCreative[] = [];
     if (videoCreative) list.push(videoCreative);
     list.push(...imageCreatives);
     return list;
-  }, [imageCreatives, videoCreative]);
+  }, [attachedAssets.assets, attachedAssets.complete, imageCreatives, videoCreative]);
 
   useEffect(() => {
     if (activeIndex >= creatives.length) {
@@ -126,30 +158,66 @@ export default function CreativeReadyPage() {
     setActiveIndex((prev) => (prev + 1) % creatives.length);
   };
 
-  const handleSaveToLibrary = async () => {
-    if (!activeCreative) return;
+  const handleSaveAds = async () => {
+    const product = productSelection.products?.[0]?.node;
+    const productId = product?.id;
+    const productName = product?.title;
+
+    if (!productId) {
+      setToast({
+        type: "error",
+        title: "Missing product",
+        message: "Select a product before saving ads.",
+      });
+      return;
+    }
+
+    if (creatives.length === 0) return;
     setIsSaving(true);
     try {
+      const destinationUrl = campaignSnapshots.destinationUrl;
+      const campaignName = campaignSnapshots.campaignName;
+      const platform: AssetPlatform = "Other";
+
+      for (const c of creatives) {
+        if (c.type === "video") {
+          const format: AssetFormat = "Video";
+          assetActions.upsertAsset({
+            type: "video",
+            source: "generated",
+            storageUrl: c.url,
+            thumbnailUrl: adStyle.videoPreset?.thumbnailImageUrl,
+            productId,
+            productName,
+            campaignName,
+            destinationUrl,
+            platform,
+            format,
+          });
+          continue;
+        }
+
+        const format: AssetFormat = "Image";
+        assetActions.upsertAsset({
+          type: "image",
+          source: "generated",
+          url: c.url,
+          productId,
+          productName,
+          campaignName,
+          destinationUrl,
+          platform,
+          format,
+        });
+      }
+
       setToast({
         type: "success",
-        title: "Coming soon",
-        message: "Save to library will be available once the backend is connected.",
+        title: "Saved",
+        message: `Saved ${creatives.length} ad${creatives.length === 1 ? "" : "s"} to Saved Ads.`,
       });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleReclone = async () => {
-    setIsRecloning(true);
-    try {
-      setToast({
-        type: "success",
-        title: "Coming soon",
-        message: "Re-clone will be available once the backend is connected.",
-      });
-    } finally {
-      setIsRecloning(false);
     }
   };
 
@@ -164,7 +232,7 @@ export default function CreativeReadyPage() {
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8 items-start">
-        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6 lg:sticky lg:top-24">
+        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6 lg:sticky lg:top-24">
           <button
             className="w-10 h-10 rounded-2xl bg-[#F3EFF6] flex items-center justify-center"
             onClick={() => setIsBackModalOpen(true)}
@@ -277,6 +345,9 @@ export default function CreativeReadyPage() {
                         const d = (e.currentTarget as HTMLVideoElement).duration;
                         if (Number.isFinite(d)) setVideoDuration(d);
                       }}
+                      onEnded={() => {
+                        if (canNavigate) goNext();
+                      }}
                     />
                     <button
                       className="absolute top-3 left-3 h-9 px-3 rounded-2xl bg-[rgba(0,0,0,0.45)] text-white text-xs font-medium"
@@ -366,65 +437,30 @@ export default function CreativeReadyPage() {
               )}
             </div>
 
-            <div className="mt-8 flex items-center justify-end gap-2">
-              <div className="w-[160px]">
+            <div className="mt-8 flex flex-col items-center gap-3">
+              <div className="w-full max-w-[420px] grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button
+                  text={isSaving ? "Saving…" : "Save Ads"}
+                  secondary
+                  action={() => {
+                    if (!isSaving) void handleSaveAds();
+                  }}
+                  disabled={isSaving}
+                />
                 <Button
                   text="Continue"
                   action={() => router.push("/create-campaign/campaign-snapshots")}
                   hasIconOrLoader
                 />
-              </div>
-            </div>
-
-            <div className="mt-3 flex items-center justify-end gap-2">
-              <button
-                className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${
-                  isRecloning
-                    ? "bg-[#ECECEC] border-[#E0E0E0] cursor-not-allowed"
-                    : "bg-white border-[rgba(0,0,0,0.06)]"
-                }`}
-                disabled={isRecloning}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleReclone();
-                }}
-                aria-label="Re-clone"
-              >
-                <Magicpen size={18} color="#111" />
-              </button>
-
-              <div className="w-[160px]">
-                <Button
-                  text="Create another"
-                  secondary
-                  action={() => router.push("/create-campaign/choose-ad-style")}
-                />
-              </div>
-            </div>
-
-            <div className="mt-3 flex items-center justify-end gap-2">
-              <div className="w-[160px]">
                 <Button
                   text="Edit Product Kit"
                   secondary
                   action={() => router.push("/create-campaign/product-kit")}
                 />
-              </div>
-              <div className="w-[160px]">
                 <Button
-                  text={isSaving ? "Saving…" : "Go to Library"}
+                  text="Create another"
                   secondary
-                  action={() => {
-                    if (!isSaving) {
-                      setToast({
-                        type: "success",
-                        title: "Coming soon",
-                        message:
-                          "The asset library page will be wired up once the backend is connected.",
-                      });
-                    }
-                  }}
-                  disabled={isSaving}
+                  action={() => router.push("/create-campaign/choose-ad-style")}
                 />
               </div>
             </div>

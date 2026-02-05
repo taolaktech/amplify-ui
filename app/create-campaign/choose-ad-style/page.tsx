@@ -240,7 +240,7 @@ export default function ChooseAdStylePage() {
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8 items-start">
-        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6 lg:sticky lg:top-24">
+        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6 lg:sticky lg:top-24">
           <div className="text-heading">
             <div className="text-[34px] leading-[40px] font-bold tracking-800">
               CHOOSE YOUR AD
@@ -291,7 +291,7 @@ export default function ChooseAdStylePage() {
           </div>
         </div>
 
-        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6 overflow-hidden">
+        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6 overflow-hidden">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-heading text-sm font-medium">
               <span className="w-2 h-2 rounded-full bg-purple-600" />

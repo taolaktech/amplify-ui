@@ -11,6 +11,7 @@ import {
   // ArrowUp2,
   Building3,
   CalendarEdit,
+  FolderOpen,
   // Data2,
   HomeTrendUp,
   LogoutCurve,
@@ -29,12 +30,14 @@ import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
 import useUIStore from "@/app/lib/stores/uiStore";
 import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
+import FolderOpenGrad from "@/public/folder-open.svg";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
   handleLogout: () => void;
   isDashboard: boolean;
   isInsights: boolean;
+  isAssets: boolean;
   isCampaigns: boolean;
   isCompany: boolean;
   isPricing: boolean;
@@ -56,6 +59,7 @@ export default function MobileSideBar({
   handleLogout,
   isDashboard,
   // isInsights,
+  isAssets,
   isCampaigns,
   isCompany,
   isPricing,
@@ -158,15 +162,14 @@ export default function MobileSideBar({
                   Dashboard
                 </span>
               </Link>
-            </li>
-            <li>
+
               <button
                 onClick={() => {
                   closeSidebar();
                   navigateToCampaignPage();
                 }}
-                className={`flex items-center rounded-xl hover:bg-[#fdfcfd] gap-2 w-full 
-                px-4 h-[48px] cursor-pointer ${
+                className={`mt-1 flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
+                h-[48px] cursor-pointer ${
                   isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
@@ -182,6 +185,29 @@ export default function MobileSideBar({
                   Campaigns
                 </span>
               </button>
+            </li>
+
+            <li>
+              <Link
+                href="/assets"
+                onClick={closeSidebar}
+                className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
+                 h-[48px] cursor-pointer ${
+                   isAssets ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
+                 }`}
+              >
+                <span>
+                  {!isAssets && <FolderOpen size="24" color="#BFBFBF" />}
+                  {isAssets && <FolderOpenGrad width="24" height="24" />}
+                </span>
+                <span
+                  className={`text-sm font-medium ${
+                    isAssets ? "text-heading" : "text-gray-dark"
+                  }`}
+                >
+                  Saved Ads
+                </span>
+              </Link>
             </li>
             <li>
               <span

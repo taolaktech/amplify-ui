@@ -369,7 +369,7 @@ export default function ProductKitPage() {
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
-        <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-8 lg:sticky lg:top-24">
+        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-8 lg:sticky lg:top-24">
           <div className="text-heading">
             <div className="text-[34px] leading-[40px] font-bold tracking-800">
               YOUR PRODUCT KIT
@@ -406,7 +406,7 @@ export default function ProductKitPage() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6">
+          <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium tracking-100 text-heading">
                 Product details
@@ -450,7 +450,7 @@ export default function ProductKitPage() {
             </div>
           </div>
 
-          <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6">
+          <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium tracking-100 text-heading">
                 Product images
@@ -580,7 +580,7 @@ export default function ProductKitPage() {
             </div>
           </div>
 
-          <div className="bg-[#FBFAFC] md:bg-white rounded-3xl custom-shadow-sm p-6">
+          <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6">
             <div className="text-sm font-medium tracking-100 text-heading">
               Logo &amp; Brand colors
             </div>

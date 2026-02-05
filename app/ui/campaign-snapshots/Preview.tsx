@@ -280,6 +280,13 @@ const PreviewContainer = ({
     (state) => state.creativeLoadingState,
   );
 
+  const productName = useCreateCampaignStore((state) => {
+    const product = state.productSelection.products.find(
+      (p) => p.node.id === highlightedProductId,
+    );
+    return product?.node?.title || "";
+  });
+
   const instagramSettings = useCreateCampaignStore(
     (state) => state.instagramSettings,
   );
@@ -325,6 +332,7 @@ const PreviewContainer = ({
   }, [uploaded]);
 
   const showUploadedCreatives = uploaded.length > 0;
+  const assetSource = showUploadedCreatives ? ("uploaded" as const) : ("generated" as const);
 
   const uploadedImages = useMemo(() => {
     return uploaded.filter((u) => u.type === "image" && u.previewUrl);
@@ -562,6 +570,9 @@ const PreviewContainer = ({
                         >
                           <IGStaticPostView
                             creative={uploadedSelection.staticCreative}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"uploaded"}
                           />
                         </div>
                       )}
@@ -570,7 +581,12 @@ const PreviewContainer = ({
                           style={{ width: `${instagramWidthSize.staticPost}%` }}
                           className="min-w-[318.6px] transition-all duration-300"
                         >
-                          <IGStaticPostView creative={uploadedVideoPreview} />
+                          <IGStaticPostView
+                            creative={uploadedVideoPreview}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"uploaded"}
+                          />
                         </div>
                       )}
                     </>
@@ -583,6 +599,9 @@ const PreviewContainer = ({
                         creative={
                           isMediaCreative?.[mediaCreative]?.creatives?.[0]
                         }
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={assetSource}
                       />
                     </div>
                   ))}
@@ -614,12 +633,18 @@ const PreviewContainer = ({
                     {showUploadedCreatives ? (
                       <StoryPostView
                         creative={uploadedSelection.storyCreative}
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={"uploaded"}
                       />
                     ) : (
                       <StoryPostView
                         creative={
                           isMediaCreative?.[mediaCreative]?.creatives?.[0]
                         }
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={assetSource}
                       />
                     )}
                   </div>
@@ -666,6 +691,9 @@ const PreviewContainer = ({
                         >
                           <FBStaticPostView
                             creative={uploadedSelection.staticCreative}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"uploaded"}
                           />
                         </div>
                       )}
@@ -674,7 +702,12 @@ const PreviewContainer = ({
                           style={{ width: `${facebookWidthSize.staticPost}%` }}
                           className="min-w-[318.6px] transition-all duration-300"
                         >
-                          <FBStaticPostView creative={uploadedVideoPreview} />
+                          <FBStaticPostView
+                            creative={uploadedVideoPreview}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"uploaded"}
+                          />
                         </div>
                       )}
                     </>
@@ -687,6 +720,9 @@ const PreviewContainer = ({
                         creative={
                           isMediaCreative?.[mediaCreative]?.creatives?.[0]
                         }
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={assetSource}
                       />
                     </div>
                   ))}
@@ -718,12 +754,18 @@ const PreviewContainer = ({
                     {showUploadedCreatives ? (
                       <FBStoryPostView
                         creative={uploadedSelection.storyCreative}
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={"uploaded"}
                       />
                     ) : (
                       <FBStoryPostView
                         creative={
                           isMediaCreative?.[mediaCreative]?.creatives?.[0]
                         }
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={assetSource}
                       />
                     )}
                   </div>

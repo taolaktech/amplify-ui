@@ -7,6 +7,7 @@ export const useDashboardPath = () => {
   const isDashboard = pathname === "/";
   const isDashboardRoot = pathname === "";
   const isInsights = pathName1.includes("insights");
+  const isAssets = pathName1.includes("assets");
   const isCampaigns = pathName1.includes("campaigns");
   const isCompany = pathName1.includes("company");
   const isBrandAssets = pathname.includes("/brand-assets");
@@ -19,6 +20,7 @@ export const useDashboardPath = () => {
   const allPaths = [
     isDashboard,
     isInsights,
+    isAssets,
     isCampaigns,
     isCompany,
     isDashboardRoot,
@@ -35,6 +37,7 @@ export const useDashboardPath = () => {
   return {
     isDashboard,
     isInsights,
+    isAssets,
     isCampaigns,
     isCompany,
     isBrandAssets,

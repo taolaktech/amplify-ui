@@ -21,6 +21,7 @@ export default function DashboardSideBar() {
   const {
     isDashboard,
     isInsights,
+    isAssets,
     isCampaigns,
     isCompany,
     isBrandAssets,
@@ -83,6 +84,7 @@ export default function DashboardSideBar() {
           handleLogout={handleLogout}
           isDashboard={isDashboard || isDashboardRoot}
           isInsights={isInsights}
+          isAssets={isAssets}
           isCampaigns={isCampaigns}
           isCompany={isCompany}
           isSupport={isSupport}
@@ -106,6 +108,7 @@ export default function DashboardSideBar() {
           handleLogout={handleLogout}
           isDashboard={isDashboard || isDashboardRoot}
           isInsights={isInsights}
+          isAssets={isAssets}
           isCampaigns={isCampaigns}
           isSettingTabOpen={isSettingTabOpen}
           toggleIsSettingTabOpen={toggleIsSettingTab}

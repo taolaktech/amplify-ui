@@ -66,32 +66,32 @@ export default function GenerationStatusPage() {
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8 items-start">
-        <div className="bg-[#111] rounded-3xl p-8 lg:sticky lg:top-24">
+        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-8 lg:sticky lg:top-24">
           <button
-            className="w-10 h-10 rounded-2xl bg-[rgba(255,255,255,0.08)] flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl bg-[#F3EFF6] flex items-center justify-center"
             onClick={() => router.push("/create-campaign/choose-ad-style")}
           >
-            <ArrowLeft size={18} color="#FFFFFF" />
+            <ArrowLeft size={18} color="#111" />
           </button>
 
-          <div className="text-white mt-10">
+          <div className="text-heading mt-10">
             <div className="text-[34px] leading-[40px] font-bold tracking-800">
               GENERATING
               <br />
               YOUR VIDEO
             </div>
-            <p className="mt-3 text-sm text-[rgba(255,255,255,0.70)] tracking-40 max-w-[320px]">
+            <p className="mt-3 text-sm text-neutral-light tracking-40 max-w-[320px]">
               We’re generating your ad shot-by-shot and assembling the final
               video. You can leave this page open.
             </p>
           </div>
 
           <div className="mt-10">
-            <div className="text-white text-sm font-medium">
-              Status: <span className="text-[rgba(255,255,255,0.70)]">{job?.status || "queued"}</span>
+            <div className="text-heading text-sm font-medium">
+              Status: <span className="text-neutral-light">{job?.status || "queued"}</span>
             </div>
             {error && (
-              <p className="mt-3 text-xs text-[rgba(255,255,255,0.70)]">
+              <p className="mt-3 text-xs text-neutral-light">
                 {error}
               </p>
             )}

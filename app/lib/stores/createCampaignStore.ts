@@ -13,6 +13,16 @@ type CreateCampaignState = {
     location: string[];
     complete: boolean;
   };
+  attachedAssets: {
+    assets: Array<{
+      assetId: string;
+      type: "image" | "video";
+      url: string;
+      thumbnailUrl?: string;
+      title?: string;
+    }>;
+    complete: boolean;
+  };
   productSelection: {
     products: ShopifyProduct[];
     complete: boolean;
@@ -71,6 +81,16 @@ type GoogleSettings = {
 
 type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
+  attachAssetsToDraft: (
+    assets: Array<{
+      assetId: string;
+      type: "image" | "video";
+      url: string;
+      thumbnailUrl?: string;
+      title?: string;
+    }>,
+  ) => void;
+  clearAttachedAssets: () => void;
   storeProductSelection: (productSelection: {
     products: ShopifyProduct[];
     complete: boolean;
@@ -118,6 +138,10 @@ export type SocialSettingsKey = "staticPost" | "carouselPost" | "storyPost";
 const initialState: CreateCampaignState = {
   adsShow: {
     location: [],
+    complete: false,
+  },
+  attachedAssets: {
+    assets: [],
     complete: false,
   },
   productSelection: {
@@ -184,6 +208,25 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           set((state) => ({
             adsShow: { ...state.adsShow, ...adsShow },
           }));
+        },
+        attachAssetsToDraft: (assets) => {
+          set((state) => {
+            const byId = new Map(
+              state.attachedAssets.assets.map((a) => [a.assetId, a]),
+            );
+            for (const a of assets) {
+              byId.set(a.assetId, a);
+            }
+            return {
+              attachedAssets: {
+                assets: Array.from(byId.values()),
+                complete: true,
+              },
+            };
+          });
+        },
+        clearAttachedAssets: () => {
+          set(() => ({ attachedAssets: { assets: [], complete: false } }));
         },
         storeSelectedPaymentMethod: (paymentMethod) => {
           set((state) => ({
@@ -312,6 +355,7 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
       name: "create-campaign-storage",
       partialize: (state) => ({
         adsShow: state.adsShow,
+        attachedAssets: state.attachedAssets,
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
         adStyle: state.adStyle,
