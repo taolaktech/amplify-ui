@@ -8,8 +8,6 @@ import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import GooglePostSM from "@/public/google_post_sm.webp";
 import GooglePostLG from "@/public/google_post_lg.webp";
-import IGPostSM from "@/public/ig_post_sm.webp";
-import IGPostLG from "@/public/ig_post_lg.webp";
 import FacebookPostSM from "@/public/facebook_post_sm.webp";
 import FacebookPostLG from "@/public/facebook_post_lg.webp";
 import { useModal } from "@/app/lib/hooks/useModal";
@@ -27,9 +25,7 @@ const SupportedAdPlatforms = () => {
     (state) => state.supportedAdPlatforms,
   );
 
-  const [activePlatform, setActivePlatform] = useState<
-    "Instagram" | "Facebook"
-  >("Facebook");
+  const [activePlatform, setActivePlatform] = useState<"Facebook">("Facebook");
 
   const [showAdPlatformConnectModal, setShowAdPlatformConnectModal] =
     useState(false);
@@ -39,10 +35,10 @@ const SupportedAdPlatforms = () => {
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const token = useAuthStore((state) => state.token);
-  const { instagram, facebook, google } = useIntegrationStore((state) => state);
+  const { facebook, google } = useIntegrationStore((state) => state);
   const integrationActions = useIntegrationStore((state) => state.actions);
   const [socialModalKind, setSocialModalKind] = useState<
-    "INSTAGRAM" | "FACEBOOK"
+    "FACEBOOK"
   >("FACEBOOK");
 
   useModal(isLoading);
@@ -76,7 +72,6 @@ const SupportedAdPlatforms = () => {
         );
         integrationActions.setGoogle(Boolean(status.googleAds?.connected));
         integrationActions.setFacebook(Boolean(status.facebook?.connected));
-        integrationActions.setInstagram(Boolean(status.instagram?.connected));
       } catch (e) {
         console.error("Failed to sync integrations status:", e);
       }
@@ -84,10 +79,6 @@ const SupportedAdPlatforms = () => {
   }, [token]);
 
   useEffect(() => {
-    if (!instagram) {
-      actions.setAdsPlatform("Instagram", false);
-    }
-
     if (!facebook) {
       actions.setAdsPlatform("Facebook", false);
     }
@@ -95,7 +86,7 @@ const SupportedAdPlatforms = () => {
     if (!google) {
       actions.setAdsPlatform("Google", false);
     }
-  }, [instagram, facebook, google]);
+  }, [facebook, google]);
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -105,7 +96,6 @@ const SupportedAdPlatforms = () => {
 
   const canProceed =
     (supportedAdPlatforms.Google && google) ||
-    (supportedAdPlatforms.Instagram && instagram) ||
     (supportedAdPlatforms.Facebook && facebook);
 
   const handleProceed = () => {
@@ -126,19 +116,6 @@ const SupportedAdPlatforms = () => {
       return;
     }
     actions.toggleAdsPlatform("Facebook");
-  };
-  const handleToggleInstagram = () => {
-    if (supportedAdPlatforms.Instagram) {
-      actions.toggleAdsPlatform("Instagram");
-      return;
-    }
-    if (!instagram) {
-      setSocialModalKind("INSTAGRAM");
-      setActivePlatform("Instagram");
-      setShowAdPlatformConnectModal(true);
-      return;
-    }
-    actions.toggleAdsPlatform("Instagram");
   };
 
   const handleToggleGoogle = () => {
@@ -209,41 +186,6 @@ const SupportedAdPlatforms = () => {
           <div className="flex w-full items-center  justify-center  rounded-3xl">
             <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
               <Image
-                src={isMobile ? IGPostSM : IGPostLG}
-                alt="instagram ads platform"
-                layout="fill"
-                objectFit="cover"
-                className={`duration-300 transition-all rounded-3xl ${
-                  supportedAdPlatforms.Instagram && instagram
-                    ? ""
-                    : "grayscale opacity-70"
-                }`}
-                placeholder="blur"
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-between lg:mt-5 px-6 h-[50px]">
-            <img
-              src="/instagram-custom-logo.png"
-              alt="Instagram Custom Logo"
-              className={`duration-300 transition-all ${
-                supportedAdPlatforms.Instagram && instagram
-                  ? ""
-                  : "grayscale opacity-60"
-              }`}
-              height={18}
-              width={100}
-            />
-            <Toggle
-              on={supportedAdPlatforms.Instagram && instagram}
-              toggle={handleToggleInstagram}
-            />
-          </div>
-        </div>
-        <div className="flex-1 relative w-full">
-          <div className="flex w-full items-center  justify-center  rounded-3xl">
-            <div className="relative w-full h-[215px] sm:h-[300px] lg:h-[429px] mx-auto">
-              <Image
                 src={isMobile ? FacebookPostSM : FacebookPostLG}
                 alt="facebook ads platform"
                 layout="fill"
@@ -290,9 +232,8 @@ const SupportedAdPlatforms = () => {
       </div>
       {showAdPlatformConnectModal && (
         <AdPlatformConnect
-          platform={activePlatform.toUpperCase() as "FACEBOOK" | "INSTAGRAM"}
+          platform={activePlatform.toUpperCase() as "FACEBOOK"}
           handleClose={() => setShowAdPlatformConnectModal(false)}
-          socialModalKind={socialModalKind}
         />
       )}
     </div>

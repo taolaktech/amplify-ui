@@ -32,7 +32,6 @@ type CreateCampaignState = {
     cardDetails: cardDetails | null;
     complete: boolean;
   };
-  instagramSettings: InstagramSettings;
   facebookSettings: FacebookSettings;
   googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
@@ -67,11 +66,8 @@ export type CampaignSnapshots = {
 
 type SupportedAdPlatforms = {
   Facebook: boolean;
-  Instagram: boolean;
   Google: boolean;
 };
-
-type InstagramSettings = Record<SocialSettingsKey, boolean>;
 
 type FacebookSettings = Record<SocialSettingsKey, boolean>;
 
@@ -124,7 +120,6 @@ type CreateCampaignActions = {
     complete?: boolean;
   }) => void;
   getLocationCountries: () => string[];
-  toggleInstagramSettings: (setting: SocialSettingsKey) => void;
   toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
 };
@@ -150,7 +145,6 @@ const initialState: CreateCampaignState = {
   },
   supportedAdPlatforms: {
     Facebook: false,
-    Instagram: false,
     Google: true,
     complete: true,
   },
@@ -183,11 +177,6 @@ const initialState: CreateCampaignState = {
     generationId: null,
     mode: "standard",
     complete: false,
-  },
-  instagramSettings: {
-    staticPost: true,
-    carouselPost: true,
-    storyPost: true,
   },
   facebookSettings: {
     staticPost: true,
@@ -247,22 +236,6 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             }
           });
           return countries;
-        },
-        toggleInstagramSettings: (setting: SocialSettingsKey) => {
-          const settingValue = get().instagramSettings[setting];
-          if (
-            settingValue &&
-            Object.values(get().instagramSettings).filter(Boolean).length === 1
-          ) {
-            // Prevent disabling the last enabled setting
-            return;
-          }
-          set((state) => ({
-            instagramSettings: {
-              ...state.instagramSettings,
-              [setting]: !state.instagramSettings[setting],
-            },
-          }));
         },
         toggleFacebookSettings: (setting: keyof FacebookSettings) => {
           const settingValue = get().facebookSettings[setting];
@@ -361,7 +334,6 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
         adStyle: state.adStyle,
         fundCampaign: state.fundCampaign,
         supportedAdPlatforms: state.supportedAdPlatforms,
-        instagramSettings: state.instagramSettings,
         facebookSettings: state.facebookSettings,
         googleSettings: state.googleSettings,
       }),

@@ -22,6 +22,92 @@ type ReadyCreative = {
   url: string;
 };
 
+type AdCopy = {
+  headline: string;
+  bodyCopy: string;
+  callToAction: string;
+  brandName: string;
+  websiteUrl: string;
+  videoScript: string;
+};
+
+const AD_COPY_STORAGE_KEY = "creative-ready.ad-copy.v1";
+
+const creativeKey = (c: ReadyCreative) => `${c.type}:${c.id}`;
+
+const clamp = (value: string, max: number) => {
+  const v = `${value || ""}`;
+  if (v.length <= max) return v;
+  return v.slice(0, max);
+};
+
+const svgDataUrl = (svg: string) => {
+  const encoded = encodeURIComponent(svg)
+    .replace(/'/g, "%27")
+    .replace(/"/g, "%22");
+  return `data:image/svg+xml,${encoded}`;
+};
+
+const buildImageCreativeSvg = (args: {
+  baseImageUrl: string;
+  copy: AdCopy;
+}) => {
+  const { baseImageUrl, copy } = args;
+
+  const headline = clamp(copy.headline || "", 60);
+  const body = clamp(copy.bodyCopy || "", 180);
+  const cta = clamp(copy.callToAction || "", 30);
+  const brand = clamp(copy.brandName || "", 30);
+  const site = clamp(copy.websiteUrl || "", 60);
+
+  // 1080x1920 (9:16). Use an external <image/> for the base image.
+  // This is frontend-only. If the remote image blocks embedding, the layout still renders the ad copy.
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(0,0,0,0.0)"/>
+      <stop offset="55%" stop-color="rgba(0,0,0,0.15)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.80)"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="rgba(0,0,0,0.45)"/>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="1920" fill="#111"/>
+  <image href="${baseImageUrl}" x="0" y="0" width="1080" height="1920" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="0" y="0" width="1080" height="1920" fill="url(#fade)"/>
+
+  <g filter="url(#shadow)">
+    <text x="80" y="1440" fill="#fff" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="72" font-weight="800">
+      ${headline.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+    </text>
+  </g>
+
+  <text x="80" y="1525" fill="rgba(255,255,255,0.92)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="40" font-weight="500">
+    ${body
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")}
+  </text>
+
+  <g>
+    <rect x="80" y="1655" rx="26" ry="26" width="420" height="92" fill="rgba(167,85,255,0.95)"/>
+    <text x="290" y="1715" text-anchor="middle" fill="#fff" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="36" font-weight="800">
+      ${cta.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+    </text>
+  </g>
+
+  <text x="80" y="1788" fill="rgba(255,255,255,0.85)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="30" font-weight="700">
+    ${brand.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+  </text>
+  <text x="80" y="1840" fill="rgba(255,255,255,0.72)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="26" font-weight="500">
+    ${site.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+  </text>
+</svg>`;
+};
+
 function formatDuration(seconds?: number) {
   if (!seconds || !Number.isFinite(seconds)) return null;
   const s = Math.max(0, Math.round(seconds));
@@ -45,6 +131,8 @@ export default function CreativeReadyPage() {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
+  const [regeneratedCreatives, setRegeneratedCreatives] = useState<ReadyCreative[]>([]);
+
   const [isSaving, setIsSaving] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -60,12 +148,24 @@ export default function CreativeReadyPage() {
   const placeholderVideoUrl =
     "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4";
 
+  const selectedProductImages = useMemo(() => {
+    const edges = product?.media?.edges || [];
+    return edges
+      .filter((e) => {
+        const type = (e?.node?.mediaContentType || "").toString().toUpperCase();
+        return type === "IMAGE";
+      })
+      .map((e) => e?.node?.preview?.image?.url)
+      .filter((u): u is string => typeof u === "string" && u.trim().length > 0)
+      .slice(0, 4);
+  }, [product?.media?.edges]);
+
   const imageCreatives = useMemo((): ReadyCreative[] => {
     const ids = Array.isArray(adStyle.imageTemplateIds)
       ? adStyle.imageTemplateIds
       : [];
 
-    return ids
+    const fromTemplates = ids
       .map((id) => {
         const t = imageTemplates.find((x) => x.id === id);
         const url = t?.previewImageUrl || "";
@@ -77,7 +177,16 @@ export default function CreativeReadyPage() {
         };
       })
       .filter((c) => typeof c.url === "string" && c.url.trim().length > 0);
-  }, [adStyle.imageTemplateIds, imageTemplates]);
+
+    if (fromTemplates.length > 0) return fromTemplates;
+
+    return selectedProductImages.map((url, idx) => ({
+      id: `product-image-${idx}`,
+      type: "image" as const,
+      title: `Image Ad ${idx + 1}`,
+      url,
+    }));
+  }, [adStyle.imageTemplateIds, imageTemplates, selectedProductImages]);
 
   const videoCreative = useMemo((): ReadyCreative | null => {
     const url =
@@ -97,7 +206,7 @@ export default function CreativeReadyPage() {
     adStyle.videoPreset?.videoUrl,
   ]);
 
-  const creatives = useMemo(() => {
+  const baseCreatives = useMemo(() => {
     if (attachedAssets.complete && attachedAssets.assets.length > 0) {
       const list = attachedAssets.assets.map((a): ReadyCreative => ({
         id: a.assetId,
@@ -120,6 +229,10 @@ export default function CreativeReadyPage() {
     return list;
   }, [attachedAssets.assets, attachedAssets.complete, imageCreatives, videoCreative]);
 
+  const creatives = useMemo(() => {
+    return [...baseCreatives, ...regeneratedCreatives];
+  }, [baseCreatives, regeneratedCreatives]);
+
   useEffect(() => {
     if (activeIndex >= creatives.length) {
       setActiveIndex(0);
@@ -127,6 +240,190 @@ export default function CreativeReadyPage() {
   }, [activeIndex, creatives.length]);
 
   const activeCreative = creatives[activeIndex] || null;
+
+  const buildDefaultCopy = (c: ReadyCreative | null): AdCopy => {
+    const fallbackBrand =
+      (product as any)?.brandName || campaignSnapshots?.campaignName || "";
+    const website = campaignSnapshots?.destinationUrl || product?.onlineStorePreviewUrl || "";
+    const title = product?.title || "";
+    const desc = product?.description || "";
+
+    const baseHeadline = title ? `Introducing ${title}` : "New arrival";
+    const baseBody = desc
+      ? clamp(desc.replace(/\s+/g, " ").trim(), 220)
+      : title
+        ? `Discover ${title} and shop today.`
+        : "Discover and shop today.";
+
+    const script =
+      title
+        ? `Hook: Meet ${title}.\n\nProblem: You want something that stands out.\n\nSolution: ${title} delivers style and confidence.\n\nCTA: Tap to shop now.`
+        : `Hook: Meet our latest drop.\n\nProblem: You want something that stands out.\n\nSolution: Designed to fit your lifestyle.\n\nCTA: Tap to shop now.`;
+
+    return {
+      headline: baseHeadline,
+      bodyCopy: baseBody,
+      callToAction: "Shop now",
+      brandName: fallbackBrand,
+      websiteUrl: website,
+      videoScript: c?.type === "video" ? script : "",
+    };
+  };
+
+  const generateVariantCopy = (c: ReadyCreative | null): AdCopy => {
+    const defaults = buildDefaultCopy(c);
+    const title = product?.title || "";
+    const hooks = title
+      ? [
+          `Don’t miss ${title}`,
+          `New: ${title}`,
+          `${title} just dropped`,
+          `Level up with ${title}`,
+        ]
+      : ["New drop", "Limited time", "Just launched", "Don’t miss this"]; 
+    const ctas = ["Shop now", "Learn more", "Get yours", "Buy now"]; 
+    const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]!;
+
+    const headline = pick(hooks);
+    const callToAction = pick(ctas);
+
+    const bodyCopy = title
+      ? `${title} is here. Designed to turn heads—tap to see details.`
+      : `Designed to turn heads—tap to see details.`;
+
+    const videoScript =
+      c?.type === "video"
+        ? `0–2s: Big hook text: “${headline}”\n2–7s: Show product close-ups + key benefit\n7–12s: Lifestyle shot + social proof\n12–15s: CTA on screen: “${callToAction}”\nWebsite: ${defaults.websiteUrl}`
+        : defaults.videoScript;
+
+    return {
+      ...defaults,
+      headline,
+      bodyCopy,
+      callToAction,
+      videoScript,
+    };
+  };
+
+  const [adCopyById, setAdCopyById] = useState<Record<string, AdCopy>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AD_COPY_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        setAdCopyById(parsed);
+      }
+    } catch {
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    const c = activeCreative;
+    if (!c) return;
+    const key = creativeKey(c);
+    if (adCopyById[key]) return;
+    setAdCopyById((prev) => ({
+      ...prev,
+      [key]: buildDefaultCopy(c),
+    }));
+  }, [activeCreative?.id, activeCreative?.type]);
+
+  const activeAdCopy = useMemo(() => {
+    if (!activeCreative) return null;
+    const key = creativeKey(activeCreative);
+    return adCopyById[key] || buildDefaultCopy(activeCreative);
+  }, [activeCreative?.id, activeCreative?.type, adCopyById]);
+
+  const updateActiveAdCopy = (patch: Partial<AdCopy>) => {
+    if (!activeCreative) return;
+    const key = creativeKey(activeCreative);
+    setAdCopyById((prev) => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || buildDefaultCopy(activeCreative)),
+        ...patch,
+      },
+    }));
+  };
+
+  const persistAdCopy = () => {
+    try {
+      localStorage.setItem(AD_COPY_STORAGE_KEY, JSON.stringify(adCopyById));
+      setToast({
+        type: "success",
+        title: "Saved",
+        message: "Ad copy saved.",
+      });
+    } catch {
+      setToast({
+        type: "error",
+        title: "Save failed",
+        message: "Could not save ad copy.",
+      });
+    }
+  };
+
+  const regenerateActiveCreative = () => {
+    if (!activeCreative) return;
+
+    const key = creativeKey(activeCreative);
+    const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
+
+    const nextCopy = generateVariantCopy(activeCreative);
+
+    const regenId = `${activeCreative.id}-regen-${Date.now()}`;
+    const regen: ReadyCreative =
+      activeCreative.type === "image"
+        ? {
+            id: regenId,
+            type: "image",
+            title: `${activeCreative.title} (Regenerated)`,
+            url: svgDataUrl(
+              buildImageCreativeSvg({
+                baseImageUrl: activeCreative.url,
+                copy: { ...currentCopy, ...nextCopy },
+              }),
+            ),
+          }
+        : {
+            id: regenId,
+            type: "video",
+            title: `${activeCreative.title} (Regenerated)`,
+            url: activeCreative.url,
+          };
+
+    const regenKey = creativeKey(regen);
+    const mergedCopy: AdCopy = {
+      ...currentCopy,
+      ...nextCopy,
+      // ensure video script is kept for video
+      videoScript:
+        regen.type === "video"
+          ? (nextCopy.videoScript || currentCopy.videoScript || "")
+          : "",
+    };
+
+    setRegeneratedCreatives((prev) => [regen, ...prev]);
+    setAdCopyById((prev) => ({
+      ...prev,
+      [regenKey]: mergedCopy,
+    }));
+
+    // Switch to the new creative (it will be appended after base creatives).
+    setActiveIndex(baseCreatives.length);
+
+    setToast({
+      type: "success",
+      title: "Regenerated",
+      message:
+        regen.type === "video"
+          ? "Created a regenerated video variant (preview uses the same video URL in frontend-only mode)."
+          : "Created a regenerated image variant.",
+    });
+  };
 
   const productImages = useMemo(() => {
     const edges = product?.media?.edges || [];
@@ -180,6 +477,13 @@ export default function CreativeReadyPage() {
       const platform: AssetPlatform = "Other";
 
       for (const c of creatives) {
+        const key = creativeKey(c);
+        const copy = adCopyById[key] || buildDefaultCopy(c);
+        const promptUsed =
+          c.type === "video"
+            ? `CTA: ${copy.callToAction}\nBrand: ${copy.brandName}\nWebsite: ${copy.websiteUrl}\n\nVideo Script:\n${copy.videoScript}`
+            : `CTA: ${copy.callToAction}\nBrand: ${copy.brandName}\nWebsite: ${copy.websiteUrl}`;
+
         if (c.type === "video") {
           const format: AssetFormat = "Video";
           assetActions.upsertAsset({
@@ -193,6 +497,9 @@ export default function CreativeReadyPage() {
             destinationUrl,
             platform,
             format,
+            headlineUsed: copy.headline,
+            descriptionUsed: copy.bodyCopy,
+            promptUsed,
           });
           continue;
         }
@@ -208,6 +515,9 @@ export default function CreativeReadyPage() {
           destinationUrl,
           platform,
           format,
+          headlineUsed: copy.headline,
+          descriptionUsed: copy.bodyCopy,
+          promptUsed,
         });
       }
 
@@ -420,25 +730,146 @@ export default function CreativeReadyPage() {
               )}
 
               {creatives.length > 1 && (
-                <div className="mt-3 flex items-center justify-center gap-2">
-                  {creatives.map((_, i) => (
-                    <button
-                      key={i}
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        i === activeIndex ? "bg-purple-600" : "bg-[#D9D9D9]"
-                      }`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActiveIndex(i);
-                      }}
-                    />
-                  ))}
+                <div className="mt-4">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {creatives.map((c, i) => {
+                      const isActive = i === activeIndex;
+                      const thumbSrc =
+                        c.type === "video"
+                          ? adStyle.videoPreset?.thumbnailImageUrl
+                          : c.url;
+                      return (
+                        <button
+                          key={creativeKey(c)}
+                          className={`relative flex-shrink-0 w-[72px] h-[72px] rounded-2xl overflow-hidden border ${
+                            isActive
+                              ? "border-purple-600 ring-2 ring-purple-600"
+                              : "border-[rgba(0,0,0,0.08)]"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setActiveIndex(i);
+                          }}
+                        >
+                          {thumbSrc ? (
+                            <img
+                              src={thumbSrc}
+                              className={`w-full h-full object-cover ${
+                                c.type === "video" ? "brightness-75" : ""
+                              }`}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-[#111]" />
+                          )}
+                          {c.type === "video" && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-7 h-7 rounded-full bg-[rgba(0,0,0,0.55)] text-white text-xs flex items-center justify-center">
+                                ▶
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
 
+            <div className="mt-8 w-full max-w-[740px] mx-auto">
+              <div className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-white p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-heading text-sm font-semibold tracking-100">
+                    Ad Copy
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-[120px]">
+                      <Button
+                        text="Save"
+                        secondary
+                        action={() => persistAdCopy()}
+                      />
+                    </div>
+                    <div className="w-[150px]">
+                      <Button
+                        text="Regenerate"
+                        action={() => regenerateActiveCreative()}
+                        hasIconOrLoader
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activeCreative?.type === "video" ? (
+                    <div className="md:col-span-2 flex flex-col gap-2">
+                      <label className="text-xs text-neutral-light">Video Script</label>
+                      <textarea
+                        className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                        value={activeAdCopy?.videoScript || ""}
+                        onChange={(e) => updateActiveAdCopy({ videoScript: e.target.value })}
+                        placeholder="Write your video script"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">Headline</label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeAdCopy?.headline || ""}
+                          onChange={(e) => updateActiveAdCopy({ headline: e.target.value })}
+                          placeholder="Enter headline"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">Call to Action</label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeAdCopy?.callToAction || ""}
+                          onChange={(e) => updateActiveAdCopy({ callToAction: e.target.value })}
+                          placeholder="Shop now"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">Brand Name</label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeAdCopy?.brandName || ""}
+                          onChange={(e) => updateActiveAdCopy({ brandName: e.target.value })}
+                          placeholder="Your brand"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">Website URL</label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeAdCopy?.websiteUrl || ""}
+                          onChange={(e) => updateActiveAdCopy({ websiteUrl: e.target.value })}
+                          placeholder="https://yourstore.com"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">Body Copy</label>
+                        <textarea
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={activeAdCopy?.bodyCopy || ""}
+                          onChange={(e) => updateActiveAdCopy({ bodyCopy: e.target.value })}
+                          placeholder="Enter body copy"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-8 flex flex-col items-center gap-3">
-              <div className="w-full max-w-[420px] grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="w-full max-w-[560px] grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <Button
                   text={isSaving ? "Saving…" : "Save Ads"}
                   secondary
@@ -451,11 +882,6 @@ export default function CreativeReadyPage() {
                   text="Continue"
                   action={() => router.push("/create-campaign/campaign-snapshots")}
                   hasIconOrLoader
-                />
-                <Button
-                  text="Edit Product Kit"
-                  secondary
-                  action={() => router.push("/create-campaign/product-kit")}
                 />
                 <Button
                   text="Create another"

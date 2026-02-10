@@ -25,7 +25,6 @@ export default function ReviewPage() {
   const {
     productSelection,
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     campaignSnapshots,
@@ -36,7 +35,7 @@ export default function ReviewPage() {
   );
   const [adPlatforms, setAdPlatforms] = useState<
     {
-      title: "Instagram" | "Facebook" | "Google";
+      title: "Facebook" | "Google";
       platform: Platform;
       image: string;
       settings: any;
@@ -47,7 +46,7 @@ export default function ReviewPage() {
   const { handleLaunchCampaign, isPending } =
     useLaunchCampaign(setIsLaunchCampaign);
   const router = useRouter();
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Google, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
     productSelection.products[0] ?? null,
   );
@@ -82,44 +81,39 @@ export default function ReviewPage() {
       .filter(
         (platform) =>
           platform !== "complete" &&
+          platform !== "Instagram" &&
           supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
-        title: platform as "Instagram" | "Facebook" | "Google",
+        title: platform as "Facebook" | "Google",
         platform:
           platform === "Google"
             ? "GOOGLE ADS"
             : (platform.toUpperCase() as Platform),
         image: `/${platform.toLowerCase()}_logo.svg`,
         settings: {
-          ...(platform === "Instagram"
-            ? instagramSettings
-            : platform === "Facebook"
-              ? facebookSettings
-              : googleSettings),
+          ...(platform === "Facebook" ? facebookSettings : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
             ? (Google?.[highlightedProduct.node.id] ?? [])
-            : platform === "Instagram"
-              ? (Instagram?.[highlightedProduct.node.id] ?? [])
-              : platform === "Facebook"
-                ? (Facebook?.[highlightedProduct.node.id] ?? [])
-                : []
+            : platform === "Facebook"
+              ? (Facebook?.[highlightedProduct.node.id] ?? [])
+              : []
           : [],
       }))
       .sort((a, b) => {
-        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        const order = { Google: 0, Facebook: 1 };
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
   }, [
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     highlightedProduct?.node.id,
     Google,
+    Facebook,
   ]);
 
   if (isLaunchCampaign) {
@@ -210,11 +204,9 @@ export default function ReviewPage() {
                 <div key={platform.title} className="flex items-center gap-1">
                   <Image
                     src={
-                      platform.title === "Instagram"
-                        ? "/instagram_logo.svg"
-                        : platform.title === "Facebook"
-                          ? "/facebook_logo.svg"
-                          : "/google_ads-icon.svg"
+                      platform.title === "Facebook"
+                        ? "/facebook_logo.svg"
+                        : "/google_ads-icon.svg"
                     }
                     alt={platform.title}
                     width={20}

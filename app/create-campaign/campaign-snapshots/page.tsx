@@ -116,12 +116,11 @@ export default function CampaignSnapshotsPage() {
   const {
     productSelection,
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
   } = useCreateCampaignStore((state) => state);
   const { canUndo } = useCreativesStore((state) => state.actions);
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Google, Facebook } = useCreativesStore((state) => state);
   const { generalUndo } = useCreativesStore((state) => state.actions);
   const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
 
@@ -147,43 +146,35 @@ export default function CampaignSnapshotsPage() {
           supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
-        title: platform as "Instagram" | "Facebook" | "Google",
+        title: platform as "Facebook" | "Google",
         platform:
           platform === "Google"
             ? "GOOGLE ADS"
             : (platform.toUpperCase() as Platform),
         image: `/${platform.toLowerCase()}_logo.svg`,
         settings: {
-          ...(platform === "Instagram"
-            ? instagramSettings
-            : platform === "Facebook"
-              ? facebookSettings
-              : googleSettings),
+          ...(platform === "Facebook" ? facebookSettings : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
             ? (Google?.[highlightedProduct.node.id] ?? [])
-            : platform === "Instagram"
-              ? (Instagram?.[highlightedProduct.node.id] ?? [])
               : platform === "Facebook"
                 ? (Facebook?.[highlightedProduct.node.id] ?? [])
                 : []
           : [],
       }))
       .sort((a, b) => {
-        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        const order = { Google: 0, Facebook: 1 };
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
     console.log("Ad Platforms:", resultAdPlatforms);
   }, [
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     highlightedProduct?.node.id,
     Google?.[highlightedProduct?.node.id || ""],
-    Instagram?.[highlightedProduct?.node.id || ""],
     Facebook?.[highlightedProduct?.node.id || ""],
   ]);
 
@@ -310,7 +301,6 @@ export default function CampaignSnapshotsPage() {
         productSelection.products,
         Facebook,
         Google,
-        Instagram,
       )
     ) {
       setToast({

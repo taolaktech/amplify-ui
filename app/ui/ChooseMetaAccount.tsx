@@ -22,9 +22,6 @@ export const ChooseMetaAccount = ({
   lastStepLoading,
   handleLastStep,
   integrationsAuthPlatform,
-  selectedIGAccount,
-  setSelectedIGAccount,
-  IGAccounts,
 }: {
   handleClose: () => void;
   adAccounts: any[];
@@ -40,9 +37,6 @@ export const ChooseMetaAccount = ({
   setStep: (step: number) => void;
   lastStepLoading: boolean;
   handleLastStep: (metaPixelId?: string) => void;
-  selectedIGAccount: any;
-  IGAccounts: any[];
-  setSelectedIGAccount: (account: any) => void;
 }) => {
   console.log("Ad Accounts in ChooseMetaAccount:", adAccounts);
   const [error, setError] = useState<string | null>(null);
@@ -63,11 +57,9 @@ export const ChooseMetaAccount = ({
       case 0:
         return "Choose Ad Account";
       case 1:
-        return isFacebook
-          ? "Select Ad Account Page"
-          : "Select Instagram Account";
+        return "Select Ad Account Page";
       default:
-        return isFacebook ? "Choose Ad Account" : "Choose Instagram Account";
+        return "Choose Ad Account";
     }
   }, [step]);
 
@@ -76,7 +68,7 @@ export const ChooseMetaAccount = ({
       case 0:
         return "";
       case 1:
-        return isFacebook ? "Choose Ad Account" : "Choose Instagram Account";
+        return "Choose Ad Account";
       default:
         return "";
     }
@@ -93,13 +85,6 @@ export const ChooseMetaAccount = ({
           />
         );
       case 1:
-        if (!isFacebook) {
-          return instagramAccounts({
-            IGAccounts: IGAccounts,
-            selectedIGAccount: selectedIGAccount,
-            setSelectedIGAccount: setSelectedIGAccount,
-          });
-        }
         return (
           <AdPages
             pages={metaPages}
@@ -125,18 +110,10 @@ export const ChooseMetaAccount = ({
     selectedMetaPage,
     setSelectedMetaPage,
     error,
-    isFacebook,
-    selectedIGAccount,
-    setSelectedIGAccount,
-    IGAccounts,
   ]);
 
   const handleConfirm = async () => {
     if (step === 0) {
-      if (!isFacebook) {
-        setStep(1);
-        return;
-      }
       handleGetPagesForAdAccount();
     } else if (step === 1) {
       setError(null);
@@ -265,56 +242,6 @@ const AdAccounts = ({
           </div>
           <div className="pr-6 py-4 ">
             {selectedAdAccount?.id === account.id && (
-              <TickIcon width={24} height={24} />
-            )}
-          </div>
-        </div>
-      ))}
-    </>
-  );
-};
-
-const instagramAccounts = ({
-  IGAccounts,
-  selectedIGAccount,
-  setSelectedIGAccount,
-}: {
-  IGAccounts: any[];
-  selectedIGAccount: any;
-  setSelectedIGAccount: (account: any) => void;
-}) => {
-  if (IGAccounts.length === 0 || !IGAccounts) {
-    return (
-      <NoAccounts
-        title="No Instagram Accounts"
-        message="It looks like you don't have any Instagram accounts. Please create one in your Meta Business Manager and try again."
-      />
-    );
-  }
-
-  return (
-    <>
-      {IGAccounts?.map((account: any) => (
-        <div
-          key={account.id}
-          className={`flex justify-between h-[70px] mb-3 cursor-pointer items-center border ${
-            selectedIGAccount?.id === account.id
-              ? "border-[#A755FF] border-2"
-              : "border-[#efefef] border-2 hover-custom-shadow-sm"
-          }  rounded-xl `}
-        >
-          <div
-            className="flex flex-1 w-full pl-6 py-4  items-center gap-4 flex-shrink-0"
-            onClick={() => setSelectedIGAccount(account)}
-          >
-            <div className="flex flex-col justify-center w-full ">
-              <div className="text-sm font-medium max-w-[70%] truncate whitespace-nowrap text-ellipsis">
-                {account.username}
-              </div>
-            </div>
-          </div>
-          <div className="pr-6 py-4 ">
-            {selectedIGAccount?.id === account.id && (
               <TickIcon width={24} height={24} />
             )}
           </div>

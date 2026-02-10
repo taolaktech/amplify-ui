@@ -54,8 +54,9 @@ const Preview = ({
     (state) => state.creativeLoadingState,
   );
 
-  const { toggleFacebookSettings, toggleInstagramSettings } =
-    useCreateCampaignStore((state) => state.actions);
+  const { toggleFacebookSettings } = useCreateCampaignStore(
+    (state) => state.actions,
+  );
 
   const { undo } = useCreativesStore((state) => state.actions);
   const destinationUrl = useCreateCampaignStore(
@@ -74,16 +75,8 @@ const Preview = ({
   };
 
   const normalizedAdPlatforms = useMemo(() => {
-    const hasFacebook = adPlatforms?.some((p) => p.platform === "FACEBOOK");
-    const hasInstagram = adPlatforms?.some((p) => p.platform === "INSTAGRAM");
-
     return (adPlatforms || [])
-      .filter((p) => {
-        if (hasFacebook && hasInstagram) {
-          return p.platform !== "INSTAGRAM";
-        }
-        return true;
-      })
+      .filter((p) => p.platform !== ("INSTAGRAM" as Platform))
       .map((p) => {
         if (p.platform === "FACEBOOK") {
           return { ...p, title: "Meta" as const };
@@ -94,15 +87,10 @@ const Preview = ({
 
   const isDestinationUrlValid = isValidHttpUrl(destinationUrl);
 
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Google, Facebook } = useCreativesStore((state) => state);
 
   const hasGeneratedOnceForPlatform = (platform: Platform) => {
-    const store =
-      platform === "GOOGLE ADS"
-        ? Google
-        : platform === "INSTAGRAM"
-          ? Instagram
-          : Facebook;
+    const store = platform === "GOOGLE ADS" ? Google : Facebook;
     const list = store?.[highlightedProductId];
     return Array.isArray(list) && list.length > 0;
   };
@@ -147,7 +135,6 @@ const Preview = ({
                   <MediaSettingBox
                     item={item}
                     settings={settings}
-                    toggleInstagramSettings={toggleInstagramSettings}
                     toggleFacebookSettings={toggleFacebookSettings}
                   />
                 )}
@@ -228,7 +215,6 @@ const Preview = ({
               <MediaSettingBox
                 item={item}
                 settings={settings}
-                toggleInstagramSettings={toggleInstagramSettings}
                 toggleFacebookSettings={toggleFacebookSettings}
               />
             )}
@@ -287,9 +273,6 @@ const PreviewContainer = ({
     return product?.node?.title || "";
   });
 
-  const instagramSettings = useCreateCampaignStore(
-    (state) => state.instagramSettings,
-  );
   const facebookSettings = useCreateCampaignStore(
     (state) => state.facebookSettings,
   );
@@ -305,7 +288,6 @@ const PreviewContainer = ({
   const isMediaCreative = item?.creatives;
 
   const isGoogleAds = platform === "GOOGLE ADS";
-  const isInstagram = platform === "INSTAGRAM";
   const isFacebook = platform === "FACEBOOK";
 
   const uploaded = useMetaCreativeUploadStore(
@@ -427,54 +409,6 @@ const PreviewContainer = ({
     facebookSettings.storyPost,
   ]);
 
-  const instagramWidthSize = useMemo(() => {
-    let count = 0;
-    if (instagramSettings.staticPost) count += 1;
-    if (instagramSettings.carouselPost) count += 1;
-    if (instagramSettings.storyPost) count += 1;
-
-    const settings = {
-      staticPost: 0,
-      carouselPost: 0,
-      storyPost: 0,
-    };
-
-    if (count === 1) {
-      if (instagramSettings.staticPost) {
-        settings.staticPost = 100;
-      }
-      if (instagramSettings.carouselPost) {
-        settings.carouselPost = 100;
-      }
-      if (instagramSettings.storyPost) {
-        settings.storyPost = 100;
-      }
-    } else if (count === 2) {
-      if (instagramSettings.carouselPost) {
-        settings.carouselPost = 66.66;
-
-        if (instagramSettings.staticPost) {
-          settings.staticPost = 33.33;
-        }
-        if (instagramSettings.storyPost) {
-          settings.storyPost = 33.33;
-        }
-      } else if (instagramSettings.staticPost && instagramSettings.storyPost) {
-        settings.staticPost = 50;
-        settings.storyPost = 50;
-      }
-    } else if (count === 3) {
-      settings.staticPost = 25;
-      settings.carouselPost = 50;
-      settings.storyPost = 25;
-    }
-
-    return settings;
-  }, [
-    instagramSettings.carouselPost,
-    instagramSettings.staticPost,
-    instagramSettings.storyPost,
-  ]);
 
   const hasMediaCreatives = useMemo(() => {
     const hasGenerated =
@@ -532,136 +466,6 @@ const PreviewContainer = ({
                   : "opacity-0 pointer-events-none"
               }`}
             >
-              <NoPreviewPlaceholder />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Instagram */}
-      {isInstagram && (
-        <div className="relative min-h-[518px]">
-          {/* Loading State */}
-          <div
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-              isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          >
-            <CircleLoader />
-          </div>
-
-          {/* Content State */}
-          <div
-            className={`transition-opacity duration-300 ${
-              !showNoPreview
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none absolute inset-0"
-            }`}
-          >
-            <DragScrollContainer>
-              <div className="mt-5 pl-5 lg:pl-0 flex gap-4 w-full items-center">
-                {instagramSettings.staticPost &&
-                  (showUploadedCreatives ? (
-                    <>
-                      {uploadedSelection.staticCreative && (
-                        <div
-                          style={{ width: `${instagramWidthSize.staticPost}%` }}
-                          className="min-w-[318.6px] transition-all duration-300"
-                        >
-                          <IGStaticPostView
-                            creative={uploadedSelection.staticCreative}
-                            productId={highlightedProductId}
-                            productName={productName}
-                            source={"uploaded"}
-                          />
-                        </div>
-                      )}
-                      {uploadedVideoPreview && (
-                        <div
-                          style={{ width: `${instagramWidthSize.staticPost}%` }}
-                          className="min-w-[318.6px] transition-all duration-300"
-                        >
-                          <IGStaticPostView
-                            creative={uploadedVideoPreview}
-                            productId={highlightedProductId}
-                            productName={productName}
-                            source={"uploaded"}
-                          />
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div
-                      style={{ width: `${instagramWidthSize.staticPost}%` }}
-                      className="min-w-[318.6px] transition-all duration-300"
-                    >
-                      <IGStaticPostView
-                        creative={
-                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                        }
-                        productId={highlightedProductId}
-                        productName={productName}
-                        source={assetSource}
-                      />
-                    </div>
-                  ))}
-
-                {instagramSettings.carouselPost && (
-                  <div
-                    style={{ width: `${instagramWidthSize.carouselPost}%` }}
-                    className="min-w-[529.6px] transition-all duration-300"
-                  >
-                    {showUploadedCreatives ? (
-                      <IGCarouselPostView
-                        creatives={uploadedSelection.carouselCreatives}
-                      />
-                    ) : (
-                      <IGCarouselPostView
-                        creatives={
-                          isMediaCreative?.[mediaCreative]?.creatives || []
-                        }
-                      />
-                    )}
-                  </div>
-                )}
-
-                {instagramSettings.storyPost && (
-                  <div
-                    style={{ width: `${instagramWidthSize.storyPost}%` }}
-                    className="min-w-[318.6px] transition-all duration-300"
-                  >
-                    {showUploadedCreatives ? (
-                      <StoryPostView
-                        creative={uploadedSelection.storyCreative}
-                        productId={highlightedProductId}
-                        productName={productName}
-                        source={"uploaded"}
-                      />
-                    ) : (
-                      <StoryPostView
-                        creative={
-                          isMediaCreative?.[mediaCreative]?.creatives?.[0]
-                        }
-                        productId={highlightedProductId}
-                        productName={productName}
-                        source={assetSource}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-            </DragScrollContainer>
-          </div>
-
-          {/* No Preview State */}
-          <div
-            className={`px-5 lg:pl-0 lg:pr-5 transition-opacity duration-300 ${
-              showNoPreview
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none absolute inset-0"
-            }`}
-          >
-            <div className="flex bg-[#f1f1f1] rounded-xl mt-5 items-center justify-center h-[518px] md:h-[600px]">
               <NoPreviewPlaceholder />
             </div>
           </div>
@@ -795,11 +599,9 @@ const PreviewContainer = ({
 const MediaSettingBox = ({
   item,
   settings,
-  toggleInstagramSettings,
   toggleFacebookSettings,
 }: {
   item: any;
-  toggleInstagramSettings: (key: SocialSettingsKey) => void;
   toggleFacebookSettings: (key: SocialSettingsKey) => void;
   settings: { label: string; key: SocialSettingsKey }[];
 }) => {
@@ -808,9 +610,7 @@ const MediaSettingBox = ({
       {settings.map((setting) => (
         <div
           onClick={() => {
-            if (item.title === "Instagram") {
-              toggleInstagramSettings(setting.key);
-            } else if (item.title === "Facebook" || item.title === "Meta") {
+            if (item.title === "Facebook" || item.title === "Meta") {
               toggleFacebookSettings(setting.key);
             }
           }}

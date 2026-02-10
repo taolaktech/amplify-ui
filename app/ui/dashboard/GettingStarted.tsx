@@ -18,11 +18,11 @@ function GettingStarted() {
   const { isSetupComplete, link } = useGetSetupComplete();
   const primaryLogo = useBrandAssetStore((state) => state.primaryLogo);
 
-  const { instagram, facebook } = useIntegrationStore((state) => state);
+  const { facebook } = useIntegrationStore((state) => state);
 
   const stepsComplete = useMemo(() => {
-    return isSetupComplete && instagram && facebook && primaryLogo;
-  }, [isSetupComplete, instagram, facebook, primaryLogo]);
+    return isSetupComplete && facebook && primaryLogo;
+  }, [isSetupComplete, facebook, primaryLogo]);
 
   const firstName = user?.name?.split(" ")[0] || "Unknown";
   return (
