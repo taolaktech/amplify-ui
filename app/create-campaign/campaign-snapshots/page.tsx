@@ -10,9 +10,7 @@ import {
   useCreateCampaignStore,
 } from "@/app/lib/stores/createCampaignStore";
 import { useEffect, useMemo, useRef, useState } from "react";
-import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
-import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
@@ -24,7 +22,6 @@ import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGenera
 import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
-import { getCampaignTypes } from "@/app/lib/campaignTypes";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { isAllProductGenerated } from "@/app/lib/utils";
 
@@ -114,8 +111,6 @@ const MainActions = ({
     </div>
   );
 };
-
-const productTypes = getCampaignTypes();
 
 export default function CampaignSnapshotsPage() {
   const {
@@ -331,9 +326,9 @@ export default function CampaignSnapshotsPage() {
     console.log("Proceed to next step", campaignDetails);
     actions.storeCampaignSnapshots({
       campaignName: campaignDetails.campaignName,
-      campaignType: campaignDetails.campaignType,
-      brandColor: campaignDetails.brandColor,
-      accentColor: campaignDetails.accentColor,
+      campaignType: campaignDetails.campaignType || "Product Launch",
+      brandColor: campaignDetails.brandColor || primaryColor || "#000000",
+      accentColor: campaignDetails.accentColor || secondaryColor || "#FFFFFF",
       destinationUrl: campaignDetails.destinationUrl,
       googleDailyBudget: clampBudget(campaignDetails.googleDailyBudget) || "5",
       metaDailyBudget: clampBudget(campaignDetails.metaDailyBudget) || "5",
@@ -442,35 +437,6 @@ export default function CampaignSnapshotsPage() {
             <div className="text-[#BE343B] text-xs mt-1">
               Campaign name is required
             </div>
-          )}
-        </div>
-        <div className="mt-5 px-5 lg:pl-0 lg:pr-5 flex flex-col md:flex-row gap-4 md:gap-14">
-          <div className="flex-1">
-            <div className="w-full">
-              <CampaignTypeInput
-                label="Campaign Type"
-                placeholder="Product Launch"
-                options={productTypes}
-                background="rgba(232,232,232,0.35)"
-                borderless
-                selected={campaignDetails.campaignType}
-                setSelected={(value: string) =>
-                  handleCampaignDetails("campaignType", value)
-                }
-                large
-                setError={() => {}}
-              />
-            </div>
-          </div>
-          {!isOnlyGoogle && (
-            <BrandColors
-              brandColor={campaignDetails.brandColor}
-              accentColor={campaignDetails.accentColor}
-              setBrandColor={(
-                key: "brandColor" | "accentColor",
-                value: string,
-              ) => handleCampaignDetails(key, value)}
-            />
           )}
         </div>
         <div className="mt-5 px-5 lg:pl-0 lg:pr-5">

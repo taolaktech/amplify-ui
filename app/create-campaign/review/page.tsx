@@ -122,9 +122,6 @@ export default function ReviewPage() {
     Google,
   ]);
 
-  const isOnlyGoogle =
-    adPlatforms.length === 1 && adPlatforms[0].title === "Google";
-
   if (isLaunchCampaign) {
     return (
       <div className="fixed z-[100] top-[56px] w-full h-full bg-white left-0 right-0 ">
@@ -249,14 +246,6 @@ export default function ReviewPage() {
 
           <div className="mt-8 flex gap-12 items-center flex-shrink-0 flex-wrap">
             <div>
-              <p className="text-[#595959] text-sm tracking-200">
-                Campaign Type
-              </p>
-              <p className="text-[#555456] font-medium tracking-250">
-                {campaignSnapshots.campaignType || "Product Launch"}
-              </p>
-            </div>
-            <div>
               <p className="text-[#595959] text-sm tracking-200">Start Date</p>
               <p className="text-[#555456] font-medium tracking-250">
                 {formattedStartDate}
@@ -268,25 +257,6 @@ export default function ReviewPage() {
                 {formattedEndDate}
               </p>
             </div>
-            {!isOnlyGoogle && (
-              <div className="flex items-center gap-2">
-                <p className="text-xs tracking-200">Brand Colors</p>
-                <div className="h-[48px] rounded-[50px] flex items-center flex-shrink-0 p-3 justify-center gap-2 bg-[rgba(232,232,232,0.5)]">
-                  <div className="cursor-pointer h-6 w-6 bg-[rgba(105,34,209,0.2)] rounded-full flex items-center justify-center">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: campaignSnapshots.brandColor }}
-                    ></div>
-                  </div>
-                  <div className="cursor-pointer h-6 w-6 bg-[rgba(232,232,232,0.35)] rounded-full flex items-center justify-center">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: campaignSnapshots.accentColor }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </section>
 

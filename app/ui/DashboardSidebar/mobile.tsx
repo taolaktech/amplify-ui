@@ -4,13 +4,11 @@ import Image from "next/image";
 import DefaultButton from "../Button";
 import SettingsIcon from "@/public/setting-2.svg";
 import BuildingGradient from "@/public/building-gradient.svg";
-import CalenderEditGrad from "@/public/calendar-edit.svg";
 import {
   Add,
   // ArrowDown2,
   // ArrowUp2,
   Building3,
-  CalendarEdit,
   FolderOpen,
   // Data2,
   HomeTrendUp,
@@ -29,7 +27,6 @@ import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
 import useUIStore from "@/app/lib/stores/uiStore";
-import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
 import FolderOpenGrad from "@/public/folder-open.svg";
 type MobileSideBarProps = {
   isSidebarOpen: boolean;
@@ -38,7 +35,6 @@ type MobileSideBarProps = {
   isDashboard: boolean;
   isInsights: boolean;
   isAssets: boolean;
-  isCampaigns: boolean;
   isCompany: boolean;
   isPricing: boolean;
   isBrandAssets: boolean;
@@ -60,7 +56,6 @@ export default function MobileSideBar({
   isDashboard,
   // isInsights,
   isAssets,
-  isCampaigns,
   isCompany,
   isPricing,
   isBrandAssets,
@@ -79,7 +74,6 @@ export default function MobileSideBar({
   useModal(isSidebarOpen);
 
   const { setSidebarOpen } = useUIStore((state) => state.actions);
-  const { navigateToCampaignPage } = useCampaignPageActions();
 
   const closeSidebar = () => {
     setSidebarOpen(false);
@@ -162,29 +156,6 @@ export default function MobileSideBar({
                   Dashboard
                 </span>
               </Link>
-
-              <button
-                onClick={() => {
-                  closeSidebar();
-                  navigateToCampaignPage();
-                }}
-                className={`mt-1 flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
-                h-[48px] cursor-pointer ${
-                  isCampaigns ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span>
-                  {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    isCampaigns ? "text-heading" : "text-gray-dark"
-                  }`}
-                >
-                  Campaigns
-                </span>
-              </button>
             </li>
 
             <li>
