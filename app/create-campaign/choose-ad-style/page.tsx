@@ -93,6 +93,18 @@ export default function ChooseAdStylePage() {
   >([]);
   const [presetLoadError, setPresetLoadError] = useState<string | null>(null);
 
+  const [generatedCopy, setGeneratedCopy] = useState("");
+  const [isGeneratingCopy, setIsGeneratingCopy] = useState(false);
+  const [includeMusic, setIncludeMusic] = useState(true);
+  const [includeVoiceover, setIncludeVoiceover] = useState(true);
+  const [isEditingCopy, setIsEditingCopy] = useState(false);
+  const [isCopySaved, setIsCopySaved] = useState(false);
+
+  const [imageCopyById, setImageCopyById] = useState<Record<string, string>>({});
+  const [imageEditingId, setImageEditingId] = useState<string | null>(null);
+  const [imageCopySavedById, setImageCopySavedById] = useState<Record<string, boolean>>({});
+  const [isGeneratingImageCopy, setIsGeneratingImageCopy] = useState<Record<string, boolean>>({});
+
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -237,6 +249,50 @@ export default function ChooseAdStylePage() {
     });
   }, []);
 
+  const handleGenerateCopy = useCallback(async () => {
+    if (isGeneratingCopy) return;
+    setIsGeneratingCopy(true);
+    setGeneratedCopy("");
+
+    const productTitle = selectedProductNode?.title || "Product";
+    const productDesc = selectedProductNode?.description || "";
+
+    await new Promise((r) => setTimeout(r, 1200));
+
+    const script = `Hook: Meet ${productTitle}.\n\nProblem: You want something that stands out.\n\nSolution: ${productTitle} delivers style and confidence.\n\nCTA: Tap to shop now.`;
+    setGeneratedCopy(script);
+
+    setIsGeneratingCopy(false);
+  }, [isGeneratingCopy, selectedProductNode?.title, selectedProductNode?.description]);
+
+  const handleGenerateImageCopy = useCallback(async (templateId: string, index: number) => {
+    if (isGeneratingImageCopy[templateId]) return;
+    setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: true }));
+
+    const productTitle = selectedProductNode?.title || "Product";
+    const productDesc = selectedProductNode?.description || "";
+
+    await new Promise((r) => setTimeout(r, 800 + index * 200));
+
+    const headline = `Introducing ${productTitle}`;
+    const body = productDesc
+      ? productDesc.slice(0, 120)
+      : `Discover ${productTitle} and shop today.`;
+    const copy = `Headline: ${headline}\n\nBody: ${body}\n\nCTA: Shop now`;
+
+    setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
+    setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+  }, [isGeneratingImageCopy, selectedProductNode?.title, selectedProductNode?.description]);
+
+  const handleGenerateAllImageCopies = useCallback(async () => {
+    for (let i = 0; i < selectedImageTemplateIds.length; i++) {
+      const templateId = selectedImageTemplateIds[i];
+      if (!imageCopyById[templateId]) {
+        await handleGenerateImageCopy(templateId, i);
+      }
+    }
+  }, [selectedImageTemplateIds, imageCopyById, handleGenerateImageCopy]);
+
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
       <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8 items-start">
@@ -250,6 +306,9 @@ export default function ChooseAdStylePage() {
             <p className="mt-3 text-sm text-neutral-light tracking-40 max-w-[320px]">
               Select a style to generate your ad. Each preset includes optimized
               visuals, captions, and pacing for social media.
+            </p>
+            <p className="mt-2 text-xs text-neutral-light/70 tracking-40">
+              You can select 1 video and up to 5 images per campaign.
             </p>
           </div>
 
@@ -289,6 +348,218 @@ export default function ChooseAdStylePage() {
               iconSize={16}
             />
           </div>
+
+          {presetType === "video" && (
+            <div className="mt-6 border-t border-[rgba(0,0,0,0.08)] pt-5">
+              <div className="text-sm font-semibold text-heading mb-3">
+                Video Script
+              </div>
+
+              <button
+                onClick={handleGenerateCopy}
+                disabled={isGeneratingCopy || !selectedVideoTemplateId}
+                className="w-full h-[44px] rounded-[22px] bg-white border border-[#E0E0E0] text-sm font-medium text-heading flex items-center justify-center gap-2 hover:bg-[#FAFAFA] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGeneratingCopy ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    Generating…
+                  </>
+                ) : (
+                  <>Generate Script</>
+                )}
+              </button>
+
+              {generatedCopy && (
+                <div className="mt-3">
+                  {isEditingCopy ? (
+                    <textarea
+                      className="w-full p-3 bg-white rounded-xl border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[140px] max-h-[200px] overflow-y-auto resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      value={generatedCopy}
+                      onChange={(e) => {
+                        setGeneratedCopy(e.target.value);
+                        setIsCopySaved(false);
+                      }}
+                      autoFocus
+                    />
+                  ) : (
+                    <div className="p-3 bg-white rounded-xl border border-[#E8E8E8] text-xs text-neutral-light whitespace-pre-wrap max-h-[140px] overflow-y-auto">
+                      {generatedCopy}
+                    </div>
+                  )}
+                  <div className="mt-2 flex gap-2">
+                    {isEditingCopy ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            setIsEditingCopy(false);
+                            setIsCopySaved(true);
+                          }}
+                          className="flex-1 h-[36px] rounded-[18px] bg-purple-600 text-white text-xs font-medium hover:bg-purple-700 transition-colors"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setIsEditingCopy(false)}
+                          className="flex-1 h-[36px] rounded-[18px] bg-white border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#FAFAFA] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditingCopy(true)}
+                        className="flex-1 h-[36px] rounded-[18px] bg-white border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#FAFAFA] transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                  {isCopySaved && !isEditingCopy && (
+                    <div className="mt-2 text-xs text-green-600 font-medium">
+                      ✓ Saved
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-col gap-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => setIncludeMusic((v) => !v)}
+                    className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                      includeMusic ? "bg-purple-600" : "bg-[#D1D5DB]"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        includeMusic ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-sm text-heading">Include Music</span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => setIncludeVoiceover((v) => !v)}
+                    className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                      includeVoiceover ? "bg-purple-600" : "bg-[#D1D5DB]"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        includeVoiceover ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-sm text-heading">Include Voiceover</span>
+                </label>
+              </div>
+            </div>
+          )}
+
+          {presetType === "image" && selectedImageTemplateIds.length > 0 && (
+            <div className="mt-6 border-t border-[rgba(0,0,0,0.08)] pt-5">
+              <div className="text-sm font-semibold text-heading mb-3">
+                Ad Copy ({selectedImageTemplateIds.length} image{selectedImageTemplateIds.length > 1 ? "s" : ""})
+              </div>
+
+              <button
+                onClick={handleGenerateAllImageCopies}
+                disabled={selectedImageTemplateIds.every((id) => imageCopyById[id])}
+                className="w-full h-[44px] rounded-[22px] bg-white border border-[#E0E0E0] text-sm font-medium text-heading flex items-center justify-center gap-2 hover:bg-[#FAFAFA] transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+              >
+                Generate All Copy
+              </button>
+
+              <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
+                {selectedImageTemplateIds.map((templateId, idx) => {
+                  const copy = imageCopyById[templateId] || "";
+                  const isEditing = imageEditingId === templateId;
+                  const isGenerating = isGeneratingImageCopy[templateId];
+                  const isSaved = imageCopySavedById[templateId];
+
+                  return (
+                    <div key={templateId} className="bg-white rounded-xl border border-[#E8E8E8] p-3">
+                      <div className="text-xs font-medium text-heading mb-2">
+                        Image {idx + 1}
+                      </div>
+
+                      {!copy && !isGenerating && (
+                        <button
+                          onClick={() => handleGenerateImageCopy(templateId, idx)}
+                          className="w-full h-[36px] rounded-[18px] bg-[#F3F4F6] border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#EAEAEA] transition-colors"
+                        >
+                          Generate Copy
+                        </button>
+                      )}
+
+                      {isGenerating && (
+                        <div className="flex items-center gap-2 text-xs text-neutral-light">
+                          <span className="w-3 h-3 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                          Generating…
+                        </div>
+                      )}
+
+                      {copy && !isGenerating && (
+                        <>
+                          {isEditing ? (
+                            <textarea
+                              className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[100px] resize-none focus:outline-none"
+                              value={copy}
+                              onChange={(e) => {
+                                setImageCopyById((prev) => ({ ...prev, [templateId]: e.target.value }));
+                                setImageCopySavedById((prev) => ({ ...prev, [templateId]: false }));
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <div className="text-xs text-neutral-light whitespace-pre-wrap max-h-[80px] overflow-y-auto">
+                              {copy}
+                            </div>
+                          )}
+                          <div className="mt-2 flex gap-2">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setImageEditingId(null);
+                                    setImageCopySavedById((prev) => ({ ...prev, [templateId]: true }));
+                                  }}
+                                  className="flex-1 h-[30px] rounded-[15px] bg-purple-600 text-white text-xs font-medium hover:bg-purple-700 transition-colors"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setImageEditingId(null)}
+                                  className="flex-1 h-[30px] rounded-[15px] bg-white border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#FAFAFA] transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => setImageEditingId(templateId)}
+                                className="flex-1 h-[30px] rounded-[15px] bg-white border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#FAFAFA] transition-colors"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                          {isSaved && !isEditing && (
+                            <div className="mt-1 text-xs text-green-600 font-medium">
+                              ✓ Saved
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6 overflow-hidden">
