@@ -3,18 +3,14 @@ import {
   ArrowCircleRight2,
   ArrowDown2,
   ArrowForward,
-  Magicpen,
 } from "iconsax-react";
 import UndoIcon from "@/public/undo.png";
-import RegenerateIcon from "@/public/magicpen.png";
 import {
   CampaignSnapshots,
   useCreateCampaignStore,
 } from "@/app/lib/stores/createCampaignStore";
 import { useEffect, useMemo, useRef, useState } from "react";
-import BrandColors from "@/app/ui/campaign-snapshots/BrandColors";
 import DateSelection from "@/app/ui/campaign-snapshots/DateSelection";
-import CampaignTypeInput from "@/app/ui/campaign-snapshots/CampaigtTypeInput";
 import Preview from "@/app/ui/campaign-snapshots/Preview";
 import Button from "@/app/ui/Button";
 import { useRouter } from "next/navigation";
@@ -26,7 +22,6 @@ import ProductsForGeneration from "@/app/ui/campaign-snapshots/ProductsForGenera
 import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
-import { getCampaignTypes } from "@/app/lib/campaignTypes";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { isAllProductGenerated } from "@/app/lib/utils";
 
@@ -78,29 +73,9 @@ const MainActions = ({
   loading: boolean;
   generalUndo: (productId: string) => void;
 }) => {
-  const supportedAdPlatforms = useCreateCampaignStore(
-    (state) => state.supportedAdPlatforms,
-  );
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
-  const destinationUrl = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.destinationUrl,
-  );
-  const setToast = useToastStore((state) => state.setToast);
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState,
   );
-
-  const isValidHttpUrl = (value: string) => {
-    if (!value) return false;
-    try {
-      const url = new URL(value);
-      return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-
-  const isDestinationUrlValid = isValidHttpUrl(destinationUrl);
   const isLoading = useMemo(() => {
     return (
       creativeLoadingStates?.[highlightedProduct?.node.id || ""] &&
@@ -109,42 +84,6 @@ const MainActions = ({
       ).some((state) => state === true)
     );
   }, [creativeLoadingStates, highlightedProduct?.node.id]);
-
-  const hasGeneratedOnce = useMemo(() => {
-    const productId = highlightedProduct?.node?.id;
-    if (!productId) return false;
-
-    const googleHas = (Google?.[productId]?.length || 0) > 0;
-    const instagramHas = (Instagram?.[productId]?.length || 0) > 0;
-    const facebookHas = (Facebook?.[productId]?.length || 0) > 0;
-
-    return googleHas || instagramHas || facebookHas;
-  }, [Facebook, Google, Instagram, highlightedProduct?.node?.id]);
-
-  console.log("Supported Ad Platforms in MainActions:", supportedAdPlatforms);
-  const supportedPlatformArr = useMemo(() => {
-    const platforms: Platform[] = [];
-    if (!supportedAdPlatforms) {
-      return platforms;
-    }
-
-    const platformMap: Record<string, Platform> = {
-      Facebook: "FACEBOOK",
-      Instagram: "INSTAGRAM",
-      Google: "GOOGLE ADS",
-    };
-
-    // Treat supportedAdPlatforms as a string-keyed record so we can safely index with dynamic keys
-    const supported = supportedAdPlatforms as Record<string, boolean>;
-
-    Object.entries(platformMap).forEach(([key, platform]) => {
-      if (supported[key] === true) {
-        platforms.push(platform);
-      }
-    });
-
-    return platforms;
-  }, [supportedAdPlatforms]);
   return (
     <div className="flex gap-2 md:gap-3">
       {canUndo(highlightedProduct?.node?.id) && (
@@ -169,57 +108,19 @@ const MainActions = ({
           <span className="text-sm font-medium">Undo</span>
         </button>
       )}
-
-      <button
-        disabled={isLoading || !isDestinationUrlValid}
-        onClick={() => {
-          if (!isDestinationUrlValid) {
-            setToast({
-              type: "error",
-              title: "Destination URL Required",
-              message: "Enter a valid Destination URL to regenerate creatives.",
-            });
-            return;
-          }
-          console.log("Supported Platform Array:", supportedAdPlatforms);
-          console.log(
-            "Regenerate clicked for",
-            highlightedProduct?.node?.id,
-            supportedPlatformArr,
-          );
-          generateCreatives(highlightedProduct?.node?.id, supportedPlatformArr);
-        }}
-        className={`flex items-center gap-2 h-[40px] w-[134px] rounded-[39px]  justify-center ${
-          !isLoading && isDestinationUrlValid
-            ? "bg-[#F0E6FB] border-[#D0B0F3] border"
-            : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
-        }`}
-      >
-        {isLoading ? (
-          <Magicpen size={18} color="#000" />
-        ) : (
-          <img src={RegenerateIcon.src} alt="Generate" width={20} height={20} />
-        )}
-        <span className="text-sm font-medium">
-          {hasGeneratedOnce ? "Regenerate" : "Generate"}
-        </span>
-      </button>
     </div>
   );
 };
-
-const productTypes = getCampaignTypes();
 
 export default function CampaignSnapshotsPage() {
   const {
     productSelection,
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
   } = useCreateCampaignStore((state) => state);
   const { canUndo } = useCreativesStore((state) => state.actions);
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Google, Facebook } = useCreativesStore((state) => state);
   const { generalUndo } = useCreativesStore((state) => state.actions);
   const [adPlatforms, setAdPlatforms] = useState<any[]>([]);
 
@@ -245,43 +146,35 @@ export default function CampaignSnapshotsPage() {
           supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
-        title: platform as "Instagram" | "Facebook" | "Google",
+        title: platform as "Facebook" | "Google",
         platform:
           platform === "Google"
             ? "GOOGLE ADS"
             : (platform.toUpperCase() as Platform),
         image: `/${platform.toLowerCase()}_logo.svg`,
         settings: {
-          ...(platform === "Instagram"
-            ? instagramSettings
-            : platform === "Facebook"
-              ? facebookSettings
-              : googleSettings),
+          ...(platform === "Facebook" ? facebookSettings : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
             ? (Google?.[highlightedProduct.node.id] ?? [])
-            : platform === "Instagram"
-              ? (Instagram?.[highlightedProduct.node.id] ?? [])
               : platform === "Facebook"
                 ? (Facebook?.[highlightedProduct.node.id] ?? [])
                 : []
           : [],
       }))
       .sort((a, b) => {
-        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        const order = { Google: 0, Facebook: 1 };
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
     console.log("Ad Platforms:", resultAdPlatforms);
   }, [
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     highlightedProduct?.node.id,
     Google?.[highlightedProduct?.node.id || ""],
-    Instagram?.[highlightedProduct?.node.id || ""],
     Facebook?.[highlightedProduct?.node.id || ""],
   ]);
 
@@ -308,14 +201,24 @@ export default function CampaignSnapshotsPage() {
   const secondaryColor = useBrandAssetStore((state) => state.secondaryColor);
 
   useEffect(() => {
-    console.log("Current Campaign Details:", campaignDetails);
-    console.log("Primary Color from Brand Assets:", primaryColor);
-    console.log("Secondary Color from Brand Assets:", secondaryColor);
+    if (campaignDetails.brandColor?.trim() || campaignDetails.accentColor?.trim()) {
+      return;
+    }
+
+    if (!primaryColor?.trim() && !secondaryColor?.trim()) {
+      return;
+    }
+
     setCampaignDetails({
       brandColor: primaryColor,
       accentColor: secondaryColor,
     });
-  }, [primaryColor, secondaryColor]);
+  }, [
+    campaignDetails.accentColor,
+    campaignDetails.brandColor,
+    primaryColor,
+    secondaryColor,
+  ]);
 
   const [error, setError] = useState(false);
   const [destinationUrlError, setDestinationUrlError] = useState<string>("");
@@ -337,6 +240,13 @@ export default function CampaignSnapshotsPage() {
   ) => {
     // setCampaignDetails((prev) => ({ ...prev, [key]: value }));
     setCampaignDetails({ ...campaignDetails, [key]: value });
+  };
+
+  const clampBudget = (raw: string) => {
+    if (!raw) return "";
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return "";
+    return `${Math.max(5, n)}`;
   };
 
   useEffect(() => {
@@ -391,7 +301,6 @@ export default function CampaignSnapshotsPage() {
         productSelection.products,
         Facebook,
         Google,
-        Instagram,
       )
     ) {
       setToast({
@@ -407,17 +316,19 @@ export default function CampaignSnapshotsPage() {
     console.log("Proceed to next step", campaignDetails);
     actions.storeCampaignSnapshots({
       campaignName: campaignDetails.campaignName,
-      campaignType: campaignDetails.campaignType,
-      brandColor: campaignDetails.brandColor,
-      accentColor: campaignDetails.accentColor,
+      campaignType: campaignDetails.campaignType || "Product Launch",
+      brandColor: campaignDetails.brandColor || primaryColor || "#000000",
+      accentColor: campaignDetails.accentColor || secondaryColor || "#FFFFFF",
       destinationUrl: campaignDetails.destinationUrl,
+      googleDailyBudget: clampBudget(campaignDetails.googleDailyBudget) || "5",
+      metaDailyBudget: clampBudget(campaignDetails.metaDailyBudget) || "5",
       campaignStartDate: new Date(
         campaignDetails.campaignStartDate,
       ).toISOString(),
       campaignEndDate: new Date(campaignDetails.campaignEndDate).toISOString(),
     });
     actions.completeCampaignSnapshots();
-    router.push("/create-campaign/fund-campaign");
+    router.push("/create-campaign/review");
   };
 
   useEffect(() => {
@@ -454,7 +365,7 @@ export default function CampaignSnapshotsPage() {
             <div>
               <h1 className="text-xl tracking-40 md:text-2xl font-medium md:font-bold text-heading md:tracking-800">
                 <span className="num">4. </span>
-                <span>Campaign Snapshots</span>
+                <span>Campaign Snapshot</span>
               </h1>
               <p className="mt-[0.38rem] text-neutral-light tracking-40 text-xs md:text-sm my-2 md:my-0">
                 Here's a view of how your brand will be showcased across
@@ -518,35 +429,6 @@ export default function CampaignSnapshotsPage() {
             </div>
           )}
         </div>
-        <div className="mt-5 px-5 lg:pl-0 lg:pr-5 flex flex-col md:flex-row gap-4 md:gap-14">
-          <div className="flex-1">
-            <div className="w-full">
-              <CampaignTypeInput
-                label="Campaign Type"
-                placeholder="Product Launch"
-                options={productTypes}
-                background="rgba(232,232,232,0.35)"
-                borderless
-                selected={campaignDetails.campaignType}
-                setSelected={(value: string) =>
-                  handleCampaignDetails("campaignType", value)
-                }
-                large
-                setError={() => {}}
-              />
-            </div>
-          </div>
-          {!isOnlyGoogle && (
-            <BrandColors
-              brandColor={campaignDetails.brandColor}
-              accentColor={campaignDetails.accentColor}
-              setBrandColor={(
-                key: "brandColor" | "accentColor",
-                value: string,
-              ) => handleCampaignDetails(key, value)}
-            />
-          )}
-        </div>
         <div className="mt-5 px-5 lg:pl-0 lg:pr-5">
           <Input
             type="url"
@@ -579,6 +461,57 @@ export default function CampaignSnapshotsPage() {
           />
           <p className="mt-2 text-neutral-light tracking-40 text-xs md:text-sm">
             Where customers land after they click your ad.
+          </p>
+        </div>
+
+        <div className="mt-5 px-5 lg:pl-0 lg:pr-5">
+          <div className="text-sm font-medium text-heading">Daily Budget</div>
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              type="number"
+              label="Google Daily Budget ($)"
+              name="googleDailyBudget"
+              placeholder="5"
+              large
+              background="rgba(232,232,232,0.35)"
+              borderless
+              min={5}
+              step={1}
+              value={campaignDetails.googleDailyBudget}
+              onChange={(e) =>
+                handleCampaignDetails("googleDailyBudget", e.target.value)
+              }
+              onBlur={() => {
+                handleCampaignDetails(
+                  "googleDailyBudget",
+                  clampBudget(campaignDetails.googleDailyBudget) || "5",
+                );
+              }}
+            />
+            <Input
+              type="number"
+              label="Meta Daily Budget ($)"
+              name="metaDailyBudget"
+              placeholder="5"
+              large
+              background="rgba(232,232,232,0.35)"
+              borderless
+              min={5}
+              step={1}
+              value={campaignDetails.metaDailyBudget}
+              onChange={(e) =>
+                handleCampaignDetails("metaDailyBudget", e.target.value)
+              }
+              onBlur={() => {
+                handleCampaignDetails(
+                  "metaDailyBudget",
+                  clampBudget(campaignDetails.metaDailyBudget) || "5",
+                );
+              }}
+            />
+          </div>
+          <p className="mt-2 text-neutral-light tracking-40 text-xs md:text-sm">
+            Minimum daily budget is $5.
           </p>
         </div>
         <div className="px-5 lg:pl-0 lg:pr-5">

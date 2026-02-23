@@ -24,7 +24,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
   );
   const setToast = useToastStore((state) => state.setToast);
 
-  const { Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Facebook } = useCreativesStore((state) => state);
 
   const [activeTab, setActiveTab] = useState<"images" | "videos">("images");
   const [assets, setAssets] = useState<any[]>([]);
@@ -34,18 +34,13 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
 
   const latestMediaCreatives = useMemo(() => {
     const productId = highlightedProductId;
-    const instagramSet = Instagram?.[productId]?.[Instagram?.[productId]?.length - 1];
     const facebookSet = Facebook?.[productId]?.[Facebook?.[productId]?.length - 1];
-
-    const igCreatives: any[] = Array.isArray(instagramSet?.creatives)
-      ? instagramSet.creatives
-      : [];
     const fbCreatives: any[] = Array.isArray(facebookSet?.creatives)
       ? facebookSet.creatives
       : [];
 
-    return [...igCreatives, ...fbCreatives];
-  }, [Facebook, Instagram, highlightedProductId]);
+    return [...fbCreatives];
+  }, [Facebook, highlightedProductId]);
 
   const generatedImageUrls = useMemo(() => {
     const urls = latestMediaCreatives
@@ -121,7 +116,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
       setToast({
         type: "success",
         title: "Saved to library",
-        message: "This image is now available in your asset library.",
+        message: "This image is now available in Saved Ads.",
       });
       await refreshAssets("image");
     } catch (err) {
@@ -161,7 +156,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
       setToast({
         type: "success",
         title: "Video uploaded",
-        message: "This video is now available in your asset library.",
+        message: "This video is now available in Saved Ads.",
       });
       await refreshAssets("video");
     } catch (err) {

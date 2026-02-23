@@ -4,7 +4,6 @@ import { persist } from "zustand/middleware";
 type IntegrationState = {
   shopifyStore: boolean;
   google: boolean;
-  instagram: boolean;
   facebook: boolean;
 };
 
@@ -13,9 +12,7 @@ type IntegrationActions = {
   setShopifyStoreConnected: (value: boolean) => void;
   toggleGoogle: () => void;
   setGoogle: (value: boolean) => void;
-  toggleInstagram: () => void;
   toggleFacebook: () => void;
-  setInstagram: (value: boolean) => void;
   setFacebook: (value: boolean) => void;
   resetStore: () => void;
 };
@@ -27,7 +24,6 @@ type IntegrationStore = IntegrationState & {
 const initialState: IntegrationState = {
   shopifyStore: false,
   google: false,
-  instagram: false,
   facebook: false,
 };
 
@@ -57,16 +53,6 @@ export const useIntegrationStore = create<IntegrationStore>()(
             google: value,
           }));
         },
-        toggleInstagram: () => {
-          set((state) => ({
-            instagram: !state.instagram,
-          }));
-        },
-        setInstagram: (value: boolean) => {
-          set(() => ({
-            instagram: value,
-          }));
-        },
         setFacebook: (value: boolean) => {
           console.log("setting fb:", value);
           set(() => ({
@@ -85,7 +71,6 @@ export const useIntegrationStore = create<IntegrationStore>()(
       partialize: (state) => ({
         shopifyStore: state.shopifyStore,
         google: state.google,
-        instagram: state.instagram,
         facebook: state.facebook,
       }),
     }

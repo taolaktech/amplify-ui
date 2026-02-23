@@ -65,8 +65,6 @@ export const useGetTargetROAS = () => {
     const platforms: TargetROASPlatform[] = [];
     if (supporttedAdPlatforms.Facebook)
       platforms.push(TargetROASPlatform.FACEBOOK);
-    if (supporttedAdPlatforms.Instagram)
-      platforms.push(TargetROASPlatform.INSTAGRAM);
     if (supporttedAdPlatforms.Google) platforms.push(TargetROASPlatform.GOOGLE);
     mutate({ budget: newBudget, token: token, platforms });
   }, 500);

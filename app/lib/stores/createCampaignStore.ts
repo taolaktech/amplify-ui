@@ -13,6 +13,16 @@ type CreateCampaignState = {
     location: string[];
     complete: boolean;
   };
+  attachedAssets: {
+    assets: Array<{
+      assetId: string;
+      type: "image" | "video";
+      url: string;
+      thumbnailUrl?: string;
+      title?: string;
+    }>;
+    complete: boolean;
+  };
   productSelection: {
     products: ShopifyProduct[];
     complete: boolean;
@@ -22,11 +32,31 @@ type CreateCampaignState = {
     cardDetails: cardDetails | null;
     complete: boolean;
   };
-  instagramSettings: InstagramSettings;
   facebookSettings: FacebookSettings;
   googleSettings: GoogleSettings;
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
+  adStyle: {
+    templateId: string | null;
+    imageTemplateIds: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
+    videoPreset: {
+      id: string;
+      title: string;
+      videoUrl: string;
+      thumbnailImageUrl?: string;
+      duration?: number;
+    } | null;
+    generationId: string | null;
+    mode: "standard" | "pro";
+    complete: boolean;
+  };
 };
 
 export type CampaignSnapshots = {
@@ -35,17 +65,16 @@ export type CampaignSnapshots = {
   brandColor: string;
   accentColor: string;
   destinationUrl: string;
+  googleDailyBudget: string;
+  metaDailyBudget: string;
   campaignStartDate: string;
   campaignEndDate: string;
 };
 
 type SupportedAdPlatforms = {
   Facebook: boolean;
-  Instagram: boolean;
   Google: boolean;
 };
-
-type InstagramSettings = Record<SocialSettingsKey, boolean>;
 
 type FacebookSettings = Record<SocialSettingsKey, boolean>;
 
@@ -55,6 +84,16 @@ type GoogleSettings = {
 
 type CreateCampaignActions = {
   storeAdsShow: (adsShow: { location: string[]; complete: boolean }) => void;
+  attachAssetsToDraft: (
+    assets: Array<{
+      assetId: string;
+      type: "image" | "video";
+      url: string;
+      thumbnailUrl?: string;
+      title?: string;
+    }>,
+  ) => void;
+  clearAttachedAssets: () => void;
   storeProductSelection: (productSelection: {
     products: ShopifyProduct[];
     complete: boolean;
@@ -73,8 +112,28 @@ type CreateCampaignActions = {
   completeAdsPlatform: () => void;
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
+  storeAdStyle: (adStyle: {
+    templateId?: string | null;
+    imageTemplateIds?: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
+    videoPreset?: {
+      id: string;
+      title: string;
+      videoUrl: string;
+      thumbnailImageUrl?: string;
+      duration?: number;
+    } | null;
+    generationId?: string | null;
+    mode?: "standard" | "pro";
+    complete?: boolean;
+  }) => void;
   getLocationCountries: () => string[];
-  toggleInstagramSettings: (setting: SocialSettingsKey) => void;
   toggleFacebookSettings: (setting: SocialSettingsKey) => void;
   reset: () => void;
 };
@@ -90,13 +149,16 @@ const initialState: CreateCampaignState = {
     location: [],
     complete: false,
   },
+  attachedAssets: {
+    assets: [],
+    complete: false,
+  },
   productSelection: {
     products: [],
     complete: false,
   },
   supportedAdPlatforms: {
     Facebook: false,
-    Instagram: false,
     Google: true,
     complete: true,
   },
@@ -112,6 +174,8 @@ const initialState: CreateCampaignState = {
     brandColor: "",
     accentColor: "",
     destinationUrl: "",
+    googleDailyBudget: "5",
+    metaDailyBudget: "5",
     campaignStartDate: new Date(new Date().setDate(new Date().getDate() + 1))
       .toISOString()
       .split("T")[0],
@@ -120,10 +184,15 @@ const initialState: CreateCampaignState = {
       .split("T")[0],
     complete: false,
   },
-  instagramSettings: {
-    staticPost: true,
-    carouselPost: true,
-    storyPost: true,
+  adStyle: {
+    templateId: null,
+    imageTemplateIds: [],
+    imagePresets: [],
+    imageAssetIdsByPresetId: {},
+    videoPreset: null,
+    generationId: null,
+    mode: "standard",
+    complete: false,
   },
   facebookSettings: {
     staticPost: true,
@@ -145,6 +214,25 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             adsShow: { ...state.adsShow, ...adsShow },
           }));
         },
+        attachAssetsToDraft: (assets) => {
+          set((state) => {
+            const byId = new Map(
+              state.attachedAssets.assets.map((a) => [a.assetId, a]),
+            );
+            for (const a of assets) {
+              byId.set(a.assetId, a);
+            }
+            return {
+              attachedAssets: {
+                assets: Array.from(byId.values()),
+                complete: true,
+              },
+            };
+          });
+        },
+        clearAttachedAssets: () => {
+          set(() => ({ attachedAssets: { assets: [], complete: false } }));
+        },
         storeSelectedPaymentMethod: (paymentMethod) => {
           set((state) => ({
             fundCampaign: {
@@ -164,22 +252,6 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             }
           });
           return countries;
-        },
-        toggleInstagramSettings: (setting: SocialSettingsKey) => {
-          const settingValue = get().instagramSettings[setting];
-          if (
-            settingValue &&
-            Object.values(get().instagramSettings).filter(Boolean).length === 1
-          ) {
-            // Prevent disabling the last enabled setting
-            return;
-          }
-          set((state) => ({
-            instagramSettings: {
-              ...state.instagramSettings,
-              [setting]: !state.instagramSettings[setting],
-            },
-          }));
         },
         toggleFacebookSettings: (setting: keyof FacebookSettings) => {
           const settingValue = get().facebookSettings[setting];
@@ -247,6 +319,14 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             },
           }));
         },
+        storeAdStyle: (adStyle) => {
+          set((state) => ({
+            adStyle: {
+              ...state.adStyle,
+              ...adStyle,
+            },
+          }));
+        },
         completeCampaignSnapshots: () => {
           set((state) => ({
             campaignSnapshots: {
@@ -264,11 +344,12 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
       name: "create-campaign-storage",
       partialize: (state) => ({
         adsShow: state.adsShow,
+        attachedAssets: state.attachedAssets,
         productSelection: state.productSelection,
         campaignSnapshots: state.campaignSnapshots,
+        adStyle: state.adStyle,
         fundCampaign: state.fundCampaign,
         supportedAdPlatforms: state.supportedAdPlatforms,
-        instagramSettings: state.instagramSettings,
         facebookSettings: state.facebookSettings,
         googleSettings: state.googleSettings,
       }),

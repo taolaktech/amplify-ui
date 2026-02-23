@@ -4,7 +4,7 @@ export type ImprovementCategory =
   | "FEATURE_REQUEST"
   | "SOMETHING_FELT_OFF";
 
-export type Platform = "GOOGLE ADS" | "FACEBOOK" | "INSTAGRAM";
+export type Platform = "GOOGLE ADS" | "FACEBOOK";
 // handle, product type, tags
 export type ShopifyProduct = {
   node: {

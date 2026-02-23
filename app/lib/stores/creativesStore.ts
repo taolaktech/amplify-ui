@@ -10,7 +10,6 @@ type Creatives = {
 
 type CreativesStore = {
   Google: Record<string, Creatives[]> | null;
-  Instagram: Record<string, Creatives[]> | null;
   Facebook: Record<string, Creatives[]> | null;
 
   actions: {
@@ -55,13 +54,12 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       },
     ],
   },
-  Instagram: null,
   Facebook: null,
   actions: {
     resetStore: () =>
-      set(() => ({ Google: null, Instagram: null, Facebook: null })),
+      set(() => ({ Google: null, Facebook: null })),
     undo: (kind: Platform, productId: string) => {
-      const { Google, Instagram, Facebook } = get();
+      const { Google, Facebook } = get();
       if (
         kind === "GOOGLE ADS" &&
         Google?.[productId] &&
@@ -69,13 +67,6 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       ) {
         Google?.[productId].pop();
         set({ Google });
-      } else if (
-        kind === "INSTAGRAM" &&
-        Instagram?.[productId] &&
-        Instagram?.[productId].length
-      ) {
-        Instagram?.[productId].pop();
-        set({ Instagram });
       } else if (
         kind === "FACEBOOK" &&
         Facebook?.[productId] &&
@@ -87,13 +78,10 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
     },
 
     generalUndo: (productId: string) => {
-      const { Google, Instagram, Facebook } = get();
+      const { Google, Facebook } = get();
       const allCreatives: Creatives[] = [];
       if (Google?.[productId]) {
         allCreatives.push(...Google[productId]);
-      }
-      if (Instagram?.[productId]) {
-        allCreatives.push(...Instagram[productId]);
       }
       if (Facebook?.[productId]) {
         allCreatives.push(...Facebook[productId]);
@@ -111,10 +99,6 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
         if (Google?.[productId] && Google?.[productId]?.length > 1)
           Google?.[productId].pop();
         set({ Google });
-      } else if (lastCreative.kind === "INSTAGRAM") {
-        if (Instagram?.[productId] && Instagram?.[productId]?.length > 1)
-          Instagram?.[productId].pop();
-        set({ Instagram });
       } else if (lastCreative.kind === "FACEBOOK") {
         if (Facebook?.[productId] && Facebook?.[productId]?.length > 1)
           Facebook?.[productId].pop();
@@ -123,10 +107,9 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
     },
 
     canUndo: (productId: string) => {
-      const { Google, Instagram, Facebook } = get();
+      const { Google, Facebook } = get();
       return !!(
         (Google?.[productId]?.length || 0) > 1 ||
-        (Instagram?.[productId]?.length || 0) > 1 ||
         (Facebook?.[productId]?.length || 0) > 1
       );
     },
@@ -137,7 +120,7 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
       creatives: any,
       generatorId: string
     ) => {
-      const { Google, Instagram, Facebook } = get();
+      const { Google, Facebook } = get();
       if (kind === "GOOGLE ADS") {
         const subGoogle = Google || {};
         if (!subGoogle[productId]) {
@@ -150,47 +133,6 @@ const useCreativesStore = create<CreativesStore>((set, get) => ({
           createdAt: new Date(),
         });
         set({ Google: subGoogle });
-      } else if (kind === "INSTAGRAM") {
-        const subInstagram = Instagram || {};
-
-        if (!subInstagram[productId]) {
-          subInstagram[productId] = [];
-        }
-
-        const foundCreative = subInstagram[productId].find(
-          (c) => c.generatorId === generatorId
-        );
-        if (
-          foundCreative &&
-          foundCreative.creatives?.length === creatives.length &&
-          creatives.length > 0
-        ) {
-          return;
-        } else if (!foundCreative && (!creatives || creatives.length === 0)) {
-          subInstagram[productId].push({
-            creatives: [],
-            kind: "INSTAGRAM",
-            createdAt: new Date(),
-            generatorId: generatorId,
-          });
-        } else if (
-          foundCreative &&
-          foundCreative.creatives?.length !== creatives.length
-        ) {
-          subInstagram[productId] = subInstagram[productId].map((c) =>
-            c.generatorId === generatorId
-              ? {
-                  creatives: creatives,
-                  kind: "INSTAGRAM",
-                  createdAt: new Date(),
-                  generatorId: generatorId,
-                }
-              : c
-          );
-        }
-
-        set({ Instagram: subInstagram });
-        return;
       } else if (kind === "FACEBOOK") {
         const subFacebook = Facebook || {};
 
