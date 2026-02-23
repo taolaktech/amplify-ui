@@ -13,7 +13,6 @@ import useCreativesStore from "@/app/lib/stores/creativesStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SuccessScreen from "@/app/ui/SuccessScreen";
-import { brandIconMap } from "@/app/ui/checkout/CustomerCards";
 import { Platform } from "@/type";
 import {
   useCampaignPageActions,

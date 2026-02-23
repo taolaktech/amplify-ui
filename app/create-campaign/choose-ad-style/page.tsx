@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import {
@@ -89,7 +90,7 @@ export default function ChooseAdStylePage() {
 
   const selectedProductNode = productSelection.products?.[0]?.node;
 
-  const mode: "standard" = "standard";
+  const mode = "standard" as const;
   const [presetType, setPresetType] = useState<"video" | "image">("video");
   const [selectedVideoTemplateId, setSelectedVideoTemplateId] = useState<
     string | null
@@ -117,8 +118,6 @@ export default function ChooseAdStylePage() {
     Record<string, boolean>
   >({});
 
-  const [page, setPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [presets, setPresets] = useState<VideoPreset[]>([]);
 
@@ -192,14 +191,11 @@ export default function ChooseAdStylePage() {
 
         const nextHasNext = Boolean(pagination?.hasNextPage);
         hasNextPageRef.current = nextHasNext;
-        setHasNextPage(nextHasNext);
 
         const nextPageValue = pagination?.page ?? nextPage;
         pageRef.current = nextPageValue;
-        setPage(nextPageValue);
       } catch (e: any) {
         setPresets([]);
-        setHasNextPage(false);
         hasNextPageRef.current = false;
         const status = e?.response?.status;
         const isNetworkError =
@@ -322,7 +318,6 @@ export default function ChooseAdStylePage() {
     setGeneratedCopy("");
 
     const productTitle = selectedProductNode?.title || "Product";
-    const productDesc = selectedProductNode?.description || "";
 
     await new Promise((r) => setTimeout(r, 1200));
 
@@ -899,12 +894,13 @@ export default function ChooseAdStylePage() {
                         <div className="absolute inset-0 bg-[#1b1b1b]" />
 
                         {previewUrl ? (
-                          <img
+                          <Image
                             src={previewUrl}
+                            alt={label}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             className="absolute inset-0 w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
                           />
                         ) : null}
 
@@ -925,7 +921,7 @@ export default function ChooseAdStylePage() {
                 <div className="col-span-full text-sm font-medium text-heading">
                   Video ad templates
                 </div>
-                {cards.map((c, idx) => {
+                {cards.map((c) => {
                   const isSelected =
                     Boolean(c.templateId) &&
                     selectedVideoTemplateId === c.templateId;
@@ -966,8 +962,12 @@ export default function ChooseAdStylePage() {
                           src={c.preset.videoUrl}
                         />
                       ) : c.preset?.thumbnailImageUrl ? (
-                        <img
+                        <Image
                           src={c.preset.thumbnailImageUrl}
+                          alt={c.label}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 768px) 100vw, 33vw"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                       ) : (

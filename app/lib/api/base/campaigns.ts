@@ -6,7 +6,6 @@ import {
 } from "../../stores/campaignsStore";
 
 import axios from "axios";
-import { topUpWallet } from "../wallet";
 
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,

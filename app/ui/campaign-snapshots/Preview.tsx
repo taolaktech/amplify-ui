@@ -9,14 +9,11 @@ import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import { useMemo } from "react";
-import IGStaticPostView from "../media-creatives/ig/StaticPostView";
-import IGCarouselPostView from "../media-creatives/ig/CarouselPostView";
 import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
 import FBCarouselPostView from "../media-creatives/facebook/CarouselPostView";
 import FBStoryPostView from "../media-creatives/facebook/StoryPostView";
 import CircleLoader from "../loaders/CircleLoader";
 import DragScrollContainer from "../DragScrollContainer";
-import StoryPostView from "../media-creatives/ig/StoryPostView";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { useRouter } from "next/navigation";
 import {
@@ -294,15 +291,6 @@ const PreviewContainer = ({
     (state) => state.uploadsByProductId[highlightedProductId] ?? EMPTY_UPLOADS,
   );
 
-  const uploadedImagePreview = useMemo(() => {
-    const img = uploaded.find((u) => u.type === "image");
-    if (!img?.previewUrl) return null;
-    return {
-      url: img.previewUrl,
-      caption: "",
-    };
-  }, [uploaded]);
-
   const uploadedVideoPreview = useMemo(() => {
     const vid = uploaded.find((u) => u.type === "video");
     if (!vid?.previewUrl) return null;
@@ -314,7 +302,9 @@ const PreviewContainer = ({
   }, [uploaded]);
 
   const showUploadedCreatives = uploaded.length > 0;
-  const assetSource = showUploadedCreatives ? ("uploaded" as const) : ("generated" as const);
+  const assetSource = showUploadedCreatives
+    ? ("uploaded" as const)
+    : ("generated" as const);
 
   const uploadedImages = useMemo(() => {
     return uploaded.filter((u) => u.type === "image" && u.previewUrl);
@@ -408,7 +398,6 @@ const PreviewContainer = ({
     facebookSettings.staticPost,
     facebookSettings.storyPost,
   ]);
-
 
   const hasMediaCreatives = useMemo(() => {
     const hasGenerated =
