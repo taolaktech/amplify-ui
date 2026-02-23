@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Button from "@/app/ui/Button";
 import SelectInput from "@/app/ui/form/SelectInput";
 import type { ShopifyProduct } from "@/type";
@@ -352,7 +353,14 @@ function derivePrimaryNiche(product?: ShopifyProduct["node"] | null) {
     },
     {
       niche: "Digital Products & Services",
-      keywords: ["digital", "software", "subscription", "course", "ebook", "service"],
+      keywords: [
+        "digital",
+        "software",
+        "subscription",
+        "course",
+        "ebook",
+        "service",
+      ],
     },
     {
       niche: "Gifts & Occasions",
@@ -367,7 +375,9 @@ function derivePrimaryNiche(product?: ShopifyProduct["node"] | null) {
   return null;
 }
 
-function generateQuickTags(product?: ShopifyProduct["node"] | null): QuickTag[] {
+function generateQuickTags(
+  product?: ShopifyProduct["node"] | null,
+): QuickTag[] {
   const tags = product?.tags || [];
   const title = product?.title || "";
   const desc = product?.description || "";
@@ -378,7 +388,11 @@ function generateQuickTags(product?: ShopifyProduct["node"] | null): QuickTag[] 
   const out: QuickTag[] = [];
 
   if (season) {
-    out.push({ id: `season-${season.toLowerCase()}`, label: season, type: "season" });
+    out.push({
+      id: `season-${season.toLowerCase()}`,
+      label: season,
+      type: "season",
+    });
   }
 
   const isGiftable =
@@ -392,10 +406,15 @@ function generateQuickTags(product?: ShopifyProduct["node"] | null): QuickTag[] 
 
   const isNew = lower.includes("new") || lower.includes("launch");
   if (isNew) {
-    out.push({ id: "occasion-new-arrival", label: "New arrival", type: "occasion" });
+    out.push({
+      id: "occasion-new-arrival",
+      label: "New arrival",
+      type: "occasion",
+    });
   }
 
-  const isBundle = lower.includes("bundle") || lower.includes("pack") || lower.includes("set");
+  const isBundle =
+    lower.includes("bundle") || lower.includes("pack") || lower.includes("set");
   if (isBundle) {
     out.push({ id: "commercial-bundle", label: "Bundle", type: "commercial" });
   }
@@ -406,18 +425,28 @@ function generateQuickTags(product?: ShopifyProduct["node"] | null): QuickTag[] 
     lower.includes("sale") ||
     lower.includes("discount");
   if (isLimited) {
-    out.push({ id: "commercial-limited-time", label: "Limited time", type: "commercial" });
+    out.push({
+      id: "commercial-limited-time",
+      label: "Limited time",
+      type: "commercial",
+    });
   }
 
   const isOutdoor =
-    lower.includes("outdoor") || lower.includes("hiking") || lower.includes("camp");
+    lower.includes("outdoor") ||
+    lower.includes("hiking") ||
+    lower.includes("camp");
   if (isOutdoor) {
     out.push({ id: "context-outdoor", label: "Outdoor", type: "context" });
   }
 
   const isMorning = lower.includes("morning") || lower.includes("routine");
   if (isMorning) {
-    out.push({ id: "context-morning", label: "Morning routine", type: "context" });
+    out.push({
+      id: "context-morning",
+      label: "Morning routine",
+      type: "context",
+    });
   }
 
   return out;
@@ -1117,7 +1146,8 @@ function seededTemplates(primaryNiche: string | null): ImageAdTemplate[] {
       name: "Black Friday (suits)",
       theme: "Offers & Urgency",
       benefit: "Drive action with limited-time incentives.",
-      previewImageUrl: "/ad-presets/placeholders/fashion-black-friday-suits.jpg",
+      previewImageUrl:
+        "/ad-presets/placeholders/fashion-black-friday-suits.jpg",
       niches: ["Fashion & Apparel", "Gifts & Occasions"],
       platforms: ["Instagram", "Facebook", "Google"],
       format: "Static",
@@ -1129,7 +1159,8 @@ function seededTemplates(primaryNiche: string | null): ImageAdTemplate[] {
       name: "Friends & family event",
       theme: "Testimonials",
       benefit: "Build trust fast with social proof and outcomes.",
-      previewImageUrl: "/ad-presets/placeholders/fashion-friends-family-event.jpg",
+      previewImageUrl:
+        "/ad-presets/placeholders/fashion-friends-family-event.jpg",
       niches: ["Fashion & Apparel", "Gifts & Occasions"],
       platforms: ["Instagram", "Facebook"],
       format: "Static",
@@ -1260,9 +1291,15 @@ export default function ImageAdsTemplatesBrowser({
     );
   }, [niche, theme, appliedQuickTagIds]);
 
-  const generatedQuickTags = useMemo(() => generateQuickTags(product), [product]);
+  const generatedQuickTags = useMemo(
+    () => generateQuickTags(product),
+    [product],
+  );
 
-  const templates = useMemo(() => seededTemplates(primaryNiche), [primaryNiche]);
+  const templates = useMemo(
+    () => seededTemplates(primaryNiche),
+    [primaryNiche],
+  );
 
   const filteredTemplates = useMemo(() => {
     return templates
@@ -1330,6 +1367,7 @@ export default function ImageAdsTemplatesBrowser({
   const TemplateCard = ({ t }: { t: ImageAdTemplate }) => {
     const selectedIndex = selectedTemplateIds.findIndex((id) => id === t.id);
     const isSelected = selectedIndex >= 0;
+    const [hasPreviewError, setHasPreviewError] = useState(false);
     const previewUrl = isShopifyCdnUrl(t.previewImageUrl)
       ? t.previewImageUrl
       : undefined;
@@ -1348,13 +1386,15 @@ export default function ImageAdsTemplatesBrowser({
       >
         <div className="absolute inset-0 bg-[#F3EFF6]" />
 
-        {previewUrl ? (
-          <img
+        {previewUrl && !hasPreviewError ? (
+          <Image
             src={previewUrl}
+            alt={t.name}
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 33vw"
             className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
+            onError={() => setHasPreviewError(true)}
           />
         ) : null}
 
@@ -1391,7 +1431,9 @@ export default function ImageAdsTemplatesBrowser({
           <SelectInput
             options={ALL_NICHES}
             label="Niche"
-            placeholder={primaryNiche ? `Suggested: ${primaryNiche}` : "Select niche"}
+            placeholder={
+              primaryNiche ? `Suggested: ${primaryNiche}` : "Select niche"
+            }
             selected={niche}
             setSelected={(v: string) => setNiche(v)}
             background="#ffffff"
@@ -1408,7 +1450,8 @@ export default function ImageAdsTemplatesBrowser({
 
         <div className="flex items-center justify-between">
           <div className="text-xs text-neutral-light">
-            Filtering{niche ? ` • ${niche}` : ""}{theme ? ` • ${theme}` : ""}
+            Filtering{niche ? ` • ${niche}` : ""}
+            {theme ? ` • ${theme}` : ""}
           </div>
           <div className="text-xs text-neutral-light">
             Selected {selectedTemplateIds.length}/5

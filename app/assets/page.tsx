@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import FolderOpenIcon from "@/public/folder-open.svg";
 import Button from "@/app/ui/Button";
 import CloseIcon from "@/public/close-circle.svg";
@@ -165,9 +166,12 @@ function PreviewModal({
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="w-full rounded-2xl overflow-hidden bg-[#F6F6F6] flex items-center justify-center min-h-[280px]">
             {asset.type === "image" && asset.url && (
-              <img
+              <Image
                 src={asset.url}
                 alt={asset.productName || "Asset"}
+                width={640}
+                height={640}
+                unoptimized
                 className="w-full h-full object-contain"
               />
             )}
@@ -316,18 +320,24 @@ function AssetCard({
         className="w-full h-[180px] bg-[#F6F6F6] flex items-center justify-center relative"
       >
         {asset.type === "image" && asset.url && (
-          <img
+          <Image
             src={asset.url}
             alt={asset.productName || "Asset"}
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 360px"
             className="w-full h-full object-cover"
           />
         )}
         {asset.type === "video" && (
           <div className="w-full h-full relative flex items-center justify-center">
             {asset.thumbnailUrl ? (
-              <img
+              <Image
                 src={asset.thumbnailUrl}
                 alt={asset.productName || "Video"}
+                fill
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 360px"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -481,10 +491,7 @@ export default function AssetLibraryPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [assets]);
 
-  const toggleMulti = (
-    current: string[],
-    value: string,
-  ): string[] => {
+  const toggleMulti = (current: string[], value: string): string[] => {
     if (current.includes(value)) return current.filter((v) => v !== value);
     return [...current, value];
   };
@@ -502,7 +509,8 @@ export default function AssetLibraryPage() {
       setToast({
         type: "error",
         title: "Missing product",
-        message: "This saved asset is missing a product. Please save again from a campaign flow.",
+        message:
+          "This saved asset is missing a product. Please save again from a campaign flow.",
       });
       return;
     }
@@ -516,7 +524,8 @@ export default function AssetLibraryPage() {
       setToast({
         type: "error",
         title: "Product not loaded",
-        message: "Please open Create Campaign and select this product first, then try again.",
+        message:
+          "Please open Create Campaign and select this product first, then try again.",
       });
       return;
     }
@@ -560,9 +569,7 @@ export default function AssetLibraryPage() {
     <div className="pb-10">
       <div className="flex gap-1 items-center">
         <FolderOpenIcon width={24} height={24} />
-        <h1 className="text-lg tracking-250 heading font-bold">
-          Saved Ads
-        </h1>
+        <h1 className="text-lg tracking-250 heading font-bold">Saved Ads</h1>
       </div>
       <p className="text-sm tracking-60 text-[#555456]">
         View and manage saved images and videos across campaigns
@@ -686,7 +693,9 @@ export default function AssetLibraryPage() {
                   type="date"
                   value={filters.dateFrom || ""}
                   onChange={(e) =>
-                    actions.setFilters({ dateFrom: e.target.value || undefined })
+                    actions.setFilters({
+                      dateFrom: e.target.value || undefined,
+                    })
                   }
                   className="px-4 mt-2 block w-full h-[40px] border-[1.2px] border-input-border rounded-lg text-sm focus:outline-0 focus:border-[#A755FF]"
                 />

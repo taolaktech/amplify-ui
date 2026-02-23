@@ -323,7 +323,7 @@ export default function UploadMetaCreative({
 
       const nextMeta = await extractVideoMeta(picked);
       setMeta(nextMeta);
-    } catch (err) {
+    } catch {
       setFile(null);
       setMeta({});
       setRawImageDims({});
