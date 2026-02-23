@@ -6,6 +6,22 @@ const instance = axios.create({
 
 export type AssetType = "image" | "video";
 
+export type AssetStatus = "pending" | "completed" | "failed";
+
+export type Asset = {
+  _id: string;
+  type: AssetType;
+  status: AssetStatus;
+  source?: string;
+  url?: string;
+  thumbnailUrl?: string;
+  duration?: number;
+  resolution?: string;
+  promptUsed?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type ListAssetsResponse = {
   status: "success";
   message: string;
@@ -27,6 +43,97 @@ export async function listAssets(data: {
       ...(type && { type }),
     },
   });
+
+  return response.data;
+}
+
+export type GenerateImageDto = {
+  productName: string;
+  imagePresetId?: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  headline: string;
+  bodyCopy: string;
+  cta?: string;
+};
+
+export type GenerateImageResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export async function generateImageAsset(data: {
+  token: string;
+  dto: GenerateImageDto;
+}) {
+  const response = await instance.post<GenerateImageResponse>(
+    "/assets/generate-image",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export type RegenerateImageDto = {
+  assetId: string;
+  productName: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  headline: string;
+  bodyCopy: string;
+  cta?: string;
+};
+
+export type RegenerateImageResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export async function regenerateImageAsset(data: {
+  token: string;
+  dto: RegenerateImageDto;
+}) {
+  const response = await instance.post<RegenerateImageResponse>(
+    "/assets/regenerate-image",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export type GetAssetResponse = {
+  status: "success";
+  message: string;
+  data: Asset;
+};
+
+export async function getAssetById(data: { token: string; assetId: string }) {
+  const response = await instance.get<GetAssetResponse>(
+    `/assets/${data.assetId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
 
   return response.data;
 }

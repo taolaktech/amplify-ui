@@ -39,6 +39,13 @@ type CreateCampaignState = {
   adStyle: {
     templateId: string | null;
     imageTemplateIds: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
     videoPreset: {
       id: string;
       title: string;
@@ -108,6 +115,13 @@ type CreateCampaignActions = {
   storeAdStyle: (adStyle: {
     templateId?: string | null;
     imageTemplateIds?: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
     videoPreset?: {
       id: string;
       title: string;
@@ -173,6 +187,8 @@ const initialState: CreateCampaignState = {
   adStyle: {
     templateId: null,
     imageTemplateIds: [],
+    imagePresets: [],
+    imageAssetIdsByPresetId: {},
     videoPreset: null,
     generationId: null,
     mode: "standard",
