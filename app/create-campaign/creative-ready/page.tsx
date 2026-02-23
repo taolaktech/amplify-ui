@@ -188,6 +188,9 @@ export default function CreativeReadyPage() {
     assetId: string;
     signal: AbortSignal;
   }): Promise<Asset> => {
+    const startedAt = Date.now();
+    const timeoutMs = 5 * 60 * 1000;
+    let delayMs = 1500;
     while (true) {
       if (args.signal.aborted) {
         throw new Error("Polling aborted");
@@ -200,11 +203,22 @@ export default function CreativeReadyPage() {
       const asset = res?.data;
       const status = asset?.status;
 
-      if (status && status !== "pending") {
+      if (status === "completed") {
         return asset;
       }
 
-      await new Promise((r) => setTimeout(r, 1500));
+      if (status === "failed") {
+        throw new Error("Image generation failed.");
+      }
+
+      if (Date.now() - startedAt >= timeoutMs) {
+        throw new Error(
+          "Image generation is taking longer than expected. Please try again.",
+        );
+      }
+
+      await new Promise((r) => setTimeout(r, delayMs));
+      delayMs = Math.min(delayMs + 750, 5000);
     }
   };
 
@@ -496,15 +510,9 @@ export default function CreativeReadyPage() {
 
     const productId = product?.id || "";
     const productName = product?.title || "";
-    const productDescription = product?.description || "";
     const productImages = selectedProductImages;
 
-    if (
-      !productId ||
-      !productName ||
-      !productDescription ||
-      productImages.length === 0
-    ) {
+    if (!productId || !productName || productImages.length === 0) {
       return;
     }
 
