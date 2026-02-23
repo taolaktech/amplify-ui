@@ -19,7 +19,7 @@ import {
   listMediaPresets,
   type MediaPreset,
 } from "@/app/lib/api/base/media-presets";
-import { generateImageAsset } from "@/app/lib/api/base/assets";
+import { generateImageAsset, getAssetById } from "@/app/lib/api/base/assets";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
@@ -78,6 +78,38 @@ function normalizeLabel(input?: string) {
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
+}
+
+async function pollAssetUntilReady(data: {
+  token: string;
+  assetId: string;
+  timeoutMs?: number;
+}) {
+  const timeoutMs = data.timeoutMs ?? 5 * 60 * 1000;
+  const startedAt = Date.now();
+
+  let delayMs = 2000;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const res = await getAssetById({
+      token: data.token,
+      assetId: data.assetId,
+    });
+    const status = res?.data?.status;
+    if (status === "completed") return res.data;
+    if (status === "failed") {
+      throw new Error("Asset generation failed. Please try again.");
+    }
+
+    if (Date.now() - startedAt >= timeoutMs) {
+      throw new Error(
+        "Asset generation is taking longer than expected. Please try again.",
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    delayMs = Math.min(delayMs + 1000, 5000);
+  }
 }
 
 export default function ChooseAdStylePage() {
@@ -402,7 +434,10 @@ export default function ChooseAdStylePage() {
                 const productId = selectedProductNode?.id || "";
                 const productName = selectedProductNode?.title || "";
                 const productDescription =
-                  selectedProductNode?.description || "";
+                  selectedProductNode?.description ||
+                  selectedProductNode?.productType ||
+                  selectedProductNode?.category?.name ||
+                  "";
                 const productImages =
                   selectedProductNode?.media?.edges
                     ?.filter((e: any) => {
@@ -425,7 +460,7 @@ export default function ChooseAdStylePage() {
 
                 let imageAssetIdsByPresetId: Record<string, string> = {};
                 if (selectedImagePresetIds.length > 0) {
-                  if (!productId || !productName || !productDescription) {
+                  if (!productId || !productName) {
                     setToast({
                       type: "error",
                       title: "Missing product details",
@@ -434,6 +469,11 @@ export default function ChooseAdStylePage() {
                     });
                     return;
                   }
+
+                  const safeProductDescription =
+                    productDescription.trim().length > 0
+                      ? productDescription
+                      : "—";
 
                   if (productImages.length === 0) {
                     setToast({
@@ -448,14 +488,10 @@ export default function ChooseAdStylePage() {
                   try {
                     const results = await Promise.all(
                       selectedImagePresetIds.map(async (presetId, idx) => {
-                        const rawCopy = imageCopyById[presetId] || "";
-
-                        const headlineMatch =
-                          rawCopy.match(/Headline:\s*(.*)/i);
-                        const bodyMatch = rawCopy.match(
-                          /Body:\s*([\s\S]*?)(\n\nCTA:|$)/i,
-                        );
-                        const ctaMatch = rawCopy.match(/CTA:\s*(.*)/i);
+                        const copy = imageCopyById[presetId] || "";
+                        const headlineMatch = copy.match(/Headline:\s*(.*)/i);
+                        const bodyMatch = copy.match(/Body:\s*(.*)/i);
+                        const ctaMatch = copy.match(/CTA:\s*(.*)/i);
 
                         const headline = (headlineMatch?.[1] || "").trim();
                         const bodyCopy = (bodyMatch?.[1] || "").trim();
@@ -472,7 +508,7 @@ export default function ChooseAdStylePage() {
                           dto: {
                             productId,
                             productName,
-                            productDescription,
+                            productDescription: safeProductDescription,
                             productImages,
                             imagePresetId: presetId,
                             headline,
@@ -487,6 +523,8 @@ export default function ChooseAdStylePage() {
                             `Image generation failed for image ${idx + 1}. Please try again.`,
                           );
                         }
+
+                        await pollAssetUntilReady({ token, assetId });
 
                         return { presetId, assetId };
                       }),
