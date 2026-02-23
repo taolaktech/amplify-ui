@@ -1,7 +1,7 @@
 import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 
-type Platform = "FACEBOOK" | "INSTAGRAM" | "GOOGLE ADS";
+type Platform = "FACEBOOK" | "GOOGLE ADS";
 
 type UIStore = {
   products: ShopifyProduct[];

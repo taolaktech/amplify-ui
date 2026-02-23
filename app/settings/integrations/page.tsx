@@ -17,7 +17,7 @@ import {
 } from "@/app/lib/api/integrations";
 
 export default function IntegrationLayout() {
-  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
+  const { shopifyStore, facebook, google } = useIntegrationStore(
     (state) => state
   );
   const token = useAuthStore((state) => state.token);
@@ -46,9 +46,6 @@ export default function IntegrationLayout() {
     lastStepLoading,
     integrationsAuthPlatform,
     handleLastStep,
-    selectedIGAccount,
-    setSelectedIGAccount,
-    IGAccounts,
     googleAccountChooser,
     setGoogleAccountChooser,
     googleAccounts,
@@ -111,9 +108,7 @@ export default function IntegrationLayout() {
     if (platform) {
       hasRun.current = true;
       const p = platform.toUpperCase();
-      if (p === "INSTAGRAM") {
-        handleFacebookAuth("INSTAGRAM", route);
-      } else if (p === "FACEBOOK") {
+      if (p === "FACEBOOK" || p === "INSTAGRAM") {
         handleFacebookAuth("FACEBOOK", route);
       } else if (p === "GOOGLE" || p === "GOOGLE_ADS") {
         handleGoogleAuth("GOOGLE", route);
@@ -142,7 +137,6 @@ export default function IntegrationLayout() {
 
     actions.setShopifyStoreConnected(Boolean(status?.shopify?.connected));
     actions.setGoogle(Boolean(status?.googleAds?.connected));
-    actions.setInstagram(Boolean(status?.instagram?.connected));
     actions.setFacebook(Boolean(status?.facebook?.connected));
   };
 
@@ -201,17 +195,6 @@ export default function IntegrationLayout() {
       on: google,
     },
     {
-      heading: "Instagram",
-      image: "/instagram_logo.svg",
-      writeUp:
-        "Connect your Instagram account to manage your product and orders.",
-      toggleOn: () =>
-        instagram
-          ? disconnectAndSync(IntegrationPlatform.INSTAGRAM)
-          : handleFacebookAuth("INSTAGRAM"),
-      on: instagram,
-    },
-    {
       heading: "Facebook",
       image: "/facebook.svg",
       writeUp:
@@ -262,9 +245,6 @@ export default function IntegrationLayout() {
           lastStepLoading={lastStepLoading}
           handleLastStep={handleLastStep}
           integrationsAuthPlatform={integrationsAuthPlatform}
-          selectedIGAccount={selectedIGAccount}
-          setSelectedIGAccount={setSelectedIGAccount}
-          IGAccounts={IGAccounts}
         />
       )}
 

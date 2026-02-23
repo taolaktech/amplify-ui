@@ -124,7 +124,7 @@ export const useLaunchCampaign = (
     brandColor,
     accentColor,
   } = useCreateCampaignStore((state) => state.campaignSnapshots);
-  const { Facebook, Instagram, Google } = useCreativesStore((state) => state);
+  const { Facebook, Google } = useCreativesStore((state) => state);
   const setToast = useToastStore((state) => state.setToast);
 
   const { mutate, isPending } = useMutation({
@@ -153,8 +153,6 @@ export const useLaunchCampaign = (
     const campaignPlatforms: CampaignPlatformsTitle[] = [];
     if (supportedAdPlatforms.Facebook)
       campaignPlatforms.push(CampaignPlatformsTitle.FACEBOOK);
-    if (supportedAdPlatforms.Instagram)
-      campaignPlatforms.push(CampaignPlatformsTitle.INSTAGRAM);
     if (supportedAdPlatforms.Google)
       campaignPlatforms.push(CampaignPlatformsTitle.GOOGLE);
 
@@ -180,26 +178,6 @@ export const useLaunchCampaign = (
                 title: creative?.title,
               }),
             ) || [],
-        });
-      }
-      if (supportedAdPlatforms.Instagram && Instagram?.[product.node.id]) {
-        const formatCreatives =
-          Instagram?.[product.node.id]?.[
-            Instagram?.[product.node.id].length - 1
-          ].creatives || [];
-
-        creatives.push({
-          channel: "instagram",
-          id: formatCreatives[0]?.id,
-          data: formatCreatives.map((creative: any) =>
-            JSON.stringify({
-              url: creative?.url,
-              caption: creative?.bodyText,
-              productUrl: creative?.productUrl,
-              key: creative?.key,
-            }),
-          ),
-          budget: amount / products.length / campaignPlatforms.length,
         });
       }
       if (supportedAdPlatforms.Google && Google?.[product.node.id]) {

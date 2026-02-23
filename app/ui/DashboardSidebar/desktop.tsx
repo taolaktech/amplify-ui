@@ -4,11 +4,12 @@ import DashboardLogoIcon from "@/public/dashboard-logo.svg";
 import ArrowLeftIcon from "@/public/arrow-left.svg";
 import DefaultButton from "../Button";
 import BuildingGradient from "@/public/building-gradient.svg";
+import FolderOpenGrad from "@/public/folder-open.svg";
 import {
   Add,
   AddSquare,
   Building3,
-  CalendarEdit,
+  FolderOpen,
   // Data2,
   HomeTrendUp,
   LogoutCurve,
@@ -20,20 +21,18 @@ import HomeTrendUpGrad from "@/public/home-trend-up.svg";
 // import { DashboardCompanyLinks } from "../DashboardCompanyLinks";
 import Link from "next/link";
 // import { useRouter } from "next/navigation";
-import CalenderEditGrad from "@/public/calendar-edit.svg";
 import Feedback from "../Feedback";
 import SettingsIcon from "@/public/setting-2.svg";
 import { SettingsSideBar } from "../SettingsNav";
 import SelectArrow from "../SelectArrow";
 import { CompanySideBar } from "../CompanyNav";
-import { useCampaignPageActions } from "@/app/lib/hooks/campaigns";
 type DesktopSideBarProps = {
   isSidebarOpen: boolean;
   handleToggleSidebar: () => void;
   handleLogout: () => void;
   isDashboard: boolean;
   isInsights: boolean;
-  isCampaigns: boolean;
+  isAssets: boolean;
   isStoreDetails: boolean;
   isCompany: boolean;
   isSupport: boolean;
@@ -53,7 +52,7 @@ export default function DesktopSideBar({
   handleToggleSidebar,
   handleLogout,
   isDashboard,
-  isCampaigns,
+  isAssets,
   isStoreDetails,
   isCompanyTabOpen,
   isBrandAssets,
@@ -67,8 +66,6 @@ export default function DesktopSideBar({
   toggleIsCompanyTabOpen,
 }: DesktopSideBarProps) {
   // const router = useRouter();
-  const { navigateToCampaignPage } = useCampaignPageActions();
-
   return (
     <>
       <div
@@ -155,30 +152,28 @@ export default function DesktopSideBar({
             </li>
 
             <li>
-              <button
-                onClick={navigateToCampaignPage}
-                className={`flex items-center rounded-xl  gap-2 w-full ${
+              <Link
+                href="/assets"
+                className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
                   isSidebarOpen ? "px-4" : "justify-center"
                 } h-[48px] cursor-pointer ${
-                  isCampaigns
-                    ? "bg-[#F3EFF6] hover:bg-[#f3eff6]"
-                    : "hover:bg-[#fdfcfd]"
+                  isAssets ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
                 }`}
               >
                 <span>
-                  {!isCampaigns && <CalendarEdit size="24" color="#BFBFBF" />}
-                  {isCampaigns && <CalenderEditGrad width="24" height="24" />}
+                  {!isAssets && <FolderOpen size="24" color="#BFBFBF" />}
+                  {isAssets && <FolderOpenGrad width="24" height="24" />}
                 </span>
                 {isSidebarOpen && (
                   <span
                     className={`text-sm font-medium ${
-                      isCampaigns ? "text-heading" : "text-gray-dark"
+                      isAssets ? "text-heading" : "text-gray-dark"
                     }`}
                   >
-                    Campaigns
+                    Saved Ads
                   </span>
                 )}
-              </button>
+              </Link>
             </li>
 
             <li>

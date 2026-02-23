@@ -45,6 +45,7 @@ export default function RootLayout({
         />
         <Script
           src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
+          async
           strategy="afterInteractive"
         />
         <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet" />

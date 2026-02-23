@@ -32,7 +32,7 @@ export default function Steps2() {
   const router = useRouter();
   const token = useAuthStore((state) => state.token);
 
-  const { shopifyStore, instagram, facebook, google } = useIntegrationStore(
+  const { shopifyStore, facebook, google } = useIntegrationStore(
     (state) => state
   );
   const integrationActions = useIntegrationStore((state) => state.actions);
@@ -53,7 +53,6 @@ export default function Steps2() {
           Boolean(status.shopify?.connected)
         );
         integrationActions.setGoogle(Boolean(status.googleAds?.connected));
-        integrationActions.setInstagram(Boolean(status.instagram?.connected));
         integrationActions.setFacebook(Boolean(status.facebook?.connected));
       } catch (e) {
         console.error("Failed to sync integrations status:", e);
@@ -68,8 +67,6 @@ export default function Steps2() {
       step += 1;
     }
     if (google) step += 1;
-    if (instagram) step += 1;
-
     if (facebook) step += 1;
 
     if (isSetupComplete) step += 1;
@@ -78,7 +75,6 @@ export default function Steps2() {
     isSetupComplete,
     link,
     google,
-    instagram,
     facebook,
     primaryLogo,
     // brandGuide,
@@ -100,12 +96,12 @@ export default function Steps2() {
         <h2 className="font-medium md:text-xl">Complete your Setup</h2>
         <div className="flex flex-row mt-2 items-center flex-shrink-0">
           <div className="text-xs font-medium text-[#787779] w-[70px]">
-            {step} / 5 Steps
+            {step} / 4 Steps
           </div>
           <div className="w-full bg-[#E6E6E6] h-[3px] rounded-[2.5px]">
             <div
               style={{
-                width: `${(step / 5) * 100}%`,
+                width: `${(step / 4) * 100}%`,
                 backgroundColor: "#27AE60",
                 borderRadius: 2.5,
                 height: 3,
@@ -123,11 +119,6 @@ export default function Steps2() {
             text="Connect your Google Ads account"
             connected={google}
             action={() => handleGoogleAuth("GOOGLE")}
-          />
-          <StepsItem
-            text="Connect your Instagram account"
-            connected={instagram}
-            action={() => handleFacebookAuth("INSTAGRAM")}
           />
           <StepsItem
             text="Connect your Facebook account"

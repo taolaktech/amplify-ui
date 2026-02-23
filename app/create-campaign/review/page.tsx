@@ -25,7 +25,6 @@ export default function ReviewPage() {
   const {
     productSelection,
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     campaignSnapshots,
@@ -36,7 +35,7 @@ export default function ReviewPage() {
   );
   const [adPlatforms, setAdPlatforms] = useState<
     {
-      title: "Instagram" | "Facebook" | "Google";
+      title: "Facebook" | "Google";
       platform: Platform;
       image: string;
       settings: any;
@@ -47,7 +46,7 @@ export default function ReviewPage() {
   const { handleLaunchCampaign, isPending } =
     useLaunchCampaign(setIsLaunchCampaign);
   const router = useRouter();
-  const { Google, Instagram, Facebook } = useCreativesStore((state) => state);
+  const { Google, Facebook } = useCreativesStore((state) => state);
   const [highlightedProduct, setHighlightedProduct] = useState<any | null>(
     productSelection.products[0] ?? null,
   );
@@ -59,10 +58,10 @@ export default function ReviewPage() {
   }, [productSelection]);
 
   useEffect(() => {
-    if (!fundCampaign.complete) {
+    if (!campaignSnapshots.complete) {
       router.push("/create-campaign/");
     }
-  }, []);
+  }, [campaignSnapshots.complete, router]);
 
   const formattedStartDate = format(
     parseISO(campaignSnapshots.campaignStartDate || new Date().toISOString()),
@@ -82,48 +81,40 @@ export default function ReviewPage() {
       .filter(
         (platform) =>
           platform !== "complete" &&
+          platform !== "Instagram" &&
           supportedAdPlatforms[platform as keyof typeof supportedAdPlatforms],
       )
       .map((platform) => ({
-        title: platform as "Instagram" | "Facebook" | "Google",
+        title: platform as "Facebook" | "Google",
         platform:
           platform === "Google"
             ? "GOOGLE ADS"
             : (platform.toUpperCase() as Platform),
         image: `/${platform.toLowerCase()}_logo.svg`,
         settings: {
-          ...(platform === "Instagram"
-            ? instagramSettings
-            : platform === "Facebook"
-              ? facebookSettings
-              : googleSettings),
+          ...(platform === "Facebook" ? facebookSettings : googleSettings),
         },
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
             ? (Google?.[highlightedProduct.node.id] ?? [])
-            : platform === "Instagram"
-              ? (Instagram?.[highlightedProduct.node.id] ?? [])
-              : platform === "Facebook"
-                ? (Facebook?.[highlightedProduct.node.id] ?? [])
-                : []
+            : platform === "Facebook"
+              ? (Facebook?.[highlightedProduct.node.id] ?? [])
+              : []
           : [],
       }))
       .sort((a, b) => {
-        const order = { Google: 0, Instagram: 1, Facebook: 2 };
+        const order = { Google: 0, Facebook: 1 };
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
   }, [
     supportedAdPlatforms,
-    instagramSettings,
     facebookSettings,
     googleSettings,
     highlightedProduct?.node.id,
     Google,
+    Facebook,
   ]);
-
-  const isOnlyGoogle =
-    adPlatforms.length === 1 && adPlatforms[0].title === "Google";
 
   if (isLaunchCampaign) {
     return (
@@ -213,11 +204,9 @@ export default function ReviewPage() {
                 <div key={platform.title} className="flex items-center gap-1">
                   <Image
                     src={
-                      platform.title === "Instagram"
-                        ? "/instagram_logo.svg"
-                        : platform.title === "Facebook"
-                          ? "/facebook_logo.svg"
-                          : "/google_ads-icon.svg"
+                      platform.title === "Facebook"
+                        ? "/facebook_logo.svg"
+                        : "/google_ads-icon.svg"
                     }
                     alt={platform.title}
                     width={20}
@@ -249,14 +238,6 @@ export default function ReviewPage() {
 
           <div className="mt-8 flex gap-12 items-center flex-shrink-0 flex-wrap">
             <div>
-              <p className="text-[#595959] text-sm tracking-200">
-                Campaign Type
-              </p>
-              <p className="text-[#555456] font-medium tracking-250">
-                {campaignSnapshots.campaignType || "Product Launch"}
-              </p>
-            </div>
-            <div>
               <p className="text-[#595959] text-sm tracking-200">Start Date</p>
               <p className="text-[#555456] font-medium tracking-250">
                 {formattedStartDate}
@@ -268,25 +249,6 @@ export default function ReviewPage() {
                 {formattedEndDate}
               </p>
             </div>
-            {!isOnlyGoogle && (
-              <div className="flex items-center gap-2">
-                <p className="text-xs tracking-200">Brand Colors</p>
-                <div className="h-[48px] rounded-[50px] flex items-center flex-shrink-0 p-3 justify-center gap-2 bg-[rgba(232,232,232,0.5)]">
-                  <div className="cursor-pointer h-6 w-6 bg-[rgba(105,34,209,0.2)] rounded-full flex items-center justify-center">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: campaignSnapshots.brandColor }}
-                    ></div>
-                  </div>
-                  <div className="cursor-pointer h-6 w-6 bg-[rgba(232,232,232,0.35)] rounded-full flex items-center justify-center">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: campaignSnapshots.accentColor }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </section>
 
@@ -300,56 +262,58 @@ export default function ReviewPage() {
           />
         </section>
 
-        <section className="mt-14">
-          <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
-            <h3 className="text-heading md:text-lg font-medium ">
-              Campaign Fund
-            </h3>
-            <Link
-              href={"/create-campaign/fund-campaign"}
-              className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
-            >
-              <EditIcon width={16} height={16} />
-              <span className="text-heading tracking-100 text-sm font-medium">
-                Edit
-              </span>
-            </Link>
-          </div>
-
-          <div className="py-8 flex items-center gap-12 border-b-[0.5px] border-[#BFBFBF]">
-            <div className="flex flex-col gap-1 h-[60px]">
-              <p className="text-[#595959] text-sm tracking-200">
-                Amount Funded
-              </p>
-              <p className="text-[#555456] font-medium tracking-250">
-                ${fundCampaign.amount || "0"}
-              </p>
+        {fundCampaign.complete && (
+          <section className="mt-14">
+            <div className="mt-12 flex justify-between items-center pb-6 border-b-[0.5px] border-[#BFBFBF]">
+              <h3 className="text-heading md:text-lg font-medium ">
+                Campaign Fund
+              </h3>
+              <Link
+                href={"/create-campaign/fund-campaign"}
+                className="w-[88px] h-[40px] border border-[#D0B0F3] rounded-[34px] flex items-center justify-center gap-2"
+              >
+                <EditIcon width={16} height={16} />
+                <span className="text-heading tracking-100 text-sm font-medium">
+                  Edit
+                </span>
+              </Link>
             </div>
-            {/*  <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
-              <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
-                <Image
-                  src={
-                    brandIconMap[
-                      fundCampaign.cardDetails?.cardBrand.toLowerCase() ||
-                        "unknown"
-                    ]
-                  }
-                  alt={fundCampaign.cardDetails?.cardBrand || ""}
-                  width={48}
-                  height={48}
-                />
+
+            <div className="py-8 flex items-center gap-12 border-b-[0.5px] border-[#BFBFBF]">
+              <div className="flex flex-col gap-1 h-[60px]">
+                <p className="text-[#595959] text-sm tracking-200">
+                  Amount Funded
+                </p>
+                <p className="text-[#555456] font-medium tracking-250">
+                  ${fundCampaign.amount || "0"}
+                </p>
               </div>
-              <div className="flex flex-col gap-1 justify-between">
-                <div className="text-[#595959] text-sm tracking-200">
-                  Credit Card
+              {/*  <div className="flex items-center gap-4 flex-shrink-0 h-[60px]">
+                <div className="w-[48px] h-[48px] flex items-center justify-center md:w-[64px] md:h-[64px] rounded-full bg-[rgba(230,230,230,0.25)]">
+                  <Image
+                    src={
+                      brandIconMap[
+                        fundCampaign.cardDetails?.cardBrand.toLowerCase() ||
+                          "unknown"
+                      ]
+                    }
+                    alt={fundCampaign.cardDetails?.cardBrand || ""}
+                    width={48}
+                    height={48}
+                  />
                 </div>
-                <div className="font-medium tracking-250 leading-tight text-sm ">
-                  **** **** **** {fundCampaign.cardDetails?.last4Numbers}
+                <div className="flex flex-col gap-1 justify-between">
+                  <div className="text-[#595959] text-sm tracking-200">
+                    Credit Card
+                  </div>
+                  <div className="font-medium tracking-250 leading-tight text-sm ">
+                    **** **** **** {fundCampaign.cardDetails?.last4Numbers}
+                  </div>
                 </div>
-              </div>
-            </div> */}
-          </div>
-        </section>
+              </div> */}
+            </div>
+          </section>
+        )}
         <div className="mt-5 md:mt-20 sm:max-w-[242px] mx-auto">
           <Button
             text="Launch Campaign"

@@ -5,7 +5,6 @@ import {
   facebookCallback,
   getAdPagesForAdAccount,
   googleCallback,
-  instagramAuth,
   selectFacebookPrimaryAdAccount,
   selectGooglePrimaryCustomerAccount,
   // testAdPagesForAdAccount,
@@ -18,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCreateCampaignStore } from "../stores/createCampaignStore";
 
-export type IntegrationsAuthPlatform = "FACEBOOK" | "INSTAGRAM" | "GOOGLE";
+export type IntegrationsAuthPlatform = "FACEBOOK" | "GOOGLE";
 
 export default function useIntegrationsAuth() {
   const token = useAuthStore((state) => state.token);
@@ -26,7 +25,7 @@ export default function useIntegrationsAuth() {
   const actions = useIntegrationStore((state) => state.actions);
   const [loading, setLoading] = useState(false);
   const [fetchingProgress, setFetchingProgress] = useState(20);
-  const { facebook, instagram, google } = useIntegrationStore((state) => state);
+  const { facebook, google } = useIntegrationStore((state) => state);
   const [subText, setSubText] = useState("");
   const [metaPages, setMetaPages] = useState<any[]>([]);
   const [callbackPages, setCallbackPages] = useState<any[]>([]);
@@ -35,8 +34,6 @@ export default function useIntegrationsAuth() {
   const [metaAccounts, setMetaAccounts] = useState<any[]>([]);
   const [selectedAdAccount, setSelectedAdAccount] = useState<any>(null);
   const [metaPagesLoading, setMetaPagesLoading] = useState(false);
-  const [selectedIGAccount, setSelectedIGAccount] = useState<any>(null);
-  const [IGAccounts, setIGAccounts] = useState<any[]>([]);
   const [selectedGoogleCustomerAccount, setSelectedGoogleCustomerAccount] =
     useState<string | null>(null);
   const [googleAccounts, setGoogleAccounts] = useState<string[]>([]);
@@ -59,11 +56,7 @@ export default function useIntegrationsAuth() {
     onMutate: () => {
       setFetchingProgress(40);
       setLoading(true);
-      if (integrationsAuthPlatform === "INSTAGRAM") {
-        setSubText("Finalizing Instagram authentication...");
-      } else {
-        setSubText("Finalizing Facebook authentication...");
-      }
+      setSubText("Finalizing Facebook authentication...");
     },
     onSuccess: (data) => {
       console.log("Facebook callback data:", data);
@@ -79,18 +72,10 @@ export default function useIntegrationsAuth() {
           _id: p?.id,
         }));
         setCallbackPages(normalizedPages);
-
-        if (integrationsAuthPlatform === "INSTAGRAM") {
-          setSelectedIGAccount(data.data.instagramAccounts[0] || null);
-          setIGAccounts(data.data.instagramAccounts || []);
-        }
         setSelectedAdAccount(data.data.adAccounts[0] || null);
         setMetaAccounts(data.data.adAccounts || []);
-
-        if (integrationsAuthPlatform === "FACEBOOK") {
-          setMetaPages(normalizedPages);
-          setSelectedMetaPage(normalizedPages[0] || null);
-        }
+        setMetaPages(normalizedPages);
+        setSelectedMetaPage(normalizedPages[0] || null);
         setMetaAccountChooser(true);
         setFetchingProgress(20);
       }, 1500);
@@ -175,15 +160,10 @@ export default function useIntegrationsAuth() {
     onSuccess: (data) => {
       console.log(data);
       setMetaAccountChooser(false);
-      const isFacebook = integrationsAuthPlatform === "FACEBOOK";
-      if (isFacebook) actions.toggleFacebook();
-      else actions.toggleInstagram();
+      actions.toggleFacebook();
       const route = localStorage.getItem("integration-route");
       if (route) {
-        console.log("isFacebook: ", isFacebook);
-        if (isFacebook) setAdsPlatform("Facebook", true);
-        else setAdsPlatform("Instagram", true);
-
+        setAdsPlatform("Facebook", true);
         router.push(`/create-campaign/supported-ad-platforms`);
       }
     },
@@ -198,17 +178,11 @@ export default function useIntegrationsAuth() {
   });
 
   const handleLastStep = (metaPixelId?: string) => {
-    const isFacebook = integrationsAuthPlatform === "FACEBOOK";
-
-    if (!token || !selectedAdAccount || (isFacebook && !selectedMetaPage))
-      return;
+    if (!token || !selectedAdAccount || !selectedMetaPage) return;
     fbAdAccSelectionMutation.mutate({
       adAccountId: selectedAdAccount.id,
-      pageId: isFacebook ? selectedMetaPage.pageId : selectedIGAccount.pageId,
+      pageId: selectedMetaPage.pageId,
       ...(metaPixelId ? { metaPixelId } : {}),
-      ...(isFacebook
-        ? {}
-        : { instagramAccountId: selectedIGAccount?.id || null }),
       token,
     });
   };
@@ -268,7 +242,7 @@ export default function useIntegrationsAuth() {
   };
 
   const handleFacebookAuth = async (
-    platform: "FACEBOOK" | "INSTAGRAM",
+    platform: "FACEBOOK",
     route?: string | null,
   ) => {
     if (route) localStorage.setItem("integration-route", "create-campaign");
@@ -283,10 +257,6 @@ export default function useIntegrationsAuth() {
       actions.toggleFacebook();
       return;
     }
-    if (instagram && platform === "INSTAGRAM") {
-      actions.toggleInstagram();
-      return;
-    }
     if (!token) {
       return;
     }
@@ -294,12 +264,7 @@ export default function useIntegrationsAuth() {
     try {
       localStorage.setItem("integrations_auth_platform", platform);
       setLoading(true);
-      let data: any = null;
-      if (platform === "FACEBOOK") {
-        data = await facebookAuth({ token });
-      } else if (platform === "INSTAGRAM") {
-        data = await instagramAuth({ token });
-      }
+      const data = await facebookAuth({ token });
       console.log(`${platform.toLowerCase()} data`, data);
       setFetchingProgress(40);
       window.location.href = data.data.oauthUrl;
@@ -386,8 +351,5 @@ export default function useIntegrationsAuth() {
     lastStepLoading: fbAdAccSelectionMutation.isPending,
     integrationsAuthPlatform,
     handleLastStep,
-    selectedIGAccount,
-    setSelectedIGAccount,
-    IGAccounts,
   };
 }
