@@ -34,7 +34,8 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
 
   const latestMediaCreatives = useMemo(() => {
     const productId = highlightedProductId;
-    const facebookSet = Facebook?.[productId]?.[Facebook?.[productId]?.length - 1];
+    const facebookSet =
+      Facebook?.[productId]?.[Facebook?.[productId]?.length - 1];
     const fbCreatives: any[] = Array.isArray(facebookSet?.creatives)
       ? facebookSet.creatives
       : [];
@@ -78,7 +79,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
         type,
       });
       setAssets(Array.isArray(result?.data) ? result.data : []);
-    } catch (err) {
+    } catch {
       setToast({
         type: "error",
         title: "Could not load assets",
@@ -119,7 +120,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
         message: "This image is now available in Saved Ads.",
       });
       await refreshAssets("image");
-    } catch (err) {
+    } catch {
       setToast({
         type: "error",
         title: "Save failed",
@@ -159,7 +160,7 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
         message: "This video is now available in Saved Ads.",
       });
       await refreshAssets("video");
-    } catch (err) {
+    } catch {
       setToast({
         type: "error",
         title: "Upload failed",
@@ -210,7 +211,9 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
         {activeTab === "images" && (
           <div className="mt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-heading">Generated Images</p>
+              <p className="text-sm font-medium text-heading">
+                Generated Images
+              </p>
               {isLoadingAssets && (
                 <p className="text-xs text-neutral-light">Loading…</p>
               )}
@@ -338,8 +341,12 @@ export default function CreativeAssetsPanel({ highlightedProductId }: Props) {
                             </div>
                             <div className="flex-1">
                               <div className="text-xs text-[#9B9B9B]">
-                                {video?.duration ? `${Math.round(video.duration)}s` : ""}
-                                {video?.duration && video?.resolution ? " • " : ""}
+                                {video?.duration
+                                  ? `${Math.round(video.duration)}s`
+                                  : ""}
+                                {video?.duration && video?.resolution
+                                  ? " • "
+                                  : ""}
                                 {video?.resolution ? video.resolution : ""}
                               </div>
                               <div className="mt-1 text-xs font-medium text-[#4CAF50]">

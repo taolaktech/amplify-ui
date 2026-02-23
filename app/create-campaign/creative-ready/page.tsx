@@ -14,11 +14,7 @@ import {
   type AssetFormat,
   type AssetPlatform,
 } from "@/app/lib/stores/assetLibraryStore";
-import {
-  generateImageAsset,
-  getAssetById,
-  type Asset,
-} from "@/app/lib/api/base/assets";
+import { getAssetById, type Asset } from "@/app/lib/api/base/assets";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
 
 type ReadyCreative = {
@@ -1032,8 +1028,12 @@ export default function CreativeReadyPage() {
                     {activeCreativeIsPending ? (
                       <LoaderFrame />
                     ) : (
-                      <img
+                      <Image
                         src={activeCreativeDisplayUrl}
+                        alt={activeCreative.title}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 720px"
                         className="absolute inset-0 w-full h-full object-contain bg-[#111]"
                       />
                     )}
@@ -1131,8 +1131,12 @@ export default function CreativeReadyPage() {
                               <div className="w-5 h-5 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
                             </div>
                           ) : thumbSrc ? (
-                            <img
+                            <Image
                               src={thumbSrc}
+                              alt={c.title}
+                              width={72}
+                              height={72}
+                              unoptimized
                               className={`w-full h-full object-cover ${
                                 c.type === "video" ? "brightness-75" : ""
                               }`}
@@ -1352,8 +1356,12 @@ export default function CreativeReadyPage() {
           <div className="fixed inset-0 z-30 p-6 flex items-center justify-center">
             <div className="max-w-[720px] w-full">
               <div className="relative rounded-3xl overflow-hidden bg-[#111]">
-                <img
+                <Image
                   src={activeCreative.url}
+                  alt={activeCreative.title}
+                  width={720}
+                  height={1280}
+                  unoptimized
                   className="w-full h-full object-contain max-h-[80vh]"
                 />
               </div>
