@@ -19,7 +19,7 @@ import {
   listMediaPresets,
   type MediaPreset,
 } from "@/app/lib/api/base/media-presets";
-import { generateImageAsset } from "@/app/lib/api/base/assets";
+import { generateImageAsset, getAssetById } from "@/app/lib/api/base/assets";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
@@ -78,6 +78,38 @@ function normalizeLabel(input?: string) {
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
+}
+
+async function pollAssetUntilReady(data: {
+  token: string;
+  assetId: string;
+  timeoutMs?: number;
+}) {
+  const timeoutMs = data.timeoutMs ?? 5 * 60 * 1000;
+  const startedAt = Date.now();
+
+  let delayMs = 2000;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const res = await getAssetById({
+      token: data.token,
+      assetId: data.assetId,
+    });
+    const status = res?.data?.status;
+    if (status === "completed") return res.data;
+    if (status === "failed") {
+      throw new Error("Asset generation failed. Please try again.");
+    }
+
+    if (Date.now() - startedAt >= timeoutMs) {
+      throw new Error(
+        "Asset generation is taking longer than expected. Please try again.",
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    delayMs = Math.min(delayMs + 1000, 5000);
+  }
 }
 
 export default function ChooseAdStylePage() {
@@ -491,6 +523,8 @@ export default function ChooseAdStylePage() {
                             `Image generation failed for image ${idx + 1}. Please try again.`,
                           );
                         }
+
+                        await pollAssetUntilReady({ token, assetId });
 
                         return { presetId, assetId };
                       }),
