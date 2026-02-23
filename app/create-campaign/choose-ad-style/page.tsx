@@ -402,7 +402,10 @@ export default function ChooseAdStylePage() {
                 const productId = selectedProductNode?.id || "";
                 const productName = selectedProductNode?.title || "";
                 const productDescription =
-                  selectedProductNode?.description || "";
+                  selectedProductNode?.description ||
+                  selectedProductNode?.productType ||
+                  selectedProductNode?.category?.name ||
+                  "";
                 const productImages =
                   selectedProductNode?.media?.edges
                     ?.filter((e: any) => {
@@ -425,7 +428,7 @@ export default function ChooseAdStylePage() {
 
                 let imageAssetIdsByPresetId: Record<string, string> = {};
                 if (selectedImagePresetIds.length > 0) {
-                  if (!productId || !productName || !productDescription) {
+                  if (!productId || !productName) {
                     setToast({
                       type: "error",
                       title: "Missing product details",
@@ -434,6 +437,11 @@ export default function ChooseAdStylePage() {
                     });
                     return;
                   }
+
+                  const safeProductDescription =
+                    productDescription.trim().length > 0
+                      ? productDescription
+                      : "—";
 
                   if (productImages.length === 0) {
                     setToast({
@@ -448,14 +456,10 @@ export default function ChooseAdStylePage() {
                   try {
                     const results = await Promise.all(
                       selectedImagePresetIds.map(async (presetId, idx) => {
-                        const rawCopy = imageCopyById[presetId] || "";
-
-                        const headlineMatch =
-                          rawCopy.match(/Headline:\s*(.*)/i);
-                        const bodyMatch = rawCopy.match(
-                          /Body:\s*([\s\S]*?)(\n\nCTA:|$)/i,
-                        );
-                        const ctaMatch = rawCopy.match(/CTA:\s*(.*)/i);
+                        const copy = imageCopyById[presetId] || "";
+                        const headlineMatch = copy.match(/Headline:\s*(.*)/i);
+                        const bodyMatch = copy.match(/Body:\s*(.*)/i);
+                        const ctaMatch = copy.match(/CTA:\s*(.*)/i);
 
                         const headline = (headlineMatch?.[1] || "").trim();
                         const bodyCopy = (bodyMatch?.[1] || "").trim();
@@ -472,7 +476,7 @@ export default function ChooseAdStylePage() {
                           dto: {
                             productId,
                             productName,
-                            productDescription,
+                            productDescription: safeProductDescription,
                             productImages,
                             imagePresetId: presetId,
                             headline,
