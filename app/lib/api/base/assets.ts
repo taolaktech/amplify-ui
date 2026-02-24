@@ -13,6 +13,7 @@ export type Asset = {
   type: AssetType;
   status: AssetStatus;
   source?: string;
+  mediaUrl?: string;
   url?: string;
   thumbnailUrl?: string;
   duration?: number;

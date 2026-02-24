@@ -190,7 +190,6 @@ export default function CreativeReadyPage() {
   }): Promise<Asset> => {
     const startedAt = Date.now();
     const timeoutMs = 5 * 60 * 1000;
-    let delayMs = 1500;
     while (true) {
       if (args.signal.aborted) {
         throw new Error("Polling aborted");
@@ -208,17 +207,16 @@ export default function CreativeReadyPage() {
       }
 
       if (status === "failed") {
-        throw new Error("Image generation failed.");
+        throw new Error("Asset generation failed.");
       }
 
       if (Date.now() - startedAt >= timeoutMs) {
         throw new Error(
-          "Image generation is taking longer than expected. Please try again.",
+          "Asset generation is taking longer than expected. Please try again.",
         );
       }
 
-      await new Promise((r) => setTimeout(r, delayMs));
-      delayMs = Math.min(delayMs + 750, 5000);
+      await new Promise((r) => setTimeout(r, 10_000));
     }
   };
 
@@ -582,13 +580,14 @@ export default function CreativeReadyPage() {
             signal: controller.signal,
           });
 
-          if (asset.status === "completed" && asset.url) {
+          const finalUrl = asset.mediaUrl || asset.url;
+          if (asset.status === "completed" && finalUrl) {
             setGeneratedAssetByCreativeId((prev) => ({
               ...prev,
               [c.id]: {
                 assetId: existingAssetId,
                 status: "completed",
-                url: asset.url,
+                url: finalUrl,
               },
             }));
             return;
