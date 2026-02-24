@@ -500,24 +500,7 @@ export default function CreativeReadyPage() {
   }, [adStyle.imagePresets, imageCreatives]);
 
   useEffect(() => {
-    const presets = Array.isArray(adStyle.imagePresets)
-      ? adStyle.imagePresets
-      : [];
-    if (presets.length === 0) return;
     if (!token) return;
-
-    const productId = product?.id || "";
-    const productName = product?.title || "";
-    const productImages = selectedProductImages;
-
-    if (!productId || !productName || productImages.length === 0) {
-      return;
-    }
-
-    const relevantCreatives = imageCreatives
-      .filter((c) => c.type === "image")
-      .filter((c) => presets.some((p) => p.id === c.id))
-      .slice(0, 5);
 
     const assetIdsByPresetId =
       adStyle.imageAssetIdsByPresetId &&
@@ -525,58 +508,42 @@ export default function CreativeReadyPage() {
         ? adStyle.imageAssetIdsByPresetId
         : {};
 
-    for (const c of relevantCreatives) {
-      const status = generatedAssetByCreativeId[c.id]?.status;
-      if (status === "completed" || status === "pending") continue;
+    const entries = Object.entries(assetIdsByPresetId) as [string, string][];
+    if (entries.length === 0) return;
 
-      if (!copyGeneratedByCreativeId[c.id]) {
-        continue;
-      }
-
-      const key = creativeKey(c);
-      const copy = adCopyById[key];
-      if (!copy) continue;
-
-      const existingAssetId = assetIdsByPresetId[c.id];
-      if (!existingAssetId) {
-        setToast({
-          type: "error",
-          title: "Image generation failed",
-          message:
-            "We couldn’t start generating one or more images. Please go back and try again.",
-        });
+    for (const [presetId, assetId] of entries) {
+      if (!assetId) {
         setGeneratedAssetByCreativeId((prev) => ({
           ...prev,
-          [c.id]: {
+          [presetId]: {
             assetId: "",
             status: "failed",
             error: "Missing generation job for this image.",
           },
         }));
+        setToast({
+          type: "error",
+          title: "Image generation failed",
+          message:
+            "We couldn't start generating one or more images. Please go back and try again.",
+        });
         continue;
       }
 
-      if (generationAbortControllersRef.current[c.id]) {
-        continue;
-      }
+      if (generationAbortControllersRef.current[presetId]) continue;
 
       const controller = new AbortController();
-      generationAbortControllersRef.current[c.id] = controller;
+      generationAbortControllersRef.current[presetId] = controller;
 
       setGeneratedAssetByCreativeId((prev) => ({
         ...prev,
-        [c.id]: { assetId: "", status: "pending" },
+        [presetId]: { assetId, status: "pending" },
       }));
 
       (async () => {
         try {
-          setGeneratedAssetByCreativeId((prev) => ({
-            ...prev,
-            [c.id]: { assetId: existingAssetId, status: "pending" },
-          }));
-
           const asset = await pollAssetUntilDone({
-            assetId: existingAssetId,
+            assetId,
             signal: controller.signal,
           });
 
@@ -584,38 +551,31 @@ export default function CreativeReadyPage() {
           if (asset.status === "completed" && finalUrl) {
             setGeneratedAssetByCreativeId((prev) => ({
               ...prev,
-              [c.id]: {
-                assetId: existingAssetId,
-                status: "completed",
-                url: finalUrl,
-              },
+              [presetId]: { assetId, status: "completed", url: finalUrl },
             }));
             return;
           }
 
           setGeneratedAssetByCreativeId((prev) => ({
             ...prev,
-            [c.id]: {
-              assetId: existingAssetId,
-              status: asset.status || "failed",
+            [presetId]: {
+              assetId,
+              status: "failed",
               error: "Image generation failed.",
             },
           }));
-
-          if (asset.status !== "completed") {
-            setToast({
-              type: "error",
-              title: "Image generation failed",
-              message:
-                "We couldn’t generate an image right now. Please try again.",
-            });
-          }
+          setToast({
+            type: "error",
+            title: "Image generation failed",
+            message:
+              "We couldn't generate an image right now. Please try again.",
+          });
         } catch (e: any) {
           if (controller.signal.aborted) return;
           const msg =
             typeof e?.message === "string" && e.message.trim().length > 0
               ? e.message
-              : "We couldn’t generate an image right now. Please try again.";
+              : "We couldn't generate an image right now. Please try again.";
           setToast({
             type: "error",
             title: "Image generation failed",
@@ -623,14 +583,16 @@ export default function CreativeReadyPage() {
           });
           setGeneratedAssetByCreativeId((prev) => ({
             ...prev,
-            [c.id]: { assetId: existingAssetId, status: "failed", error: msg },
+            [presetId]: { assetId, status: "failed", error: msg },
           }));
         } finally {
-          delete generationAbortControllersRef.current[c.id];
+          delete generationAbortControllersRef.current[presetId];
         }
       })();
     }
+  }, [token, adStyle.imageAssetIdsByPresetId]);
 
+  useEffect(() => {
     return () => {
       const controllers = generationAbortControllersRef.current;
       for (const key of Object.keys(controllers)) {
@@ -638,20 +600,7 @@ export default function CreativeReadyPage() {
         delete controllers[key];
       }
     };
-  }, [
-    adStyle.imagePresets,
-    adStyle.imageAssetIdsByPresetId,
-    adCopyById,
-    copyGeneratedByCreativeId,
-    generatedAssetByCreativeId,
-    imageCreatives,
-    product?.id,
-    product?.title,
-    product?.description,
-    selectedProductImages,
-    token,
-    setToast,
-  ]);
+  }, []);
 
   const activeAdCopy = useMemo(() => {
     if (!activeCreative) return null;
