@@ -84,6 +84,42 @@ export async function generateImageAsset(data: {
   return response.data;
 }
 
+export type GenerateVideoDto = {
+  productName: string;
+  videoPresetId?: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  headline: string;
+  bodyCopy: string;
+  cta?: string;
+};
+
+export type GenerateVideoResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export async function generateVideoAsset(data: {
+  token: string;
+  dto: GenerateVideoDto;
+}) {
+  const response = await instance.post<GenerateVideoResponse>(
+    "/assets/generate-video",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
 export type RegenerateImageDto = {
   assetId: string;
   productName: string;
