@@ -115,6 +115,34 @@ function formatDuration(seconds?: number) {
   return `${mm}:${ss}`;
 }
 
+function sleepWithAbort(ms: number, signal: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error("Polling aborted"));
+      return;
+    }
+
+    let id: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      if (id) clearTimeout(id);
+      signal.removeEventListener("abort", onAbort);
+    };
+
+    const onAbort = () => {
+      cleanup();
+      reject(new Error("Polling aborted"));
+    };
+
+    signal.addEventListener("abort", onAbort);
+
+    id = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, ms);
+  });
+}
+
 export default function CreativeReadyPage() {
   const router = useRouter();
   const setToast = useToastStore((s) => s.setToast);
@@ -542,6 +570,7 @@ export default function CreativeReadyPage() {
 
       (async () => {
         try {
+          await sleepWithAbort(3 * 60 * 1000, controller.signal);
           const asset = await pollAssetUntilDone({
             assetId,
             signal: controller.signal,
@@ -591,6 +620,82 @@ export default function CreativeReadyPage() {
       })();
     }
   }, [token, adStyle.imageAssetIdsByPresetId]);
+
+  useEffect(() => {
+    if (!token) return;
+    if (!adStyle.videoAssetId) return;
+
+    const videoKey = adStyle.templateId || "video";
+    const assetId = adStyle.videoAssetId;
+
+    if (generationAbortControllersRef.current[videoKey]) return;
+    const currentStatus = generatedAssetByCreativeId[videoKey]?.status;
+    if (currentStatus === "pending" || currentStatus === "completed") return;
+
+    const controller = new AbortController();
+    generationAbortControllersRef.current[videoKey] = controller;
+
+    setGeneratedAssetByCreativeId((prev) => ({
+      ...prev,
+      [videoKey]: { assetId, status: "pending" },
+    }));
+
+    (async () => {
+      try {
+        await sleepWithAbort(5 * 60 * 1000, controller.signal);
+        const asset = await pollAssetUntilDone({
+          assetId,
+          signal: controller.signal,
+        });
+
+        const finalUrl = asset.mediaUrl || asset.url;
+        if (asset.status === "completed" && finalUrl) {
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [videoKey]: { assetId, status: "completed", url: finalUrl },
+          }));
+          return;
+        }
+
+        setGeneratedAssetByCreativeId((prev) => ({
+          ...prev,
+          [videoKey]: {
+            assetId,
+            status: "failed",
+            error: "Video generation failed.",
+          },
+        }));
+        setToast({
+          type: "error",
+          title: "Video generation failed",
+          message: "We couldn't generate a video right now. Please try again.",
+        });
+      } catch (e: any) {
+        if (controller.signal.aborted) return;
+        const msg =
+          typeof e?.message === "string" && e.message.trim().length > 0
+            ? e.message
+            : "We couldn't generate a video right now. Please try again.";
+        setToast({
+          type: "error",
+          title: "Video generation failed",
+          message: msg,
+        });
+        setGeneratedAssetByCreativeId((prev) => ({
+          ...prev,
+          [videoKey]: { assetId, status: "failed", error: msg },
+        }));
+      } finally {
+        delete generationAbortControllersRef.current[videoKey];
+      }
+    })();
+  }, [
+    adStyle.templateId,
+    adStyle.videoAssetId,
+    generatedAssetByCreativeId,
+    setToast,
+    token,
+  ]);
 
   useEffect(() => {
     return () => {
