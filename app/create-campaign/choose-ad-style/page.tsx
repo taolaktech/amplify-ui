@@ -11,15 +11,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
+import { type VideoPreset } from "@/app/lib/api/base/video-presets";
+import { listMediaPresets } from "@/app/lib/api/base/media-presets";
+import { type MediaPreset } from "@/app/lib/api/base/media-presets";
 import {
-  listVideoPresets,
-  VideoPreset,
-} from "@/app/lib/api/base/video-presets";
-import {
-  listMediaPresets,
-  type MediaPreset,
-} from "@/app/lib/api/base/media-presets";
-import { generateImageAsset } from "@/app/lib/api/base/assets";
+  generateImageAsset,
+  generateVideoAsset,
+} from "@/app/lib/api/base/assets";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
@@ -177,13 +175,37 @@ export default function ChooseAdStylePage() {
       setIsLoading(true);
       try {
         setPresetLoadError(null);
-        const res = await listVideoPresets({
+        const res = await listMediaPresets({
           token,
+          type: "video",
           page: nextPage,
           perPage: 12,
         });
-        const nextPresets = res.data.presets || [];
-        const pagination = res.data.pagination;
+
+        const nextPresets: VideoPreset[] = (res?.data?.presets || []).map(
+          (p) => {
+            const title = p?.label;
+            const videoUrl = p?.mediaUrl || "";
+            const thumbnailImageUrl = p?.thumbnailUrl || "";
+            const thumbnailVideoUrl = p?.mediaUrl || "";
+
+            return {
+              _id: p?._id,
+              title,
+              label: title,
+              templateId: p?._id,
+              videoUrl,
+              thumbnailImageUrl,
+              thumbnailVideoUrl,
+              duration: p?.duration,
+              resolution: p?.resolution,
+              createdAt: p?.createdAt,
+              updatedAt: p?.updatedAt,
+            };
+          },
+        );
+
+        const pagination = res?.data?.pagination;
 
         setPresets((prev) =>
           nextPage === 1 ? nextPresets : [...prev, ...nextPresets],
@@ -521,10 +543,79 @@ export default function ChooseAdStylePage() {
                   (c) => c.templateId === selectedVideoTemplateId,
                 );
 
+                let videoAssetId: string | null = null;
+                if (selectedVideoTemplateId) {
+                  if (!generatedCopy || generatedCopy.trim().length === 0) {
+                    setToast({
+                      type: "error",
+                      title: "Missing copy",
+                      message:
+                        "Generate your video script before generating assets.",
+                    });
+                    return;
+                  }
+
+                  if (!productId || !productName) {
+                    setToast({
+                      type: "error",
+                      title: "Missing product details",
+                      message:
+                        "Please select a product with title and description before generating videos.",
+                    });
+                    return;
+                  }
+
+                  const safeProductDescription =
+                    productDescription.trim().length > 0
+                      ? productDescription
+                      : "—";
+
+                  if (productImages.length === 0) {
+                    setToast({
+                      type: "error",
+                      title: "Missing product images",
+                      message:
+                        "Please select a product with at least one image before generating video ads.",
+                    });
+                    return;
+                  }
+
+                  try {
+                    const headline = `Introducing ${productName}`;
+                    const bodyCopy = generatedCopy;
+                    const res = await generateVideoAsset({
+                      token,
+                      dto: {
+                        productId,
+                        productName,
+                        productDescription: safeProductDescription,
+                        productImages,
+                        videoPresetId: selectedVideoTemplateId,
+                        headline,
+                        bodyCopy,
+                        cta: undefined,
+                      },
+                    });
+                    videoAssetId = res?.data?.assetId || null;
+                  } catch (e: any) {
+                    const msg =
+                      e?.response?.data?.message ||
+                      e?.message ||
+                      "We couldn’t generate a video right now. Please try again.";
+                    setToast({
+                      type: "error",
+                      title: "Video generation failed",
+                      message: msg,
+                    });
+                    return;
+                  }
+                }
+
                 storeAdStyle({
                   templateId: selectedVideoTemplateId,
                   imageTemplateIds: selectedImageTemplateIds,
                   imageAssetIdsByPresetId,
+                  videoAssetId,
                   imagePresets: selectedImageTemplateIds
                     .map((id) => {
                       const p = imagePresets.find((x) => x._id === id);

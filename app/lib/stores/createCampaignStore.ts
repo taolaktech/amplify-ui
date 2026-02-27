@@ -46,6 +46,7 @@ type CreateCampaignState = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    videoAssetId?: string | null;
     videoPreset: {
       id: string;
       title: string;
@@ -122,6 +123,7 @@ type CreateCampaignActions = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    videoAssetId?: string | null;
     videoPreset?: {
       id: string;
       title: string;
@@ -189,6 +191,7 @@ const initialState: CreateCampaignState = {
     imageTemplateIds: [],
     imagePresets: [],
     imageAssetIdsByPresetId: {},
+    videoAssetId: null,
     videoPreset: null,
     generationId: null,
     mode: "standard",
