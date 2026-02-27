@@ -182,6 +182,7 @@ export default function CreativeReadyPage() {
   const generationAbortControllersRef = useRef<Record<string, AbortController>>(
     {},
   );
+  const videoPollingStartedRef = useRef(false);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -217,7 +218,7 @@ export default function CreativeReadyPage() {
     signal: AbortSignal;
   }): Promise<Asset> => {
     const startedAt = Date.now();
-    const timeoutMs = 5 * 60 * 1000;
+    const timeoutMs = 10 * 60 * 1000;
     while (true) {
       if (args.signal.aborted) {
         throw new Error("Polling aborted");
@@ -624,13 +625,12 @@ export default function CreativeReadyPage() {
   useEffect(() => {
     if (!token) return;
     if (!adStyle.videoAssetId) return;
+    if (videoPollingStartedRef.current) return;
+
+    videoPollingStartedRef.current = true;
 
     const videoKey = adStyle.templateId || "video";
     const assetId = adStyle.videoAssetId;
-
-    if (generationAbortControllersRef.current[videoKey]) return;
-    const currentStatus = generatedAssetByCreativeId[videoKey]?.status;
-    if (currentStatus === "pending" || currentStatus === "completed") return;
 
     const controller = new AbortController();
     generationAbortControllersRef.current[videoKey] = controller;
@@ -689,13 +689,7 @@ export default function CreativeReadyPage() {
         delete generationAbortControllersRef.current[videoKey];
       }
     })();
-  }, [
-    adStyle.templateId,
-    adStyle.videoAssetId,
-    generatedAssetByCreativeId,
-    setToast,
-    token,
-  ]);
+  }, [token, adStyle.videoAssetId, adStyle.templateId]);
 
   useEffect(() => {
     return () => {
@@ -1044,40 +1038,68 @@ export default function CreativeReadyPage() {
             <div className="w-full max-w-[460px] mx-auto">
               <div className="relative rounded-3xl overflow-hidden aspect-[9/16] bg-[#1b1b1b]">
                 {activeCreative?.type === "video" ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      controls
-                      playsInline
-                      muted={videoMuted}
-                      preload="metadata"
-                      src={activeCreative.url}
-                      poster={adStyle.videoPreset?.thumbnailImageUrl}
-                      onLoadedMetadata={(e) => {
-                        const d = (e.currentTarget as HTMLVideoElement)
-                          .duration;
-                        if (Number.isFinite(d)) setVideoDuration(d);
-                      }}
-                      onEnded={() => {
-                        if (canNavigate) goNext();
-                      }}
-                    />
-                    <button
-                      className="absolute top-3 left-3 h-9 px-3 rounded-2xl bg-[rgba(0,0,0,0.45)] text-white text-xs font-medium"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setVideoMuted((p) => !p);
-                      }}
-                    >
-                      {videoMuted ? "Unmute" : "Mute"}
-                    </button>
-                    {durationLabel && (
-                      <div className="absolute top-3 right-3 h-9 px-3 rounded-2xl bg-[rgba(0,0,0,0.45)] text-white text-xs font-medium flex items-center">
-                        {durationLabel}
-                      </div>
-                    )}
-                  </>
+                  (() => {
+                    const videoAssetEntry = activeCreative.id
+                      ? generatedAssetByCreativeId[activeCreative.id]
+                      : undefined;
+                    const videoIsPending =
+                      adStyle.videoAssetId &&
+                      (!videoAssetEntry ||
+                        videoAssetEntry.status === "pending");
+                    const videoFinalUrl =
+                      videoAssetEntry?.status === "completed"
+                        ? videoAssetEntry.url
+                        : undefined;
+
+                    if (videoIsPending) {
+                      return <LoaderFrame />;
+                    }
+
+                    if (!videoFinalUrl) {
+                      return (
+                        <div className="absolute inset-0 flex items-center justify-center text-xs text-[rgba(255,255,255,0.50)]">
+                          No video available
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        <video
+                          ref={videoRef}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          controls
+                          playsInline
+                          muted={videoMuted}
+                          preload="metadata"
+                          src={videoFinalUrl}
+                          poster={adStyle.videoPreset?.thumbnailImageUrl}
+                          onLoadedMetadata={(e) => {
+                            const d = (e.currentTarget as HTMLVideoElement)
+                              .duration;
+                            if (Number.isFinite(d)) setVideoDuration(d);
+                          }}
+                          onEnded={() => {
+                            if (canNavigate) goNext();
+                          }}
+                        />
+                        <button
+                          className="absolute top-3 left-3 h-9 px-3 rounded-2xl bg-[rgba(0,0,0,0.45)] text-white text-xs font-medium"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setVideoMuted((p) => !p);
+                          }}
+                        >
+                          {videoMuted ? "Unmute" : "Mute"}
+                        </button>
+                        {durationLabel && (
+                          <div className="absolute top-3 right-3 h-9 px-3 rounded-2xl bg-[rgba(0,0,0,0.45)] text-white text-xs font-medium flex items-center">
+                            {durationLabel}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()
                 ) : activeCreative?.type === "image" ? (
                   <button
                     className="absolute inset-0"
@@ -1122,6 +1144,31 @@ export default function CreativeReadyPage() {
                       {generatedAssetByCreativeId[activeCreative.id]?.error}
                     </div>
                   ) : null}
+                </>
+              )}
+
+              {activeCreative?.type === "video" && adStyle.videoAssetId && (
+                <>
+                  {(() => {
+                    const entry = generatedAssetByCreativeId[activeCreative.id];
+                    const isPending = !entry || entry.status === "pending";
+                    const isFailed = entry?.status === "failed";
+                    if (isPending) {
+                      return (
+                        <div className="mt-3 text-xs text-neutral-light">
+                          Generating video… this may take up to 15 minutes.
+                        </div>
+                      );
+                    }
+                    if (isFailed && entry?.error) {
+                      return (
+                        <div className="mt-3 text-xs text-red-600">
+                          {entry.error}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </>
               )}
 
