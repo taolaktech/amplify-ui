@@ -71,6 +71,17 @@ export async function generateImageAsset(data: {
   token: string;
   dto: GenerateImageDto;
 }) {
+  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_IMAGE_ASSET;
+  if (process.env.NODE_ENV === "development" && mockAssetId) {
+    return {
+      status: "success",
+      message: "Mocked image generation response",
+      data: {
+        assetId: mockAssetId,
+      },
+    } satisfies GenerateImageResponse;
+  }
+
   const response = await instance.post<GenerateImageResponse>(
     "/assets/generate-image",
     data.dto,
@@ -107,6 +118,17 @@ export async function generateVideoAsset(data: {
   token: string;
   dto: GenerateVideoDto;
 }) {
+  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
+  if (process.env.NODE_ENV === "development" && mockAssetId) {
+    return {
+      status: "success",
+      message: "Mocked video generation response",
+      data: {
+        assetId: mockAssetId,
+      },
+    } satisfies GenerateVideoResponse;
+  }
+
   const response = await instance.post<GenerateVideoResponse>(
     "/assets/generate-video",
     data.dto,

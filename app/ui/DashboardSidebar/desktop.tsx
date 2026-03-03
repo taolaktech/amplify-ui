@@ -152,31 +152,6 @@ export default function DesktopSideBar({
             </li>
 
             <li>
-              <Link
-                href="/assets"
-                className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-2 gap-2 w-full ${
-                  isSidebarOpen ? "px-4" : "justify-center"
-                } h-[48px] cursor-pointer ${
-                  isAssets ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                }`}
-              >
-                <span>
-                  {!isAssets && <FolderOpen size="24" color="#BFBFBF" />}
-                  {isAssets && <FolderOpenGrad width="24" height="24" />}
-                </span>
-                {isSidebarOpen && (
-                  <span
-                    className={`text-sm font-medium ${
-                      isAssets ? "text-heading" : "text-gray-dark"
-                    }`}
-                  >
-                    Saved Ads
-                  </span>
-                )}
-              </Link>
-            </li>
-
-            <li>
               <span
                 onClick={toggleIsCompanyTabOpen}
                 className={`flex items-center px-4 rounded-xl justify-between 

@@ -1,20 +1,61 @@
 [
   {
-    "assetId": "15f42e8b-6b3e-4dc7-a77e-1dba5bd7d06b",
+    "assetId": "644a2270-98b5-40f1-ac09-88cd7538fc39",
     "type": "video",
     "source": "generated",
-    "storageUrl": "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4",
-    "campaignName": "Test Campaign",
-    "productId": "gid://shopify/Product/9219302883586",
-    "productName": "Grace Dress",
-    "destinationUrl": "https://koyathebrand.myshopify.com/products/esba-bangle",
+    "storageUrl": "https://amplify-shopify-uploads.s3.us-east-2.amazonaws.com/assets/videos/698f4ae4623802f3cc2c01e4/video_698f4ae4b14c819094bacd55df5e9ae906ef64cf7375eaf0.mp4",
+    "campaignName": "",
+    "productId": "gid://shopify/Product/8627923255432",
+    "productName": "Bluetooth Speaker",
+    "destinationUrl": "https://ak47-stor.myshopify.com/products/bluetooth-speaker",
+    "platform": "Meta",
+    "format": "Square",
+    "createdAt": "2026-03-03T20:30:05.906Z"
+  },
+  {
+    "assetId": "71f07463-54e8-4c54-a2e1-f6481d7df965",
+    "type": "image",
+    "source": "generated",
+    "url": "https://amplify-shopify-uploads.s3.us-east-2.amazonaws.com/assets/images/698b3c4def33b692ec402c53/71b4ac652e5e78c0c15ecc7129ebc6fb.png",
+    "campaignName": "",
+    "productId": "gid://shopify/Product/8627923255432",
+    "productName": "Bluetooth Speaker",
+    "destinationUrl": "https://ak47-stor.myshopify.com/products/bluetooth-speaker",
+    "platform": "Meta",
+    "format": "Square",
+    "createdAt": "2026-03-03T19:36:22.354Z"
+  },
+  {
+    "assetId": "ff616428-70ba-49c0-b641-7928ce485e9e",
+    "type": "image",
+    "source": "generated",
+    "url": "https://cdn.shopify.com/s/files/1/0695/6213/8760/files/speaker.jpg?v=1755782688",
+    "campaignName": "",
+    "productId": "gid://shopify/Product/8627923255432",
+    "productName": "Bluetooth Speaker",
+    "destinationUrl": "",
+    "platform": "Other",
+    "format": "Image",
+    "headlineUsed": "Introducing Bluetooth Speaker",
+    "descriptionUsed": "Hear the distant planets with this speaker.",
+    "promptUsed": "CTA: Shop now\nBrand: \nWebsite: https://ak47-stor.myshopify.com/products/bluetooth-speaker",
+    "createdAt": "2026-03-03T18:55:49.681Z"
+  },
+  {
+    "assetId": "d03e59d3-9911-4ea9-b41f-fb934ac5cc57",
+    "type": "video",
+    "source": "generated",
+    "storageUrl": "https://amplify-shopify-uploads.s3.us-east-2.amazonaws.com/campaign-assets/video-presets/global/b4a8566b-5fec-445a-b578-8dc5fb8f4a36.mp4",
+    "thumbnailUrl": "https://amplify-shopify-uploads.s3.us-east-2.amazonaws.com/campaign-assets/video-presets-thumbnail-image/global/0ccbaa0a-8e79-4c10-b1c5-dbb3aa15db5b.png",
+    "campaignName": "",
+    "productId": "gid://shopify/Product/8627923255432",
+    "productName": "Bluetooth Speaker",
+    "destinationUrl": "",
     "platform": "Other",
     "format": "Video",
-    "createdAt": "2026-02-10T17:45:17.647Z",
-    "headlineUsed": "Introducing Grace Dress",
-    "descriptionUsed": "Discover Grace Dress and shop today.",
-    "promptUsed": "CTA: Shop now\nBrand: Test Campaign\nWebsite: https://koyathebrand.myshopify.com/products/esba-bangle\n\nVideo Script:\nHook: Meet Grace Dress.\n\nProblem: You want something that stands out.\n\nSolution: Grace Dress delivers style and confidence.\n\nCTA: Tap to shop now."
-  }
-]social proof\n12–15s: CTA on screen: “Learn more”\nWebsite: https://koyathebrand.myshopify.com/products/esba-bangle"
+    "headlineUsed": "Introducing Bluetooth Speaker",
+    "descriptionUsed": "Hear the distant planets with this speaker.",
+    "promptUsed": "CTA: Shop now\nBrand: \nWebsite: https://ak47-stor.myshopify.com/products/bluetooth-speaker\n\nVideo Script:\nHook: Meet Bluetooth Speaker.\n\nProblem: You want something that stands out.\n\nSolution: Bluetooth Speaker delivers style and confidence.\n\nCTA: Tap to shop now.",
+    "createdAt": "2026-03-03T18:55:49.681Z"
   }
 ]

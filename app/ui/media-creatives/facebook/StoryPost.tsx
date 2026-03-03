@@ -13,11 +13,13 @@ export default function StoryPost({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   location,
   photoUrl,
+  caption,
   maximized,
 }: {
   brandName: string;
   location: string;
   photoUrl?: string;
+  caption?: string;
   maximized?: boolean;
 }) {
   const [maximizedWidth, setMaximizedWidth] = useState(0);
@@ -155,6 +157,17 @@ export default function StoryPost({
             ></div>
           </div>
         </div>
+
+        {caption && caption.trim().length > 0 ? (
+          <div className="absolute left-0 right-0 bottom-0 px-3 pb-3">
+            <div
+              title={caption}
+              className="text-white text-[10px] leading-snug bg-black/40 rounded-xl px-3 py-2"
+            >
+              {caption.length > 120 ? `${caption.slice(0, 120)} ...` : caption}
+            </div>
+          </div>
+        ) : null}
       </div>
       <div
         style={{
