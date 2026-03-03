@@ -21,54 +21,12 @@ import {
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
-
-const LOCAL_VIDEO_PRESETS: VideoPreset[] = [
-  {
-    _id: "local-video-1",
-    title: "Skincare • Lifestyle routine",
-    templateId: "local-video-1",
-    videoUrl:
-      "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4",
-    thumbnailImageUrl: "/ig_post_lg.webp",
-    thumbnailVideoUrl: "",
-  },
-  {
-    _id: "local-video-2",
-    title: "Skincare • Problem → solution",
-    templateId: "local-video-2",
-    videoUrl:
-      "https://cdn.higgsfield.ai/veo3_motion/161e7c18-6448-4e3a-80aa-86523027dc8c.mp4",
-    thumbnailImageUrl: "/facebook_post_lg.webp",
-    thumbnailVideoUrl: "",
-  },
-  {
-    _id: "local-video-3",
-    title: "Wellness • Before / after",
-    templateId: "local-video-3",
-    videoUrl:
-      "https://cdn.higgsfield.ai/veo3_motion/4faa72d7-d8a2-4037-a57e-753d0b8b76fa.mp4",
-    thumbnailImageUrl: "/google_post_lg.webp",
-    thumbnailVideoUrl: "",
-  },
-  {
-    _id: "local-video-4",
-    title: "Supplements • Offers & urgency",
-    templateId: "local-video-4",
-    videoUrl:
-      "https://cdn.higgsfield.ai/veo3_motion/161e7c18-6448-4e3a-80aa-86523027dc8c.mp4",
-    thumbnailImageUrl: "/facebook_post_lg_compressed.webp",
-    thumbnailVideoUrl: "",
-  },
-  {
-    _id: "local-video-5",
-    title: "Beauty • Testimonials",
-    templateId: "local-video-5",
-    videoUrl:
-      "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4",
-    thumbnailImageUrl: "/ig_post_lg_compressed.webp",
-    thumbnailVideoUrl: "",
-  },
-];
+import TemplateFilterBar from "./TemplateFilterBar";
+import {
+  type FilterState,
+  EMPTY_FILTERS,
+  hasActiveFilters,
+} from "./templateFilters";
 
 function normalizeLabel(input?: string) {
   return (input || "")
@@ -99,6 +57,7 @@ export default function ChooseAdStylePage() {
   const [presetLoadError, setPresetLoadError] = useState<string | null>(null);
 
   const [generatedCopy, setGeneratedCopy] = useState("");
+  const [generatedCaption, setGeneratedCaption] = useState("");
   const [isGeneratingCopy, setIsGeneratingCopy] = useState(false);
   const [includeMusic, setIncludeMusic] = useState(true);
   const [includeVoiceover, setIncludeVoiceover] = useState(true);
@@ -108,6 +67,9 @@ export default function ChooseAdStylePage() {
   const [imageCopyById, setImageCopyById] = useState<Record<string, string>>(
     {},
   );
+  const [imageCaptionById, setImageCaptionById] = useState<
+    Record<string, string>
+  >({});
   const [imageEditingId, setImageEditingId] = useState<string | null>(null);
   const [imageCopySavedById, setImageCopySavedById] = useState<
     Record<string, boolean>
@@ -116,14 +78,18 @@ export default function ChooseAdStylePage() {
     Record<string, boolean>
   >({});
 
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+
   const [isLoading, setIsLoading] = useState(false);
   const [presets, setPresets] = useState<VideoPreset[]>([]);
+  const [videoTotal, setVideoTotal] = useState<number | null>(null);
 
   const [imagePresets, setImagePresets] = useState<MediaPreset[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [imagePresetLoadError, setImagePresetLoadError] = useState<
     string | null
   >(null);
+  const [imageTotal, setImageTotal] = useState<number | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -133,30 +99,6 @@ export default function ChooseAdStylePage() {
 
   const canContinue =
     Boolean(selectedVideoTemplateId) || selectedImageTemplateIds.length > 0;
-
-  const friendlyPresetLoadError = useMemo(() => {
-    if (!presetLoadError) return null;
-    if (/^Cannot\s+(GET|POST|PUT|DELETE)\s+/i.test(presetLoadError)) {
-      return "We couldn’t connect to the service. Please check your connection and try again.";
-    }
-    return presetLoadError;
-  }, [presetLoadError]);
-
-  const showLocalVideoPresets = useMemo(() => {
-    if (presetType !== "video") return false;
-    if (!hasHydrated) return false;
-    if (!token) return true;
-    if (Boolean(friendlyPresetLoadError)) return true;
-    if (!isLoading && presets.length === 0) return true;
-    return false;
-  }, [
-    presetType,
-    hasHydrated,
-    token,
-    friendlyPresetLoadError,
-    isLoading,
-    presets.length,
-  ]);
 
   useEffect(() => {
     if (!productSelection.complete) {
@@ -180,6 +122,11 @@ export default function ChooseAdStylePage() {
           type: "video",
           page: nextPage,
           perPage: 12,
+          ...(filters.creativeDirections.length > 0
+            ? { creativeDirections: filters.creativeDirections }
+            : {}),
+          ...(filters.niches.length > 0 ? { niches: filters.niches } : {}),
+          ...(filters.tags.length > 0 ? { tags: filters.tags } : {}),
         });
 
         const nextPresets: VideoPreset[] = (res?.data?.presets || []).map(
@@ -206,6 +153,9 @@ export default function ChooseAdStylePage() {
         );
 
         const pagination = res?.data?.pagination;
+        setVideoTotal(
+          typeof pagination?.total === "number" ? pagination.total : null,
+        );
 
         setPresets((prev) =>
           nextPage === 1 ? nextPresets : [...prev, ...nextPresets],
@@ -235,7 +185,7 @@ export default function ChooseAdStylePage() {
         setIsLoading(false);
       }
     },
-    [token, presetType],
+    [token, presetType, filters],
   );
 
   useEffect(() => {
@@ -244,7 +194,7 @@ export default function ChooseAdStylePage() {
     hasNextPageRef.current = true;
     pageRef.current = 1;
     fetchPage(1);
-  }, [token, fetchPage, presetType]);
+  }, [token, fetchPage, presetType, filters]);
 
   useEffect(() => {
     if (!token) return;
@@ -260,8 +210,17 @@ export default function ChooseAdStylePage() {
           type: "image",
           page: 1,
           perPage: 50,
+          ...(filters.creativeDirections.length > 0
+            ? { creativeDirections: filters.creativeDirections }
+            : {}),
+          ...(filters.niches.length > 0 ? { niches: filters.niches } : {}),
+          ...(filters.tags.length > 0 ? { tags: filters.tags } : {}),
         });
         if (cancelled) return;
+        const pagination = res?.data?.pagination;
+        setImageTotal(
+          typeof pagination?.total === "number" ? pagination.total : null,
+        );
         setImagePresets(res?.data?.presets || []);
       } catch (e: any) {
         if (cancelled) return;
@@ -277,6 +236,7 @@ export default function ChooseAdStylePage() {
             : "We couldn’t load image ad styles right now. Please try again.";
         setImagePresetLoadError(friendly);
         setImagePresets([]);
+        setImageTotal(null);
       } finally {
         if (cancelled) return;
         setIsLoadingImages(false);
@@ -286,7 +246,7 @@ export default function ChooseAdStylePage() {
     return () => {
       cancelled = true;
     };
-  }, [token, presetType]);
+  }, [token, presetType, filters]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -310,8 +270,7 @@ export default function ChooseAdStylePage() {
 
   const cards = useMemo(() => {
     if (presetType === "image") return [];
-    const source = showLocalVideoPresets ? LOCAL_VIDEO_PRESETS : presets;
-    return source.map((preset) => {
+    return presets.map((preset) => {
       const templateId = preset?._id;
       const rawLabel = preset?.title || preset?.label || preset?.templateId;
       const label = rawLabel?.trim() || normalizeLabel(rawLabel) || "Video";
@@ -322,7 +281,7 @@ export default function ChooseAdStylePage() {
         disabled: !preset?.videoUrl,
       };
     });
-  }, [presets, presetType, showLocalVideoPresets]);
+  }, [presets, presetType]);
 
   const toggleImageTemplateId = useCallback((templateId: string) => {
     setSelectedImageTemplateIds((prev) => {
@@ -338,17 +297,24 @@ export default function ChooseAdStylePage() {
     if (isGeneratingCopy) return;
     setIsGeneratingCopy(true);
     setGeneratedCopy("");
+    setGeneratedCaption("");
 
     const productTitle = selectedProductNode?.title || "Product";
 
     await new Promise((r) => setTimeout(r, 1200));
 
-    const script = `Hook: Meet ${productTitle}.\n\nProblem: You want something that stands out.\n\nSolution: ${productTitle} delivers style and confidence.\n\nCTA: Tap to shop now.`;
-    setGeneratedCopy(script);
+    const caption = `Meet ${productTitle} — made to stand out. Tap to shop.`;
+    setGeneratedCaption(caption);
+
+    if (includeVoiceover) {
+      const script = `Hook: Meet ${productTitle}.\n\nProblem: You want something that stands out.\n\nSolution: ${productTitle} delivers style and confidence.\n\nCTA: Tap to shop now.`;
+      setGeneratedCopy(script);
+    }
 
     setIsGeneratingCopy(false);
   }, [
     isGeneratingCopy,
+    includeVoiceover,
     selectedProductNode?.title,
     selectedProductNode?.description,
   ]);
@@ -368,8 +334,10 @@ export default function ChooseAdStylePage() {
         ? productDesc.slice(0, 120)
         : `Discover ${productTitle} and shop today.`;
       const copy = `Headline: ${headline}\n\nBody: ${body}\n\nCTA: Shop now`;
+      const caption = `Meet ${productTitle} — made to stand out. Tap to shop.`;
 
       setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
+      setImageCaptionById((prev) => ({ ...prev, [templateId]: caption }));
       setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
     },
     [
@@ -382,11 +350,16 @@ export default function ChooseAdStylePage() {
   const handleGenerateAllImageCopies = useCallback(async () => {
     for (let i = 0; i < selectedImageTemplateIds.length; i++) {
       const templateId = selectedImageTemplateIds[i];
-      if (!imageCopyById[templateId]) {
+      if (!imageCopyById[templateId] || !imageCaptionById[templateId]) {
         await handleGenerateImageCopy(templateId, i);
       }
     }
-  }, [selectedImageTemplateIds, imageCopyById, handleGenerateImageCopy]);
+  }, [
+    selectedImageTemplateIds,
+    imageCopyById,
+    imageCaptionById,
+    handleGenerateImageCopy,
+  ]);
 
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
@@ -545,12 +518,28 @@ export default function ChooseAdStylePage() {
 
                 let videoAssetId: string | null = null;
                 if (selectedVideoTemplateId) {
-                  if (!generatedCopy || generatedCopy.trim().length === 0) {
+                  if (
+                    includeVoiceover &&
+                    (!generatedCopy || generatedCopy.trim().length === 0)
+                  ) {
                     setToast({
                       type: "error",
                       title: "Missing copy",
                       message:
                         "Generate your video script before generating assets.",
+                    });
+                    return;
+                  }
+
+                  if (
+                    !includeVoiceover &&
+                    (!generatedCaption || generatedCaption.trim().length === 0)
+                  ) {
+                    setToast({
+                      type: "error",
+                      title: "Missing copy",
+                      message:
+                        "Generate your caption before generating assets.",
                     });
                     return;
                   }
@@ -582,7 +571,9 @@ export default function ChooseAdStylePage() {
 
                   try {
                     const headline = `Introducing ${productName}`;
-                    const bodyCopy = generatedCopy;
+                    const bodyCopy = includeVoiceover
+                      ? generatedCopy
+                      : generatedCaption;
                     const res = await generateVideoAsset({
                       token,
                       dto: {
@@ -615,7 +606,21 @@ export default function ChooseAdStylePage() {
                   templateId: selectedVideoTemplateId,
                   imageTemplateIds: selectedImageTemplateIds,
                   imageAssetIdsByPresetId,
+                  imageCaptionsByPresetId: selectedImageTemplateIds.reduce(
+                    (acc, id) => {
+                      const c = imageCaptionById[id];
+                      if (typeof c === "string" && c.trim().length > 0) {
+                        acc[id] = c;
+                      }
+                      return acc;
+                    },
+                    {} as Record<string, string>,
+                  ),
                   videoAssetId,
+                  videoCaption:
+                    typeof generatedCaption === "string"
+                      ? generatedCaption
+                      : "",
                   imagePresets: selectedImageTemplateIds
                     .map((id) => {
                       const p = imagePresets.find((x) => x._id === id);
@@ -679,22 +684,66 @@ export default function ChooseAdStylePage() {
                 )}
               </button>
 
-              {generatedCopy && (
+              {(generatedCopy || generatedCaption) && (
                 <div className="mt-3">
                   {isEditingCopy ? (
-                    <textarea
-                      className="w-full p-3 bg-white rounded-xl border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[140px] max-h-[200px] overflow-y-auto resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
-                      value={generatedCopy}
-                      onChange={(e) => {
-                        setGeneratedCopy(e.target.value);
-                        setIsCopySaved(false);
-                      }}
-                      autoFocus
-                    />
+                    <>
+                      {generatedCopy ? (
+                        <div>
+                          <div className="text-[11px] font-semibold text-heading mb-1">
+                            Script
+                          </div>
+                          <textarea
+                            className="w-full p-3 bg-white rounded-xl border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[140px] max-h-[200px] overflow-y-auto resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
+                            value={generatedCopy}
+                            onChange={(e) => {
+                              setGeneratedCopy(e.target.value);
+                              setIsCopySaved(false);
+                            }}
+                            autoFocus
+                          />
+                        </div>
+                      ) : null}
+
+                      {generatedCaption ? (
+                        <div className={generatedCopy ? "mt-2" : ""}>
+                          <div className="text-[11px] font-semibold text-heading mb-1">
+                            Caption
+                          </div>
+                          <textarea
+                            className="w-full p-3 bg-white rounded-xl border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[110px] max-h-[180px] overflow-y-auto resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
+                            value={generatedCaption}
+                            onChange={(e) => {
+                              setGeneratedCaption(e.target.value);
+                              setIsCopySaved(false);
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </>
                   ) : (
-                    <div className="p-3 bg-white rounded-xl border border-[#E8E8E8] text-xs text-neutral-light whitespace-pre-wrap max-h-[140px] overflow-y-auto">
-                      {generatedCopy}
-                    </div>
+                    <>
+                      {generatedCopy ? (
+                        <div>
+                          <div className="text-[11px] font-semibold text-heading mb-1">
+                            Script
+                          </div>
+                          <div className="p-3 bg-white rounded-xl border border-[#E8E8E8] text-xs text-neutral-light whitespace-pre-wrap max-h-[140px] overflow-y-auto">
+                            {generatedCopy}
+                          </div>
+                        </div>
+                      ) : null}
+                      {generatedCaption ? (
+                        <div className="mt-2">
+                          <div className="text-[11px] font-semibold text-heading mb-1">
+                            Caption
+                          </div>
+                          <div className="p-3 bg-white rounded-xl border border-[#E8E8E8] text-xs text-neutral-light whitespace-pre-wrap">
+                            {generatedCaption}
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
                   )}
                   <div className="mt-2 flex gap-2">
                     {isEditingCopy ? (
@@ -717,7 +766,11 @@ export default function ChooseAdStylePage() {
                       </>
                     ) : (
                       <button
-                        onClick={() => setIsEditingCopy(true)}
+                        onClick={() => {
+                          if (!generatedCopy && !generatedCaption) return;
+                          setIsEditingCopy(true);
+                        }}
+                        disabled={!generatedCopy && !generatedCaption}
                         className="flex-1 h-[36px] rounded-[18px] bg-white border border-[#E0E0E0] text-xs font-medium text-heading hover:bg-[#FAFAFA] transition-colors"
                       >
                         Edit
@@ -780,7 +833,7 @@ export default function ChooseAdStylePage() {
               <button
                 onClick={handleGenerateAllImageCopies}
                 disabled={selectedImageTemplateIds.every(
-                  (id) => imageCopyById[id],
+                  (id) => imageCopyById[id] && imageCaptionById[id],
                 )}
                 className="w-full h-[44px] rounded-[22px] bg-white border border-[#E0E0E0] text-sm font-medium text-heading flex items-center justify-center gap-2 hover:bg-[#FAFAFA] transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
               >
@@ -790,6 +843,7 @@ export default function ChooseAdStylePage() {
               <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
                 {selectedImageTemplateIds.map((templateId, idx) => {
                   const copy = imageCopyById[templateId] || "";
+                  const caption = imageCaptionById[templateId] || "";
                   const isEditing = imageEditingId === templateId;
                   const isGenerating = isGeneratingImageCopy[templateId];
                   const isSaved = imageCopySavedById[templateId];
@@ -803,7 +857,7 @@ export default function ChooseAdStylePage() {
                         Image {idx + 1}
                       </div>
 
-                      {!copy && !isGenerating && (
+                      {!copy && !caption && !isGenerating && (
                         <button
                           onClick={() =>
                             handleGenerateImageCopy(templateId, idx)
@@ -821,28 +875,71 @@ export default function ChooseAdStylePage() {
                         </div>
                       )}
 
-                      {copy && !isGenerating && (
+                      {(copy || caption) && !isGenerating && (
                         <>
                           {isEditing ? (
-                            <textarea
-                              className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[100px] resize-none focus:outline-none"
-                              value={copy}
-                              onChange={(e) => {
-                                setImageCopyById((prev) => ({
-                                  ...prev,
-                                  [templateId]: e.target.value,
-                                }));
-                                setImageCopySavedById((prev) => ({
-                                  ...prev,
-                                  [templateId]: false,
-                                }));
-                              }}
-                              autoFocus
-                            />
+                            <>
+                              <div className="text-[11px] font-semibold text-heading mb-1">
+                                Ad Copy
+                              </div>
+                              <textarea
+                                className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[100px] resize-none focus:outline-none"
+                                value={copy}
+                                onChange={(e) => {
+                                  setImageCopyById((prev) => ({
+                                    ...prev,
+                                    [templateId]: e.target.value,
+                                  }));
+                                  setImageCopySavedById((prev) => ({
+                                    ...prev,
+                                    [templateId]: false,
+                                  }));
+                                }}
+                                autoFocus
+                              />
+
+                              <div className="mt-2 text-[11px] font-semibold text-heading mb-1">
+                                Caption
+                              </div>
+                              <textarea
+                                className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[80px] resize-none focus:outline-none"
+                                value={caption}
+                                onChange={(e) => {
+                                  setImageCaptionById((prev) => ({
+                                    ...prev,
+                                    [templateId]: e.target.value,
+                                  }));
+                                  setImageCopySavedById((prev) => ({
+                                    ...prev,
+                                    [templateId]: false,
+                                  }));
+                                }}
+                              />
+                            </>
                           ) : (
-                            <div className="text-xs text-neutral-light whitespace-pre-wrap max-h-[80px] overflow-y-auto">
-                              {copy}
-                            </div>
+                            <>
+                              {copy ? (
+                                <>
+                                  <div className="text-[11px] font-semibold text-heading mb-1">
+                                    Ad Copy
+                                  </div>
+                                  <div className="text-xs text-neutral-light whitespace-pre-wrap max-h-[80px] overflow-y-auto">
+                                    {copy}
+                                  </div>
+                                </>
+                              ) : null}
+
+                              {caption ? (
+                                <>
+                                  <div className="mt-2 text-[11px] font-semibold text-heading mb-1">
+                                    Caption
+                                  </div>
+                                  <div className="text-xs text-neutral-light whitespace-pre-wrap max-h-[60px] overflow-y-auto">
+                                    {caption}
+                                  </div>
+                                </>
+                              ) : null}
+                            </>
                           )}
                           <div className="mt-2 flex gap-2">
                             {isEditing ? (
@@ -925,6 +1022,18 @@ export default function ChooseAdStylePage() {
             </div>
           </div>
 
+          <div className="mt-4">
+            <TemplateFilterBar
+              filters={filters}
+              onChange={setFilters}
+              resultCount={
+                presetType === "image"
+                  ? (imageTotal ?? imagePresets.length)
+                  : (videoTotal ?? presets.length)
+              }
+            />
+          </div>
+
           <div
             ref={listRef}
             className={`mt-5 max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden pr-2 pink-scroll ${
@@ -935,10 +1044,6 @@ export default function ChooseAdStylePage() {
           >
             {presetType === "image" ? (
               <>
-                <div className="col-span-full text-sm font-medium text-heading">
-                  Image ad templates
-                </div>
-
                 {imagePresetLoadError ? (
                   <div className="col-span-full text-xs text-neutral-light">
                     {imagePresetLoadError}
@@ -953,7 +1058,17 @@ export default function ChooseAdStylePage() {
 
                 {!isLoadingImages &&
                 !imagePresetLoadError &&
-                imagePresets.length === 0 ? (
+                (imageTotal ?? imagePresets.length) === 0 &&
+                hasActiveFilters(filters) ? (
+                  <div className="col-span-full text-xs text-neutral-light">
+                    No templates match your filters.
+                  </div>
+                ) : null}
+
+                {!isLoadingImages &&
+                !imagePresetLoadError &&
+                (imageTotal ?? imagePresets.length) === 0 &&
+                !hasActiveFilters(filters) ? (
                   <div className="col-span-full text-xs text-neutral-light">
                     No image presets available.
                   </div>
@@ -1013,9 +1128,34 @@ export default function ChooseAdStylePage() {
               </>
             ) : (
               <>
-                <div className="col-span-full text-sm font-medium text-heading">
-                  Video ad templates
-                </div>
+                {(videoTotal ?? presets.length) === 0 &&
+                !isLoading &&
+                hasActiveFilters(filters) ? (
+                  <div className="col-span-full mt-8 rounded-2xl border border-dashed border-input-border p-8 text-center animate-fadeIn">
+                    <div className="text-2xl mb-2">🎬</div>
+                    <div className="text-sm font-medium text-heading">
+                      No templates match your filters
+                    </div>
+                    <div className="mt-1 text-xs text-neutral-light">
+                      Try adjusting your Creative Direction, Niche, or Tags.
+                    </div>
+                    <button
+                      onClick={() => setFilters(EMPTY_FILTERS)}
+                      className="mt-4 h-[36px] px-5 rounded-xl bg-purple-600 text-white text-xs font-medium hover:bg-purple-700 transition-colors"
+                    >
+                      Clear all filters
+                    </button>
+                  </div>
+                ) : null}
+
+                {(videoTotal ?? presets.length) === 0 &&
+                !isLoading &&
+                !hasActiveFilters(filters) ? (
+                  <div className="col-span-full text-xs text-neutral-light">
+                    No video presets available.
+                  </div>
+                ) : null}
+
                 {cards.map((c) => {
                   const isSelected =
                     Boolean(c.templateId) &&
@@ -1049,11 +1189,7 @@ export default function ChooseAdStylePage() {
                           playsInline
                           loop
                           autoPlay
-                          poster={
-                            showLocalVideoPresets
-                              ? undefined
-                              : c.preset.thumbnailImageUrl
-                          }
+                          poster={c.preset.thumbnailImageUrl}
                           src={c.preset.videoUrl}
                         />
                       ) : c.preset?.thumbnailImageUrl ? (

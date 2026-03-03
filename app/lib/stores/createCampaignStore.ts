@@ -1,6 +1,8 @@
 import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import useCreativesStore from "@/app/lib/stores/creativesStore";
+import { useMetaCreativeUploadStore } from "@/app/lib/stores/metaCreativeUploadStore";
 
 type cardDetails = {
   last4Numbers: string;
@@ -46,7 +48,9 @@ type CreateCampaignState = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
+    videoCaption?: string;
     videoPreset: {
       id: string;
       title: string;
@@ -123,7 +127,9 @@ type CreateCampaignActions = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
+    videoCaption?: string;
     videoPreset?: {
       id: string;
       title: string;
@@ -191,7 +197,9 @@ const initialState: CreateCampaignState = {
     imageTemplateIds: [],
     imagePresets: [],
     imageAssetIdsByPresetId: {},
+    imageCaptionsByPresetId: {},
     videoAssetId: null,
+    videoCaption: "",
     videoPreset: null,
     generationId: null,
     mode: "standard",
@@ -279,6 +287,30 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           }));
         },
         storeProductSelection: (productSelection) => {
+          const prevPrimaryId =
+            get().productSelection.products?.[0]?.node?.id || null;
+          const nextPrimaryId =
+            productSelection.products?.[0]?.node?.id || null;
+
+          if (
+            prevPrimaryId &&
+            nextPrimaryId &&
+            prevPrimaryId !== nextPrimaryId
+          ) {
+            useCreativesStore.getState().actions.resetStore();
+            useMetaCreativeUploadStore
+              .getState()
+              .actions.clearProductUploads(prevPrimaryId);
+            set(() => ({
+              ...initialState,
+              productSelection: {
+                ...initialState.productSelection,
+                ...productSelection,
+              },
+            }));
+            return;
+          }
+
           set((state) => ({
             productSelection: {
               ...state.productSelection,

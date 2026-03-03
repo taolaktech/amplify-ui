@@ -288,14 +288,16 @@ a.gradient:not(:disabled):hover {
 .gradient-border {
   border: 1px solid transparent;
   border-radius: 12px;
-  background: linear-gradient(white, white) padding-box,
+  background:
+    linear-gradient(white, white) padding-box,
     linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
 }
 
 .gradient-border2 {
   border: 3px solid transparent;
   /* border-radius: 12px; */
-  background: linear-gradient(white, white) padding-box,
+  background:
+    linear-gradient(white, white) padding-box,
     linear-gradient(135deg, #a755ff 19.35%, #6800d7 97.65%) border-box;
 }
 
@@ -398,11 +400,13 @@ a.tertiary:not(:disabled):hover {
 }
 
 .custom-shadow-select {
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px,
+  box-shadow:
+    rgba(0, 0, 0, 0.16) 0px 10px 36px 0px,
     rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
 }
 .custom-shadow-navbar {
-  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
     rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 }
 @media screen and (max-width: 500px) {
@@ -411,14 +415,16 @@ a.tertiary:not(:disabled):hover {
   }
 }
 .custom-shadow-sidebar {
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 .custom-shadow-profile {
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 .custom-shadow-pricing-models {
-  box-shadow: rgba(69, 69, 69, 0.1) 0px 1px 2px 0px,
+  box-shadow:
+    rgba(69, 69, 69, 0.1) 0px 1px 2px 0px,
     rgba(163, 163, 163, 0.15) 0px 2px 6px 2px;
 
   /* box-shadow: 21px 8px 19px 0px rgba(0, 0, 0, 0.1); */
@@ -483,7 +489,8 @@ a.tertiary:not(:disabled):hover {
 }
 
 .toggle {
-  box-shadow: 0px 0px 0px 0.645px rgba(0, 0, 0, 0.04),
+  box-shadow:
+    0px 0px 0px 0.645px rgba(0, 0, 0, 0.04),
     0px 1.935px 5.161px 0px rgba(0, 0, 0, 0.15),
     0px 1.935px 0.645px 0px rgba(0, 0, 0, 0.06);
 }
@@ -539,7 +546,8 @@ a.tertiary:not(:disabled):hover {
   /* box-shadow: 0px 0px 0px 0.645px rgba(0, 0, 0, 0.04),
     0px 1.935px 5.161px 0px rgba(0, 0, 0, 0.15),
     0px 1.935px 0.645px 0px rgba(0, 0, 0, 0.06); */
-  box-shadow: rgba(22, 14, 37, 0.12) 0px 2px 4px 0px,
+  box-shadow:
+    rgba(22, 14, 37, 0.12) 0px 2px 4px 0px,
     rgba(25, 14, 37, 0.32) 0px 2px 16px 0px;
   /* box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px; */
@@ -661,4 +669,19 @@ ul.pagination li.active a {
   height: 34px;
   border-radius: 8px;
   /* border: 2px solid #f3eff6; */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out both;
 }
