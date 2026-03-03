@@ -8,6 +8,7 @@ import Input from "@/app/ui/form/Input";
 import TextArea from "@/app/ui/form/TextArea";
 import { ArrowCircleRight2 } from "iconsax-react";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
+import { useAuthStore } from "@/app/lib/stores/authStore";
 
 type BrandColorKey = "primary" | "secondary" | "neutral";
 
@@ -193,7 +194,12 @@ export default function ProductKitPage() {
 
   const [selectedImages, setSelectedImages] =
     useState<string[]>(defaultSelected);
+  const [primaryImageUrl, setPrimaryImageUrl] = useState<string | null>(
+    defaultSelected[0] ?? null,
+  );
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const token = useAuthStore((state) => state.token);
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -229,6 +235,7 @@ export default function ProductKitPage() {
     setProductName(product?.title ?? "");
     setProductDescription(product?.description ?? "");
     setSelectedImages(defaultSelected);
+    setPrimaryImageUrl(defaultSelected[0] ?? null);
   }, [product?.title, product?.description, defaultSelected]);
 
   const additionalImages = useMemo(() => {
@@ -275,7 +282,14 @@ export default function ProductKitPage() {
   };
 
   const handleRemoveSelected = (idx: number) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== idx));
+    setSelectedImages((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      setPrimaryImageUrl((cur) => {
+        if (cur === prev[idx]) return next[0] ?? null;
+        return cur;
+      });
+      return next;
+    });
   };
 
   const handleReplaceSelected = (idx: number) => {
@@ -288,15 +302,37 @@ export default function ProductKitPage() {
     });
   };
 
-  const handleUploadImages = (files: FileList | null) => {
+  const handleUploadImages = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const urls = Array.from(files)
-      .filter((f) => f.type.startsWith("image/"))
-      .map((f) => URL.createObjectURL(f));
+    const imageFiles = Array.from(files).filter((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (!imageFiles.length) return;
 
-    if (urls.length) {
-      setUploadedImages((prev) => [...urls, ...prev]);
+    setIsUploading(true);
+    try {
+      const uploaded = await Promise.all(
+        imageFiles.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          const res = await fetch("/api/assets/upload", {
+            method: "POST",
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+          if (!res.ok) throw new Error("Upload failed");
+          const json = await res.json();
+          return json.data.url as string;
+        }),
+      );
+      setUploadedImages((prev) => [...uploaded, ...prev]);
+    } catch {
+      // individual failures are silent; partial successes are still added
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -459,6 +495,11 @@ export default function ProductKitPage() {
                 Max {MAX_SELECTED_IMAGES} images
               </div>
             </div>
+            <p className="mt-2 text-xs text-neutral-light tracking-40">
+              Select your{" "}
+              <span className="font-medium text-heading">reference image</span>{" "}
+              (primary image) to be used for ad generation.
+            </p>
 
             <div className="mt-5">
               <div className="grid grid-cols-3 gap-3">
@@ -523,6 +564,35 @@ export default function ProductKitPage() {
                           >
                             Replace
                           </button>
+                          <button
+                            className={`absolute top-2 left-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                              primaryImageUrl === url
+                                ? "bg-purple-600 border-purple-600"
+                                : "bg-[rgba(0,0,0,0.35)] border-white"
+                            }`}
+                            title="Set as primary image"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setPrimaryImageUrl(url);
+                            }}
+                          >
+                            {primaryImageUrl === url && (
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <circle cx="5" cy="5" r="3" fill="white" />
+                              </svg>
+                            )}
+                          </button>
+                          {primaryImageUrl === url && (
+                            <div className="absolute bottom-2 right-2 h-[20px] px-2 rounded-md bg-purple-600 text-white text-[10px] font-medium flex items-center">
+                              Primary
+                            </div>
+                          )}
                         </>
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-light tracking-40">
@@ -558,15 +628,18 @@ export default function ProductKitPage() {
                     </button>
                   ))}
 
-                  <label className="relative w-[72px] h-[72px] rounded-2xl overflow-hidden border border-dashed border-input-border flex-shrink-0 flex items-center justify-center cursor-pointer">
-                    <span className="text-xs text-purple-600 font-medium">
-                      Upload
+                  <label
+                    className={`relative w-[72px] h-[72px] rounded-2xl overflow-hidden border border-dashed border-input-border flex-shrink-0 flex items-center justify-center ${isUploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    <span className="text-xs text-purple-600 font-medium text-center leading-tight px-1">
+                      {isUploading ? "..." : "Upload"}
                     </span>
                     <input
                       className="hidden"
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       multiple
+                      disabled={isUploading}
                       onChange={(e) => handleUploadImages(e.target.files)}
                     />
                   </label>

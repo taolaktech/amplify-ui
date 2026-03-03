@@ -98,6 +98,11 @@ const SupportedAdPlatforms = () => {
   const handleProceed = () => {
     actions.completeAdsPlatform();
 
+    if (!supportedAdPlatforms.Facebook) {
+      router.push("/create-campaign/campaign-snapshots");
+      return;
+    }
+
     router.push("/create-campaign/product-kit");
   };
 

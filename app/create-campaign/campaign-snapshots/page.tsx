@@ -483,27 +483,29 @@ export default function CampaignSnapshotsPage() {
                 );
               }}
             />
-            <Input
-              type="number"
-              label="Meta Daily Budget ($)"
-              name="metaDailyBudget"
-              placeholder="5"
-              large
-              background="rgba(232,232,232,0.35)"
-              borderless
-              min={5}
-              step={1}
-              value={campaignDetails.metaDailyBudget}
-              onChange={(e) =>
-                handleCampaignDetails("metaDailyBudget", e.target.value)
-              }
-              onBlur={() => {
-                handleCampaignDetails(
-                  "metaDailyBudget",
-                  clampBudget(campaignDetails.metaDailyBudget) || "5",
-                );
-              }}
-            />
+            {supportedAdPlatforms.Facebook && (
+              <Input
+                type="number"
+                label="Meta Daily Budget ($)"
+                name="metaDailyBudget"
+                placeholder="5"
+                large
+                background="rgba(232,232,232,0.35)"
+                borderless
+                min={5}
+                step={1}
+                value={campaignDetails.metaDailyBudget}
+                onChange={(e) =>
+                  handleCampaignDetails("metaDailyBudget", e.target.value)
+                }
+                onBlur={() => {
+                  handleCampaignDetails(
+                    "metaDailyBudget",
+                    clampBudget(campaignDetails.metaDailyBudget) || "5",
+                  );
+                }}
+              />
+            )}
           </div>
           <p className="mt-2 text-neutral-light tracking-40 text-xs md:text-sm">
             Minimum daily budget is $5.

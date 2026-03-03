@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Image as ImageIcon } from "iconsax-react";
+import { ArrowDown2, Image as ImageIcon } from "iconsax-react";
 import { ArrowForward, Magicpen } from "iconsax-react";
 import GradientCheckbox from "../form/GradientCheckbox2";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
@@ -8,7 +8,7 @@ import GoogleAdsCreatives from "../creatives/GoogleAds";
 import { Platform } from "@/type";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import useUIStore from "@/app/lib/stores/uiStore";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FBStaticPostView from "../media-creatives/facebook/StaticPostView";
 import FBCarouselPostView from "../media-creatives/facebook/CarouselPostView";
 import FBStoryPostView from "../media-creatives/facebook/StoryPostView";
@@ -20,8 +20,82 @@ import {
   useMetaCreativeUploadStore,
   type MetaUploadedCreative,
 } from "@/app/lib/stores/metaCreativeUploadStore";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { getAssetById } from "@/app/lib/api/base/assets";
 
 type PreviewTitle = "Instagram" | "Facebook" | "Meta" | "Google";
+
+const GOOGLE_CAMPAIGN_TYPES: Array<{ label: string; description: string }> = [
+  {
+    label: "Product Launch",
+    description: "Promote new arrivals or collections",
+  },
+  {
+    label: "Flash Sale / Limited Time",
+    description: "Create urgency with time-bound offers",
+  },
+  {
+    label: "Abandoned Cart Recovery",
+    description: "Retarget users who didn’t complete purchases",
+  },
+  {
+    label: "Upsell / Cross-sell",
+    description: "Recommend related or higher-ticket items post-purchase",
+  },
+  {
+    label: "Seasonal Campaigns",
+    description: "Tie to holidays, events, or seasons",
+  },
+  {
+    label: "Free Shipping Promo",
+    description: "Boost conversions with limited-time free delivery",
+  },
+  {
+    label: "Customer Reactivation",
+    description: "Win back inactive customers",
+  },
+  {
+    label: "Bestseller Boost",
+    description: "Highlight top-selling products",
+  },
+  {
+    label: "High ROAS Booster",
+    description:
+      "Scale campaigns with high return based on real-time performance",
+  },
+  {
+    label: "Slow-Mover Inventory Push",
+    description: "Promote items with low sales velocity",
+  },
+  {
+    label: "Valentine’s Day",
+    description: "Gifts for Her/Him, Romantic Bundles, Self-Love Sale",
+  },
+  {
+    label: "Easter",
+    description: "Spring Essentials, Easter Gift Ideas, Hop into Deals",
+  },
+  {
+    label: "Back-to-School",
+    description: "School Essentials, Study Gear Bundle, New Term Styles",
+  },
+  {
+    label: "Black Friday/Cyber Monday",
+    description: "Doorbuster Deals, Early Access Sale, Cyber Blowout",
+  },
+  {
+    label: "Christmas/Holidays",
+    description: "Holiday Gift Guide, 12 Days of Deals, Stocking Stuffers",
+  },
+  {
+    label: "New Year / Fitness Resets",
+    description: "New Year, New Gear, Resolution Ready Sale",
+  },
+  {
+    label: "Mother’s/Father’s Day",
+    description: "Gifts They’ll Love, Mom’s Day Favorites, Dad Approved",
+  },
+];
 
 const Preview = ({
   adPlatforms,
@@ -42,6 +116,17 @@ const Preview = ({
   loading: boolean;
 }) => {
   const router = useRouter();
+  const [googleCampaignTypeOpen, setGoogleCampaignTypeOpen] = useState(false);
+  const googleCampaignTypeDesktopRef = useRef<HTMLDivElement>(null);
+  const googleCampaignTypeMobileRef = useRef<HTMLDivElement>(null);
+
+  const campaignType = useCreateCampaignStore(
+    (state) => state.campaignSnapshots.campaignType,
+  );
+  const storeCampaignSnapshots = useCreateCampaignStore(
+    (state) => state.actions.storeCampaignSnapshots,
+  );
+
   const settings: { label: string; key: SocialSettingsKey }[] = [
     { label: "Static Post", key: "staticPost" },
     { label: "Carousel Post", key: "carouselPost" },
@@ -60,6 +145,23 @@ const Preview = ({
     (state) => state.campaignSnapshots.destinationUrl,
   );
   const setToast = useToastStore((state) => state.setToast);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const inDesktop =
+        googleCampaignTypeDesktopRef.current?.contains(event.target as Node) ||
+        false;
+      const inMobile =
+        googleCampaignTypeMobileRef.current?.contains(event.target as Node) ||
+        false;
+
+      if (!inDesktop && !inMobile) {
+        setGoogleCampaignTypeOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const isValidHttpUrl = (value: string) => {
     if (!value) return false;
@@ -98,35 +200,93 @@ const Preview = ({
         <div className="flex flex-col w-full " key={item.title}>
           <div className="flex px-5 lg:pl-0 lg:pr-5  justify-between items-center">
             <div className="flex gap-16 items-center">
-              <p className="text-sm flex gap-2 items-center">
-                <span className="font-bold ">
-                  {item.title === "Instagram" ? (
-                    <Image
-                      src="/instagram_logo.svg"
-                      alt="instagram"
-                      width={20}
-                      height={20}
-                    />
-                  ) : item.title === "Meta" ? (
-                    <Image
-                      src="/facebook_logo.svg"
-                      alt="meta"
-                      width={20}
-                      height={20}
-                    />
-                  ) : (
-                    <Image
-                      src="/google_ads-icon.svg"
-                      alt="google"
-                      width={20}
-                      height={20}
-                    />
-                  )}
-                </span>
-                <span className="font-semibold">
-                  {item.title === "Google" ? "Google Ads" : item.title}
-                </span>
-              </p>
+              <div
+                className={
+                  item.title === "Google"
+                    ? "flex flex-col items-start gap-2"
+                    : "flex items-center"
+                }
+              >
+                <p className="text-sm flex gap-2 items-center">
+                  <span className="font-bold ">
+                    {item.title === "Instagram" ? (
+                      <Image
+                        src="/instagram_logo.svg"
+                        alt="instagram"
+                        width={20}
+                        height={20}
+                      />
+                    ) : item.title === "Meta" ? (
+                      <Image
+                        src="/facebook_logo.svg"
+                        alt="meta"
+                        width={20}
+                        height={20}
+                      />
+                    ) : (
+                      <Image
+                        src="/google_ads-icon.svg"
+                        alt="google"
+                        width={20}
+                        height={20}
+                      />
+                    )}
+                  </span>
+                  <span className="font-semibold">
+                    {item.title === "Google" ? "Google Ads" : item.title}
+                  </span>
+                </p>
+
+                {item.title === "Google" && (
+                  <div
+                    ref={googleCampaignTypeDesktopRef}
+                    className="hidden md:block"
+                  >
+                    <div className="relative">
+                      <div className="text-xs tracking-tight block">
+                        Campaign Type
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setGoogleCampaignTypeOpen((p) => !p)}
+                        className={`mt-2 px-4 h-[40px] w-[260px] flex items-center justify-between rounded-lg text-sm font-medium border-[1.2px] bg-white ${
+                          googleCampaignTypeOpen
+                            ? "border-[#A755FF]"
+                            : "border-input-border"
+                        }`}
+                      >
+                        <span className="truncate">
+                          {campaignType || "Product Launch"}
+                        </span>
+                        <ArrowDown2 size={14} color="#292D32" />
+                      </button>
+
+                      {googleCampaignTypeOpen && (
+                        <div className="absolute left-0 right-0 z-50 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto top-full mt-2">
+                          {GOOGLE_CAMPAIGN_TYPES.map((opt) => (
+                            <div
+                              key={opt.label}
+                              title={opt.description}
+                              onClick={() => {
+                                storeCampaignSnapshots({
+                                  ...useCreateCampaignStore.getState()
+                                    .campaignSnapshots,
+                                  campaignType: opt.label,
+                                });
+                                setGoogleCampaignTypeOpen(false);
+                              }}
+                              className="p-3 relative hover:bg-[#FBFAFC] text-[#333] cursor-pointer"
+                            >
+                              <span>{opt.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="hidden md:block">
                 {item.title !== "Google" && (
                   <MediaSettingBox
@@ -181,6 +341,12 @@ const Preview = ({
                         }
 
                         if (hasGeneratedOnceForPlatform(item.platform)) {
+                          if (item.platform === "GOOGLE ADS") {
+                            generateCreatives(highlightedProductId, [
+                              item.platform,
+                            ]);
+                            return;
+                          }
                           router.push("/create-campaign/product-kit");
                           return;
                         }
@@ -214,6 +380,54 @@ const Preview = ({
                 settings={settings}
                 toggleFacebookSettings={toggleFacebookSettings}
               />
+            )}
+            {item.title === "Google" && (
+              <div
+                ref={googleCampaignTypeMobileRef}
+                className="px-5 lg:pl-0 lg:pr-5"
+              >
+                <div className="relative">
+                  <div className="text-xs tracking-tight block">
+                    Campaign Type
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setGoogleCampaignTypeOpen((p) => !p)}
+                    className={`mt-2 px-4 h-[40px] w-full flex items-center justify-between rounded-lg text-sm font-medium border-[1.2px] bg-white ${
+                      googleCampaignTypeOpen
+                        ? "border-[#A755FF]"
+                        : "border-input-border"
+                    }`}
+                  >
+                    <span className="truncate">
+                      {campaignType || "Product Launch"}
+                    </span>
+                    <ArrowDown2 size={14} color="#292D32" />
+                  </button>
+
+                  {googleCampaignTypeOpen && (
+                    <div className="absolute left-0 right-0 z-50 bg-white max-h-[300px] rounded-md w-full custom-shadow-select overflow-y-auto top-full mt-2">
+                      {GOOGLE_CAMPAIGN_TYPES.map((opt) => (
+                        <div
+                          key={opt.label}
+                          title={opt.description}
+                          onClick={() => {
+                            storeCampaignSnapshots({
+                              ...useCreateCampaignStore.getState()
+                                .campaignSnapshots,
+                              campaignType: opt.label,
+                            });
+                            setGoogleCampaignTypeOpen(false);
+                          }}
+                          className="p-3 relative hover:bg-[#FBFAFC] text-[#333] cursor-pointer"
+                        >
+                          <span>{opt.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
           <PreviewContainer
@@ -263,6 +477,8 @@ const PreviewContainer = ({
     (state) => state.creativeLoadingState,
   );
 
+  const token = useAuthStore((state) => state.token);
+
   const productName = useCreateCampaignStore((state) => {
     const product = state.productSelection.products.find(
       (p) => p.node.id === highlightedProductId,
@@ -287,6 +503,133 @@ const PreviewContainer = ({
   const isGoogleAds = platform === "GOOGLE ADS";
   const isFacebook = platform === "FACEBOOK";
 
+  const generatedImageAssetIdsByPresetId = useCreateCampaignStore(
+    (state) => state.adStyle.imageAssetIdsByPresetId || {},
+  );
+  const generatedVideoAssetId = useCreateCampaignStore(
+    (state) => state.adStyle.videoAssetId || null,
+  );
+
+  const videoCaption = useCreateCampaignStore(
+    (state) => state.adStyle.videoCaption || "",
+  );
+  const imageCaptionsByPresetId = useCreateCampaignStore(
+    (state) => state.adStyle.imageCaptionsByPresetId || {},
+  );
+
+  const orderedImagePresetIds = useMemo(() => {
+    return Object.entries(generatedImageAssetIdsByPresetId)
+      .filter(
+        ([presetId, assetId]) =>
+          typeof presetId === "string" &&
+          presetId.trim().length > 0 &&
+          typeof assetId === "string" &&
+          assetId.trim().length > 0,
+      )
+      .slice(0, 5)
+      .map(([presetId]) => presetId);
+  }, [generatedImageAssetIdsByPresetId]);
+
+  const attachedAssets = useCreateCampaignStore(
+    (state) => state.attachedAssets.assets,
+  );
+
+  const [generatedImageUrls, setGeneratedImageUrls] = useState<string[]>([]);
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!isFacebook) return;
+    if (!token) return;
+
+    const imageAssetIds = Object.values(generatedImageAssetIdsByPresetId)
+      .filter((v) => typeof v === "string" && v.trim().length > 0)
+      .slice(0, 5);
+    const videoAssetId =
+      typeof generatedVideoAssetId === "string" &&
+      generatedVideoAssetId.trim().length > 0
+        ? generatedVideoAssetId
+        : null;
+
+    if (imageAssetIds.length === 0 && !videoAssetId) {
+      setGeneratedImageUrls([]);
+      setGeneratedVideoUrl(null);
+      return;
+    }
+
+    const attachedById = new Map(
+      (attachedAssets || []).map((a) => [a.assetId, a]),
+    );
+
+    const attachedImages = imageAssetIds
+      .map((id) => attachedById.get(id)?.url)
+      .filter((u): u is string => typeof u === "string" && u.trim().length > 0);
+    const attachedVideo = videoAssetId
+      ? attachedById.get(videoAssetId)?.url
+      : undefined;
+
+    if (
+      attachedImages.length > 0 ||
+      (attachedVideo && attachedVideo.trim().length > 0)
+    ) {
+      setGeneratedImageUrls(attachedImages);
+      setGeneratedVideoUrl(
+        typeof attachedVideo === "string" && attachedVideo.trim().length > 0
+          ? attachedVideo
+          : null,
+      );
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const imageResults = await Promise.allSettled(
+          imageAssetIds.map(async (assetId) => {
+            const res = await getAssetById({ token, assetId });
+            const asset = res?.data;
+            const url = asset?.mediaUrl || asset?.url;
+            return typeof url === "string" ? url : "";
+          }),
+        );
+
+        const nextImages = imageResults
+          .map((r) => (r.status === "fulfilled" ? r.value : ""))
+          .filter((u) => typeof u === "string" && u.trim().length > 0);
+
+        let nextVideo: string | null = null;
+        if (videoAssetId) {
+          const res = await getAssetById({ token, assetId: videoAssetId });
+          const asset = res?.data;
+          const url = asset?.mediaUrl || asset?.url;
+          nextVideo =
+            typeof url === "string" && url.trim().length > 0 ? url : null;
+        }
+
+        if (cancelled) return;
+        setGeneratedImageUrls(nextImages);
+        setGeneratedVideoUrl(nextVideo);
+      } catch {
+        if (cancelled) return;
+        setGeneratedImageUrls([]);
+        setGeneratedVideoUrl(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isFacebook,
+    token,
+    generatedVideoAssetId,
+    highlightedProductId,
+    generatedImageAssetIdsByPresetId,
+    attachedAssets,
+  ]);
+
   const uploaded = useMetaCreativeUploadStore(
     (state) => state.uploadsByProductId[highlightedProductId] ?? EMPTY_UPLOADS,
   );
@@ -302,6 +645,9 @@ const PreviewContainer = ({
   }, [uploaded]);
 
   const showUploadedCreatives = uploaded.length > 0;
+  const showGeneratedAssets =
+    !showUploadedCreatives &&
+    (generatedImageUrls.length > 0 || Boolean(generatedVideoUrl));
   const assetSource = showUploadedCreatives
     ? ("uploaded" as const)
     : ("generated" as const);
@@ -341,8 +687,6 @@ const PreviewContainer = ({
       caption: "",
     };
 
-    // CarouselPostView renders 1 StaticPost + 4 CarouselPost tiles.
-    // Ensure we always provide 5 items by cycling through shuffled images.
     const carouselCreatives = Array.from({ length: 5 }).map((_, idx) => {
       const img = shuffled[idx % shuffled.length]!;
       return { url: img.previewUrl, caption: "" };
@@ -404,12 +748,19 @@ const PreviewContainer = ({
       isMediaCreative?.[mediaCreative]?.creatives &&
       isMediaCreative[mediaCreative]?.creatives.length > 0;
     const hasUploads = uploaded.length > 0;
-    return Boolean(hasGenerated || hasUploads);
-  }, [isMediaCreative, mediaCreative, uploaded.length]);
+    const hasAssets =
+      generatedImageUrls.length > 0 || Boolean(generatedVideoUrl);
+    return Boolean(hasGenerated || hasUploads || hasAssets);
+  }, [
+    generatedImageUrls.length,
+    generatedVideoUrl,
+    isMediaCreative,
+    mediaCreative,
+    uploaded.length,
+  ]);
 
   const showNoPreview = !hasMediaCreatives && !isLoading;
 
-  // No Preview component - reusable
   const NoPreviewPlaceholder = () => (
     <div className="flex flex-col gap-1 items-center">
       <ImageIcon size="48" color="#DADADA" variant="Bold" />
@@ -419,11 +770,9 @@ const PreviewContainer = ({
 
   return (
     <>
-      {/* Google Ads */}
       {isGoogleAds && (
         <div className="px-5 lg:pl-0 lg:pr-5">
           <div className="bg-[#f1f1f1] max-w-full relative rounded-xl md:rounded-3xl mt-5 min-h-[518px] md:min-h-[600px]">
-            {/* Loading State */}
             <div
               className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
                 isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -432,7 +781,6 @@ const PreviewContainer = ({
               <CircleLoader />
             </div>
 
-            {/* Content State */}
             <div
               className={`flex flex-1 h-[350px] sm:h-[350px] md:h-[650px] items-center justify-center transition-opacity duration-300 ${
                 creativesAvailable && !isLoading
@@ -447,7 +795,6 @@ const PreviewContainer = ({
               )}
             </div>
 
-            {/* No Preview State */}
             <div
               className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
                 !creativesAvailable && !isLoading
@@ -461,10 +808,8 @@ const PreviewContainer = ({
         </div>
       )}
 
-      {/* Facebook */}
       {isFacebook && (
         <div className="relative min-h-[518px] md:min-h-[600px]">
-          {/* Content with creatives */}
           <div
             className={`transition-opacity duration-300 ${
               !showNoPreview
@@ -487,6 +832,7 @@ const PreviewContainer = ({
                             productId={highlightedProductId}
                             productName={productName}
                             source={"uploaded"}
+                            hideBookmark
                           />
                         </div>
                       )}
@@ -500,6 +846,59 @@ const PreviewContainer = ({
                             productId={highlightedProductId}
                             productName={productName}
                             source={"uploaded"}
+                            hideBookmark
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : showGeneratedAssets ? (
+                    <>
+                      {generatedImageUrls[0] && (
+                        <div
+                          style={{ width: `${facebookWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <FBStaticPostView
+                            creative={{
+                              url: generatedImageUrls[0],
+                              caption:
+                                imageCaptionsByPresetId[
+                                  orderedImagePresetIds[0] || ""
+                                ] ||
+                                isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                  ?.caption,
+                              title:
+                                isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                  ?.title,
+                            }}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"generated"}
+                            hideBookmark
+                          />
+                        </div>
+                      )}
+                      {generatedVideoUrl && (
+                        <div
+                          style={{ width: `${facebookWidthSize.staticPost}%` }}
+                          className="min-w-[318.6px] transition-all duration-300"
+                        >
+                          <FBStaticPostView
+                            creative={{
+                              url: "",
+                              videoUrl: generatedVideoUrl,
+                              caption:
+                                videoCaption ||
+                                isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                  ?.caption,
+                              title:
+                                isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                  ?.title,
+                            }}
+                            productId={highlightedProductId}
+                            productName={productName}
+                            source={"generated"}
+                            hideBookmark
                           />
                         </div>
                       )}
@@ -516,6 +915,7 @@ const PreviewContainer = ({
                         productId={highlightedProductId}
                         productName={productName}
                         source={assetSource}
+                        hideBookmark
                       />
                     </div>
                   ))}
@@ -528,6 +928,30 @@ const PreviewContainer = ({
                     {showUploadedCreatives ? (
                       <FBCarouselPostView
                         creatives={uploadedSelection.carouselCreatives}
+                      />
+                    ) : showGeneratedAssets ? (
+                      <FBCarouselPostView
+                        creatives={Array.from({ length: 5 }).map((_, idx) => {
+                          const url =
+                            generatedImageUrls[
+                              idx % Math.max(1, generatedImageUrls.length)
+                            ];
+                          return {
+                            url,
+                            caption:
+                              imageCaptionsByPresetId[
+                                orderedImagePresetIds[
+                                  idx %
+                                    Math.max(1, orderedImagePresetIds.length)
+                                ] || ""
+                              ] ||
+                              isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                ?.caption,
+                            title:
+                              isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                                ?.title,
+                          };
+                        })}
                       />
                     ) : (
                       <FBCarouselPostView
@@ -550,6 +974,31 @@ const PreviewContainer = ({
                         productId={highlightedProductId}
                         productName={productName}
                         source={"uploaded"}
+                        hideBookmark
+                      />
+                    ) : showGeneratedAssets ? (
+                      <FBStoryPostView
+                        creative={{
+                          url:
+                            generatedImageUrls[1] ||
+                            generatedImageUrls[0] ||
+                            "",
+                          caption:
+                            imageCaptionsByPresetId[
+                              orderedImagePresetIds[1] ||
+                                orderedImagePresetIds[0] ||
+                                ""
+                            ] ||
+                            isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                              ?.caption,
+                          title:
+                            isMediaCreative?.[mediaCreative]?.creatives?.[0]
+                              ?.title,
+                        }}
+                        productId={highlightedProductId}
+                        productName={productName}
+                        source={"generated"}
+                        hideBookmark
                       />
                     ) : (
                       <FBStoryPostView
@@ -559,6 +1008,7 @@ const PreviewContainer = ({
                         productId={highlightedProductId}
                         productName={productName}
                         source={assetSource}
+                        hideBookmark
                       />
                     )}
                   </div>
@@ -567,7 +1017,6 @@ const PreviewContainer = ({
             </DragScrollContainer>
           </div>
 
-          {/* No Preview State */}
           <div
             className={`px-5 lg:pl-0 lg:pr-5 transition-opacity duration-300 ${
               showNoPreview

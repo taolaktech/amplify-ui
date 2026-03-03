@@ -211,29 +211,16 @@ export const useAssetLibraryStore = create<AssetLibraryState>()(
                 a.assetId === existing.assetId ? merged : a,
               ),
             }));
-            void fetch("/api/assets", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(merged),
-            }).catch(() => {});
             return merged;
           }
 
           set((state) => ({ assets: [next, ...state.assets] }));
-          void fetch("/api/assets", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(next),
-          }).catch(() => {});
           return next;
         },
         deleteAsset: (assetId) => {
           set((state) => ({
             assets: state.assets.filter((a) => a.assetId !== assetId),
           }));
-          void fetch(`/api/assets?assetId=${encodeURIComponent(assetId)}`, {
-            method: "DELETE",
-          }).catch(() => {});
         },
         getById: (assetId) => get().assets.find((a) => a.assetId === assetId),
         isSavedByUrl: ({ type, url, storageUrl }) => {
@@ -249,15 +236,7 @@ export const useAssetLibraryStore = create<AssetLibraryState>()(
           );
         },
         hydrateFromApi: async () => {
-          try {
-            const res = await fetch("/api/assets");
-            if (!res.ok) return;
-            const json = await res.json();
-            const data = Array.isArray(json?.data) ? json.data : [];
-            set((state) => ({ assets: mergeAssetLists(state.assets, data) }));
-          } catch {
-            return;
-          }
+          return;
         },
       },
     }),

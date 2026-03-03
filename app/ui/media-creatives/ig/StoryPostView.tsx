@@ -1,18 +1,10 @@
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import MaximizeButton from "../MaximizeButton";
 import StoryPost from "./StoryPost";
 import XIcon from "@/public/x.svg";
 import useUIStore from "@/app/lib/stores/uiStore";
-import BookmarkIcon from "@/public/media-creatives/Bookmark.png";
-import Image from "next/image";
-import {
-  useAssetLibraryStore,
-  type AssetPlatform,
-  type AssetFormat,
-} from "@/app/lib/stores/assetLibraryStore";
-import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function StoryPostView({
   creative,
@@ -27,33 +19,11 @@ export default function StoryPostView({
 }) {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
-    (state) => state.adsShow.location[0] || "Location"
-  );
-  const destinationUrl = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.destinationUrl,
-  );
-  const campaignName = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.campaignName,
+    (state) => state.adsShow.location[0] || "Location",
   );
   const [maximize, setMaximize] = useState(false);
-  const setToast = useToastStore((state) => state.setToast);
-  const { actions: assetActions } = useAssetLibraryStore((state) => state);
-
-  const assetType = "image" as const;
-  const url = creative?.url as string | undefined;
-  const platform: AssetPlatform = "Meta";
-  const format: AssetFormat = "Story";
-
-  const isSaved = useAssetLibraryStore((state) =>
-    state.actions.isSavedByUrl({ type: assetType, url }),
-  );
-
-  const canSave = useMemo(() => {
-    if (!productId) return false;
-    return Boolean(url && url.trim().length > 0);
-  }, [productId, url]);
   const toggleIsPreviewMaximized = useUIStore(
-    (state) => state.actions.toggleIsPreviewMaximized
+    (state) => state.actions.toggleIsPreviewMaximized,
   );
 
   const toggleMaximize = () => {
@@ -65,43 +35,6 @@ export default function StoryPostView({
       <div className="flex items-center justify-between">
         <div className="font-medium text-sm">Story Post</div>
         <div className="flex items-center gap-2">
-          <button
-            disabled={!canSave || isSaved}
-            onClick={() => {
-              if (!canSave || isSaved) return;
-              assetActions.upsertAsset({
-                type: assetType,
-                source: source || "generated",
-                url,
-                productId,
-                productName,
-                campaignName,
-                destinationUrl,
-                platform,
-                format,
-              });
-              setToast({
-                type: "success",
-                title: "Saved to library",
-                message: "This creative is now available in Saved Ads.",
-              });
-            }}
-            className={`h-[36px] w-[36px] rounded-full flex items-center justify-center border ${
-              isSaved
-                ? "bg-[#ECECEC] border-[#E0E0E0]"
-                : canSave
-                  ? "bg-[#F0E6FB] border-[#D0B0F3]"
-                  : "bg-[#ECECEC] border-[#E0E0E0] cursor-not-allowed"
-            }`}
-          >
-            <Image
-              src={BookmarkIcon}
-              alt="Save"
-              width={16}
-              height={16}
-              className={isSaved ? "opacity-60" : "opacity-100"}
-            />
-          </button>
           <MaximizeButton onClick={toggleMaximize} />
         </div>
       </div>
@@ -135,7 +68,7 @@ const StoryPostViewMaximized = ({
 }) => {
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const location = useCreateCampaignStore(
-    (state) => state.adsShow.location[0] || "Location"
+    (state) => state.adsShow.location[0] || "Location",
   );
 
   return (

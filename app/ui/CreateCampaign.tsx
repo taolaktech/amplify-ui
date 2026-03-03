@@ -19,6 +19,9 @@ export default function CreateCampaign({
   const { adsShow, productSelection } = useCreateCampaignStore(
     (state) => state,
   );
+  const supportedAdPlatforms = useCreateCampaignStore(
+    (state) => state.supportedAdPlatforms,
+  );
   // const [step, setStep] = useState(1);
   const [backText, setBackText] = useState("");
   const [route, setRoute] = useState("");
@@ -45,8 +48,13 @@ export default function CreateCampaign({
 
     if (pathname.includes("campaign-snapshots")) {
       setProgressStep(6, 8);
-      setBackText("Choose Ad Style");
-      setRoute("/create-campaign/choose-ad-style");
+      if (!supportedAdPlatforms.Facebook) {
+        setBackText("Supported Ad Platforms");
+        setRoute("/create-campaign/supported-ad-platforms");
+        return;
+      }
+      setBackText("Creative Ready");
+      setRoute("/create-campaign/creative-ready");
       return;
     }
 
@@ -91,7 +99,12 @@ export default function CreateCampaign({
     setProgressStep(1, 8);
     setBackText("");
     setRoute("");
-  }, [adsShow.complete, productSelection.complete, pathname]);
+  }, [
+    adsShow.complete,
+    productSelection.complete,
+    pathname,
+    supportedAdPlatforms.Facebook,
+  ]);
 
   const handleBack = () => {
     router.push(route);

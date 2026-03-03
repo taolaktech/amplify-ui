@@ -9,11 +9,6 @@ import { useModal } from "@/app/lib/hooks/useModal";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import {
-  useAssetLibraryStore,
-  type AssetFormat,
-  type AssetPlatform,
-} from "@/app/lib/stores/assetLibraryStore";
 import { getAssetById, type Asset } from "@/app/lib/api/base/assets";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
 
@@ -27,6 +22,7 @@ type ReadyCreative = {
 type AdCopy = {
   headline: string;
   bodyCopy: string;
+  caption: string;
   callToAction: string;
   brandName: string;
   websiteUrl: string;
@@ -151,7 +147,9 @@ export default function CreativeReadyPage() {
   const { productSelection, adStyle } = useCreateCampaignStore((s) => s);
   const { campaignSnapshots } = useCreateCampaignStore((s) => s);
   const attachedAssets = useCreateCampaignStore((s) => s.attachedAssets);
-  const assetActions = useAssetLibraryStore((s) => s.actions);
+  const attachAssetsToDraft = useCreateCampaignStore(
+    (s) => s.actions.attachAssetsToDraft,
+  );
 
   const product = productSelection.products?.[0]?.node;
 
@@ -183,8 +181,6 @@ export default function CreativeReadyPage() {
     {},
   );
   const videoPollingStartedRef = useRef(false);
-
-  const [isSaving, setIsSaving] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoMuted, setVideoMuted] = useState(true);
@@ -402,6 +398,7 @@ export default function CreativeReadyPage() {
     return {
       headline: baseHeadline,
       bodyCopy: baseBody,
+      caption: "",
       callToAction: "Shop now",
       brandName: fallbackBrand,
       websiteUrl: website,
@@ -464,9 +461,16 @@ export default function CreativeReadyPage() {
     if (!c) return;
     const key = creativeKey(c);
     if (adCopyById[key]) return;
+    const seededCaption =
+      c.type === "video"
+        ? adStyle.videoCaption || ""
+        : (adStyle.imageCaptionsByPresetId || {})[c.id] || "";
     setAdCopyById((prev) => ({
       ...prev,
-      [key]: buildDefaultCopy(c),
+      [key]: {
+        ...buildDefaultCopy(c),
+        caption: seededCaption,
+      },
     }));
   }, [activeCreative?.id, activeCreative?.type, adCopyById]);
 
@@ -488,7 +492,12 @@ export default function CreativeReadyPage() {
       for (const c of relevantCreatives) {
         const key = creativeKey(c);
         if (!next[key]) {
-          next[key] = buildDefaultCopy(c);
+          const seededCaption =
+            (adStyle.imageCaptionsByPresetId || {})[c.id] || "";
+          next[key] = {
+            ...buildDefaultCopy(c),
+            caption: seededCaption,
+          };
         }
       }
       return next;
@@ -848,82 +857,6 @@ export default function CreativeReadyPage() {
   const goNext = () => {
     if (!canNavigate) return;
     setActiveIndex((prev) => (prev + 1) % creatives.length);
-  };
-
-  const handleSaveAds = async () => {
-    const product = productSelection.products?.[0]?.node;
-    const productId = product?.id;
-    const productName = product?.title;
-
-    if (!productId) {
-      setToast({
-        type: "error",
-        title: "Missing product",
-        message: "Select a product before saving ads.",
-      });
-      return;
-    }
-
-    if (creatives.length === 0) return;
-    setIsSaving(true);
-    try {
-      const destinationUrl = campaignSnapshots.destinationUrl;
-      const campaignName = campaignSnapshots.campaignName;
-      const platform: AssetPlatform = "Other";
-
-      for (const c of creatives) {
-        const key = creativeKey(c);
-        const copy = adCopyById[key] || buildDefaultCopy(c);
-        const promptUsed =
-          c.type === "video"
-            ? `CTA: ${copy.callToAction}\nBrand: ${copy.brandName}\nWebsite: ${copy.websiteUrl}\n\nVideo Script:\n${copy.videoScript}`
-            : `CTA: ${copy.callToAction}\nBrand: ${copy.brandName}\nWebsite: ${copy.websiteUrl}`;
-
-        if (c.type === "video") {
-          const format: AssetFormat = "Video";
-          assetActions.upsertAsset({
-            type: "video",
-            source: "generated",
-            storageUrl: c.url,
-            thumbnailUrl: adStyle.videoPreset?.thumbnailImageUrl,
-            productId,
-            productName,
-            campaignName,
-            destinationUrl,
-            platform,
-            format,
-            headlineUsed: copy.headline,
-            descriptionUsed: copy.bodyCopy,
-            promptUsed,
-          });
-          continue;
-        }
-
-        const format: AssetFormat = "Image";
-        assetActions.upsertAsset({
-          type: "image",
-          source: "generated",
-          url: c.url,
-          productId,
-          productName,
-          campaignName,
-          destinationUrl,
-          platform,
-          format,
-          headlineUsed: copy.headline,
-          descriptionUsed: copy.bodyCopy,
-          promptUsed,
-        });
-      }
-
-      setToast({
-        type: "success",
-        title: "Saved",
-        message: `Saved ${creatives.length} ad${creatives.length === 1 ? "" : "s"} to Saved Ads.`,
-      });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   useEffect(() => {
@@ -1293,19 +1226,34 @@ export default function CreativeReadyPage() {
 
                 <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {activeCreative?.type === "video" ? (
-                    <div className="md:col-span-2 flex flex-col gap-2">
-                      <label className="text-xs text-neutral-light">
-                        Video Script
-                      </label>
-                      <textarea
-                        className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
-                        value={activeAdCopy?.videoScript || ""}
-                        onChange={(e) =>
-                          updateActiveAdCopy({ videoScript: e.target.value })
-                        }
-                        placeholder="Write your video script"
-                      />
-                    </div>
+                    <>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
+                          Video Script
+                        </label>
+                        <textarea
+                          className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={activeAdCopy?.videoScript || ""}
+                          onChange={(e) =>
+                            updateActiveAdCopy({ videoScript: e.target.value })
+                          }
+                          placeholder="Write your video script"
+                        />
+                      </div>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
+                          Caption
+                        </label>
+                        <textarea
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={activeAdCopy?.caption || ""}
+                          onChange={(e) =>
+                            updateActiveAdCopy({ caption: e.target.value })
+                          }
+                          placeholder="Write your caption"
+                        />
+                      </div>
+                    </>
                   ) : (
                     <>
                       <div className="flex flex-col gap-2">
@@ -1338,20 +1286,6 @@ export default function CreativeReadyPage() {
 
                       <div className="flex flex-col gap-2">
                         <label className="text-xs text-neutral-light">
-                          Brand Name
-                        </label>
-                        <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
-                          value={activeAdCopy?.brandName || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ brandName: e.target.value })
-                          }
-                          placeholder="Your brand"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs text-neutral-light">
                           Website URL
                         </label>
                         <input
@@ -1377,6 +1311,20 @@ export default function CreativeReadyPage() {
                           placeholder="Enter body copy"
                         />
                       </div>
+
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
+                          Caption
+                        </label>
+                        <textarea
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={activeAdCopy?.caption || ""}
+                          onChange={(e) =>
+                            updateActiveAdCopy({ caption: e.target.value })
+                          }
+                          placeholder="Write your caption"
+                        />
+                      </div>
                     </>
                   )}
                 </div>
@@ -1385,14 +1333,6 @@ export default function CreativeReadyPage() {
 
             <div className="mt-8 flex flex-col items-center gap-3">
               <div className="w-full max-w-[560px] grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Button
-                  text={isSaving ? "Saving…" : "Save Ads"}
-                  secondary
-                  action={() => {
-                    if (!isSaving) void handleSaveAds();
-                  }}
-                  disabled={isSaving}
-                />
                 <Button
                   text="Continue"
                   action={() => {
@@ -1404,6 +1344,30 @@ export default function CreativeReadyPage() {
                           "One or more creatives failed to generate. Please retry before moving on.",
                       });
                       return;
+                    }
+
+                    const nextAssets = Object.values(generatedAssetByCreativeId)
+                      .filter(
+                        (a) =>
+                          a.status === "completed" &&
+                          typeof a.url === "string" &&
+                          a.url.trim().length > 0 &&
+                          typeof a.assetId === "string" &&
+                          a.assetId.trim().length > 0,
+                      )
+                      .map((a) => {
+                        const isVideo = a.assetId === adStyle.videoAssetId;
+                        return {
+                          assetId: a.assetId,
+                          type: isVideo
+                            ? ("video" as const)
+                            : ("image" as const),
+                          url: a.url as string,
+                        };
+                      });
+
+                    if (nextAssets.length > 0) {
+                      attachAssetsToDraft(nextAssets);
                     }
                     router.push("/create-campaign/campaign-snapshots");
                   }}

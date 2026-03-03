@@ -157,29 +157,6 @@ export default function MobileSideBar({
                 </span>
               </Link>
             </li>
-
-            <li>
-              <Link
-                href="/assets"
-                onClick={closeSidebar}
-                className={`flex items-center rounded-xl hover:bg-[#Fdfcfd] px-4 gap-2 w-full 
-                 h-[48px] cursor-pointer ${
-                   isAssets ? "bg-[#F3EFF6] hover:bg-[#f3eff6]" : ""
-                 }`}
-              >
-                <span>
-                  {!isAssets && <FolderOpen size="24" color="#BFBFBF" />}
-                  {isAssets && <FolderOpenGrad width="24" height="24" />}
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    isAssets ? "text-heading" : "text-gray-dark"
-                  }`}
-                >
-                  Saved Ads
-                </span>
-              </Link>
-            </li>
             <li>
               <span
                 onClick={toggleIsCompanyTabOpen}

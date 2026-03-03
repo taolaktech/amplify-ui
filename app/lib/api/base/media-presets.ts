@@ -38,22 +38,28 @@ export async function listMediaPresets(args: {
   type: MediaPresetType;
   page?: number;
   perPage?: number;
-  tags?: string;
+  tags?: string[];
+  creativeDirections?: string[];
+  niches?: string[];
 }) {
   const page = args.page || 1;
   const perPage = args.perPage || 20;
 
-  const response = await instance.get<ListMediaPresetsResponse>(
-    "/media-presets",
+  const response = await instance.post<ListMediaPresetsResponse>(
+    "/media-presets/search",
+    {
+      type: args.type,
+      page,
+      perPage,
+      ...(args.tags && args.tags.length > 0 ? { tags: args.tags } : {}),
+      ...(args.creativeDirections && args.creativeDirections.length > 0
+        ? { creativeDirections: args.creativeDirections }
+        : {}),
+      ...(args.niches && args.niches.length > 0 ? { niches: args.niches } : {}),
+    },
     {
       headers: {
         Authorization: `Bearer ${args.token}`,
-      },
-      params: {
-        type: args.type,
-        page,
-        perPage,
-        ...(args.tags ? { tags: args.tags } : {}),
       },
     },
   );
