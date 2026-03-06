@@ -323,52 +323,6 @@ const Preview = ({
                         <span className="text-xs"> Undo</span>
                       </button>
                     )}
-                    <button
-                      disabled={
-                        creativeLoadingStates?.[highlightedProductId]?.[
-                          item.platform
-                        ] || !isDestinationUrlValid
-                      }
-                      onClick={() => {
-                        if (!isDestinationUrlValid) {
-                          setToast({
-                            type: "error",
-                            title: "Destination URL Required",
-                            message:
-                              "Enter a valid Destination URL to regenerate creatives.",
-                          });
-                          return;
-                        }
-
-                        if (hasGeneratedOnceForPlatform(item.platform)) {
-                          if (item.platform === "GOOGLE ADS") {
-                            generateCreatives(highlightedProductId, [
-                              item.platform,
-                            ]);
-                            return;
-                          }
-                          router.push("/create-campaign/product-kit");
-                          return;
-                        }
-                        generateCreatives(highlightedProductId, [
-                          item.platform,
-                        ]);
-                      }}
-                      className={`flex gap-1 items-center h-[32px] px-4 rounded-[39px] ${
-                        !creativeLoadingStates?.[highlightedProductId]?.[
-                          item.platform
-                        ] && isDestinationUrlValid
-                          ? "bg-[#F0E6FB] border-[#D0B0F3] border"
-                          : "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
-                      }`}
-                    >
-                      <Magicpen size={12} color="#000" />
-                      <span className="text-xs tracking-100">
-                        {hasGeneratedOnceForPlatform(item.platform)
-                          ? "Regenerate"
-                          : "Generate"}
-                      </span>
-                    </button>
                   </div>
                 )}
             </div>
