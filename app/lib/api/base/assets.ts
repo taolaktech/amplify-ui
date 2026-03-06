@@ -101,8 +101,8 @@ export type GenerateVideoDto = {
   productDescription: string;
   productImages: string[];
   productId: string;
-  headline: string;
-  bodyCopy: string;
+  includeMusic: boolean;
+  includeVoiceOver: boolean;
   cta?: string;
 };
 
