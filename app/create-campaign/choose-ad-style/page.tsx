@@ -15,6 +15,7 @@ import { type VideoPreset } from "@/app/lib/api/base/video-presets";
 import { listMediaPresets } from "@/app/lib/api/base/media-presets";
 import { type MediaPreset } from "@/app/lib/api/base/media-presets";
 import {
+  generateCopy,
   generateImageAsset,
   generateVideoAsset,
 } from "@/app/lib/api/base/assets";
@@ -295,28 +296,119 @@ export default function ChooseAdStylePage() {
 
   const handleGenerateCopy = useCallback(async () => {
     if (isGeneratingCopy) return;
+    if (!token) {
+      setToast({
+        type: "error",
+        title: "Missing login",
+        message: "Please log in again to generate copy.",
+      });
+      return;
+    }
+    if (!selectedVideoTemplateId) {
+      setToast({
+        type: "error",
+        title: "Missing template",
+        message: "Please select a video style before generating copy.",
+      });
+      return;
+    }
+
     setIsGeneratingCopy(true);
     setGeneratedCopy("");
     setGeneratedCaption("");
 
-    const productTitle = selectedProductNode?.title || "Product";
+    const productId = selectedProductNode?.id || "";
+    const productName = selectedProductNode?.title || "";
+    const productDescription =
+      selectedProductNode?.description ||
+      selectedProductNode?.productType ||
+      selectedProductNode?.category?.name ||
+      "";
+    const productCategory = selectedProductNode?.category?.name || undefined;
+    const productImages =
+      selectedProductNode?.media?.edges
+        ?.filter((e: any) => {
+          const type = (e?.node?.mediaContentType || "")
+            .toString()
+            .toUpperCase();
+          return type === "IMAGE";
+        })
+        .map((e: any) => e?.node?.preview?.image?.url)
+        .filter(
+          (u: any): u is string => typeof u === "string" && u.trim().length > 0,
+        )
+        .slice(0, 4) || [];
 
-    await new Promise((r) => setTimeout(r, 1200));
-
-    const caption = `Meet ${productTitle} — made to stand out. Tap to shop.`;
-    setGeneratedCaption(caption);
-
-    if (includeVoiceover) {
-      const script = `Hook: Meet ${productTitle}.\n\nProblem: You want something that stands out.\n\nSolution: ${productTitle} delivers style and confidence.\n\nCTA: Tap to shop now.`;
-      setGeneratedCopy(script);
+    if (!productId || !productName) {
+      setToast({
+        type: "error",
+        title: "Missing product details",
+        message:
+          "Please select a product with title and description before generating copy.",
+      });
+      setIsGeneratingCopy(false);
+      return;
     }
 
-    setIsGeneratingCopy(false);
+    const safeProductDescription =
+      productDescription.trim().length > 0 ? productDescription : "—";
+
+    if (productImages.length === 0) {
+      setToast({
+        type: "error",
+        title: "Missing product images",
+        message:
+          "Please select a product with at least one image before generating copy.",
+      });
+      setIsGeneratingCopy(false);
+      return;
+    }
+
+    try {
+      const res = await generateCopy({
+        token,
+        dto: {
+          productId,
+          productName,
+          productDescription: safeProductDescription,
+          productImages,
+          productCategory: productCategory || "",
+          mediaPresetId: selectedVideoTemplateId,
+        },
+      });
+
+      const caption = res?.data?.caption || "";
+      const script = res?.data?.script || "";
+
+      setGeneratedCaption(caption);
+      if (includeVoiceover) {
+        setGeneratedCopy(script);
+      }
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message ||
+        e?.message ||
+        "We couldn’t generate copy right now. Please try again.";
+      setToast({
+        type: "error",
+        title: "Copy generation failed",
+        message: msg,
+      });
+    } finally {
+      setIsGeneratingCopy(false);
+    }
   }, [
     isGeneratingCopy,
+    token,
+    setToast,
+    selectedVideoTemplateId,
     includeVoiceover,
     selectedProductNode?.title,
     selectedProductNode?.description,
+    selectedProductNode?.id,
+    selectedProductNode?.productType,
+    selectedProductNode?.category?.name,
+    selectedProductNode?.media?.edges,
   ]);
 
   const handleGenerateImageCopy = useCallback(
@@ -324,26 +416,110 @@ export default function ChooseAdStylePage() {
       if (isGeneratingImageCopy[templateId]) return;
       setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: true }));
 
-      const productTitle = selectedProductNode?.title || "Product";
-      const productDesc = selectedProductNode?.description || "";
+      if (!token) {
+        setToast({
+          type: "error",
+          title: "Missing login",
+          message: "Please log in again to generate copy.",
+        });
+        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+        return;
+      }
 
-      await new Promise((r) => setTimeout(r, 800 + index * 200));
+      const productId = selectedProductNode?.id || "";
+      const productName = selectedProductNode?.title || "";
+      const productDescription =
+        selectedProductNode?.description ||
+        selectedProductNode?.productType ||
+        selectedProductNode?.category?.name ||
+        "";
+      const productCategory = selectedProductNode?.category?.name || undefined;
+      const productImages =
+        selectedProductNode?.media?.edges
+          ?.filter((e: any) => {
+            const type = (e?.node?.mediaContentType || "")
+              .toString()
+              .toUpperCase();
+            return type === "IMAGE";
+          })
+          .map((e: any) => e?.node?.preview?.image?.url)
+          .filter(
+            (u: any): u is string =>
+              typeof u === "string" && u.trim().length > 0,
+          )
+          .slice(0, 4) || [];
 
-      const headline = `Introducing ${productTitle}`;
-      const body = productDesc
-        ? productDesc.slice(0, 120)
-        : `Discover ${productTitle} and shop today.`;
-      const copy = `Headline: ${headline}\n\nBody: ${body}\n\nCTA: Shop now`;
-      const caption = `Meet ${productTitle} — made to stand out. Tap to shop.`;
+      if (!productId || !productName) {
+        setToast({
+          type: "error",
+          title: "Missing product details",
+          message:
+            "Please select a product with title and description before generating copy.",
+        });
+        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+        return;
+      }
 
-      setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
-      setImageCaptionById((prev) => ({ ...prev, [templateId]: caption }));
-      setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+      const safeProductDescription =
+        productDescription.trim().length > 0 ? productDescription : "—";
+
+      if (productImages.length === 0) {
+        setToast({
+          type: "error",
+          title: "Missing product images",
+          message:
+            "Please select a product with at least one image before generating copy.",
+        });
+        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+        return;
+      }
+
+      try {
+        const res = await generateCopy({
+          token,
+          dto: {
+            productId,
+            productName,
+            productDescription: safeProductDescription,
+            productImages,
+            productCategory: productCategory || "",
+            mediaPresetId: templateId,
+          },
+        });
+
+        const headline = (res?.data?.headline || "").trim();
+        const description = (res?.data?.description || "").trim();
+        const cta = (res?.data?.cta || "").trim();
+        const caption = (res?.data?.caption || "").trim();
+
+        const copy = `Headline: ${headline}\n\nBody: ${description}\n\nCTA: ${cta}`;
+
+        setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
+        setImageCaptionById((prev) => ({ ...prev, [templateId]: caption }));
+      } catch (e: any) {
+        const msg =
+          e?.response?.data?.message ||
+          e?.message ||
+          "We couldn’t generate copy right now. Please try again.";
+        setToast({
+          type: "error",
+          title: "Copy generation failed",
+          message: msg,
+        });
+      } finally {
+        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+      }
     },
     [
       isGeneratingImageCopy,
+      token,
+      setToast,
       selectedProductNode?.title,
       selectedProductNode?.description,
+      selectedProductNode?.id,
+      selectedProductNode?.productType,
+      selectedProductNode?.category?.name,
+      selectedProductNode?.media?.edges,
     ],
   );
 

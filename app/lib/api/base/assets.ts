@@ -114,6 +114,43 @@ export type GenerateVideoResponse = {
   };
 };
 
+export type GenerateCopyDto = {
+  productName: string;
+  productDescription: string;
+  productCategory: string;
+  productImages: string[];
+  productId: string;
+  mediaPresetId: string;
+};
+
+export type GenerateCopyResponse = {
+  success: boolean;
+  data: {
+    headline?: string;
+    description?: string;
+    cta?: string;
+    caption: string;
+    script?: string;
+  };
+};
+
+export async function generateCopy(data: {
+  token: string;
+  dto: GenerateCopyDto;
+}) {
+  const response = await instance.post<GenerateCopyResponse>(
+    "/assets/generate-copy",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
 export async function generateVideoAsset(data: {
   token: string;
   dto: GenerateVideoDto;
