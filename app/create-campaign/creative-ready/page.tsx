@@ -165,14 +165,27 @@ export default function CreativeReadyPage() {
       ? adStyle.imageTemplateIds
       : [];
 
+    if (ids.length === 0) {
+      if (selectedProductImages.length > 0) {
+        return selectedProductImages.map((url, idx) => ({
+          id: `product-image-${idx}`,
+          type: "image" as const,
+          title: `Image Ad ${idx + 1}`,
+          url,
+        }));
+      }
+      return [];
+    }
+
     const fromTemplates = ids
-      .map((id) => {
+      .map((id, idx) => {
         const t = imageTemplates.find((x) => x.id === id);
-        const url = t?.previewImageUrl || "";
+        const fallbackTemplate = imageTemplates[idx % imageTemplates.length];
+        const url = t?.previewImageUrl || fallbackTemplate?.previewImageUrl || "";
         return {
           id,
           type: "image" as const,
-          title: t?.name || "Image creative",
+          title: t?.name || fallbackTemplate?.name || `Image Ad ${idx + 1}`,
           url,
         };
       })
@@ -180,12 +193,13 @@ export default function CreativeReadyPage() {
 
     if (fromTemplates.length > 0) return fromTemplates;
 
-    return selectedProductImages.map((url, idx) => ({
-      id: `product-image-${idx}`,
+    const fallbackImages = imageTemplates.slice(0, ids.length);
+    return fallbackImages.map((t, idx) => ({
+      id: ids[idx] || t.id || `fallback-image-${idx}`,
       type: "image" as const,
-      title: `Image Ad ${idx + 1}`,
-      url,
-    }));
+      title: t.name || `Image Ad ${idx + 1}`,
+      url: t.previewImageUrl || "",
+    })).filter((c) => c.url.trim().length > 0);
   }, [adStyle.imageTemplateIds, imageTemplates, selectedProductImages]);
 
   const videoCreative = useMemo((): ReadyCreative | null => {

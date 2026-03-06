@@ -100,10 +100,11 @@ export default function ChooseAdStylePage() {
   const [isEditingCopy, setIsEditingCopy] = useState(false);
   const [isCopySaved, setIsCopySaved] = useState(false);
 
-  const [imageCopyById, setImageCopyById] = useState<Record<string, string>>({});
+  const [imageCopyById, setImageCopyById] = useState<Record<string, { headline: string; bodyCopy: string; cta: string }>>({});
   const [imageEditingId, setImageEditingId] = useState<string | null>(null);
   const [imageCopySavedById, setImageCopySavedById] = useState<Record<string, boolean>>({});
   const [isGeneratingImageCopy, setIsGeneratingImageCopy] = useState<Record<string, boolean>>({});
+  const [includeLogo, setIncludeLogo] = useState(true);
 
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
@@ -275,12 +276,12 @@ export default function ChooseAdStylePage() {
     await new Promise((r) => setTimeout(r, 800 + index * 200));
 
     const headline = `Introducing ${productTitle}`;
-    const body = productDesc
+    const bodyCopy = productDesc
       ? productDesc.slice(0, 120)
       : `Discover ${productTitle} and shop today.`;
-    const copy = `Headline: ${headline}\n\nBody: ${body}\n\nCTA: Shop now`;
+    const cta = "Shop now";
 
-    setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
+    setImageCopyById((prev) => ({ ...prev, [templateId]: { headline, bodyCopy, cta } }));
     setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
   }, [isGeneratingImageCopy, selectedProductNode?.title, selectedProductNode?.description]);
 
@@ -473,9 +474,25 @@ export default function ChooseAdStylePage() {
                 Generate All Copy
               </button>
 
+              <label className="flex items-center gap-3 cursor-pointer mb-3">
+                <div
+                  onClick={() => setIncludeLogo((v) => !v)}
+                  className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                    includeLogo ? "bg-purple-600" : "bg-[#D1D5DB]"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                      includeLogo ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </div>
+                <span className="text-sm text-heading">Add brand logo</span>
+              </label>
+
               <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
                 {selectedImageTemplateIds.map((templateId, idx) => {
-                  const copy = imageCopyById[templateId] || "";
+                  const copy = imageCopyById[templateId];
                   const isEditing = imageEditingId === templateId;
                   const isGenerating = isGeneratingImageCopy[templateId];
                   const isSaved = imageCopySavedById[templateId];
@@ -504,21 +521,67 @@ export default function ChooseAdStylePage() {
 
                       {copy && !isGenerating && (
                         <>
-                          {isEditing ? (
-                            <textarea
-                              className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading whitespace-pre-wrap min-h-[100px] resize-none focus:outline-none"
-                              value={copy}
-                              onChange={(e) => {
-                                setImageCopyById((prev) => ({ ...prev, [templateId]: e.target.value }));
-                                setImageCopySavedById((prev) => ({ ...prev, [templateId]: false }));
-                              }}
-                              autoFocus
-                            />
-                          ) : (
-                            <div className="text-xs text-neutral-light whitespace-pre-wrap max-h-[80px] overflow-y-auto">
-                              {copy}
+                          <div className="flex flex-col gap-2">
+                            <div>
+                              <label className="text-[10px] text-neutral-light mb-1 block">Headline</label>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  className="w-full h-[32px] px-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading focus:outline-none"
+                                  value={copy.headline}
+                                  onChange={(e) => {
+                                    setImageCopyById((prev) => ({
+                                      ...prev,
+                                      [templateId]: { ...prev[templateId], headline: e.target.value },
+                                    }));
+                                    setImageCopySavedById((prev) => ({ ...prev, [templateId]: false }));
+                                  }}
+                                />
+                              ) : (
+                                <div className="text-xs text-heading">{copy.headline}</div>
+                              )}
                             </div>
-                          )}
+
+                            <div>
+                              <label className="text-[10px] text-neutral-light mb-1 block">Body Copy</label>
+                              {isEditing ? (
+                                <textarea
+                                  className="w-full p-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading min-h-[60px] resize-none focus:outline-none"
+                                  value={copy.bodyCopy}
+                                  onChange={(e) => {
+                                    setImageCopyById((prev) => ({
+                                      ...prev,
+                                      [templateId]: { ...prev[templateId], bodyCopy: e.target.value },
+                                    }));
+                                    setImageCopySavedById((prev) => ({ ...prev, [templateId]: false }));
+                                  }}
+                                />
+                              ) : (
+                                <div className="text-xs text-neutral-light">{copy.bodyCopy}</div>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="text-[10px] text-neutral-light mb-1 block">CTA</label>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  className="w-full h-[32px] px-2 bg-[#FAFAFA] rounded-lg border border-purple-400 text-xs text-heading focus:outline-none"
+                                  value={copy.cta}
+                                  onChange={(e) => {
+                                    setImageCopyById((prev) => ({
+                                      ...prev,
+                                      [templateId]: { ...prev[templateId], cta: e.target.value },
+                                    }));
+                                    setImageCopySavedById((prev) => ({ ...prev, [templateId]: false }));
+                                  }}
+                                />
+                              ) : (
+                                <div className="text-xs text-heading">{copy.cta}</div>
+                              )}
+                            </div>
+                          </div>
+
                           <div className="mt-2 flex gap-2">
                             {isEditing ? (
                               <>
