@@ -1,25 +1,19 @@
 "use client";
 
-import { Add, NoteRemove, ArrowCircleRight2 } from "iconsax-react";
+import { NoteRemove, ArrowCircleRight2 } from "iconsax-react";
 import { useEffect, useRef, useState } from "react";
 import rangeSlider from "range-slider-input";
 import Button from "@/app/ui/Button";
 
 import "range-slider-input/dist/style.css";
-import Checkout from "@/app/ui/checkout";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useRouter } from "next/navigation";
 import { useTopUpWallet } from "@/app/lib/hooks/wallet";
 import { useGetTargetROAS } from "@/app/lib/hooks";
-import { useToastStore } from "@/app/lib/stores/toastStore";
 
 export default function FundCampaignPage() {
   const [amount, setAmount] = useState(50);
-  const cardDetails = useCreateCampaignStore(
-    (state) => state.fundCampaign.cardDetails,
-  );
   const actions = useCreateCampaignStore((state) => state.actions);
-  const [, setRightSideOpen] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderFuncRef = useRef<any>(null);
   const campaignSnapshots = useCreateCampaignStore(
@@ -30,7 +24,6 @@ export default function FundCampaignPage() {
     (state) => state.fundCampaign.amount,
   );
   const [isEditing, setIsEditing] = useState(false);
-  const setToast = useToastStore((state) => state.setToast);
 
   const router = useRouter();
 

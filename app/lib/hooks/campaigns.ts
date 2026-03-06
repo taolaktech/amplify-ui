@@ -112,9 +112,6 @@ export const useLaunchCampaign = (
   const supportedAdPlatforms = useCreateCampaignStore(
     (state) => state.supportedAdPlatforms,
   );
-  const paymentMethodId = useCreateCampaignStore(
-    (state) => state.fundCampaign.cardDetails?.id,
-  );
 
   const {
     campaignType,

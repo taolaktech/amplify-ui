@@ -4,7 +4,6 @@ import TickIcon from "@/public/tick-circle-variant.svg";
 import { useEffect, useMemo, useState } from "react";
 import NoProductIcon from "@/public/bag-cross.svg";
 import { ArrowLeft } from "iconsax-react";
-import Input from "./form/Input";
 import { IntegrationsAuthPlatform } from "../lib/hooks/useIntegrationsAuth";
 
 export const ChooseMetaAccount = ({
@@ -41,16 +40,13 @@ export const ChooseMetaAccount = ({
   console.log("Ad Accounts in ChooseMetaAccount:", adAccounts);
   const [error, setError] = useState<string | null>(null);
 
+  void integrationsAuthPlatform;
+
   useEffect(() => {
     if (step === 1) {
       setError(null);
     }
   }, [step]);
-
-  const isFacebook = useMemo(
-    () => integrationsAuthPlatform === "FACEBOOK",
-    [integrationsAuthPlatform],
-  );
 
   const headerText = useMemo(() => {
     switch (step) {
@@ -321,43 +317,6 @@ const NoAccounts = ({
       <p className="text-sm text-[#737373] text-center">
         {message || "No product in your store"}
       </p>
-    </div>
-  );
-};
-
-const MetaPixelId = ({
-  metaPixelId,
-  setMetaPixelId,
-  error,
-}: {
-  metaPixelId: string;
-  setMetaPixelId: (id: string) => void;
-  error: string | null;
-}) => {
-  const handleMetaPixelIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //only permit digits
-    const value = e.target.value.replace(/\D/g, "");
-    setMetaPixelId(value);
-  };
-  return (
-    <div>
-      <Input
-        label="Enter your Meta Pixel ID"
-        type="text"
-        inputMode="numeric"
-        // placeholder="Enter your Meta Pixel ID"
-        name="metaPixelId"
-        largeBorder
-        background="rgba(232,232,232,0.35)"
-        value={metaPixelId}
-        maxLength={16}
-        minLength={15}
-        large
-        error={error ?? undefined}
-        showErrorMessage={!!error}
-        borderless
-        onChange={handleMetaPixelIdChange}
-      />
     </div>
   );
 };

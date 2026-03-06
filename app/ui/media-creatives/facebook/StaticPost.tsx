@@ -196,22 +196,6 @@ export default function StaticPost({
           }}
           className="flex flex-col justify-between"
         >
-          {caption ? (
-            <div
-              title={caption}
-              style={{
-                fontSize: maximized ? maximizedHeight! * (8 / 415.78) : "8px",
-              }}
-              className={`text-left leading-[136%] cursor-help text-[#000] tracking-[0.10%] ${roboto.className}`}
-            >
-              {caption && caption?.length > 130
-                ? caption.slice(0, 130) + " ..."
-                : caption}
-            </div>
-          ) : (
-            <Skeleton width="100%" height="20px" borderRadius="4px" />
-          )}
-
           <div
             style={{
               fontSize: maximized ? maximizedHeight! * (7 / 415.78) : "7px",
@@ -272,6 +256,30 @@ export default function StaticPost({
           )}
         </div>
       </div>
+
+      <div
+        style={{
+          width: maximized ? maximizedHeight! * (250 / 415.78) : "250px",
+        }}
+        className="bg-white px-3 pt-2"
+      >
+        {caption ? (
+          <div
+            title={caption}
+            style={{
+              fontSize: maximized ? maximizedHeight! * (8 / 415.78) : "8px",
+            }}
+            className={`text-left leading-[136%] cursor-help text-[#000] tracking-[0.10%] ${roboto.className}`}
+          >
+            {caption && caption?.length > 130
+              ? caption.slice(0, 130) + " ..."
+              : caption}
+          </div>
+        ) : (
+          <Skeleton width="100%" height="20px" borderRadius="4px" />
+        )}
+      </div>
+
       <div className="bg-white flex justify-center">
         <div
           style={{

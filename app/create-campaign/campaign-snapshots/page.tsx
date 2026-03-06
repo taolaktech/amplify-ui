@@ -1,10 +1,7 @@
 "use client";
-import {
-  ArrowCircleRight2,
-  ArrowDown2,
-  ArrowForward,
-} from "iconsax-react";
+import { ArrowCircleRight2, ArrowDown2, ArrowForward } from "iconsax-react";
 import UndoIcon from "@/public/undo.png";
+import Image from "next/image";
 import {
   CampaignSnapshots,
   useCreateCampaignStore,
@@ -61,7 +58,6 @@ const MainActions = ({
   isOnlyGoogle,
   canUndo,
   highlightedProduct,
-  generateCreatives,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loading,
   generalUndo,
@@ -69,7 +65,6 @@ const MainActions = ({
   isOnlyGoogle?: boolean;
   canUndo: (id: string) => boolean;
   highlightedProduct: ShopifyProduct;
-  generateCreatives: (productId: string, platform: Platform[]) => Promise<void>;
   loading: boolean;
   generalUndo: (productId: string) => void;
 }) => {
@@ -103,7 +98,7 @@ const MainActions = ({
               className="-mt-[2px] -scale-x-100"
             />
           ) : (
-            <img src={UndoIcon.src} alt="Undo" width={20} height={20} />
+            <Image src={UndoIcon} alt="Undo" width={20} height={20} />
           )}
           <span className="text-sm font-medium">Undo</span>
         </button>
@@ -128,8 +123,7 @@ export default function CampaignSnapshotsPage() {
 
   const [highlightedProduct, setHighlightedProduct] =
     useState<ShopifyProduct | null>(productSelection.products[0] || null);
-  const { generateCreatives, loading, creativeLoadingRef } =
-    useGenerateCreatives();
+  const { generateCreatives, loading } = useGenerateCreatives();
 
   const router = useRouter();
 
@@ -158,9 +152,9 @@ export default function CampaignSnapshotsPage() {
         creatives: highlightedProduct?.node?.id
           ? platform === "Google"
             ? (Google?.[highlightedProduct.node.id] ?? [])
-              : platform === "Facebook"
-                ? (Facebook?.[highlightedProduct.node.id] ?? [])
-                : []
+            : platform === "Facebook"
+              ? (Facebook?.[highlightedProduct.node.id] ?? [])
+              : []
           : [],
       }))
       .sort((a, b) => {
@@ -201,7 +195,10 @@ export default function CampaignSnapshotsPage() {
   const secondaryColor = useBrandAssetStore((state) => state.secondaryColor);
 
   useEffect(() => {
-    if (campaignDetails.brandColor?.trim() || campaignDetails.accentColor?.trim()) {
+    if (
+      campaignDetails.brandColor?.trim() ||
+      campaignDetails.accentColor?.trim()
+    ) {
       return;
     }
 
@@ -379,7 +376,6 @@ export default function CampaignSnapshotsPage() {
                 isOnlyGoogle={isOnlyGoogle}
                 canUndo={canUndo}
                 highlightedProduct={highlightedProduct}
-                generateCreatives={generateCreatives}
                 loading={loading}
                 generalUndo={generalUndo}
               />
@@ -398,7 +394,6 @@ export default function CampaignSnapshotsPage() {
               isOnlyGoogle={isOnlyGoogle}
               canUndo={canUndo}
               highlightedProduct={highlightedProduct}
-              generateCreatives={generateCreatives}
               loading={loading}
               generalUndo={generalUndo}
             />
@@ -488,27 +483,29 @@ export default function CampaignSnapshotsPage() {
                 );
               }}
             />
-            <Input
-              type="number"
-              label="Meta Daily Budget ($)"
-              name="metaDailyBudget"
-              placeholder="5"
-              large
-              background="rgba(232,232,232,0.35)"
-              borderless
-              min={5}
-              step={1}
-              value={campaignDetails.metaDailyBudget}
-              onChange={(e) =>
-                handleCampaignDetails("metaDailyBudget", e.target.value)
-              }
-              onBlur={() => {
-                handleCampaignDetails(
-                  "metaDailyBudget",
-                  clampBudget(campaignDetails.metaDailyBudget) || "5",
-                );
-              }}
-            />
+            {supportedAdPlatforms.Facebook && (
+              <Input
+                type="number"
+                label="Meta Daily Budget ($)"
+                name="metaDailyBudget"
+                placeholder="5"
+                large
+                background="rgba(232,232,232,0.35)"
+                borderless
+                min={5}
+                step={1}
+                value={campaignDetails.metaDailyBudget}
+                onChange={(e) =>
+                  handleCampaignDetails("metaDailyBudget", e.target.value)
+                }
+                onBlur={() => {
+                  handleCampaignDetails(
+                    "metaDailyBudget",
+                    clampBudget(campaignDetails.metaDailyBudget) || "5",
+                  );
+                }}
+              />
+            )}
           </div>
           <p className="mt-2 text-neutral-light tracking-40 text-xs md:text-sm">
             Minimum daily budget is $5.

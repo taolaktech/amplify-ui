@@ -17,7 +17,8 @@ export default function GenerationStatusPage() {
   const generationId = (params as any)?.generationId as string | undefined;
   const token = useAuthStore((s) => s.token);
 
-  const nextRoute = searchParams?.get("next") || "/create-campaign/campaign-snapshots";
+  const nextRoute =
+    searchParams?.get("next") || "/create-campaign/campaign-snapshots";
 
   const [job, setJob] = useState<GetGenerationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +33,6 @@ export default function GenerationStatusPage() {
     if (!generationId) return;
 
     let mounted = true;
-    let intervalId: any;
 
     const tick = async () => {
       setIsPolling(true);
@@ -46,7 +46,9 @@ export default function GenerationStatusPage() {
       } catch (e: any) {
         if (!mounted) return;
         setError(
-          e?.response?.data?.message || e?.message || "Failed to load generation",
+          e?.response?.data?.message ||
+            e?.message ||
+            "Failed to load generation",
         );
       } finally {
         if (!mounted) return;
@@ -55,7 +57,7 @@ export default function GenerationStatusPage() {
     };
 
     tick();
-    intervalId = setInterval(tick, 2000);
+    const intervalId = setInterval(tick, 2000);
 
     return () => {
       mounted = false;
@@ -88,12 +90,13 @@ export default function GenerationStatusPage() {
 
           <div className="mt-10">
             <div className="text-heading text-sm font-medium">
-              Status: <span className="text-neutral-light">{job?.status || "queued"}</span>
+              Status:{" "}
+              <span className="text-neutral-light">
+                {job?.status || "queued"}
+              </span>
             </div>
             {error && (
-              <p className="mt-3 text-xs text-neutral-light">
-                {error}
-              </p>
+              <p className="mt-3 text-xs text-neutral-light">{error}</p>
             )}
 
             <div className="mt-6">

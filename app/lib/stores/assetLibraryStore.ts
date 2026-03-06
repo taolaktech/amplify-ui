@@ -36,11 +36,7 @@ export type Asset = {
 type Filters = {
   query: string;
   type: "all" | "image" | "video";
-  sort:
-    | "newest"
-    | "oldest"
-    | "campaign_az"
-    | "product_az";
+  sort: "newest" | "oldest" | "campaign_az" | "product_az";
   campaigns: string[];
   products: string[];
   tags: string[];
@@ -56,7 +52,9 @@ const createId = () => {
   }
 };
 
-const normalizeAsset = (asset: Partial<Asset> & Pick<Asset, "type" | "source">): Asset => {
+const normalizeAsset = (
+  asset: Partial<Asset> & Pick<Asset, "type" | "source">,
+): Asset => {
   const createdAt = asset.createdAt || new Date().toISOString();
   const assetId = asset.assetId || createId();
 
@@ -155,10 +153,16 @@ type AssetLibraryState = {
   actions: {
     setFilters: (patch: Partial<Filters>) => void;
     clearFilters: () => void;
-    upsertAsset: (asset: Partial<Asset> & Pick<Asset, "type" | "source">) => Asset;
+    upsertAsset: (
+      asset: Partial<Asset> & Pick<Asset, "type" | "source">,
+    ) => Asset;
     deleteAsset: (assetId: string) => void;
     getById: (assetId: string) => Asset | undefined;
-    isSavedByUrl: (data: { type: "image" | "video"; url?: string; storageUrl?: string }) => boolean;
+    isSavedByUrl: (data: {
+      type: "image" | "video";
+      url?: string;
+      storageUrl?: string;
+    }) => boolean;
     hydrateFromApi: () => Promise<void>;
   };
 };
@@ -207,35 +211,24 @@ export const useAssetLibraryStore = create<AssetLibraryState>()(
                 a.assetId === existing.assetId ? merged : a,
               ),
             }));
-            void fetch("/api/assets", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(merged),
-            }).catch(() => {});
             return merged;
           }
 
           set((state) => ({ assets: [next, ...state.assets] }));
-          void fetch("/api/assets", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(next),
-          }).catch(() => {});
           return next;
         },
         deleteAsset: (assetId) => {
           set((state) => ({
             assets: state.assets.filter((a) => a.assetId !== assetId),
           }));
-          void fetch(`/api/assets?assetId=${encodeURIComponent(assetId)}`, {
-            method: "DELETE",
-          }).catch(() => {});
         },
         getById: (assetId) => get().assets.find((a) => a.assetId === assetId),
         isSavedByUrl: ({ type, url, storageUrl }) => {
           if (type === "image") {
             if (!url) return false;
-            return get().assets.some((a) => a.type === "image" && a.url === url);
+            return get().assets.some(
+              (a) => a.type === "image" && a.url === url,
+            );
           }
           if (!storageUrl) return false;
           return get().assets.some(
@@ -243,15 +236,7 @@ export const useAssetLibraryStore = create<AssetLibraryState>()(
           );
         },
         hydrateFromApi: async () => {
-          try {
-            const res = await fetch("/api/assets");
-            if (!res.ok) return;
-            const json = await res.json();
-            const data = Array.isArray(json?.data) ? json.data : [];
-            set((state) => ({ assets: mergeAssetLists(state.assets, data) }));
-          } catch {
-            return;
-          }
+          return;
         },
       },
     }),
@@ -262,7 +247,7 @@ export const useAssetLibraryStore = create<AssetLibraryState>()(
         assets: state.assets,
         filters: state.filters,
       }),
-      migrate: (persistedState, _version) => {
+      migrate: (persistedState) => {
         const s = persistedState as Partial<AssetLibraryState> | undefined;
         return {
           assets: Array.isArray(s?.assets) ? s.assets : [],
@@ -312,16 +297,22 @@ export const selectFilteredAssets = (state: AssetLibraryState) => {
   const sorted = [...filtered];
   if (filters.sort === "newest") {
     sorted.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
   } else if (filters.sort === "oldest") {
     sorted.sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
   } else if (filters.sort === "campaign_az") {
-    sorted.sort((a, b) => (a.campaignName || "").localeCompare(b.campaignName || ""));
+    sorted.sort((a, b) =>
+      (a.campaignName || "").localeCompare(b.campaignName || ""),
+    );
   } else if (filters.sort === "product_az") {
-    sorted.sort((a, b) => (a.productName || "").localeCompare(b.productName || ""));
+    sorted.sort((a, b) =>
+      (a.productName || "").localeCompare(b.productName || ""),
+    );
   }
 
   return sorted;

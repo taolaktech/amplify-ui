@@ -6,6 +6,23 @@ const instance = axios.create({
 
 export type AssetType = "image" | "video";
 
+export type AssetStatus = "pending" | "completed" | "failed";
+
+export type Asset = {
+  _id: string;
+  type: AssetType;
+  status: AssetStatus;
+  source?: string;
+  mediaUrl?: string;
+  url?: string;
+  thumbnailUrl?: string;
+  duration?: number;
+  resolution?: string;
+  promptUsed?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type ListAssetsResponse = {
   status: "success";
   message: string;
@@ -27,6 +44,192 @@ export async function listAssets(data: {
       ...(type && { type }),
     },
   });
+
+  return response.data;
+}
+
+export type GenerateImageDto = {
+  productName: string;
+  imagePresetId?: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  headline: string;
+  bodyCopy: string;
+  cta?: string;
+};
+
+export type GenerateImageResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export async function generateImageAsset(data: {
+  token: string;
+  dto: GenerateImageDto;
+}) {
+  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_IMAGE_ASSET;
+  if (process.env.NODE_ENV === "development" && mockAssetId) {
+    return {
+      status: "success",
+      message: "Mocked image generation response",
+      data: {
+        assetId: mockAssetId,
+      },
+    } satisfies GenerateImageResponse;
+  }
+
+  const response = await instance.post<GenerateImageResponse>(
+    "/assets/generate-image",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export type GenerateVideoDto = {
+  productName: string;
+  videoPresetId?: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  includeMusic: boolean;
+  includeVoiceOver: boolean;
+  cta?: string;
+};
+
+export type GenerateVideoResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export type GenerateCopyDto = {
+  productName: string;
+  productDescription: string;
+  productCategory: string;
+  productImages: string[];
+  productId: string;
+  mediaPresetId: string;
+};
+
+export type GenerateCopyResponse = {
+  success: boolean;
+  data: {
+    headline?: string;
+    description?: string;
+    cta?: string;
+    caption: string;
+    script?: string;
+  };
+};
+
+export async function generateCopy(data: {
+  token: string;
+  dto: GenerateCopyDto;
+}) {
+  const response = await instance.post<GenerateCopyResponse>(
+    "/assets/generate-copy",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export async function generateVideoAsset(data: {
+  token: string;
+  dto: GenerateVideoDto;
+}) {
+  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
+  if (process.env.NODE_ENV === "development" && mockAssetId) {
+    return {
+      status: "success",
+      message: "Mocked video generation response",
+      data: {
+        assetId: mockAssetId,
+      },
+    } satisfies GenerateVideoResponse;
+  }
+
+  const response = await instance.post<GenerateVideoResponse>(
+    "/assets/generate-video",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export type RegenerateImageDto = {
+  assetId: string;
+  productName: string;
+  productDescription: string;
+  productImages: string[];
+  productId: string;
+  headline: string;
+  bodyCopy: string;
+  cta?: string;
+};
+
+export type RegenerateImageResponse = {
+  status: "success";
+  message: string;
+  data: {
+    assetId: string;
+  };
+};
+
+export async function regenerateImageAsset(data: {
+  token: string;
+  dto: RegenerateImageDto;
+}) {
+  const response = await instance.post<RegenerateImageResponse>(
+    "/assets/regenerate-image",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
+export type GetAssetResponse = {
+  status: "success";
+  message: string;
+  data: Asset;
+};
+
+export async function getAssetById(data: { token: string; assetId: string }) {
+  const response = await instance.get<GetAssetResponse>(
+    `/assets/${data.assetId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
 
   return response.data;
 }

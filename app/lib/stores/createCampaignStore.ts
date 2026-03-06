@@ -1,6 +1,8 @@
 import { ShopifyProduct } from "@/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import useCreativesStore from "@/app/lib/stores/creativesStore";
+import { useMetaCreativeUploadStore } from "@/app/lib/stores/metaCreativeUploadStore";
 
 type cardDetails = {
   last4Numbers: string;
@@ -37,8 +39,23 @@ type CreateCampaignState = {
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
   adStyle: {
+    presetType?: "video" | "image";
     templateId: string | null;
     imageTemplateIds: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
+    imageCopyByPresetId?: Record<string, string>;
+    imageCaptionsByPresetId?: Record<string, string>;
+    videoAssetId?: string | null;
+    videoCaption?: string;
+    videoScript?: string;
+    includeMusic?: boolean;
+    includeVoiceOver?: boolean;
     videoPreset: {
       id: string;
       title: string;
@@ -106,8 +123,23 @@ type CreateCampaignActions = {
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
   storeAdStyle: (adStyle: {
+    presetType?: "video" | "image";
     templateId?: string | null;
     imageTemplateIds?: string[];
+    imagePresets?: Array<{
+      id: string;
+      label?: string;
+      mediaUrl?: string;
+      thumbnailUrl?: string;
+    }>;
+    imageAssetIdsByPresetId?: Record<string, string>;
+    imageCopyByPresetId?: Record<string, string>;
+    imageCaptionsByPresetId?: Record<string, string>;
+    videoAssetId?: string | null;
+    videoCaption?: string;
+    videoScript?: string;
+    includeMusic?: boolean;
+    includeVoiceOver?: boolean;
     videoPreset?: {
       id: string;
       title: string;
@@ -171,8 +203,18 @@ const initialState: CreateCampaignState = {
     complete: false,
   },
   adStyle: {
+    presetType: "video",
     templateId: null,
     imageTemplateIds: [],
+    imagePresets: [],
+    imageAssetIdsByPresetId: {},
+    imageCopyByPresetId: {},
+    imageCaptionsByPresetId: {},
+    videoAssetId: null,
+    videoCaption: "",
+    videoScript: "",
+    includeMusic: true,
+    includeVoiceOver: true,
     videoPreset: null,
     generationId: null,
     mode: "standard",
@@ -260,6 +302,30 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           }));
         },
         storeProductSelection: (productSelection) => {
+          const prevPrimaryId =
+            get().productSelection.products?.[0]?.node?.id || null;
+          const nextPrimaryId =
+            productSelection.products?.[0]?.node?.id || null;
+
+          if (
+            prevPrimaryId &&
+            nextPrimaryId &&
+            prevPrimaryId !== nextPrimaryId
+          ) {
+            useCreativesStore.getState().actions.resetStore();
+            useMetaCreativeUploadStore
+              .getState()
+              .actions.clearProductUploads(prevPrimaryId);
+            set(() => ({
+              ...initialState,
+              productSelection: {
+                ...initialState.productSelection,
+                ...productSelection,
+              },
+            }));
+            return;
+          }
+
           set((state) => ({
             productSelection: {
               ...state.productSelection,

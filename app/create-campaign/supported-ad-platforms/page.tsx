@@ -37,9 +37,6 @@ const SupportedAdPlatforms = () => {
   const token = useAuthStore((state) => state.token);
   const { facebook, google } = useIntegrationStore((state) => state);
   const integrationActions = useIntegrationStore((state) => state.actions);
-  const [socialModalKind, setSocialModalKind] = useState<
-    "FACEBOOK"
-  >("FACEBOOK");
 
   useModal(isLoading);
 
@@ -101,6 +98,11 @@ const SupportedAdPlatforms = () => {
   const handleProceed = () => {
     actions.completeAdsPlatform();
 
+    if (!supportedAdPlatforms.Facebook) {
+      router.push("/create-campaign/campaign-snapshots");
+      return;
+    }
+
     router.push("/create-campaign/product-kit");
   };
 
@@ -110,7 +112,6 @@ const SupportedAdPlatforms = () => {
       return;
     }
     if (!facebook) {
-      setSocialModalKind("FACEBOOK");
       setActivePlatform("Facebook");
       setShowAdPlatformConnectModal(true);
       return;
@@ -165,7 +166,7 @@ const SupportedAdPlatforms = () => {
             </div>
           </div>
           <div className="flex items-center justify-between lg:mt-5 px-6 h-[50px]">
-            <img
+            <Image
               src="/google-ads-custom-logo.png"
               alt="Google Ads Custom Logo"
               height={18}
@@ -200,7 +201,7 @@ const SupportedAdPlatforms = () => {
             </div>
           </div>
           <div className="flex items-center justify-between lg:mt-5 h-[50px] px-6">
-            <img
+            <Image
               src="/facebook-custom.png"
               alt="Facebook Logo"
               height={18}
