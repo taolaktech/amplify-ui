@@ -197,18 +197,6 @@ export default function CreativeReadyPage() {
   const placeholderVideoUrl =
     "https://cdn.higgsfield.ai/veo3_motion/51748eea-5159-44b9-bbcb-f11a49cea887.mp4";
 
-  const selectedProductImages = useMemo(() => {
-    const edges = product?.media?.edges || [];
-    return edges
-      .filter((e) => {
-        const type = (e?.node?.mediaContentType || "").toString().toUpperCase();
-        return type === "IMAGE";
-      })
-      .map((e) => e?.node?.preview?.image?.url)
-      .filter((u): u is string => typeof u === "string" && u.trim().length > 0)
-      .slice(0, 4);
-  }, [product?.media?.edges]);
-
   const pollAssetUntilDone = async (args: {
     assetId: string;
     signal: AbortSignal;
@@ -260,6 +248,8 @@ export default function CreativeReadyPage() {
       ? adStyle.imageTemplateIds
       : [];
 
+    if (ids.length === 0) return [];
+
     const presetById = new Map(
       (Array.isArray(adStyle.imagePresets) ? adStyle.imagePresets : []).map(
         (p) => [p.id, p],
@@ -296,13 +286,8 @@ export default function CreativeReadyPage() {
 
     if (fromTemplates.length > 0) return fromTemplates;
 
-    return selectedProductImages.map((url, idx) => ({
-      id: `product-image-${idx}`,
-      type: "image" as const,
-      title: `Image Ad ${idx + 1}`,
-      url,
-    }));
-  }, [adStyle.imageTemplateIds, imageTemplates, selectedProductImages]);
+    return [];
+  }, [adStyle.imageTemplateIds, imageTemplates]);
 
   const videoCreative = useMemo((): ReadyCreative | null => {
     const url =
@@ -406,6 +391,17 @@ export default function CreativeReadyPage() {
     };
   };
 
+  const parseGeneratedImageCopy = (raw: string) => {
+    const text = (raw || "").toString();
+    const headlineMatch = text.match(/Headline:\s*([\s\S]*?)(?:\n+Body:|$)/i);
+    const bodyMatch = text.match(/Body:\s*([\s\S]*?)(?:\n+CTA:|$)/i);
+    const ctaMatch = text.match(/CTA:\s*([\s\S]*)$/i);
+    const headline = (headlineMatch?.[1] || "").trim();
+    const bodyCopy = (bodyMatch?.[1] || "").trim();
+    const callToAction = (ctaMatch?.[1] || "").trim();
+    return { headline, bodyCopy, callToAction };
+  };
+
   const generateVariantCopy = (c: ReadyCreative | null): AdCopy => {
     const defaults = buildDefaultCopy(c);
     const title = product?.title || "";
@@ -460,19 +456,66 @@ export default function CreativeReadyPage() {
     const c = activeCreative;
     if (!c) return;
     const key = creativeKey(c);
-    if (adCopyById[key]) return;
+
     const seededCaption =
       c.type === "video"
         ? adStyle.videoCaption || ""
         : (adStyle.imageCaptionsByPresetId || {})[c.id] || "";
+
+    const seededImageCopyRaw =
+      c.type === "image"
+        ? (adStyle as any)?.imageCopyByPresetId?.[c.id] || ""
+        : "";
+    const seededImageCopy =
+      c.type === "image" ? parseGeneratedImageCopy(seededImageCopyRaw) : null;
+
     setAdCopyById((prev) => ({
       ...prev,
-      [key]: {
-        ...buildDefaultCopy(c),
-        caption: seededCaption,
-      },
+      [key]: (() => {
+        const base = buildDefaultCopy(c);
+        const existing = prev[key] || null;
+
+        const seededVideoScript =
+          c.type === "video" ? adStyle.videoScript || "" : "";
+
+        const seededImagePatch =
+          c.type === "image"
+            ? {
+                headline: seededImageCopy?.headline || "",
+                bodyCopy: seededImageCopy?.bodyCopy || "",
+                callToAction: seededImageCopy?.callToAction || "",
+              }
+            : null;
+
+        return {
+          ...base,
+          ...(existing || {}),
+          ...(seededImagePatch
+            ? {
+                ...(seededImagePatch.headline
+                  ? { headline: seededImagePatch.headline }
+                  : null),
+                ...(seededImagePatch.bodyCopy
+                  ? { bodyCopy: seededImagePatch.bodyCopy }
+                  : null),
+                ...(seededImagePatch.callToAction
+                  ? { callToAction: seededImagePatch.callToAction }
+                  : null),
+              }
+            : null),
+          ...(seededCaption ? { caption: seededCaption } : null),
+          ...(seededVideoScript ? { videoScript: seededVideoScript } : null),
+        };
+      })(),
     }));
-  }, [activeCreative?.id, activeCreative?.type, adCopyById]);
+  }, [
+    activeCreative?.id,
+    activeCreative?.type,
+    adStyle.videoCaption,
+    adStyle.videoScript,
+    adStyle.imageCaptionsByPresetId,
+    (adStyle as any)?.imageCopyByPresetId,
+  ]);
 
   useEffect(() => {
     const presets = Array.isArray(adStyle.imagePresets)
@@ -830,6 +873,23 @@ export default function CreativeReadyPage() {
   }, [adStyle.imagePresets, generatedAssetByCreativeId]);
 
   const productImages = useMemo(() => {
+    const selected = (campaignSnapshots as any)?.selectedProductImages;
+    const primary = (campaignSnapshots as any)?.primaryProductImageUrl;
+    if (Array.isArray(selected) && selected.length > 0) {
+      const deduped = Array.from(
+        new Set(
+          selected.filter(
+            (u: any): u is string =>
+              typeof u === "string" && u.trim().length > 0,
+          ),
+        ),
+      );
+      if (typeof primary === "string" && primary.trim().length > 0) {
+        return [primary, ...deduped.filter((u) => u !== primary)].slice(0, 4);
+      }
+      return deduped.slice(0, 4);
+    }
+
     const edges = product?.media?.edges || [];
     const urls = edges
       .filter((e) => {
@@ -840,7 +900,7 @@ export default function CreativeReadyPage() {
       .filter((u): u is string => typeof u === "string" && u.trim().length > 0);
 
     return Array.from(new Set(urls)).slice(0, 4);
-  }, [product?.media?.edges]);
+  }, [campaignSnapshots, product?.media?.edges]);
 
   const [showFullDescription, setShowFullDescription] = useState(false);
   const description = product?.description || "";

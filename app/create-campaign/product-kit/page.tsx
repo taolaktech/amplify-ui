@@ -162,6 +162,9 @@ export default function ProductKitPage() {
   const storeCampaignSnapshots = useCreateCampaignStore(
     (state) => state.actions.storeCampaignSnapshots,
   );
+  const campaignSnapshots = useCreateCampaignStore(
+    (state) => state.campaignSnapshots,
+  );
 
   const product = productSelection.products?.[0]?.node;
 
@@ -220,6 +223,8 @@ export default function ProductKitPage() {
 
   const dragIndexRef = useRef<number | null>(null);
 
+  const didHydrateFromStoreRef = useRef(false);
+
   useEffect(() => {
     if (!productSelection.complete) {
       router.push("/create-campaign/");
@@ -234,9 +239,37 @@ export default function ProductKitPage() {
   useEffect(() => {
     setProductName(product?.title ?? "");
     setProductDescription(product?.description ?? "");
-    setSelectedImages(defaultSelected);
-    setPrimaryImageUrl(defaultSelected[0] ?? null);
+    const storedSelected = (campaignSnapshots as any)?.selectedProductImages;
+    const storedPrimary = (campaignSnapshots as any)?.primaryProductImageUrl;
+    const nextSelected =
+      Array.isArray(storedSelected) && storedSelected.length
+        ? storedSelected
+        : defaultSelected;
+    const nextPrimary =
+      typeof storedPrimary === "string" && storedPrimary.trim().length > 0
+        ? storedPrimary
+        : (nextSelected[0] ?? null);
+
+    setSelectedImages(nextSelected);
+    setPrimaryImageUrl(nextPrimary);
+    didHydrateFromStoreRef.current = true;
   }, [product?.title, product?.description, defaultSelected]);
+
+  useEffect(() => {
+    if (!didHydrateFromStoreRef.current) return;
+    storeCampaignSnapshots({
+      brandColor: colors.primary,
+      accentColor: colors.secondary,
+      selectedProductImages: selectedImages,
+      primaryProductImageUrl: primaryImageUrl,
+    });
+  }, [
+    colors.primary,
+    colors.secondary,
+    selectedImages,
+    primaryImageUrl,
+    storeCampaignSnapshots,
+  ]);
 
   const additionalImages = useMemo(() => {
     const all = [...uploadedImages, ...allProductImages];
@@ -424,6 +457,8 @@ export default function ProductKitPage() {
                 storeCampaignSnapshots({
                   brandColor: colors.primary,
                   accentColor: colors.secondary,
+                  selectedProductImages: selectedImages,
+                  primaryProductImageUrl: primaryImageUrl,
                 });
                 router.push("/create-campaign/choose-ad-style");
               }}

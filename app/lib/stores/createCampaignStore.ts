@@ -39,6 +39,7 @@ type CreateCampaignState = {
   supportedAdPlatforms: SupportedAdPlatforms & { complete: boolean };
   campaignSnapshots: CampaignSnapshots & { complete: boolean };
   adStyle: {
+    presetType?: "video" | "image";
     templateId: string | null;
     imageTemplateIds: string[];
     imagePresets?: Array<{
@@ -48,9 +49,13 @@ type CreateCampaignState = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    imageCopyByPresetId?: Record<string, string>;
     imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
     videoCaption?: string;
+    videoScript?: string;
+    includeMusic?: boolean;
+    includeVoiceOver?: boolean;
     videoPreset: {
       id: string;
       title: string;
@@ -118,6 +123,7 @@ type CreateCampaignActions = {
   storeCampaignSnapshots: (campaignSnapshots: Record<string, any>) => void;
   completeCampaignSnapshots: () => void;
   storeAdStyle: (adStyle: {
+    presetType?: "video" | "image";
     templateId?: string | null;
     imageTemplateIds?: string[];
     imagePresets?: Array<{
@@ -127,9 +133,13 @@ type CreateCampaignActions = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    imageCopyByPresetId?: Record<string, string>;
     imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
     videoCaption?: string;
+    videoScript?: string;
+    includeMusic?: boolean;
+    includeVoiceOver?: boolean;
     videoPreset?: {
       id: string;
       title: string;
@@ -193,13 +203,18 @@ const initialState: CreateCampaignState = {
     complete: false,
   },
   adStyle: {
+    presetType: "video",
     templateId: null,
     imageTemplateIds: [],
     imagePresets: [],
     imageAssetIdsByPresetId: {},
+    imageCopyByPresetId: {},
     imageCaptionsByPresetId: {},
     videoAssetId: null,
     videoCaption: "",
+    videoScript: "",
+    includeMusic: true,
+    includeVoiceOver: true,
     videoPreset: null,
     generationId: null,
     mode: "standard",
