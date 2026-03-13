@@ -9,7 +9,13 @@ import { useModal } from "@/app/lib/hooks/useModal";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import { getAssetById, type Asset } from "@/app/lib/api/base/assets";
+import {
+  regenerateImageAsset,
+  generateVideoAsset,
+  getAssetById,
+  type Asset,
+} from "@/app/lib/api/base/assets";
+import { createSavedAd } from "@/app/lib/api/base/saved-ads";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
 
 type ReadyCreative = {
@@ -30,6 +36,9 @@ type AdCopy = {
 };
 
 const AD_COPY_STORAGE_KEY = "creative-ready.ad-copy.v1";
+const REGENERATED_CREATIVES_STORAGE_KEY =
+  "creative-ready.regenerated-creatives.v1";
+const GENERATED_ASSETS_STORAGE_KEY = "creative-ready.generated-assets.v1";
 
 const creativeKey = (c: ReadyCreative) => `${c.type}:${c.id}`;
 
@@ -150,6 +159,7 @@ export default function CreativeReadyPage() {
   const attachAssetsToDraft = useCreateCampaignStore(
     (s) => s.actions.attachAssetsToDraft,
   );
+  const storeAdStyle = useCreateCampaignStore((s) => s.actions.storeAdStyle);
 
   const product = productSelection.products?.[0]?.node;
 
@@ -166,12 +176,85 @@ export default function CreativeReadyPage() {
       string,
       {
         assetId: string;
+        type?: "video" | "image";
         status: "pending" | "completed" | "failed";
         url?: string;
         error?: string;
       }
     >
   >({});
+
+  useEffect(() => {
+    try {
+      const rawCreatives = localStorage.getItem(
+        REGENERATED_CREATIVES_STORAGE_KEY,
+      );
+      if (rawCreatives) {
+        const parsed = JSON.parse(rawCreatives);
+        if (Array.isArray(parsed)) {
+          const next = parsed
+            .filter(
+              (c: any) =>
+                c &&
+                typeof c.id === "string" &&
+                (c.type === "image" || c.type === "video") &&
+                typeof c.title === "string" &&
+                typeof c.url === "string",
+            )
+            .map(
+              (c: any): ReadyCreative => ({
+                id: c.id,
+                type: c.type,
+                title: c.title,
+                url: c.url,
+              }),
+            );
+          if (next.length > 0) {
+            setRegeneratedCreatives(next);
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const rawAssets = localStorage.getItem(GENERATED_ASSETS_STORAGE_KEY);
+      if (rawAssets) {
+        const parsed = JSON.parse(rawAssets);
+        if (parsed && typeof parsed === "object") {
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...parsed,
+            ...prev,
+          }));
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        REGENERATED_CREATIVES_STORAGE_KEY,
+        JSON.stringify(regeneratedCreatives),
+      );
+    } catch {
+      // ignore
+    }
+  }, [regeneratedCreatives]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        GENERATED_ASSETS_STORAGE_KEY,
+        JSON.stringify(generatedAssetByCreativeId),
+      );
+    } catch {
+      // ignore
+    }
+  }, [generatedAssetByCreativeId]);
 
   const [copyGeneratedByCreativeId, setCopyGeneratedByCreativeId] = useState<
     Record<string, boolean>
@@ -187,6 +270,18 @@ export default function CreativeReadyPage() {
   const [videoDuration, setVideoDuration] = useState<number | undefined>(
     undefined,
   );
+
+  const [includeMusic, setIncludeMusic] = useState(true);
+  const [includeVoiceOver, setIncludeVoiceOver] = useState(true);
+
+  useEffect(() => {
+    if (typeof adStyle.includeMusic === "boolean") {
+      setIncludeMusic(adStyle.includeMusic);
+    }
+    if (typeof adStyle.includeVoiceOver === "boolean") {
+      setIncludeVoiceOver(adStyle.includeVoiceOver);
+    }
+  }, [adStyle.includeMusic, adStyle.includeVoiceOver]);
 
   useModal(isBackModalOpen || isZoomOpen);
 
@@ -620,12 +715,11 @@ export default function CreativeReadyPage() {
 
       setGeneratedAssetByCreativeId((prev) => ({
         ...prev,
-        [presetId]: { assetId, status: "pending" },
+        [presetId]: { assetId, type: "image", status: "pending" },
       }));
 
       (async () => {
         try {
-          await sleepWithAbort(3 * 60 * 1000, controller.signal);
           const asset = await pollAssetUntilDone({
             assetId,
             signal: controller.signal,
@@ -635,7 +729,12 @@ export default function CreativeReadyPage() {
           if (asset.status === "completed" && finalUrl) {
             setGeneratedAssetByCreativeId((prev) => ({
               ...prev,
-              [presetId]: { assetId, status: "completed", url: finalUrl },
+              [presetId]: {
+                assetId,
+                type: "image",
+                status: "completed",
+                url: finalUrl,
+              },
             }));
             return;
           }
@@ -644,6 +743,7 @@ export default function CreativeReadyPage() {
             ...prev,
             [presetId]: {
               assetId,
+              type: "image",
               status: "failed",
               error: "Image generation failed.",
             },
@@ -667,7 +767,12 @@ export default function CreativeReadyPage() {
           });
           setGeneratedAssetByCreativeId((prev) => ({
             ...prev,
-            [presetId]: { assetId, status: "failed", error: msg },
+            [presetId]: {
+              assetId,
+              type: "image",
+              status: "failed",
+              error: msg,
+            },
           }));
         } finally {
           delete generationAbortControllersRef.current[presetId];
@@ -691,12 +796,11 @@ export default function CreativeReadyPage() {
 
     setGeneratedAssetByCreativeId((prev) => ({
       ...prev,
-      [videoKey]: { assetId, status: "pending" },
+      [videoKey]: { assetId, type: "video", status: "pending" },
     }));
 
     (async () => {
       try {
-        await sleepWithAbort(5 * 60 * 1000, controller.signal);
         const asset = await pollAssetUntilDone({
           assetId,
           signal: controller.signal,
@@ -706,7 +810,12 @@ export default function CreativeReadyPage() {
         if (asset.status === "completed" && finalUrl) {
           setGeneratedAssetByCreativeId((prev) => ({
             ...prev,
-            [videoKey]: { assetId, status: "completed", url: finalUrl },
+            [videoKey]: {
+              assetId,
+              type: "video",
+              status: "completed",
+              url: finalUrl,
+            },
           }));
           return;
         }
@@ -715,6 +824,7 @@ export default function CreativeReadyPage() {
           ...prev,
           [videoKey]: {
             assetId,
+            type: "video",
             status: "failed",
             error: "Video generation failed.",
           },
@@ -737,7 +847,7 @@ export default function CreativeReadyPage() {
         });
         setGeneratedAssetByCreativeId((prev) => ({
           ...prev,
-          [videoKey]: { assetId, status: "failed", error: msg },
+          [videoKey]: { assetId, type: "video", status: "failed", error: msg },
         }));
       } finally {
         delete generationAbortControllersRef.current[videoKey];
@@ -797,70 +907,436 @@ export default function CreativeReadyPage() {
     }
   };
 
-  const regenerateActiveCreative = () => {
+  const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
+
+  const saveActiveCreativeToLibrary = async () => {
     if (!activeCreative) return;
+    if (!token) {
+      setToast({
+        type: "error",
+        title: "Missing login",
+        message: "Please log in again to save this ad.",
+      });
+      return;
+    }
 
     const key = creativeKey(activeCreative);
     const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
 
-    const nextCopy = generateVariantCopy(activeCreative);
+    const entry = generatedAssetByCreativeId[activeCreative.id];
+    const completedAssetId =
+      entry && entry.status === "completed" ? entry.assetId : "";
 
-    const regenId = `${activeCreative.id}-regen-${Date.now()}`;
-    const regen: ReadyCreative =
-      activeCreative.type === "image"
-        ? {
-            id: regenId,
-            type: "image",
-            title: `${activeCreative.title} (Regenerated)`,
-            url: svgDataUrl(
-              buildImageCreativeSvg({
-                baseImageUrl: activeCreativeDisplayUrl,
-                copy: { ...currentCopy, ...nextCopy },
-              }),
-            ),
+    const looksLikeMongoId = /^[a-f0-9]{24}$/i.test(activeCreative.id);
+    const assetIdToSave =
+      completedAssetId || (looksLikeMongoId ? activeCreative.id : "");
+
+    if (!assetIdToSave) {
+      setToast({
+        type: "error",
+        title: "Asset not ready",
+        message:
+          "Please wait for the creative to finish generating before saving.",
+      });
+      return;
+    }
+
+    try {
+      setIsSavingToLibrary(true);
+      await createSavedAd({
+        token,
+        dto: {
+          assetId: assetIdToSave,
+          productId: product?.id || undefined,
+          headline: currentCopy.headline,
+          bodyCopy: currentCopy.bodyCopy,
+          cta: currentCopy.callToAction,
+          caption: currentCopy.caption,
+          script: currentCopy.videoScript,
+          brandName: currentCopy.brandName,
+          websiteUrl: currentCopy.websiteUrl,
+        },
+      });
+
+      setToast({
+        type: "success",
+        title: "Saved",
+        message: "Saved to Saved Ads.",
+      });
+    } catch (e: any) {
+      const msg =
+        typeof e?.response?.data?.message === "string"
+          ? e.response.data.message
+          : typeof e?.message === "string" && e.message.trim().length > 0
+            ? e.message
+            : "Could not save this ad right now.";
+      setToast({
+        type: "error",
+        title: "Save failed",
+        message: msg,
+      });
+    } finally {
+      setIsSavingToLibrary(false);
+    }
+  };
+
+  const regenerateActiveCreative = () => {
+    if (!activeCreative) return;
+
+    if (activeCreative.type === "video") {
+      if (!token) {
+        setToast({
+          type: "error",
+          title: "Missing login",
+          message: "Please log in again to regenerate your video.",
+        });
+        return;
+      }
+
+      const videoPresetId = adStyle.templateId;
+      if (!videoPresetId) {
+        setToast({
+          type: "error",
+          title: "Missing template",
+          message: "Please select a video style before regenerating.",
+        });
+        return;
+      }
+
+      const productId = product?.id || "";
+      const productName = product?.title || "";
+      const productDescription =
+        product?.description || (product as any)?.productType || "";
+
+      if (!productId || !productName) {
+        setToast({
+          type: "error",
+          title: "Missing product details",
+          message:
+            "Please select a product with title and description before regenerating videos.",
+        });
+        return;
+      }
+
+      if (productImages.length === 0) {
+        setToast({
+          type: "error",
+          title: "Missing product images",
+          message:
+            "Please select a product with at least one image before regenerating videos.",
+        });
+        return;
+      }
+
+      const safeProductDescription =
+        productDescription.trim().length > 0 ? productDescription : "—";
+
+      const key = creativeKey(activeCreative);
+      const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
+      const script = (currentCopy.videoScript || "").trim();
+      const caption = (currentCopy.caption || "").trim();
+
+      if (includeVoiceOver && script.length === 0) {
+        setToast({
+          type: "error",
+          title: "Missing video script",
+          message:
+            "Add a video script (or disable Voiceover) before regenerating.",
+        });
+        return;
+      }
+
+      if (!includeVoiceOver && caption.length === 0) {
+        setToast({
+          type: "error",
+          title: "Missing caption",
+          message: "Add a caption (or enable Voiceover) before regenerating.",
+        });
+        return;
+      }
+
+      storeAdStyle({
+        includeMusic,
+        includeVoiceOver,
+        videoScript: script,
+        videoCaption: caption,
+      });
+
+      (async () => {
+        try {
+          const res = await generateVideoAsset({
+            token,
+            dto: {
+              productId,
+              productName,
+              productDescription: safeProductDescription,
+              productImages,
+              videoPresetId,
+              includeMusic,
+              includeVoiceOver,
+              cta: undefined,
+            },
+          });
+
+          const assetId = res?.data?.assetId;
+          if (!assetId) {
+            throw new Error("Video regeneration failed. Please try again.");
           }
-        : {
-            id: regenId,
+
+          const regen: ReadyCreative = {
+            id: assetId,
             type: "video",
             title: `${activeCreative.title} (Regenerated)`,
             url: activeCreative.url,
           };
 
-    const regenKey = creativeKey(regen);
-    const mergedCopy: AdCopy = {
-      ...currentCopy,
-      ...nextCopy,
-      // ensure video script is kept for video
-      videoScript:
-        regen.type === "video"
-          ? nextCopy.videoScript || currentCopy.videoScript || ""
-          : "",
-    };
+          const regenKey = creativeKey(regen);
+          setRegeneratedCreatives((prev) => [regen, ...prev]);
+          setAdCopyById((prev) => ({
+            ...prev,
+            [regenKey]: {
+              ...currentCopy,
+              videoScript: script,
+              caption,
+            },
+          }));
 
-    setRegeneratedCreatives((prev) => [regen, ...prev]);
-    setAdCopyById((prev) => ({
-      ...prev,
-      [regenKey]: mergedCopy,
-    }));
+          setActiveIndex(baseCreatives.length);
 
-    // Switch to the new creative (it will be appended after base creatives).
-    setActiveIndex(baseCreatives.length);
+          const controller = new AbortController();
+          generationAbortControllersRef.current[assetId] = controller;
 
-    setToast({
-      type: "success",
-      title: "Regenerated",
-      message:
-        regen.type === "video"
-          ? "Created a regenerated video variant (preview uses the same video URL in frontend-only mode)."
-          : "Created a regenerated image variant.",
-    });
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [assetId]: { assetId, type: "video", status: "pending" },
+          }));
 
-    if (activeCreative.type === "image") {
-      setCopyGeneratedByCreativeId((prev) => ({
-        ...prev,
-        [activeCreative.id]: true,
-      }));
+          setToast({
+            type: "success",
+            title: "Regenerating",
+            message: "Generating a new video variant…",
+          });
+          const asset = await pollAssetUntilDone({
+            assetId,
+            signal: controller.signal,
+          });
+
+          const finalUrl = asset.mediaUrl || asset.url;
+          if (asset.status === "completed" && finalUrl) {
+            setGeneratedAssetByCreativeId((prev) => ({
+              ...prev,
+              [assetId]: {
+                assetId,
+                type: "video",
+                status: "completed",
+                url: finalUrl,
+              },
+            }));
+            return;
+          }
+
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [assetId]: {
+              assetId,
+              type: "video",
+              status: "failed",
+              error: "Video generation failed.",
+            },
+          }));
+          setToast({
+            type: "error",
+            title: "Video generation failed",
+            message:
+              "We couldn't generate a video right now. Please try again.",
+          });
+        } catch (e: any) {
+          const msg =
+            typeof e?.message === "string" && e.message.trim().length > 0
+              ? e.message
+              : "We couldn't generate a video right now. Please try again.";
+          setToast({
+            type: "error",
+            title: "Video generation failed",
+            message: msg,
+          });
+        }
+      })();
+
+      return;
     }
+
+    if (!token) {
+      setToast({
+        type: "error",
+        title: "Missing login",
+        message: "Please log in again to regenerate your image.",
+      });
+      return;
+    }
+
+    const presetId = activeCreative.id;
+    const baseAssetId =
+      generatedAssetByCreativeId[presetId]?.assetId ||
+      ((adStyle.imageAssetIdsByPresetId as any)?.[presetId] as string) ||
+      "";
+
+    if (!baseAssetId) {
+      setToast({
+        type: "error",
+        title: "Missing generated image",
+        message:
+          "Please generate this image first before regenerating a variant.",
+      });
+      return;
+    }
+
+    const productId = product?.id || "";
+    const productName = product?.title || "";
+    const productDescription =
+      product?.description || (product as any)?.productType || "";
+
+    if (!productId || !productName) {
+      setToast({
+        type: "error",
+        title: "Missing product details",
+        message:
+          "Please select a product with title and description before regenerating images.",
+      });
+      return;
+    }
+
+    const safeProductDescription =
+      productDescription.trim().length > 0 ? productDescription : "—";
+
+    const key = creativeKey(activeCreative);
+    const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
+
+    const headline = (currentCopy.headline || "").trim();
+    const bodyCopy = (currentCopy.bodyCopy || "").trim();
+    const cta = (currentCopy.callToAction || "").trim();
+
+    if (!headline || !bodyCopy) {
+      setToast({
+        type: "error",
+        title: "Missing ad copy",
+        message:
+          "Please add a headline and body copy before regenerating this image.",
+      });
+      return;
+    }
+
+    const regenProductImages = Array.from(
+      new Set(
+        [activeCreativeDisplayUrl, ...productImages]
+          .filter(
+            (u): u is string => typeof u === "string" && u.trim().length > 0,
+          )
+          .map((u) => u.trim()),
+      ),
+    ).slice(0, 4);
+
+    (async () => {
+      try {
+        const res = await regenerateImageAsset({
+          token,
+          dto: {
+            assetId: baseAssetId,
+            productId,
+            productName,
+            productDescription: safeProductDescription,
+            productImages: regenProductImages,
+            headline,
+            bodyCopy,
+            cta: cta.length > 0 ? cta : undefined,
+          },
+        });
+
+        const assetId = res?.data?.assetId;
+        if (!assetId) {
+          throw new Error("Image regeneration failed. Please try again.");
+        }
+
+        const regen: ReadyCreative = {
+          id: assetId,
+          type: "image",
+          title: `${activeCreative.title} (Regenerated)`,
+          url: activeCreativeDisplayUrl,
+        };
+
+        const regenKey = creativeKey(regen);
+        setRegeneratedCreatives((prev) => [regen, ...prev]);
+        setAdCopyById((prev) => ({
+          ...prev,
+          [regenKey]: {
+            ...currentCopy,
+            headline,
+            bodyCopy,
+            callToAction: cta,
+          },
+        }));
+
+        setActiveIndex(baseCreatives.length);
+
+        const controller = new AbortController();
+        generationAbortControllersRef.current[assetId] = controller;
+
+        setGeneratedAssetByCreativeId((prev) => ({
+          ...prev,
+          [assetId]: { assetId, type: "image", status: "pending" },
+        }));
+
+        setToast({
+          type: "success",
+          title: "Regenerating",
+          message: "Generating a new image variant…",
+        });
+        const asset = await pollAssetUntilDone({
+          assetId,
+          signal: controller.signal,
+        });
+
+        const finalUrl = asset.mediaUrl || asset.url;
+        if (asset.status === "completed" && finalUrl) {
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [assetId]: {
+              assetId,
+              type: "image",
+              status: "completed",
+              url: finalUrl,
+            },
+          }));
+          return;
+        }
+
+        setGeneratedAssetByCreativeId((prev) => ({
+          ...prev,
+          [assetId]: {
+            assetId,
+            type: "image",
+            status: "failed",
+            error: "Image generation failed.",
+          },
+        }));
+        setToast({
+          type: "error",
+          title: "Image generation failed",
+          message:
+            "We couldn't regenerate an image right now. Please try again.",
+        });
+      } catch (e: any) {
+        const msg =
+          typeof e?.message === "string" && e.message.trim().length > 0
+            ? e.message
+            : "We couldn't regenerate an image right now. Please try again.";
+        setToast({
+          type: "error",
+          title: "Image generation failed",
+          message: msg,
+        });
+      }
+    })();
   };
 
   const hasAssetGenerationErrors = useMemo(() => {
@@ -928,6 +1404,19 @@ export default function CreativeReadyPage() {
   }, [videoMuted]);
 
   const durationLabel = formatDuration(videoDuration);
+
+  const isActiveAssetPending = useMemo(() => {
+    if (!activeCreative) return false;
+    if (activeCreative.type === "image") {
+      return (
+        generatedAssetByCreativeId[activeCreative.id]?.status === "pending"
+      );
+    }
+
+    const entry = generatedAssetByCreativeId[activeCreative.id];
+    const isPending = !entry || entry.status === "pending";
+    return Boolean(adStyle.videoAssetId) && isPending;
+  }, [activeCreative, adStyle.videoAssetId, generatedAssetByCreativeId]);
 
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
@@ -1273,7 +1762,8 @@ export default function CreativeReadyPage() {
                       <Button
                         text="Save"
                         secondary
-                        action={() => persistAdCopy()}
+                        action={() => saveActiveCreativeToLibrary()}
+                        disabled={isActiveAssetPending || isSavingToLibrary}
                       />
                     </div>
                     <div className="w-[150px]">
@@ -1281,6 +1771,7 @@ export default function CreativeReadyPage() {
                         text="Regenerate"
                         action={() => regenerateActiveCreative()}
                         hasIconOrLoader
+                        disabled={isActiveAssetPending || isSavingToLibrary}
                       />
                     </div>
                   </div>
@@ -1289,6 +1780,56 @@ export default function CreativeReadyPage() {
                 <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {activeCreative?.type === "video" ? (
                     <>
+                      <div className="md:col-span-2 flex gap-12">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <div
+                            onClick={() => {
+                              const next = !includeMusic;
+                              setIncludeMusic(next);
+                              storeAdStyle({ includeMusic: next });
+                            }}
+                            className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                              includeMusic ? "bg-purple-600" : "bg-[#D1D5DB]"
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                includeMusic ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </div>
+                          <span className="text-sm text-heading">
+                            Include Music
+                          </span>
+                        </label>
+
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <div
+                            onClick={() => {
+                              const next = !includeVoiceOver;
+                              setIncludeVoiceOver(next);
+                              storeAdStyle({ includeVoiceOver: next });
+                            }}
+                            className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                              includeVoiceOver
+                                ? "bg-purple-600"
+                                : "bg-[#D1D5DB]"
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                includeVoiceOver
+                                  ? "translate-x-4"
+                                  : "translate-x-0"
+                              }`}
+                            />
+                          </div>
+                          <span className="text-sm text-heading">
+                            Include Voiceover
+                          </span>
+                        </label>
+                      </div>
+
                       <div className="md:col-span-2 flex flex-col gap-2">
                         <label className="text-xs text-neutral-light">
                           Video Script
@@ -1300,6 +1841,7 @@ export default function CreativeReadyPage() {
                             updateActiveAdCopy({ videoScript: e.target.value })
                           }
                           placeholder="Write your video script"
+                          disabled={!includeVoiceOver}
                         />
                       </div>
                       <div className="md:col-span-2 flex flex-col gap-2">
@@ -1418,12 +1960,12 @@ export default function CreativeReadyPage() {
                           a.assetId.trim().length > 0,
                       )
                       .map((a) => {
-                        const isVideo = a.assetId === adStyle.videoAssetId;
                         return {
                           assetId: a.assetId,
-                          type: isVideo
-                            ? ("video" as const)
-                            : ("image" as const),
+                          type: (a.type ||
+                            (a.assetId === adStyle.videoAssetId
+                              ? "video"
+                              : "image")) as "video" | "image",
                           url: a.url as string,
                         };
                       });

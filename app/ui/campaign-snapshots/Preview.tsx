@@ -303,6 +303,30 @@ const Preview = ({
                   item.platform
                 ] && (
                   <div className="flex gap-2 items-center">
+                    {item.title === "Google" && (
+                      <button
+                        disabled={
+                          !isDestinationUrlValid ||
+                          creativeLoadingStates?.[highlightedProductId]?.[
+                            item.platform
+                          ]
+                        }
+                        onClick={() =>
+                          generateCreatives(highlightedProductId, [
+                            "GOOGLE ADS",
+                          ])
+                        }
+                        className={`flex gap-1 items-center h-[32px] px-4 rounded-[39px] ${
+                          !isDestinationUrlValid
+                            ? "bg-[#ECECEC] cursor-not-allowed border border-[#E0E0E0]"
+                            : "bg-[#F0E6FB] border border-[#D0B0F3]"
+                        }`}
+                      >
+                        <Magicpen size={12} color="#000" />
+                        <span className="text-xs">Generate</span>
+                      </button>
+                    )}
+
                     {item.creatives && item.creatives?.length > 1 && (
                       <button
                         disabled={

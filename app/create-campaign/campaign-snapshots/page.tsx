@@ -21,6 +21,8 @@ import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { isAllProductGenerated } from "@/app/lib/utils";
+import { buildLaunchCampaignPayload } from "@/app/lib/campaignPayload";
+import { useSetupStore } from "@/app/lib/stores/setupStore";
 
 const ProductContainer = ({
   products,
@@ -173,6 +175,7 @@ export default function CampaignSnapshotsPage() {
   ]);
 
   const setToast = useToastStore((state) => state.setToast);
+  const businessDetails = useSetupStore((state) => state.businessDetails);
 
   const campaignDetails = useCreateCampaignStore(
     (state) => state.campaignSnapshots,
@@ -311,6 +314,32 @@ export default function CampaignSnapshotsPage() {
       setError(false);
     }
     console.log("Proceed to next step", campaignDetails);
+
+    const businessId = businessDetails?.id;
+    if (!businessId) {
+      setToast({
+        type: "error",
+        title: "Missing business",
+        message: "Business details are missing. Please refresh and try again.",
+      });
+      return;
+    }
+
+    const campaignPayload = buildLaunchCampaignPayload({
+      businessId,
+      campaignName: campaignDetails.campaignName,
+      campaignType: campaignDetails.campaignType || "Product Launch",
+      brandColor: campaignDetails.brandColor || primaryColor || "#000000",
+      accentColor: campaignDetails.accentColor || secondaryColor || "#FFFFFF",
+      tone: "Professional",
+      startDateIso: campaignDetails.campaignStartDate,
+      endDateIso: campaignDetails.campaignEndDate,
+      totalBudget: Number(campaignDetails.googleDailyBudget || "0"),
+      products: productSelection.products,
+      locations: useCreateCampaignStore.getState().adsShow.location,
+      supportedAdPlatforms,
+      creativesStore: { Google, Facebook },
+    });
     actions.storeCampaignSnapshots({
       campaignName: campaignDetails.campaignName,
       campaignType: campaignDetails.campaignType || "Product Launch",
@@ -323,6 +352,7 @@ export default function CampaignSnapshotsPage() {
         campaignDetails.campaignStartDate,
       ).toISOString(),
       campaignEndDate: new Date(campaignDetails.campaignEndDate).toISOString(),
+      campaignPayload,
     });
     actions.completeCampaignSnapshots();
     router.push("/create-campaign/review");

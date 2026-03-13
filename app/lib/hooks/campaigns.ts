@@ -14,6 +14,7 @@ import { useCreateCampaignStore } from "../stores/createCampaignStore";
 import useBrandAssetStore from "../stores/brandAssetStore";
 import { useToastStore } from "../stores/toastStore";
 import { useGetSetupComplete } from "./useGetSetupComplete";
+import { buildLaunchCampaignPayload } from "../campaignPayload";
 
 export default function useGetCampaigns() {
   const authTokenFromStore = useAuthStore((state) => state.token);
@@ -120,6 +121,7 @@ export const useLaunchCampaign = (
     campaignName,
     brandColor,
     accentColor,
+    campaignPayload: storedCampaignPayload,
   } = useCreateCampaignStore((state) => state.campaignSnapshots);
   const { Facebook, Google } = useCreativesStore((state) => state);
   const setToast = useToastStore((state) => state.setToast);
@@ -147,95 +149,30 @@ export const useLaunchCampaign = (
 
   const handleLaunchCampaign = () => {
     if (!authToken || !businessDetails.id || !products.length) return;
-    const campaignPlatforms: CampaignPlatformsTitle[] = [];
-    if (supportedAdPlatforms.Facebook)
-      campaignPlatforms.push(CampaignPlatformsTitle.FACEBOOK);
-    if (supportedAdPlatforms.Google)
-      campaignPlatforms.push(CampaignPlatformsTitle.GOOGLE);
-
-    const productsPayload = products.map((product) => {
-      const creatives = [];
-      if (supportedAdPlatforms.Facebook && Facebook?.[product.node.id]) {
-        const formatCreatives =
-          Facebook?.[product.node.id]?.[Facebook?.[product.node.id].length - 1]
-            .creatives || [];
-
-        creatives.push({
-          channel: "facebook",
-          budget: amount / products.length / campaignPlatforms.length,
-          id: formatCreatives[0]?.id,
-          data:
-            formatCreatives.map((creative: any) =>
-              JSON.stringify({
-                url: creative?.url,
-                bodyText: creative?.bodyText,
-                productUrl: creative?.productUrl,
-                key: creative?.key,
-                description: creative?.description,
-                title: creative?.title,
-              }),
-            ) || [],
-        });
-      }
-      if (supportedAdPlatforms.Google && Google?.[product.node.id]) {
-        const formatCreatives =
-          Google?.[product.node.id]?.[Google?.[product.node.id].length - 1]
-            .creatives || [];
-
-        const creativesData = formatCreatives?.map((creative: string) =>
-          JSON.stringify(creative),
-        );
-        creatives.push({
-          channel: "google",
-          budget: amount / products.length / campaignPlatforms.length,
-          data: creativesData || [],
-        });
-      }
-      return {
-        shopifyId: product.node.id,
-        id: product.node.id,
-        title: product.node.title,
-        price: parseFloat(product.node.priceRangeV2.minVariantPrice.amount),
-        description: product.node.description || product.node.title || "N/A",
-        occasion: product.node.occasion || "General",
-        features: [
-          ...(product.node?.tags || []),
-          product.node?.category?.name || "N/A",
-          product.node?.productType || "N/A",
-          product.node?.handle || "N/A",
-        ],
-        category: product.node.productType || "General",
-        imageLinks: [product.node.media.edges[0]?.node.preview.image.url || ""],
-        productLink: product.node.onlineStorePreviewUrl || "",
-        creatives,
-      };
-    });
-    const campaignData: LaunchCampaignPayload = {
-      businessId: businessDetails.id,
-      name: campaignName ?? "Campaign",
-      type: campaignType || "Product Launch",
-      platforms: campaignPlatforms,
-      brandColor: brandColor || primaryColor || "#000000",
-      accentColor: accentColor || secondaryColor || "#FFFFFF",
-      tone: toneOfVoice || "Professional",
-      startDate: campaignStartDate
-        ? new Date(campaignStartDate).toISOString()
-        : new Date().toISOString(),
-      endDate: campaignEndDate
-        ? new Date(campaignEndDate).toISOString()
-        : new Date(
-            new Date().setMonth(new Date().getMonth() + 1),
-          ).toISOString(),
-      totalBudget: amount,
-      products: productsPayload,
-      location: locations
-        .map((location) => {
-          const splitted = location.split(",").map((part) => part.trim());
-          return splitted[splitted.length - 1] || "";
-        })
-        .filter((country) => Boolean(country))
-        .map((country) => ({ country })),
-    };
+    const campaignData: LaunchCampaignPayload =
+      storedCampaignPayload && storedCampaignPayload.businessId
+        ? storedCampaignPayload
+        : buildLaunchCampaignPayload({
+            businessId: businessDetails.id,
+            campaignName: campaignName ?? "Campaign",
+            campaignType: campaignType || "Product Launch",
+            brandColor: brandColor || primaryColor || "#000000",
+            accentColor: accentColor || secondaryColor || "#FFFFFF",
+            tone: toneOfVoice || "Professional",
+            startDateIso: campaignStartDate
+              ? new Date(campaignStartDate).toISOString()
+              : new Date().toISOString(),
+            endDateIso: campaignEndDate
+              ? new Date(campaignEndDate).toISOString()
+              : new Date(
+                  new Date().setMonth(new Date().getMonth() + 1),
+                ).toISOString(),
+            totalBudget: amount,
+            products,
+            locations,
+            supportedAdPlatforms,
+            creativesStore: { Google, Facebook },
+          });
 
     mutate({
       token: authToken,
