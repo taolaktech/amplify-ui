@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import { useMetaCreativeUploadStore } from "@/app/lib/stores/metaCreativeUploadStore";
+import type { LaunchCampaignPayload } from "@/app/lib/api/base/campaigns";
 
 type cardDetails = {
   last4Numbers: string;
@@ -79,6 +80,7 @@ export type CampaignSnapshots = {
   metaDailyBudget: string;
   campaignStartDate: string;
   campaignEndDate: string;
+  campaignPayload?: LaunchCampaignPayload;
 };
 
 type SupportedAdPlatforms = {

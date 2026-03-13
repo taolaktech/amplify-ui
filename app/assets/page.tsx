@@ -6,10 +6,7 @@ import Button from "@/app/ui/Button";
 import CloseIcon from "@/public/close-circle.svg";
 import { useModal } from "@/app/lib/hooks/useModal";
 import { useRouter } from "next/navigation";
-import {
-  Asset,
-  useAssetLibraryStore,
-} from "@/app/lib/stores/assetLibraryStore";
+import { Asset } from "@/app/lib/stores/assetLibraryStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import {
@@ -18,6 +15,12 @@ import {
 } from "@/app/lib/stores/metaCreativeUploadStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { Add, Copy, Filter, PlayCircle, Trash } from "iconsax-react";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import {
+  deleteSavedAd,
+  listSavedAds,
+  type SavedAdItem,
+} from "@/app/lib/api/base/saved-ads";
 
 const matchesQuery = (asset: Asset, q: string) => {
   const query = q.trim().toLowerCase();
@@ -389,7 +392,71 @@ function AssetCard({
 export default function AssetLibraryPage() {
   const router = useRouter();
   const setToast = useToastStore((s) => s.setToast);
-  const { assets, filters, actions } = useAssetLibraryStore();
+  const token = useAuthStore((s) => s.token);
+
+  const [savedItems, setSavedItems] = useState<SavedAdItem[]>([]);
+  const [pagination, setPagination] = useState<{
+    total: number;
+    page: number;
+    perPage: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  } | null>(null);
+
+  const [page, setPage] = useState(1);
+  const perPage = 12;
+
+  const [filters, setFilters] = useState({
+    query: "",
+    type: "all" as "all" | "image" | "video",
+    sort: "newest" as "newest" | "oldest" | "product_az",
+    products: [] as string[],
+    tags: [] as string[],
+    dateFrom: undefined as string | undefined,
+    dateTo: undefined as string | undefined,
+  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [
+    filters.type,
+    filters.products,
+    filters.tags,
+    filters.dateFrom,
+    filters.dateTo,
+  ]);
+
+  const assets: Asset[] = useMemo(() => {
+    return savedItems
+      .map((s): Asset | null => {
+        const mediaUrl = s?.assetId?.mediaUrl;
+        const type = s?.assetId?.type;
+        if (!mediaUrl || (type !== "image" && type !== "video")) return null;
+
+        return {
+          assetId: s._id,
+          type,
+          source: "generated",
+          url: type === "image" ? mediaUrl : undefined,
+          storageUrl: type === "video" ? mediaUrl : undefined,
+          thumbnailUrl: undefined,
+          productId: s.productId,
+          productName: undefined,
+          campaignId: undefined,
+          campaignName: undefined,
+          destinationUrl: s.websiteUrl,
+          platform: undefined,
+          format: type === "video" ? "Video" : "Image",
+          headlineUsed: s.headline,
+          descriptionUsed: s.bodyCopy,
+          promptUsed: undefined,
+          tags: [],
+          createdAt: s.createdAt || new Date().toISOString(),
+        };
+      })
+      .filter((x): x is Asset => Boolean(x));
+  }, [savedItems]);
 
   const uiProducts = useUIStore((s) => s.products);
 
@@ -401,12 +468,6 @@ export default function AssetLibraryPage() {
     const filtered = assets
       .filter((a) => (filters.type === "all" ? true : a.type === filters.type))
       .filter((a) => matchesQuery(a, filters.query))
-      .filter((a) =>
-        filters.campaigns.length
-          ? typeof a.campaignName === "string" &&
-            filters.campaigns.includes(a.campaignName)
-          : true,
-      )
       .filter((a) =>
         filters.products.length
           ? typeof a.productName === "string" &&
@@ -431,10 +492,6 @@ export default function AssetLibraryPage() {
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
-    } else if (filters.sort === "campaign_az") {
-      sorted.sort((a, b) =>
-        (a.campaignName || "").localeCompare(b.campaignName || ""),
-      );
     } else if (filters.sort === "product_az") {
       sorted.sort((a, b) =>
         (a.productName || "").localeCompare(b.productName || ""),
@@ -448,22 +505,50 @@ export default function AssetLibraryPage() {
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
 
   useEffect(() => {
-    actions.setFilters({ query: "", type: "all", sort: "newest" });
-    void actions.hydrateFromApi();
-  }, [actions]);
+    if (!token) return;
+    (async () => {
+      try {
+        const res = await listSavedAds({
+          token,
+          page,
+          perPage,
+          productIds: filters.products,
+          type: filters.type === "all" ? undefined : filters.type,
+          tags: filters.tags,
+          from: filters.dateFrom,
+          to: filters.dateTo,
+        });
+        setSavedItems(Array.isArray(res?.data?.items) ? res.data.items : []);
+        setPagination(res?.data?.pagination || null);
+      } catch (e: any) {
+        const status = e?.response?.status;
+        const friendly =
+          status === 401
+            ? "Your session has expired. Please sign in again."
+            : "We couldn't load Saved Ads right now. Please try again.";
+        setToast({
+          type: "error",
+          title: "Load failed",
+          message: friendly,
+        });
+      }
+    })();
+  }, [
+    page,
+    perPage,
+    setToast,
+    token,
+    filters.products,
+    filters.type,
+    filters.tags,
+    filters.dateFrom,
+    filters.dateTo,
+  ]);
 
   const previewAsset = useMemo(() => {
     if (!previewAssetId) return undefined;
     return assets.find((a) => a.assetId === previewAssetId);
   }, [assets, previewAssetId]);
-
-  const campaignOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const a of assets) {
-      if (a.campaignName) set.add(a.campaignName);
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [assets]);
 
   const productOptions = useMemo(() => {
     const set = new Set<string>();
@@ -481,10 +566,7 @@ export default function AssetLibraryPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [assets]);
 
-  const toggleMulti = (
-    current: string[],
-    value: string,
-  ): string[] => {
+  const toggleMulti = (current: string[], value: string): string[] => {
     if (current.includes(value)) return current.filter((v) => v !== value);
     return [...current, value];
   };
@@ -492,8 +574,24 @@ export default function AssetLibraryPage() {
   const deleteAsset = (assetId: string) => {
     const ok = window.confirm("Delete this asset?");
     if (!ok) return;
-    actions.deleteAsset(assetId);
-    setPreviewAssetId((prev) => (prev === assetId ? null : prev));
+    if (!token) return;
+    (async () => {
+      try {
+        await deleteSavedAd({ token, id: assetId });
+        setSavedItems((prev) => prev.filter((x) => x._id !== assetId));
+        setPreviewAssetId((prev) => (prev === assetId ? null : prev));
+      } catch (e: any) {
+        const msg =
+          typeof e?.response?.data?.message === "string"
+            ? e.response.data.message
+            : "Could not delete this saved ad.";
+        setToast({
+          type: "error",
+          title: "Delete failed",
+          message: msg,
+        });
+      }
+    })();
   };
 
   const addToCampaign = (asset: Asset) => {
@@ -502,7 +600,8 @@ export default function AssetLibraryPage() {
       setToast({
         type: "error",
         title: "Missing product",
-        message: "This saved asset is missing a product. Please save again from a campaign flow.",
+        message:
+          "This saved asset is missing a product. Please save again from a campaign flow.",
       });
       return;
     }
@@ -516,7 +615,8 @@ export default function AssetLibraryPage() {
       setToast({
         type: "error",
         title: "Product not loaded",
-        message: "Please open Create Campaign and select this product first, then try again.",
+        message:
+          "Please open Create Campaign and select this product first, then try again.",
       });
       return;
     }
@@ -560,9 +660,7 @@ export default function AssetLibraryPage() {
     <div className="pb-10">
       <div className="flex gap-1 items-center">
         <FolderOpenIcon width={24} height={24} />
-        <h1 className="text-lg tracking-250 heading font-bold">
-          Saved Ads
-        </h1>
+        <h1 className="text-lg tracking-250 heading font-bold">Saved Ads</h1>
       </div>
       <p className="text-sm tracking-60 text-[#555456]">
         View and manage saved images and videos across campaigns
@@ -605,6 +703,25 @@ export default function AssetLibraryPage() {
             ))}
           </div>
         )}
+
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4">
+            <Button
+              text="Previous"
+              secondary
+              action={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={!pagination.hasPrevPage}
+            />
+            <div className="text-xs text-neutral-light">
+              Page {pagination.page} of {pagination.totalPages}
+            </div>
+            <Button
+              text="Next"
+              action={() => setPage((p) => p + 1)}
+              disabled={!pagination.hasNextPage}
+            />
+          </div>
+        )}
       </div>
 
       <PreviewModal
@@ -617,34 +734,6 @@ export default function AssetLibraryPage() {
 
       <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
         <div className="flex flex-col gap-8">
-          <div>
-            <div className="text-heading font-medium tracking-250 mb-3">
-              Campaign
-            </div>
-            <div className="flex flex-col gap-2">
-              {campaignOptions.length === 0 && (
-                <div className="text-sm text-[#777]">No campaigns yet</div>
-              )}
-              {campaignOptions.map((c) => (
-                <label
-                  key={c}
-                  className="flex items-center gap-3 text-sm text-heading"
-                >
-                  <input
-                    type="checkbox"
-                    checked={filters.campaigns.includes(c)}
-                    onChange={() =>
-                      actions.setFilters({
-                        campaigns: toggleMulti(filters.campaigns, c),
-                      })
-                    }
-                  />
-                  <span className="truncate">{c}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
           <div>
             <div className="text-heading font-medium tracking-250 mb-3">
               Product
@@ -662,9 +751,10 @@ export default function AssetLibraryPage() {
                     type="checkbox"
                     checked={filters.products.includes(p)}
                     onChange={() =>
-                      actions.setFilters({
-                        products: toggleMulti(filters.products, p),
-                      })
+                      setFilters((prev) => ({
+                        ...prev,
+                        products: toggleMulti(prev.products, p),
+                      }))
                     }
                   />
                   <span className="truncate">{p}</span>
@@ -686,7 +776,10 @@ export default function AssetLibraryPage() {
                   type="date"
                   value={filters.dateFrom || ""}
                   onChange={(e) =>
-                    actions.setFilters({ dateFrom: e.target.value || undefined })
+                    setFilters((prev) => ({
+                      ...prev,
+                      dateFrom: e.target.value || undefined,
+                    }))
                   }
                   className="px-4 mt-2 block w-full h-[40px] border-[1.2px] border-input-border rounded-lg text-sm focus:outline-0 focus:border-[#A755FF]"
                 />
@@ -699,7 +792,10 @@ export default function AssetLibraryPage() {
                   type="date"
                   value={filters.dateTo || ""}
                   onChange={(e) =>
-                    actions.setFilters({ dateTo: e.target.value || undefined })
+                    setFilters((prev) => ({
+                      ...prev,
+                      dateTo: e.target.value || undefined,
+                    }))
                   }
                   className="px-4 mt-2 block w-full h-[40px] border-[1.2px] border-input-border rounded-lg text-sm focus:outline-0 focus:border-[#A755FF]"
                 />
@@ -721,9 +817,10 @@ export default function AssetLibraryPage() {
                   <button
                     key={t}
                     onClick={() =>
-                      actions.setFilters({
-                        tags: toggleMulti(filters.tags, t),
-                      })
+                      setFilters((prev) => ({
+                        ...prev,
+                        tags: toggleMulti(prev.tags, t),
+                      }))
                     }
                     className={`px-3 py-2 rounded-full text-xs border ${
                       active
@@ -744,7 +841,17 @@ export default function AssetLibraryPage() {
                 text="Clear"
                 hasIconOrLoader
                 secondary
-                action={() => actions.clearFilters()}
+                action={() =>
+                  setFilters({
+                    query: "",
+                    type: "all",
+                    sort: "newest",
+                    products: [],
+                    tags: [],
+                    dateFrom: undefined,
+                    dateTo: undefined,
+                  })
+                }
               />
             </div>
             <div className="w-full max-w-[160px]">
