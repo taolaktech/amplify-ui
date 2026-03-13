@@ -20,36 +20,36 @@ import useUIStore from "../stores/uiStore";
 export const useGenerateCreatives = () => {
   const token = useAuthStore((state) => state.token);
   const primaryBrandColor = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.brandColor
+    (state) => state.campaignSnapshots.brandColor,
   );
   const brandAccent = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.accentColor
+    (state) => state.campaignSnapshots.accentColor,
   );
   const brandName = useSetupStore((state) => state.businessDetails.storeName);
   const toneOfVoice = useBrandAssetStore((state) => state.toneOfVoice);
   const campaignType = useCreateCampaignStore(
-    (state) => state.campaignSnapshots.campaignType
+    (state) => state.campaignSnapshots.campaignType,
   );
   // const campaignName = useCreateCampaignStore(
   //   (state) => state.campaignSnapshots.campaignName
   // );
   const creativeLoadingStates = useUIStore(
-    (state) => state.creativeLoadingState
+    (state) => state.creativeLoadingState,
   );
 
   const creativeLoadingRef = useRef<Record<string, Record<Platform, boolean>>>(
-    {}
+    {},
   );
 
   const setCreativeLoadingStates = useUIStore(
-    (state) => state.actions.setCreativeLoadingState
+    (state) => state.actions.setCreativeLoadingState,
   );
 
   const [, setCurrentProductId] = useState<string | null>(null);
   // const router = useRouter();
   const generate = useCreativesStore((state) => state.actions.generate);
   const supportedAdPlatforms = useCreateCampaignStore(
-    (state) => state.supportedAdPlatforms
+    (state) => state.supportedAdPlatforms,
   );
 
   // const [isCreativeSetLoading] = useState(false);
@@ -93,11 +93,11 @@ export const useGenerateCreatives = () => {
 
   const generateCreatives = async (
     productId: string,
-    platforms?: Platform[]
+    platforms?: Platform[],
   ) => {
     console.log("Generating creatives for product:", productId);
     const product = productSelection.products.find(
-      (p) => p.node.id === productId
+      (p) => p.node.id === productId,
     );
 
     const generatorId = `gen-${Math.random().toString(36).substring(2, 15)}`;
@@ -146,7 +146,7 @@ export const useGenerateCreatives = () => {
       tone: toneOfVoice || "friendly",
       brandName,
       productImages: new Array(5).fill(
-        product.node.media.edges[0]?.node.preview.image.url || ""
+        product.node.media.edges[0]?.node.preview.image.url || "",
       ),
       campaignType: campaignType || "Product Launch",
       type: "IMAGE",
@@ -164,7 +164,7 @@ export const useGenerateCreatives = () => {
           creativeLoadingRef.current[productId]["GOOGLE ADS"] = true;
           setCreativeLoadingStates(
             productId,
-            creativeLoadingRef.current[productId]
+            creativeLoadingRef.current[productId],
           );
         }
 
@@ -184,7 +184,10 @@ export const useGenerateCreatives = () => {
       if (!isLoading && platforms?.length && platforms.includes("FACEBOOK")) {
         creativeLoadingRef.current[productId]["FACEBOOK"] = true;
         generate("FACEBOOK", productId, null, generatorId);
-        setCreativeLoadingStates(productId, creativeLoadingRef.current[productId]);
+        setCreativeLoadingStates(
+          productId,
+          creativeLoadingRef.current[productId],
+        );
         return mediaMutate({
           token,
           product: mediaCreativeProduct,
@@ -212,14 +215,18 @@ export const useGenerateCreatives = () => {
         mediaResult,
       });
 
-      if (googleResult.status === "fulfilled" && googleResult.value?.data) {
-        console.log("Google Creative Result:", googleResult.value);
-        generate(
-          "GOOGLE ADS",
-          productId,
-          googleResult.value?.data,
-          generatorId
-        );
+      if (googleResult.status === "fulfilled") {
+        const googlePayload: any = googleResult.value;
+        const googleCreatives = googlePayload?.data ?? googlePayload;
+
+        if (
+          googleCreatives &&
+          (Array.isArray(googleCreatives) ? googleCreatives.length > 0 : true)
+        ) {
+          console.log("Google Creative Result:", googlePayload);
+          generate("GOOGLE ADS", productId, googleCreatives, generatorId);
+        }
+
         loadingStates["GOOGLE ADS"] = false;
       }
 
@@ -287,7 +294,7 @@ export const useGenerateCreatives = () => {
     console.log(
       "Initial generation for platforms:",
       productSelection.products[0].node.id,
-      platforms
+      platforms,
     );
     setCurrentProductId(productSelection.products[0].node.id);
     generateCreatives(productSelection.products[0].node.id, platforms);
