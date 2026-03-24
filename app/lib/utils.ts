@@ -13,6 +13,7 @@ paths.set("/campaigns", "Campaigns");
 paths.set("/settings", "Subscriptions");
 paths.set("/settings/integrations", "Settings");
 paths.set("/settings/subscriptions", "Subscriptions");
+paths.set("/settings/usage", "Usage");
 
 export const generateAvatar = (name: string) => {
   const avatar = createAvatar(initials, {

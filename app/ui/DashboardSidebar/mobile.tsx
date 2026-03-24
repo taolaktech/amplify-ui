@@ -42,6 +42,7 @@ type MobileSideBarProps = {
   isIntegrations: boolean;
   isSupport: boolean;
   isSettings: boolean;
+  isUsage?: boolean;
   isSettingTabOpen: boolean;
   isStoreDetails: boolean;
   toggleIsSettingTabOpen: () => void;
@@ -69,6 +70,7 @@ export default function MobileSideBar({
   // isIntegrations,
   handleCreateCampaign,
   isSettings,
+  isUsage,
 }: MobileSideBarProps) {
   // const router = useRouter();
   useModal(isSidebarOpen);
@@ -266,6 +268,7 @@ export default function MobileSideBar({
                 isSidebarOpen={isSidebarOpen}
                 isIntegrations={isIntegrations}
                 isPricing={isPricing}
+                isUsage={Boolean(isUsage)}
               />
             </li>
           </ul>

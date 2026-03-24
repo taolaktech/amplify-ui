@@ -28,6 +28,7 @@ export default function DashboardSideBar() {
     isSettings,
     isPricing,
     isIntegrations,
+    isUsage,
     isDashboardRoot,
     isStoreDetails,
   } = useDashboardPath();
@@ -91,6 +92,7 @@ export default function DashboardSideBar() {
           isBrandAssets={isBrandAssets}
           isIntegrations={isIntegrations}
           isSettings={isSettings}
+          isUsage={isUsage}
           toggleIsSettingTabOpen={toggleIsSettingTab}
           isSettingTabOpen={isSettingTabOpen}
           toggleIsCompanyTabOpen={toggleIsCompanyOpen}
@@ -118,6 +120,7 @@ export default function DashboardSideBar() {
           isCompanyTabOpen={isCompanyTabOpen}
           toggleIsCompanyTabOpen={toggleIsCompanyOpen}
           handleCreateCampaign={handleCreateCampaign}
+          isUsage={isUsage}
         />
       )}
     </>

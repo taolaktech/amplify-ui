@@ -49,49 +49,38 @@ const pricingPlans = [
 export default pricingPlans;
 
 export const priceId = {
-  FREE: {
-    MONTHLY:
-      process.env.NEXT_PUBLIC_FREE_PLAN_PRICE_ID ||
-      "price_1RJOC84K0EUJXpsuHnFOBtZf",
-    QUARTERLY:
-      process.env.NEXT_PUBLIC_FREE_PLAN_PRICE_ID ||
-      "price_1RJOC84K0EUJXpsuHnFOBtZf",
-    YEARLY:
-      process.env.NEXT_PUBLIC_FREE_PLAN_PRICE_ID ||
-      "price_1RJOC84K0EUJXpsuHnFOBtZf",
-  },
   STARTER: {
     MONTHLY:
       process.env.NEXT_PUBLIC_STARTER_PLAN_MONTHLY_PRICE_ID ||
-      "price_1RJOIF4K0EUJXpsuXoWVsLvI",
+      "price_1SaxZDKiCBcQA15ofiejlXmX",
     QUARTERLY:
       process.env.NEXT_PUBLIC_STARTER_PLAN_QUARTERLY_PRICE_ID ||
-      "price_1RJOsq4K0EUJXpsut6AGoSqQ",
+      "price_1SaxYaKiCBcQA15og6j7pZ5Q",
     YEARLY:
       process.env.NEXT_PUBLIC_STARTER_PLAN_YEARLY_PRICE_ID ||
-      "price_1RJOvK4K0EUJXpsu9JjKZk5q",
+      "price_1SaxXAKiCBcQA15oOLNyxmTQ",
   },
   GROW: {
     MONTHLY:
       process.env.NEXT_PUBLIC_GROW_PLAN_MONTHLY_PRICE_ID ||
-      "price_1RJORI4K0EUJXpsuA3Uc1yff",
+      "price_1SaxkAKiCBcQA15onkgQcr7A",
     QUARTERLY:
       process.env.NEXT_PUBLIC_GROW_PLAN_QUARTERLY_PRICE_ID ||
-      "price_1RJOzX4K0EUJXpsuhbvXdRFy",
+      "price_1SaxkAKiCBcQA15oLtUhE9ji",
     YEARLY:
       process.env.NEXT_PUBLIC_GROW_PLAN_YEARLY_PRICE_ID ||
-      "price_1RJP0t4K0EUJXpsuGrlrCi0Z",
+      "price_1SaxkAKiCBcQA15oL37PSgJo",
   },
   SCALE: {
     MONTHLY:
       process.env.NEXT_PUBLIC_SCALE_PLAN_MONTHLY_PRICE_ID ||
-      "price_1RJOWj4K0EUJXpsuQ3rqPxEU",
+      "price_1SaxnmKiCBcQA15oqHan2RYe",
     QUARTERLY:
       process.env.NEXT_PUBLIC_SCALE_PLAN_QUARTERLY_PRICE_ID ||
-      "price_1RJP4F4K0EUJXpsupXziADUr",
+      "price_1SaxnmKiCBcQA15obdHqhO8I",
     YEARLY:
       process.env.NEXT_PUBLIC_SCALE_PLAN_YEARLY_PRICE_ID ||
-      "price_1RJP5L4K0EUJXpsuP0J14AlF",
+      "price_1SaxnmKiCBcQA15ofRN01ZjJ",
   },
 };
 
@@ -161,7 +150,7 @@ export const billingCycles = {
     cycleDetails: "3 months",
     size: 3,
     billingDetails: `<span>Quarterly - <span class='num'>${Number(
-      process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT
+      process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT,
     )}%</span> Off</span>`,
     discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT),
   },
@@ -172,7 +161,7 @@ export const billingCycles = {
     cycleDetails: "12 months",
     size: 12,
     billingDetails: `<span>Yearly - <span class='num'>${Number(
-      process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT
+      process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT,
     )}%</span> Off</span>`,
     discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT),
   },
