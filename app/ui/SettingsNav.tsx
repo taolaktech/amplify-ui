@@ -1,23 +1,25 @@
 import Link from "next/link";
-import { FolderConnection, ReceiptItem } from "iconsax-react";
+import { Chart2, FolderConnection, ReceiptItem } from "iconsax-react";
 
 export const SettingsSideBar = ({
   on,
   isSidebarOpen,
   isIntegrations,
   isPricing,
+  isUsage,
   closeSidebar,
 }: {
   on: boolean;
   isSidebarOpen: boolean;
   isIntegrations: boolean;
   isPricing: boolean;
+  isUsage: boolean;
   closeSidebar?: () => void;
 }) => {
   return (
     <ul
       className={`flex flex-col overflow-hidden gap-1 transition-all duration-300 ${
-        on ? "h-[80px] mt-2" : "h-0"
+        on ? "h-[120px] mt-2" : "h-0"
       }`}
     >
       <li className={`px-4 rounded-xl py-2 ${isPricing ? "bg-[#F6F6F6]" : ""}`}>
@@ -38,6 +40,26 @@ export const SettingsSideBar = ({
               }`}
             >
               Subscription
+            </span>
+          )}
+        </Link>
+      </li>
+      <li className={`px-4 rounded-xl py-2 ${isUsage ? "bg-[#F6F6F6]" : ""}`}>
+        <Link
+          onClick={closeSidebar}
+          href="/settings/usage"
+          className="flex items-center gap-2"
+        >
+          {isUsage ? (
+            <Chart2 size="18" color={"#000"} />
+          ) : (
+            <Chart2 size="18" color={"#737373"} />
+          )}
+          {isSidebarOpen && (
+            <span
+              className={`text-xs ${isUsage ? "text-[#000]" : "text-[#595959]"}`}
+            >
+              Usage
             </span>
           )}
         </Link>

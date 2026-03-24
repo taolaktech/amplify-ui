@@ -16,6 +16,7 @@ export const useDashboardPath = () => {
   const isPricing = pathname === "/settings";
   const isStoreDetails = pathname === "/company";
   const isIntegrations = pathname.includes("/integrations");
+  const isUsage = pathname.includes("/settings/usage");
 
   const allPaths = [
     isDashboard,
@@ -30,6 +31,7 @@ export const useDashboardPath = () => {
     isBrandAssets,
     isStoreDetails,
     isIntegrations,
+    isUsage,
   ];
 
   const isInDashboard = allPaths.some((path) => path);
@@ -46,6 +48,7 @@ export const useDashboardPath = () => {
     isSettings,
     isPricing,
     isIntegrations,
+    isUsage,
     allPaths,
     isDashboardRoot,
     isInDashboard,

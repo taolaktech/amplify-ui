@@ -40,6 +40,7 @@ type DesktopSideBarProps = {
   isBrandAssets: boolean;
   isIntegrations: boolean;
   isSettings: boolean;
+  isUsage: boolean;
   isSettingTabOpen: boolean;
   isCompanyTabOpen: boolean;
   toggleIsCompanyTabOpen: () => void;
@@ -60,6 +61,7 @@ export default function DesktopSideBar({
   isPricing,
   isIntegrations,
   isSettings,
+  isUsage,
   toggleIsSettingTabOpen,
   isSettingTabOpen,
   handleCreateCampaign,
@@ -260,6 +262,7 @@ export default function DesktopSideBar({
                 isSidebarOpen={isSidebarOpen}
                 isIntegrations={isIntegrations}
                 isPricing={isPricing}
+                isUsage={isUsage}
               />
             </li>
             {/* <li className="">
