@@ -89,6 +89,76 @@ function Chip({ text }: { text: string }) {
   );
 }
 
+function ConfirmDeleteModal({
+  isOpen,
+  title,
+  description,
+  onCancel,
+  onConfirm,
+  loading,
+}: {
+  isOpen: boolean;
+  title: string;
+  description?: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  loading?: boolean;
+}) {
+  useModal(isOpen);
+
+  if (!isOpen) return null;
+
+  return (
+    <div>
+      <div
+        className="fixed top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.6)] z-20"
+        onClick={() => {
+          if (!loading) onCancel();
+        }}
+      ></div>
+      <div className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] w-[92vw] max-w-[520px] z-30 rounded-3xl p-6 flex flex-col">
+        <div className="flex items-center justify-end">
+          <button
+            onClick={() => {
+              if (!loading) onCancel();
+            }}
+            className="-mt-4 -mr-5 md:m-0"
+          >
+            <CloseIcon width={48} height={48} />
+          </button>
+        </div>
+
+        <div className="-mt-2">
+          <div className="text-2xl md:text-[28px] leading-[32px] font-semibold text-[#333] tracking-250">
+            {title}
+          </div>
+          {description && (
+            <div className="text-sm text-[#595959] mt-3 tracking-100">
+              {description}
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-col gap-3">
+            <Button
+              text={loading ? "Deleting…" : "Delete"}
+              action={onConfirm}
+              hasIconOrLoader
+              loading={loading}
+              disabled={loading}
+            />
+            <Button
+              text="Cancel"
+              secondary
+              action={onCancel}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Drawer({
   isOpen,
   onClose,
@@ -522,6 +592,9 @@ export default function AssetLibraryPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
 
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     if (!token) return;
     (async () => {
@@ -590,26 +663,31 @@ export default function AssetLibraryPage() {
   };
 
   const deleteAsset = (assetId: string) => {
-    const ok = window.confirm("Delete this asset?");
-    if (!ok) return;
+    setDeleteTargetId(assetId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
     if (!token) return;
-    (async () => {
-      try {
-        await deleteSavedAd({ token, id: assetId });
-        setSavedItems((prev) => prev.filter((x) => x._id !== assetId));
-        setPreviewAssetId((prev) => (prev === assetId ? null : prev));
-      } catch (e: any) {
-        const msg =
-          typeof e?.response?.data?.message === "string"
-            ? e.response.data.message
-            : "Could not delete this saved ad.";
-        setToast({
-          type: "error",
-          title: "Delete failed",
-          message: msg,
-        });
-      }
-    })();
+    try {
+      setDeleting(true);
+      await deleteSavedAd({ token, id: deleteTargetId });
+      setSavedItems((prev) => prev.filter((x) => x._id !== deleteTargetId));
+      setPreviewAssetId((prev) => (prev === deleteTargetId ? null : prev));
+      setDeleteTargetId(null);
+    } catch (e: any) {
+      const msg =
+        typeof e?.response?.data?.message === "string"
+          ? e.response.data.message
+          : "Could not delete this saved ad.";
+      setToast({
+        type: "error",
+        title: "Delete failed",
+        message: msg,
+      });
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const addToCampaign = (asset: Asset) => {
@@ -676,6 +754,18 @@ export default function AssetLibraryPage() {
 
   return (
     <div className="pb-10">
+      <ConfirmDeleteModal
+        isOpen={Boolean(deleteTargetId)}
+        title="Delete saved ad?"
+        description="This will permanently remove it from Saved Ads."
+        loading={deleting}
+        onCancel={() => {
+          if (deleting) return;
+          setDeleteTargetId(null);
+        }}
+        onConfirm={confirmDelete}
+      />
+
       <div className="flex gap-1 items-center">
         <FolderOpenIcon width={24} height={24} />
         <h1 className="text-lg tracking-250 heading font-bold">Saved Ads</h1>

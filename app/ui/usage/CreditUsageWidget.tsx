@@ -165,7 +165,7 @@ export default function CreditUsageWidget({
           <div className="flex items-center gap-1 relative">
             <span className="font-medium text-[#333]">⚡ Credits</span>
             <span>
-              {creditsRemaining} / {creditsLimit}
+              {creditsUsed} / {creditsLimit}
             </span>
             {isLowCredits && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-2 py-[2px] rounded-full">
@@ -183,7 +183,7 @@ export default function CreditUsageWidget({
       >
         <span className="text-[#6800D7]">⚡</span>
         <span className="text-sm font-medium text-[#333]">
-          {creditsRemaining} credits
+          {creditsUsed} / {creditsLimit}
         </span>
         {isLowCredits && (
           <span className="bg-red-500 text-white text-[10px] px-2 py-[2px] rounded-full">
