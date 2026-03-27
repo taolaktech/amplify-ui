@@ -6,7 +6,7 @@ export type UsageLimits = {
 };
 
 export function getUsageLimits(planName?: string | null): UsageLimits {
-  const p = (planName || "FREE").toUpperCase();
+  const p = (planName || "STARTER").toUpperCase();
 
   if (p.includes("GROW")) {
     return {
@@ -36,9 +36,9 @@ export function getUsageLimits(planName?: string | null): UsageLimits {
   }
 
   return {
-    creditsLimit: 500,
-    creativesLimit: 50,
-    campaignsLimit: 3,
-    storageLimitGb: 2,
+    creditsLimit: 800,
+    creativesLimit: 100,
+    campaignsLimit: 5,
+    storageLimitGb: 5,
   };
 }

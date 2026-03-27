@@ -9,11 +9,7 @@ import useCreativesStore from "./creativesStore";
 import { useCreateCampaignStore } from "./createCampaignStore";
 import { useSetupStore } from "./setupStore";
 
-export type SubscriptionType =
-  | "FREE_PLAN"
-  | "STARTER_PLAN"
-  | "GROW_PLAN"
-  | "SCALE_PLAN";
+export type SubscriptionType = "STARTER_PLAN" | "GROW_PLAN" | "SCALE_PLAN";
 export type BillingCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
 type AuthState = {
   token: string | null;
@@ -71,6 +67,7 @@ type AuthActions = {
           name: string;
           cycle: Cycle;
         }
+      | null,
   ) => void;
   getUser: () => User | null;
   setHasHydrated: (state: boolean) => void;
@@ -99,11 +96,7 @@ export const useAuthStore = create<AuthStore>()(
       hasActiveSubscription: false,
       subscriptionEndDate: null,
       hasHydrated: false,
-      subscriptionType: {
-        name: "Free",
-        cycle: "monthly",
-        // price: 0
-      },
+      subscriptionType: null,
       rememberMe: false,
       login: (token, user) => {
         set({ token, isAuth: true, user, loginDate: new Date() });
@@ -150,10 +143,7 @@ export const useAuthStore = create<AuthStore>()(
           loginDate: null,
           hasActiveSubscription: false,
           subscriptionEndDate: null,
-          subscriptionType: {
-            name: "Free",
-            cycle: "monthly",
-          },
+          subscriptionType: null,
           rememberMe: false,
         });
       },
@@ -172,8 +162,8 @@ export const useAuthStore = create<AuthStore>()(
       // ✅ fallback: call immediately if there's no persisted state
       skipHydration: false, // keep this false
       version: 1,
-    }
-  )
+    },
+  ),
 );
 // );
 

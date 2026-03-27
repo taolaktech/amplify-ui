@@ -2,16 +2,23 @@
 
 import { useGetCurrentSubscriptionPlan } from "@/app/lib/hooks/stripe";
 import { useAuthStore } from "@/app/lib/stores/authStore";
-import useCampaignsStore, { CampaignStatus } from "@/app/lib/stores/campaignsStore";
+import useCampaignsStore, {
+  CampaignStatus,
+} from "@/app/lib/stores/campaignsStore";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import { useMemo } from "react";
 import CreditUsageDashboardCard from "@/app/ui/usage/CreditUsageDashboardCard";
 import RecentCreditActivity from "@/app/ui/usage/RecentCreditActivity";
 import { getUsageLimits } from "@/app/ui/usage/usageLimits";
 
-function countCreatives(data: Record<string, any[]> | null | undefined): number {
+function countCreatives(
+  data: Record<string, any[]> | null | undefined,
+): number {
   if (!data) return 0;
-  return Object.values(data).reduce((acc, list) => acc + (list?.length || 0), 0);
+  return Object.values(data).reduce(
+    (acc, list) => acc + (list?.length || 0),
+    0,
+  );
 }
 
 export default function UsagePage() {
@@ -25,21 +32,28 @@ export default function UsagePage() {
 
   const planName = useMemo(() => {
     const n = (subscriptionType as any)?.name;
-    if (!n) return "Free";
+    if (!n) return "Starter";
     if (typeof n === "string") return n;
-    return "Free";
+    return "Starter";
   }, [subscriptionType]);
 
   const activeCampaigns = useMemo(() => {
     const list = campaigns || [];
     return list.filter((c: any) => {
       const status = String(c?.status || "").toUpperCase();
-      return status === CampaignStatus.ACTIVE || status === "ACTIVE" || status === "LIVE";
+      return (
+        status === CampaignStatus.ACTIVE ||
+        status === "ACTIVE" ||
+        status === "LIVE"
+      );
     }).length;
   }, [campaigns]);
 
   const creativesGenerated = useMemo(() => {
-    return countCreatives((creatives as any).Google) + countCreatives((creatives as any).Facebook);
+    return (
+      countCreatives((creatives as any).Google) +
+      countCreatives((creatives as any).Facebook)
+    );
   }, [creatives]);
 
   const limits = useMemo(() => getUsageLimits(planName), [planName]);

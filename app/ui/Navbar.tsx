@@ -13,6 +13,8 @@ import Profile from "./Profile";
 import { useDashboardPath } from "../lib/hooks/useDashboardPath";
 import ProgressBar from "./ProgressBar";
 import CreditUsageWidget from "./usage/CreditUsageWidget";
+import { getUsageLimits } from "./usage/usageLimits";
+import { getSubscriptionUsageSummary } from "../lib/api/base";
 import useCampaignsStore, {
   CampaignStatus,
 } from "../lib/stores/campaignsStore";
@@ -61,14 +63,56 @@ export default function Navbar() {
     };
   }, []);
 
-  if (!mounted) return null;
-
   const planName = (() => {
     const n = (subscriptionType as any)?.name;
-    if (!n) return "Free";
+    if (!n) return "Starter";
     if (typeof n === "string") return n;
-    return "Free";
+    return "Starter";
   })();
+
+  const [creditsRemaining, setCreditsRemaining] = useState<number>(() => {
+    const limits = getUsageLimits(planName);
+    return limits.creditsLimit;
+  });
+  const [creditsLimit, setCreditsLimit] = useState<number>(() => {
+    const limits = getUsageLimits(planName);
+    return limits.creditsLimit;
+  });
+
+  useEffect(() => {
+    const limits = getUsageLimits(planName);
+    setCreditsLimit(limits.creditsLimit);
+    setCreditsRemaining(limits.creditsLimit);
+  }, [planName]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const controller = new AbortController();
+
+    const fetchUsage = async () => {
+      const summary = await getSubscriptionUsageSummary({
+        token,
+        signal: controller.signal,
+      });
+      if (!summary) return;
+      if (
+        typeof summary.creditsRemaining === "number" &&
+        Number.isFinite(summary.creditsRemaining)
+      ) {
+        setCreditsRemaining(summary.creditsRemaining);
+      }
+      if (
+        typeof summary.creditsLimit === "number" &&
+        Number.isFinite(summary.creditsLimit)
+      ) {
+        setCreditsLimit(summary.creditsLimit);
+      }
+    };
+
+    fetchUsage();
+    return () => controller.abort();
+  }, [token]);
 
   const creativesGenerated = (() => {
     const count = (data: Record<string, any[]> | null | undefined) => {
@@ -94,6 +138,8 @@ export default function Navbar() {
       );
     }).length;
   })();
+
+  if (!mounted) return null;
 
   return (
     <nav
@@ -152,9 +198,8 @@ export default function Navbar() {
                 <CreditUsageWidget
                   planName={planName}
                   nextResetDate={subscriptionEndDate}
-                  creditsRemaining={320}
-                  creditsLimit={1500}
-                  token={token}
+                  creditsRemaining={creditsRemaining}
+                  creditsLimit={creditsLimit}
                 />
                 <Profile />
               </div>
@@ -172,9 +217,8 @@ export default function Navbar() {
                 <CreditUsageWidget
                   planName={planName}
                   nextResetDate={subscriptionEndDate}
-                  creditsRemaining={320}
-                  creditsLimit={1500}
-                  token={token}
+                  creditsRemaining={creditsRemaining}
+                  creditsLimit={creditsLimit}
                 />
                 <Profile />
               </div>

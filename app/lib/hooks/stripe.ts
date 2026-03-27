@@ -32,10 +32,10 @@ export const useSubscribeToPlan = () => {
   const [planId, setPlanId] = useState<string | null>(null);
 
   const setIsSubscriptionSuccess = useUIStore(
-    (state) => state.actions.setSubscriptionSuccess
+    (state) => state.actions.setSubscriptionSuccess,
   );
   const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
+    (state) => state.setSubscriptionType,
   );
   const setToast = useToastStore((state) => state.setToast);
   const { mutate, isPending } = useMutation({
@@ -55,7 +55,7 @@ export const useSubscribeToPlan = () => {
       const newPlan = planId
         ? planIdToName[planId as keyof typeof planIdToName]
         : {
-            name: "Free",
+            name: "Starter",
             cycle: "monthly" as Cycle,
           };
       console.log("new plan from subscribe:", newPlan);
@@ -84,10 +84,10 @@ export const useSubscribeToPlan = () => {
 export const useGetCurrentSubscriptionPlan = () => {
   const token = useAuthStore((state) => state.token);
   const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
+    (state) => state.setSubscriptionType,
   );
   const setSubscriptionEndDate = useAuthStore(
-    (state) => state.setSubscriptionEndDate
+    (state) => state.setSubscriptionEndDate,
   );
   const { data, isLoading, error, isSuccess } = useQuery({
     queryKey: ["current-subscription-plan"],
@@ -103,17 +103,12 @@ export const useGetCurrentSubscriptionPlan = () => {
       const currentPlanId = data?.data?.activeStripePriceId;
       const currentPlan = currentPlanId
         ? planIdToName[currentPlanId as keyof typeof planIdToName]
-        : {
-            name: "Free",
-            cycle: "monthly" as Cycle,
-          };
+        : null;
 
       console.log("current plan:");
 
-      if (currentPlan) {
-        setSubscriptionType(currentPlan);
-        setSubscriptionEndDate(data?.data?.currentPeriodEnd || null);
-      }
+      setSubscriptionType(currentPlan);
+      setSubscriptionEndDate(data?.data?.currentPeriodEnd || null);
     }
   }, [isSuccess]);
 
@@ -123,17 +118,17 @@ export const useGetCurrentSubscriptionPlan = () => {
 export const useUpgradePlan = () => {
   const token = useAuthStore((state) => state.token);
   const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
+    (state) => state.setSubscriptionType,
   );
   const showToast = useToastStore((state) => state.setToast);
   const [isDowngrade, setIsDowngrade] = useState<boolean>(false);
   const subscriptionEndDate = useAuthStore(
-    (state) => state.subscriptionEndDate
+    (state) => state.subscriptionEndDate,
   );
   const [planId, setPlanId] = useState<string | null>(null);
 
   const setIsSubscriptionSuccess = useUIStore(
-    (state) => state.actions.setSubscriptionSuccess
+    (state) => state.actions.setSubscriptionSuccess,
   );
   const setToast = useToastStore((state) => state.setToast);
   const router = useRouter();
@@ -146,7 +141,7 @@ export const useUpgradePlan = () => {
       const newPlan = planId
         ? planIdToName[planId as keyof typeof planIdToName]
         : {
-            name: "Free",
+            name: "Starter",
             cycle: "monthly" as Cycle,
           };
 
@@ -157,10 +152,11 @@ export const useUpgradePlan = () => {
         if (subscriptionEndDate) {
           const dateObj = new Date(subscriptionEndDate);
           if (!isNaN(dateObj.getTime())) {
-            const endDate = dateObj.toLocaleDateString(
-              "en-US",
-              { year: "numeric", month: "long", day: "numeric" }
-            );
+            const endDate = dateObj.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
             downgradeMessage = `Your plan downgrade will take effect on ${endDate}. You’ll continue to enjoy your current plan benefits until then.`;
           } else {
             downgradeMessage = "Your plan downgrade has been scheduled.";

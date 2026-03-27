@@ -1,6 +1,15 @@
 // import axios from "axios";
 import axiosInstance from "./axios";
 
+export type CreateSetupIntentResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    clientSecret: string;
+    stripeCustomerId: string;
+  };
+};
+
 export const getCustomerPaymentMethods = async (token: string) => {
   const response = await axiosInstance.get(
     "/stripe/customers/payment-methods",
@@ -8,7 +17,7 @@ export const getCustomerPaymentMethods = async (token: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -16,19 +25,33 @@ export const getCustomerPaymentMethods = async (token: string) => {
 export const createCustomer = async (
   token: string,
   cardHolderName: string,
-  country: string
+  country: string,
 ) => {
   const response = await axiosInstance.post(
     "/stripe/customers/create",
     {
-      metadata: { name: cardHolderName, country: country },
+      metadata: { cardHolderName, country },
     },
     {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
+  );
+  return response.data;
+};
+
+export const createSetupIntent = async (token: string) => {
+  const response = await axiosInstance.post<CreateSetupIntentResponse>(
+    "/stripe/customers/setup-intent",
+    {},
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
   );
   return response.data;
 };
@@ -50,7 +73,7 @@ export const subscribeToPlan = async (data: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -72,7 +95,7 @@ export const upgradePlan = async (data: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -85,7 +108,7 @@ export const getCurrentSubscriptionPlan = async (token: string) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -101,7 +124,7 @@ export const setDefaultPaymentMethod = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -116,7 +139,7 @@ export const removePaymentMethod = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -148,7 +171,7 @@ export const topUpWallet = async (data: {
         "idempotency-key": data.idempotencyKey,
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };

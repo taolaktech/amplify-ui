@@ -16,22 +16,19 @@ export default function Pricing({
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
-  const currentPlan2 = currentPlan ?? {
-    name: "Free",
-    cycle: "monthly" as Cycle,
-  };
-
   useEffect(() => {
     // setBillingCycle(currentPlanDetails.cycle);
-    if (plans && currentPlan2) {
+    if (!currentPlan) return;
+
+    if (plans) {
       const index = plans.findIndex(
-        (plan) => plan?.toLowerCase() === currentPlan2?.name?.toLowerCase()
+        (plan) => plan?.toLowerCase() === currentPlan?.name?.toLowerCase(),
       );
       if (index == 1) setSelectedPlan(plans[2]);
       else setSelectedPlan(plans[1]);
     }
 
-    setBillingCycle(currentPlan2.cycle.toLowerCase() as Cycle);
+    setBillingCycle(currentPlan.cycle.toLowerCase() as Cycle);
 
     // setSelectedPlan(
     //   plans.filter(
@@ -57,6 +54,11 @@ export default function Pricing({
         <p className="text-neutral-light text-sm md:text-base tracking-200">
           Choose the perfect plan that fits your business needs and budget
         </p>
+        {!currentPlan && (
+          <p className="text-neutral-light text-sm md:text-base tracking-200 mt-2">
+            You’re currently not subscribed.
+          </p>
+        )}
       </div>
 
       <ModelHeader
@@ -83,13 +85,11 @@ export default function Pricing({
               console.log("currentPlan:", currentPlan);
               console.log("pricingPlans[index]:", pricingPlans[index]);
               console.log("billingCycle:", billingCycle);
-              return pricingPlans[index].name.toLowerCase() === "free" &&
-                currentPlan?.name.toLowerCase() === "free"
-                ? true
-                : currentPlan?.name.toLowerCase() ===
-                    pricingPlans[index].name.toLowerCase() &&
-                    currentPlan?.cycle.toLowerCase() ===
-                      billingCycle.toLowerCase();
+              return (
+                currentPlan?.name.toLowerCase() ===
+                  pricingPlans[index].name.toLowerCase() &&
+                currentPlan?.cycle.toLowerCase() === billingCycle.toLowerCase()
+              );
             })()}
             planSelected={selectedPlan}
             cycle={billingCycle}
