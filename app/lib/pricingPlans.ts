@@ -1,22 +1,9 @@
 const pricingPlans = [
   {
-    name: "Free",
-    price: 0,
-    features: [
-      "Shopify Integration",
-      "Launch 1 AI-Powered Ad Product campaign across multiple ad platforms",
-      "AI-Powered marketing campaign setup, automation and optimization",
-      "2 Set of AI-Generated Ad Creatives & Copy",
-      "AI-Powered A/B Testing",
-      "Unlimited Ad Spend",
-      "15% commission on ad spend",
-    ],
-  },
-  {
     name: "Starter",
     price: parseInt(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE || "49"),
     features: [
-      "Everything in free plan plus",
+      "Shopify Integration",
       "Launch up to 15 AI-Powered Ad Product ad campaigns across multiple ad platforms",
       "Generate Up to 250 AI-Generated Product Ad Creatives & Copy",
       "Ready-to-Launch AI-Powered Product Campaigns designed to Boost Sales",
@@ -34,16 +21,16 @@ const pricingPlans = [
       "Pay 0% commission on ad spend",
     ],
   },
-  // {
-  //   name: "Scale",
-  //   price: parseInt(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE || "199"),
-  //   features: [
-  //     "Everything in Grow plan plus",
-  //     "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
-  //     "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
-  //     "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
-  //   ],
-  // },
+  {
+    name: "Scale",
+    price: parseInt(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE || "199"),
+    features: [
+      "Everything in Grow plan plus",
+      "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
+      "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
+      "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
+    ],
+  },
 ];
 
 export default pricingPlans;
@@ -93,12 +80,12 @@ export const planIdToName = {
   [priceId.STARTER.QUARTERLY]: {
     name: "STARTER",
     cycle: "QUARTERLY",
-    price: 33,
+    price: 95,
   },
   [priceId.STARTER.YEARLY]: {
     name: "STARTER",
     cycle: "YEARLY",
-    price: 30,
+    price: 336,
   },
   [priceId.GROW.MONTHLY]: {
     name: "GROW",
@@ -108,12 +95,12 @@ export const planIdToName = {
   [priceId.GROW.QUARTERLY]: {
     name: "GROW",
     cycle: "QUARTERLY",
-    price: 94,
+    price: 268,
   },
   [priceId.GROW.YEARLY]: {
     name: "GROW",
     cycle: "YEARLY",
-    price: 84,
+    price: 950,
   },
 
   [priceId.SCALE.MONTHLY]: {
@@ -124,12 +111,12 @@ export const planIdToName = {
   [priceId.SCALE.QUARTERLY]: {
     name: "SCALE",
     cycle: "QUARTERLY",
-    price: 189,
+    price: 538,
   },
   [priceId.SCALE.YEARLY]: {
     name: "SCALE",
     cycle: "YEARLY",
-    price: 169,
+    price: 1910,
   },
 };
 

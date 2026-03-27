@@ -32,7 +32,7 @@ export const useInitialize = () => {
   // console.log("token", token);
   const [loading, setLoading] = useState(false);
   const { setShopifyStoreConnected } = useIntegrationStore(
-    (state) => state.actions
+    (state) => state.actions,
   );
   // const { fetchCampaigns } = useGetCampaigns();
   const reset = useSetupStore((state) => state.reset);
@@ -61,13 +61,13 @@ export const useInitialize = () => {
   } = useSetupStore((state) => state);
 
   const setHasActiveSubscription = useAuthStore(
-    (state) => state.setHasActiveSubscription
+    (state) => state.setHasActiveSubscription,
   );
   const setSubscriptionType = useAuthStore(
-    (state) => state.setSubscriptionType
+    (state) => state.setSubscriptionType,
   );
   const setSubscriptionEndDate = useAuthStore(
-    (state) => state.setSubscriptionEndDate
+    (state) => state.setSubscriptionEndDate,
   );
 
   async function getMe(token: string) {
@@ -78,13 +78,13 @@ export const useInitialize = () => {
         if (!response.onboarding) return false;
         completeConnectStore(response.onboarding?.shopifyAccountConnected);
         completeBusinessDetails(
-          response.onboarding?.isBusinessDetailsSet || false
+          response.onboarding?.isBusinessDetailsSet || false,
         );
         completeMarketingGoals(
-          response.onboarding?.isBusinessGoalsSet || false
+          response.onboarding?.isBusinessGoalsSet || false,
         );
         completePreferredSalesLocation(
-          response.onboarding?.isShippingDetailsSet || false
+          response.onboarding?.isShippingDetailsSet || false,
         );
         return true;
       }
@@ -118,15 +118,10 @@ export const useInitialize = () => {
       const currentPlanId = response?.data?.activeStripePriceId;
       const currentPlan = currentPlanId
         ? planIdToName[currentPlanId as keyof typeof planIdToName]
-        : {
-            name: "Free",
-            cycle: "monthly" as Cycle,
-          };
+        : null;
 
-      if (currentPlan) {
-        setSubscriptionType(currentPlan);
-        setSubscriptionEndDate(response?.data?.currentPeriodEnd || null);
-      }
+      setSubscriptionType(currentPlan);
+      setSubscriptionEndDate(response?.data?.currentPeriodEnd || null);
       return response;
     } catch (error) {
       console.error("Error fetching current subscription plan:", error);
@@ -210,7 +205,7 @@ export const useInitialize = () => {
           shippingLocations:
             details.shippingLocations.shippingCountries ||
             details.shippingLocations.localShippingLocations?.map(
-              (location: any) => location.shorthand
+              (location: any) => location.shorthand,
             ) ||
             [],
           internationalShippingLocations:
@@ -262,14 +257,14 @@ export const useInitialize = () => {
 export const useEmailLogin = (
   setErrorMsg: Dispatch<SetStateAction<string>>,
   email: string,
-  setError: Dispatch<SetStateAction<boolean>>
+  setError: Dispatch<SetStateAction<boolean>>,
 ) => {
   const router = useRouter();
   const { storeEmail, storeRetryError } = useCreateUserStore(
-    (state) => state.actions
+    (state) => state.actions,
   );
   const completeConnectStore = useSetupStore(
-    (state) => state.completeConnectStore
+    (state) => state.completeConnectStore,
   );
   const login = useAuthStore((state) => state.login);
   const {
@@ -335,14 +330,14 @@ export const useEmailLogin = (
 
 export const useGoogleLogin = (
   onSignupScreen = false,
-  setErrorMsg: Dispatch<SetStateAction<string | null>> = () => {}
+  setErrorMsg: Dispatch<SetStateAction<string | null>> = () => {},
 ) => {
   const router = useRouter();
   const { storeEmail, storeJustCreated } = useCreateUserStore(
-    (state) => state.actions
+    (state) => state.actions,
   );
   const completeConnectStore = useSetupStore(
-    (state) => state.completeConnectStore
+    (state) => state.completeConnectStore,
   );
 
   const login = useAuthStore((state) => state.login);
@@ -411,7 +406,7 @@ export const useResetPassword = (
   errors: FieldErrors<{
     password: string;
     confirmPassword: string;
-  }>
+  }>,
 ) => {
   const resetPasswordMutation = useMutation({
     mutationFn: handleResetPassword,
@@ -448,7 +443,7 @@ export const useResetPassword = (
 
 export const useForgotPassword = (
   setSent: Dispatch<SetStateAction<boolean>>,
-  setErrorMsg: Dispatch<SetStateAction<string>>
+  setErrorMsg: Dispatch<SetStateAction<string>>,
 ) => {
   const forgotPasswordMutation = useMutation({
     mutationFn: handleForgotPassword,

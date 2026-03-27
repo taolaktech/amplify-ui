@@ -9,19 +9,23 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import SelectInput from "../form/SelectInput";
 import Button from "@/app/ui/Button";
-import axios from "axios";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import useUIStore from "@/app/lib/stores/uiStore";
 import Image from "next/image";
 import { countries } from "countries-list";
 import { priceId } from "@/app/lib/pricingPlans";
 import Skeleton from "../Skeleton";
-import { subscribeToPlan, upgradePlan } from "@/app/lib/api/wallet";
+import {
+  createCustomer,
+  createSetupIntent,
+  subscribeToPlan,
+  upgradePlan,
+} from "@/app/lib/api/wallet";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 const countryOptions = Object.values(countries).map(
-  (country) => country.name
+  (country) => country.name,
 ) as string[];
 
 type CheckoutFormProps = {
@@ -32,7 +36,7 @@ type CheckoutFormProps = {
   isDowngrade?: boolean;
   hasActiveSubscription?: boolean;
   fetchCustomerCards?: (
-    options?: RefetchOptions | undefined
+    options?: RefetchOptions | undefined,
   ) => Promise<QueryObserverResult<any, Error>> | (() => void);
 };
 
@@ -63,7 +67,7 @@ const CheckoutForm = ({
   const [cvcElement, setCvcElement] = useState(false);
   const setToast = useToastStore((state) => state.setToast);
   const setSubscriptionSuccess = useUIStore(
-    (state) => state.actions.setSubscriptionSuccess
+    (state) => state.actions.setSubscriptionSuccess,
   );
   const [brand, setBrand] = useState("unknown");
   const handleChange = (event: any) => {
@@ -122,22 +126,12 @@ const CheckoutForm = ({
       setLoading(false);
       return;
     }
+
     console.log("proceeding to create customer", isUpgrade);
 
     //1. Create customer
     try {
-      await axios.post(
-        "https://dev-wallet.useamplify.ai/stripe/customers/create",
-        {
-          metadata: { cardHolderName: fullName, country: country },
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await createCustomer(token || "", fullName, country);
 
       // 2. Create PaymentMethod
       const { paymentMethod, error: pmError } =
@@ -162,18 +156,9 @@ const CheckoutForm = ({
       }
 
       // 3. Get client secret from backend
-      const res = await axios.post(
-        "https://dev-wallet.useamplify.ai/stripe/customers/setup-intent",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await createSetupIntent(token || "");
 
-      const { clientSecret } = res.data.data;
+      const { clientSecret } = res.data;
 
       // 4. Create subscription
       console.log("price:", price);

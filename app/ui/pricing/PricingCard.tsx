@@ -2,10 +2,10 @@ import Button from "../Button";
 // import CircleCheckGradient from "@/public/circle-check-gradient.svg";
 import { TickCircle } from "iconsax-react";
 import type { Cycle } from "./ModelHeader";
-export const plans: Plan[] = ["Free", "Starter", "Grow", "Scale"];
+export const plans: Plan[] = ["Starter", "Grow", "Scale"];
 import { useRouter } from "next/navigation";
 import { billingCycles } from "@/app/lib/pricingPlans";
-export type Plan = "Free" | "Starter" | "Grow" | "Scale";
+export type Plan = "Starter" | "Grow" | "Scale";
 
 function PricingCard({
   plan,
@@ -51,7 +51,7 @@ function PricingCard({
       return;
     }
     router.push(
-      `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`
+      `/pricing/checkout?planId=${plan.toUpperCase()}_PLAN&billingCycle=${cycle.toUpperCase()}`,
     );
   };
 

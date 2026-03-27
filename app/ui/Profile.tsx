@@ -83,7 +83,9 @@ export default function Profile() {
           </p>
           {/* {user?.type && ( */}
           <p className={`text-xs text-gradient`}>
-            {capitalize(subscriptionType?.name ?? "Free")} User
+            {subscriptionType?.name
+              ? `${capitalize(subscriptionType.name)} User`
+              : "Unsubscribed"}
           </p>
           {/* )} */}
         </div>

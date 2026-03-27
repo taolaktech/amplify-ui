@@ -7,6 +7,7 @@ import { auth } from "../../firebaseConfig";
 
 import axios from "./axios";
 import { CreateProfileState } from "../../stores/authStore";
+export * from "./credits";
 
 export enum AuthErrorCode {
   E_USER_ALREADY_EXISTS = "E_USER_ALREADY_EXISTS",
@@ -40,7 +41,7 @@ export const handleEmailLogin: (data: {
     const result = await signInWithEmailAndPassword(
       auth,
       data.email,
-      data.password
+      data.password,
     );
 
     const user = result.user;
@@ -205,7 +206,7 @@ export const postBrandAssets = async (data: {
   formData.append("removePrimaryLogo", removePrimaryLogo ? "true" : "false");
   formData.append(
     "removeSecondaryLogo",
-    removeSecondaryLogo ? "true" : "false"
+    removeSecondaryLogo ? "true" : "false",
   );
   formData.append("removeBrandGuide", removeBrandGuide ? "true" : "false");
 
@@ -272,7 +273,7 @@ export async function getTargetROAS(data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
 
   return response.data;

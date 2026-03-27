@@ -10,7 +10,6 @@ import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useMemo } from "react";
 
 const plans = {
-  FREE_PLAN: 0,
   STARTER_PLAN: Number(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE),
   GROW_PLAN: Number(process.env.NEXT_PUBLIC_GROW_PLAN_PRICE),
   SCALE_PLAN: Number(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE),
@@ -42,12 +41,12 @@ export default function CheckoutPage() {
   price = Number(price.toFixed(2)); // keeps it as a number
 
   const oldPlan = subscriptionType ?? {
-    name: "FREE",
+    name: "STARTER",
     cycle: "MONTHLY",
-    price: 0,
+    price: Number(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE) || 0,
   };
   const newPlan = pricingPlans.find(
-    (p) => p.name.toUpperCase() === searchParams.get("planId")?.split("_")[0]
+    (p) => p.name.toUpperCase() === searchParams.get("planId")?.split("_")[0],
   );
 
   const oldBillingCycle = oldPlan?.cycle;
