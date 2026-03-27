@@ -19,7 +19,9 @@ export type SavedAdPopulatedAsset = {
 
 export type SavedAdItem = {
   _id: string;
-  assetId: SavedAdPopulatedAsset;
+  assetId: string;
+  mediaUrl?: string;
+  mediaType?: "image" | "video";
   productId?: string;
   headline?: string;
   bodyCopy?: string;

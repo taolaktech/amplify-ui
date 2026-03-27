@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getUsageLimits } from "./usageLimits";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import PurchaseCreditPack from "@/app/ui/modals/PurchaseCreditPack";
@@ -38,12 +37,18 @@ function MetricBar({ metric }: { metric: Metric }) {
   const pct = metric.limit > 0 ? clamp(metric.used / metric.limit, 0, 1) : 0;
   const barColor = getUsageColor(pct);
 
+  const isStorage = metric.label === "Storage Used";
+  const usedLabel = isStorage ? `${Math.round(metric.used)} MB` : metric.used;
+  const limitLabel = isStorage
+    ? `${Math.round(metric.limit)} MB`
+    : metric.limit;
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium text-[#333]">{metric.label}</div>
         <div className="text-xs text-[#595959]">
-          {metric.used} / {metric.limit}
+          {usedLabel} / {limitLabel}
         </div>
       </div>
       <div className="w-full h-2 rounded-full bg-[#EFEFEF] overflow-hidden">
@@ -60,39 +65,42 @@ export default function CreditUsageDashboardCard({
   planName,
   nextResetDate,
   creditsRemaining,
-  storageUsedGb,
+  creditsLimit,
+  storageUsedMb,
+  storageLimitMb,
 }: {
   planName: string;
   nextResetDate?: string | Date | null;
   creditsRemaining: number;
-  storageUsedGb?: number;
+  creditsLimit: number;
+  storageUsedMb?: number;
+  storageLimitMb: number;
 }) {
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const limits = useMemo(() => getUsageLimits(planName), [planName]);
 
-  const creditsUsed = Math.max(0, limits.creditsLimit - creditsRemaining);
+  const creditsUsed = Math.max(0, creditsLimit - creditsRemaining);
 
   const metrics: Metric[] = useMemo(
     () => [
       {
         label: "Credits Remaining",
         used: creditsUsed,
-        limit: limits.creditsLimit,
+        limit: creditsLimit,
       },
       {
         label: "Storage Used",
-        used: storageUsedGb ?? 0,
-        limit: limits.storageLimitGb,
+        used: storageUsedMb ?? 0,
+        limit: storageLimitMb,
       },
     ],
-    [creditsUsed, limits, storageUsedGb],
+    [creditsLimit, creditsUsed, storageLimitMb, storageUsedMb],
   );
 
   const isAnyLimitReached = useMemo(() => {
     return creditsRemaining <= 0;
-  }, [creditsRemaining, limits]);
+  }, [creditsRemaining]);
 
   return (
     <div className="rounded-2xl border border-[#EFEFEF] bg-white p-5 custom-shadow-profile">
