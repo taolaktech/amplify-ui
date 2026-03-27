@@ -430,8 +430,8 @@ export default function AssetLibraryPage() {
   const assets: Asset[] = useMemo(() => {
     return savedItems
       .map((s): Asset | null => {
-        const mediaUrl = s?.assetId?.mediaUrl;
-        const type = s?.assetId?.type;
+        const mediaUrl = s?.mediaUrl;
+        const type = s?.mediaType;
         if (!mediaUrl || (type !== "image" && type !== "video")) return null;
 
         return {

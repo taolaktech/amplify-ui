@@ -6,10 +6,11 @@ import useCampaignsStore, {
   CampaignStatus,
 } from "@/app/lib/stores/campaignsStore";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CreditUsageDashboardCard from "@/app/ui/usage/CreditUsageDashboardCard";
-import RecentCreditActivity from "@/app/ui/usage/RecentCreditActivity";
 import { getUsageLimits } from "@/app/ui/usage/usageLimits";
+import { getSubscriptionUsageSummary } from "@/app/lib/api/base";
+import { handleGetMe } from "@/app/lib/api/integrations";
 
 function countCreatives(
   data: Record<string, any[]> | null | undefined,
@@ -26,6 +27,7 @@ export default function UsagePage() {
 
   const subscriptionType = useAuthStore((s) => s.subscriptionType);
   const subscriptionEndDate = useAuthStore((s) => s.subscriptionEndDate);
+  const token = useAuthStore((s) => s.token);
 
   const campaigns = useCampaignsStore((s) => s.data);
   const creatives = useCreativesStore((s) => s);
@@ -58,11 +60,63 @@ export default function UsagePage() {
 
   const limits = useMemo(() => getUsageLimits(planName), [planName]);
 
-  const creditsRemaining = useMemo(() => {
-    // Placeholder until wired to backend ledger/wallet.
-    // Keeps UI functional and consistent with the prompt mock.
-    return Math.max(0, Math.min(limits.creditsLimit, 320));
-  }, [limits]);
+  const [creditsRemaining, setCreditsRemaining] = useState<number>(
+    limits.creditsLimit,
+  );
+  const [creditsLimit, setCreditsLimit] = useState<number>(limits.creditsLimit);
+  const [storageUsedMb, setStorageUsedMb] = useState<number>(0);
+  const [storageLimitMb, setStorageLimitMb] = useState<number>(
+    limits.storageLimitGb * 1024,
+  );
+
+  useEffect(() => {
+    setCreditsRemaining(limits.creditsLimit);
+    setCreditsLimit(limits.creditsLimit);
+    setStorageLimitMb(limits.storageLimitGb * 1024);
+  }, [limits.creditsLimit, limits.storageLimitGb]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const controller = new AbortController();
+
+    const fetchUsage = async () => {
+      const summary = await getSubscriptionUsageSummary({
+        token,
+        signal: controller.signal,
+      });
+      if (summary) {
+        if (
+          typeof summary.creditsRemaining === "number" &&
+          Number.isFinite(summary.creditsRemaining)
+        ) {
+          setCreditsRemaining(summary.creditsRemaining);
+        }
+        if (
+          typeof summary.creditsLimit === "number" &&
+          Number.isFinite(summary.creditsLimit)
+        ) {
+          setCreditsLimit(summary.creditsLimit);
+        }
+      }
+
+      try {
+        const me = await handleGetMe(token);
+        const usedMb = Number(me?.memoryUsedInMB ?? 0);
+        setStorageUsedMb(Number.isFinite(usedMb) ? usedMb : 0);
+
+        const limitMb = Number(me?.memoryLimitInMB);
+        if (Number.isFinite(limitMb)) {
+          setStorageLimitMb(limitMb);
+        }
+      } catch (e) {
+        // swallow errors; page should still render
+      }
+    };
+
+    fetchUsage();
+    return () => controller.abort();
+  }, [token]);
 
   const recentActivity = useMemo(
     () => [
@@ -89,12 +143,10 @@ export default function UsagePage() {
           planName={planName}
           nextResetDate={subscriptionEndDate}
           creditsRemaining={creditsRemaining}
-          creativesGenerated={creativesGenerated}
-          activeCampaigns={activeCampaigns}
-          storageUsedGb={1.4}
+          creditsLimit={creditsLimit}
+          storageUsedMb={storageUsedMb}
+          storageLimitMb={storageLimitMb}
         />
-
-        <RecentCreditActivity items={recentActivity} />
       </div>
     </div>
   );

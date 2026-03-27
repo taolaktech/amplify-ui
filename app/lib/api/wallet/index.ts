@@ -22,6 +22,53 @@ export const getCustomerPaymentMethods = async (token: string) => {
   return response.data;
 };
 
+export const createCreditsCheckoutSession = async (token: string) => {
+  const response = await axiosInstance.post(
+    "/wallet/credits/checkout-session",
+    {},
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return response.data;
+};
+
+export type CreditsTopUpPack = {
+  priceId: string;
+  tokens: number;
+  unitAmount: number | null;
+  currency: string | null;
+};
+
+export const getCreditsTopUpPacks = async (token: string) => {
+  const response = await axiosInstance.get("/wallet/credits/top-up-packs", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const createCreditsCheckoutSessionForPrice = async (
+  token: string,
+  priceId: string,
+) => {
+  const response = await axiosInstance.post(
+    "/wallet/credits/checkout-session",
+    { priceId },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return response.data;
+};
+
 export const createCustomer = async (
   token: string,
   cardHolderName: string,
