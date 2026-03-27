@@ -347,10 +347,10 @@ function AssetCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-heading text-sm font-medium truncate">
-              {asset.productName || "Untitled"}
+              {asset.headlineUsed || "Untitled"}
             </div>
             <div className="text-xs text-[#777] mt-1 truncate">
-              {asset.campaignName || "—"}
+              {asset.productName || "—"}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -394,6 +394,8 @@ export default function AssetLibraryPage() {
   const setToast = useToastStore((s) => s.setToast);
   const token = useAuthStore((s) => s.token);
 
+  const uiProducts = useUIStore((s) => s.products);
+
   const [savedItems, setSavedItems] = useState<SavedAdItem[]>([]);
   const [pagination, setPagination] = useState<{
     total: number;
@@ -427,12 +429,30 @@ export default function AssetLibraryPage() {
     filters.dateTo,
   ]);
 
+  const productTitleById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of uiProducts || []) {
+      const id = p?.node?.id;
+      const title = p?.node?.title;
+      if (typeof id === "string" && typeof title === "string") {
+        map.set(id, title);
+      }
+    }
+    return map;
+  }, [uiProducts]);
+
   const assets: Asset[] = useMemo(() => {
     return savedItems
       .map((s): Asset | null => {
         const mediaUrl = s?.mediaUrl;
         const type = s?.mediaType;
         if (!mediaUrl || (type !== "image" && type !== "video")) return null;
+
+        const productName =
+          s.productTitle ||
+          (typeof s.productId === "string"
+            ? productTitleById.get(s.productId)
+            : undefined);
 
         return {
           assetId: s._id,
@@ -442,7 +462,7 @@ export default function AssetLibraryPage() {
           storageUrl: type === "video" ? mediaUrl : undefined,
           thumbnailUrl: undefined,
           productId: s.productId,
-          productName: undefined,
+          productName,
           campaignId: undefined,
           campaignName: undefined,
           destinationUrl: s.websiteUrl,
@@ -451,14 +471,12 @@ export default function AssetLibraryPage() {
           headlineUsed: s.headline,
           descriptionUsed: s.bodyCopy,
           promptUsed: undefined,
-          tags: [],
+          tags: Array.isArray(s.productTags) ? s.productTags : [],
           createdAt: s.createdAt || new Date().toISOString(),
         };
       })
       .filter((x): x is Asset => Boolean(x));
-  }, [savedItems]);
-
-  const uiProducts = useUIStore((s) => s.products);
+  }, [productTitleById, savedItems]);
 
   const { productSelection } = useCreateCampaignStore((s) => s);
   const campaignActions = useCreateCampaignStore((s) => s.actions);
@@ -518,7 +536,7 @@ export default function AssetLibraryPage() {
           from: filters.dateFrom,
           to: filters.dateTo,
         });
-        setSavedItems(Array.isArray(res?.data?.items) ? res.data.items : []);
+        setSavedItems(res?.data?.items || []);
         setPagination(res?.data?.pagination || null);
       } catch (e: any) {
         const status = e?.response?.status;
