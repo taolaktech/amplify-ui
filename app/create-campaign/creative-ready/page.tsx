@@ -163,6 +163,14 @@ export default function CreativeReadyPage() {
 
   const product = productSelection.products?.[0]?.node;
 
+  const productImageUrl = useMemo(() => {
+    const edges = product?.media?.edges || [];
+    const url = edges
+      .map((e) => e?.node?.preview?.image?.url)
+      .find((u): u is string => typeof u === "string" && u.trim().length > 0);
+    return url;
+  }, [product?.media?.edges]);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -948,6 +956,12 @@ export default function CreativeReadyPage() {
         dto: {
           assetId: assetIdToSave,
           productId: product?.id || undefined,
+          productTitle: product?.title || undefined,
+          productHandle: product?.handle || undefined,
+          productType: product?.productType || undefined,
+          productCategory: product?.category?.fullName || undefined,
+          productTags: Array.isArray(product?.tags) ? product?.tags : undefined,
+          productImageUrl,
           headline: currentCopy.headline,
           bodyCopy: currentCopy.bodyCopy,
           cta: currentCopy.callToAction,

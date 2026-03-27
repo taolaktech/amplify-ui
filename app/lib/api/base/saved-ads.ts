@@ -9,6 +9,12 @@ export type SavedAdCopy = {
   brandName?: string;
   websiteUrl?: string;
   productId?: string;
+  productTitle?: string;
+  productHandle?: string;
+  productType?: string;
+  productCategory?: string;
+  productImageUrl?: string;
+  productTags?: string[];
 };
 
 export type SavedAdPopulatedAsset = {
@@ -23,6 +29,12 @@ export type SavedAdItem = {
   mediaUrl?: string;
   mediaType?: "image" | "video";
   productId?: string;
+  productTitle?: string;
+  productHandle?: string;
+  productType?: string;
+  productCategory?: string;
+  productImageUrl?: string;
+  productTags?: string[];
   headline?: string;
   bodyCopy?: string;
   cta?: string;
