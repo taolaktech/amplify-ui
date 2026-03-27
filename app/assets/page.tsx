@@ -518,7 +518,7 @@ export default function AssetLibraryPage() {
           from: filters.dateFrom,
           to: filters.dateTo,
         });
-        setSavedItems(Array.isArray(res?.data?.items) ? res.data.items : []);
+        setSavedItems(res?.data?.items || []);
         setPagination(res?.data?.pagination || null);
       } catch (e: any) {
         const status = e?.response?.status;
