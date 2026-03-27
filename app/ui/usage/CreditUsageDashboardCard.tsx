@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getUsageLimits } from "./usageLimits";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useToastStore } from "@/app/lib/stores/toastStore";
+import PurchaseCreditPack from "@/app/ui/modals/PurchaseCreditPack";
 
 type Metric = {
   label: string;
@@ -44,7 +47,10 @@ function MetricBar({ metric }: { metric: Metric }) {
         </div>
       </div>
       <div className="w-full h-2 rounded-full bg-[#EFEFEF] overflow-hidden">
-        <div className={`h-full ${barColor}`} style={{ width: `${pct * 100}%` }} />
+        <div
+          className={`h-full ${barColor}`}
+          style={{ width: `${pct * 100}%` }}
+        />
       </div>
     </div>
   );
@@ -54,42 +60,39 @@ export default function CreditUsageDashboardCard({
   planName,
   nextResetDate,
   creditsRemaining,
-  creativesGenerated,
-  activeCampaigns,
   storageUsedGb,
 }: {
   planName: string;
   nextResetDate?: string | Date | null;
   creditsRemaining: number;
-  creativesGenerated: number;
-  activeCampaigns: number;
   storageUsedGb?: number;
 }) {
+  const token = useAuthStore((state) => state.token);
+  const setToast = useToastStore((state) => state.setToast);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const limits = useMemo(() => getUsageLimits(planName), [planName]);
 
   const creditsUsed = Math.max(0, limits.creditsLimit - creditsRemaining);
 
   const metrics: Metric[] = useMemo(
     () => [
-      { label: "Credits Remaining", used: creditsUsed, limit: limits.creditsLimit },
-      { label: "Creatives Generated", used: creativesGenerated, limit: limits.creativesLimit },
-      { label: "Active Campaigns", used: activeCampaigns, limit: limits.campaignsLimit },
+      {
+        label: "Credits Remaining",
+        used: creditsUsed,
+        limit: limits.creditsLimit,
+      },
       {
         label: "Storage Used",
         used: storageUsedGb ?? 0,
         limit: limits.storageLimitGb,
       },
     ],
-    [creditsUsed, limits, creativesGenerated, activeCampaigns, storageUsedGb],
+    [creditsUsed, limits, storageUsedGb],
   );
 
   const isAnyLimitReached = useMemo(() => {
-    return (
-      creativesGenerated >= limits.creativesLimit ||
-      activeCampaigns >= limits.campaignsLimit ||
-      creditsRemaining <= 0
-    );
-  }, [creativesGenerated, activeCampaigns, creditsRemaining, limits]);
+    return creditsRemaining <= 0;
+  }, [creditsRemaining, limits]);
 
   return (
     <div className="rounded-2xl border border-[#EFEFEF] bg-white p-5 custom-shadow-profile">
@@ -102,12 +105,23 @@ export default function CreditUsageDashboardCard({
           </div>
         </div>
         <div className="flex gap-2">
-          <Link
-            href="/create-campaign/fund-campaign"
+          <button
+            type="button"
             className="h-[40px] px-4 rounded-xl flex items-center justify-center text-sm font-medium gradient text-white"
+            onClick={() => {
+              if (!token) {
+                setToast({
+                  title: "Sign in required",
+                  message: "Please sign in to buy more credits.",
+                  type: "error",
+                });
+                return;
+              }
+              setShowPurchaseModal(true);
+            }}
           >
             Buy Credits
-          </Link>
+          </button>
           <Link
             href="/settings"
             className="h-[40px] px-4 rounded-xl flex items-center justify-center text-sm font-medium border border-[#EFEFEF]"
@@ -129,7 +143,8 @@ export default function CreditUsageDashboardCard({
             You are close to (or have reached) a plan limit.
           </div>
           <div className="text-xs text-[#595959] mt-1">
-            Upgrade to increase monthly credits and unlock higher creative and campaign limits.
+            Upgrade to increase monthly credits and unlock higher creative and
+            campaign limits.
           </div>
           <div className="mt-3">
             <Link
@@ -141,6 +156,16 @@ export default function CreditUsageDashboardCard({
           </div>
         </div>
       )}
+
+      <div className="fixed z-50">
+        {showPurchaseModal && token && (
+          <PurchaseCreditPack
+            isOpen={showPurchaseModal}
+            onClose={() => setShowPurchaseModal(false)}
+            token={token}
+          />
+        )}
+      </div>
     </div>
   );
 }

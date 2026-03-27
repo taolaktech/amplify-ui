@@ -225,7 +225,7 @@ export default function CreditUsageWidget({
 
           <div className="mt-4 grid grid-cols-2 gap-2">
             <Link
-              href="/create-campaign/fund-campaign"
+              href="/settings/usage"
               className="h-[40px] rounded-xl flex items-center justify-center text-sm font-medium gradient text-white"
               onClick={() => setOpen(false)}
             >

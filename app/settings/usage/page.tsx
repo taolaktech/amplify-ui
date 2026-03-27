@@ -8,7 +8,6 @@ import useCampaignsStore, {
 import useCreativesStore from "@/app/lib/stores/creativesStore";
 import { useMemo } from "react";
 import CreditUsageDashboardCard from "@/app/ui/usage/CreditUsageDashboardCard";
-import RecentCreditActivity from "@/app/ui/usage/RecentCreditActivity";
 import { getUsageLimits } from "@/app/ui/usage/usageLimits";
 
 function countCreatives(
@@ -89,12 +88,8 @@ export default function UsagePage() {
           planName={planName}
           nextResetDate={subscriptionEndDate}
           creditsRemaining={creditsRemaining}
-          creativesGenerated={creativesGenerated}
-          activeCampaigns={activeCampaigns}
           storageUsedGb={1.4}
         />
-
-        <RecentCreditActivity items={recentActivity} />
       </div>
     </div>
   );
