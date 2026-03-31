@@ -8,6 +8,13 @@ export type AssetType = "image" | "video";
 
 export type AssetStatus = "pending" | "completed" | "failed";
 
+export type GenerationKind =
+  | "video_copy_generation"
+  | "image_copy_generation"
+  | "google_ad_generation"
+  | "image_ad_generation"
+  | "video_generation_12s";
+
 export type Asset = {
   _id: string;
   type: AssetType;
@@ -48,6 +55,36 @@ export async function listAssets(data: {
   return response.data;
 }
 
+export type PreflightMultiGenerationDto = {
+  items: Array<{ kind: GenerationKind; count: number }>;
+};
+
+export type PreflightMultiGenerationResponse = {
+  status: "success";
+  message: string;
+  data: {
+    canGenerate: boolean;
+    tokensRequired: number;
+  };
+};
+
+export async function preflightMultiGeneration(data: {
+  token: string;
+  dto: PreflightMultiGenerationDto;
+}) {
+  const response = await instance.post<PreflightMultiGenerationResponse>(
+    "/assets/preflight-multi-generation",
+    data.dto,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    },
+  );
+
+  return response.data;
+}
+
 export type GenerateImageDto = {
   productName: string;
   imagePresetId?: string;
@@ -57,6 +94,7 @@ export type GenerateImageDto = {
   headline: string;
   bodyCopy: string;
   cta?: string;
+  customPrompt?: string;
 };
 
 export type GenerateImageResponse = {
@@ -104,6 +142,7 @@ export type GenerateVideoDto = {
   includeMusic: boolean;
   includeVoiceOver: boolean;
   cta?: string;
+  customPrompt?: string;
 };
 
 export type GenerateVideoResponse = {
@@ -188,6 +227,7 @@ export type RegenerateImageDto = {
   headline: string;
   bodyCopy: string;
   cta?: string;
+  customPrompt?: string;
 };
 
 export type RegenerateImageResponse = {

@@ -63,6 +63,10 @@ export default function Navbar() {
     };
   }, []);
 
+  const creditUsageRefreshTrigger = useAuthStore(
+    (state) => state.creditUsageRefreshTrigger,
+  );
+
   const planName = (() => {
     const n = (subscriptionType as any)?.name;
     if (!n) return "Starter";
@@ -78,12 +82,6 @@ export default function Navbar() {
     const limits = getUsageLimits(planName);
     return limits.creditsLimit;
   });
-
-  useEffect(() => {
-    const limits = getUsageLimits(planName);
-    setCreditsLimit(limits.creditsLimit);
-    setCreditsRemaining(limits.creditsLimit);
-  }, [planName]);
 
   useEffect(() => {
     if (!token) return;
@@ -112,7 +110,7 @@ export default function Navbar() {
 
     fetchUsage();
     return () => controller.abort();
-  }, [token]);
+  }, [token, creditUsageRefreshTrigger, planName]);
 
   const creativesGenerated = (() => {
     const count = (data: Record<string, any[]> | null | undefined) => {

@@ -6,6 +6,7 @@ import useCampaignsStore, {
   CampaignStatus,
 } from "@/app/lib/stores/campaignsStore";
 import useCreativesStore from "@/app/lib/stores/creativesStore";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import CreditUsageDashboardCard from "@/app/ui/usage/CreditUsageDashboardCard";
 import { getUsageLimits } from "@/app/ui/usage/usageLimits";
@@ -28,6 +29,10 @@ export default function UsagePage() {
   const subscriptionType = useAuthStore((s) => s.subscriptionType);
   const subscriptionEndDate = useAuthStore((s) => s.subscriptionEndDate);
   const token = useAuthStore((s) => s.token);
+  const triggerCreditUsageRefresh = useAuthStore(
+    (s) => s.triggerCreditUsageRefresh,
+  );
+  const searchParams = useSearchParams();
 
   const campaigns = useCampaignsStore((s) => s.data);
   const creatives = useCreativesStore((s) => s);
@@ -70,13 +75,15 @@ export default function UsagePage() {
   );
 
   useEffect(() => {
-    setCreditsRemaining(limits.creditsLimit);
-    setCreditsLimit(limits.creditsLimit);
     setStorageLimitMb(limits.storageLimitGb * 1024);
   }, [limits.creditsLimit, limits.storageLimitGb]);
 
   useEffect(() => {
     if (!token) return;
+
+    if (searchParams?.get("checkout") === "success") {
+      triggerCreditUsageRefresh();
+    }
 
     const controller = new AbortController();
 
@@ -116,7 +123,7 @@ export default function UsagePage() {
 
     fetchUsage();
     return () => controller.abort();
-  }, [token]);
+  }, [token, planName, searchParams, triggerCreditUsageRefresh]);
 
   const recentActivity = useMemo(
     () => [

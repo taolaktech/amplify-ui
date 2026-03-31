@@ -10,10 +10,11 @@ import { useToastStore } from "@/app/lib/stores/toastStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import {
-  regenerateImageAsset,
+  type Asset,
   generateVideoAsset,
   getAssetById,
-  type Asset,
+  preflightMultiGeneration,
+  regenerateImageAsset,
 } from "@/app/lib/api/base/assets";
 import { createSavedAd } from "@/app/lib/api/base/saved-ads";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
@@ -47,6 +48,8 @@ const clamp = (value: string, max: number) => {
   if (v.length <= max) return v;
   return v.slice(0, max);
 };
+
+const CUSTOM_PROMPT_MAX_LENGTH = 50;
 
 const svgDataUrl = (svg: string) => {
   const encoded = encodeURIComponent(svg)
@@ -150,8 +153,11 @@ function sleepWithAbort(ms: number, signal: AbortSignal) {
 
 export default function CreativeReadyPage() {
   const router = useRouter();
-  const setToast = useToastStore((s) => s.setToast);
   const token = useAuthStore((s) => s.token);
+  const triggerCreditUsageRefresh = useAuthStore(
+    (s) => s.triggerCreditUsageRefresh,
+  );
+  const setToast = useToastStore((s) => s.setToast);
 
   const { productSelection, adStyle } = useCreateCampaignStore((s) => s);
   const { campaignSnapshots } = useCreateCampaignStore((s) => s);
@@ -268,6 +274,10 @@ export default function CreativeReadyPage() {
     Record<string, boolean>
   >({});
 
+  const [customPromptById, setCustomPromptById] = useState<
+    Record<string, string>
+  >({});
+
   const generationAbortControllersRef = useRef<Record<string, AbortController>>(
     {},
   );
@@ -281,6 +291,7 @@ export default function CreativeReadyPage() {
 
   const [includeMusic, setIncludeMusic] = useState(true);
   const [includeVoiceOver, setIncludeVoiceOver] = useState(true);
+  const [isRegeneratingActive, setIsRegeneratingActive] = useState(false);
 
   useEffect(() => {
     if (typeof adStyle.includeMusic === "boolean") {
@@ -931,6 +942,8 @@ export default function CreativeReadyPage() {
     const key = creativeKey(activeCreative);
     const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
 
+    const customPrompt = customPromptById[activeCreative.id];
+
     const entry = generatedAssetByCreativeId[activeCreative.id];
     const completedAssetId =
       entry && entry.status === "completed" ? entry.assetId : "";
@@ -967,6 +980,7 @@ export default function CreativeReadyPage() {
           cta: currentCopy.callToAction,
           caption: currentCopy.caption,
           script: currentCopy.videoScript,
+          customPrompt: customPrompt?.trim() || undefined,
           brandName: currentCopy.brandName,
           websiteUrl: currentCopy.websiteUrl,
         },
@@ -994,8 +1008,10 @@ export default function CreativeReadyPage() {
     }
   };
 
-  const regenerateActiveCreative = () => {
+  const regenerateActiveCreative = async () => {
     if (!activeCreative) return;
+
+    setIsRegeneratingActive(true);
 
     if (activeCreative.type === "video") {
       if (!token) {
@@ -1004,6 +1020,35 @@ export default function CreativeReadyPage() {
           title: "Missing login",
           message: "Please log in again to regenerate your video.",
         });
+        setIsRegeneratingActive(false);
+        return;
+      }
+
+      try {
+        const preflight = await preflightMultiGeneration({
+          token,
+          dto: {
+            items: [{ kind: "video_generation_12s", count: 1 }],
+          },
+        });
+
+        if (!preflight?.data?.canGenerate) {
+          setToast({
+            type: "error",
+            title: "Insufficient tokens",
+            message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this video.`,
+          });
+          setIsRegeneratingActive(false);
+          return;
+        }
+      } catch (e: any) {
+        setToast({
+          type: "error",
+          title: "Validation failed",
+          message:
+            "We couldn’t validate your token balance right now. Please try again.",
+        });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1014,6 +1059,7 @@ export default function CreativeReadyPage() {
           title: "Missing template",
           message: "Please select a video style before regenerating.",
         });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1029,6 +1075,7 @@ export default function CreativeReadyPage() {
           message:
             "Please select a product with title and description before regenerating videos.",
         });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1039,6 +1086,7 @@ export default function CreativeReadyPage() {
           message:
             "Please select a product with at least one image before regenerating videos.",
         });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1057,6 +1105,7 @@ export default function CreativeReadyPage() {
           message:
             "Add a video script (or disable Voiceover) before regenerating.",
         });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1066,6 +1115,7 @@ export default function CreativeReadyPage() {
           title: "Missing caption",
           message: "Add a caption (or enable Voiceover) before regenerating.",
         });
+        setIsRegeneratingActive(false);
         return;
       }
 
@@ -1078,6 +1128,7 @@ export default function CreativeReadyPage() {
 
       (async () => {
         try {
+          const customPrompt = customPromptById[activeCreative.id];
           const res = await generateVideoAsset({
             token,
             dto: {
@@ -1089,6 +1140,7 @@ export default function CreativeReadyPage() {
               includeMusic,
               includeVoiceOver,
               cta: undefined,
+              customPrompt: customPrompt?.trim() || undefined,
             },
           });
 
@@ -1096,6 +1148,8 @@ export default function CreativeReadyPage() {
           if (!assetId) {
             throw new Error("Video regeneration failed. Please try again.");
           }
+
+          triggerCreditUsageRefresh();
 
           const regen: ReadyCreative = {
             id: assetId,
@@ -1124,6 +1178,7 @@ export default function CreativeReadyPage() {
             ...prev,
             [assetId]: { assetId, type: "video", status: "pending" },
           }));
+          setIsRegeneratingActive(false);
 
           setToast({
             type: "success",
@@ -1174,6 +1229,7 @@ export default function CreativeReadyPage() {
             title: "Video generation failed",
             message: msg,
           });
+          setIsRegeneratingActive(false);
         }
       })();
 
@@ -1186,72 +1242,105 @@ export default function CreativeReadyPage() {
         title: "Missing login",
         message: "Please log in again to regenerate your image.",
       });
+      setIsRegeneratingActive(false);
       return;
     }
-
-    const presetId = activeCreative.id;
-    const baseAssetId =
-      generatedAssetByCreativeId[presetId]?.assetId ||
-      ((adStyle.imageAssetIdsByPresetId as any)?.[presetId] as string) ||
-      "";
-
-    if (!baseAssetId) {
-      setToast({
-        type: "error",
-        title: "Missing generated image",
-        message:
-          "Please generate this image first before regenerating a variant.",
-      });
-      return;
-    }
-
-    const productId = product?.id || "";
-    const productName = product?.title || "";
-    const productDescription =
-      product?.description || (product as any)?.productType || "";
-
-    if (!productId || !productName) {
-      setToast({
-        type: "error",
-        title: "Missing product details",
-        message:
-          "Please select a product with title and description before regenerating images.",
-      });
-      return;
-    }
-
-    const safeProductDescription =
-      productDescription.trim().length > 0 ? productDescription : "—";
-
-    const key = creativeKey(activeCreative);
-    const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
-
-    const headline = (currentCopy.headline || "").trim();
-    const bodyCopy = (currentCopy.bodyCopy || "").trim();
-    const cta = (currentCopy.callToAction || "").trim();
-
-    if (!headline || !bodyCopy) {
-      setToast({
-        type: "error",
-        title: "Missing ad copy",
-        message:
-          "Please add a headline and body copy before regenerating this image.",
-      });
-      return;
-    }
-
-    const regenProductImages = Array.from(
-      new Set(
-        [activeCreativeDisplayUrl, ...productImages]
-          .filter(
-            (u): u is string => typeof u === "string" && u.trim().length > 0,
-          )
-          .map((u) => u.trim()),
-      ),
-    ).slice(0, 4);
 
     (async () => {
       try {
+        const preflight = await preflightMultiGeneration({
+          token,
+          dto: {
+            items: [{ kind: "image_ad_generation", count: 1 }],
+          },
+        });
+
+        if (!preflight?.data?.canGenerate) {
+          setToast({
+            type: "error",
+            title: "Insufficient tokens",
+            message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to regenerate this image.`,
+          });
+          setIsRegeneratingActive(false);
+          return;
+        }
+      } catch (e: any) {
+        setToast({
+          type: "error",
+          title: "Validation failed",
+          message:
+            "We couldn’t validate your token balance right now. Please try again.",
+        });
+        setIsRegeneratingActive(false);
+        return;
+      }
+
+      const presetId = activeCreative.id;
+      const baseAssetId =
+        generatedAssetByCreativeId[presetId]?.assetId ||
+        ((adStyle.imageAssetIdsByPresetId as any)?.[presetId] as string) ||
+        "";
+
+      if (!baseAssetId) {
+        setToast({
+          type: "error",
+          title: "Missing generated image",
+          message:
+            "Please generate this image first before regenerating a variant.",
+        });
+        setIsRegeneratingActive(false);
+        return;
+      }
+
+      const productId = product?.id || "";
+      const productName = product?.title || "";
+      const productDescription =
+        product?.description || (product as any)?.productType || "";
+
+      if (!productId || !productName) {
+        setToast({
+          type: "error",
+          title: "Missing product details",
+          message:
+            "Please select a product with title and description before regenerating images.",
+        });
+        setIsRegeneratingActive(false);
+        return;
+      }
+
+      const safeProductDescription =
+        productDescription.trim().length > 0 ? productDescription : "—";
+
+      const key = creativeKey(activeCreative);
+      const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
+
+      const headline = (currentCopy.headline || "").trim();
+      const bodyCopy = (currentCopy.bodyCopy || "").trim();
+      const cta = (currentCopy.callToAction || "").trim();
+
+      if (!headline || !bodyCopy) {
+        setToast({
+          type: "error",
+          title: "Missing ad copy",
+          message:
+            "Please add a headline and body copy before regenerating this image.",
+        });
+        setIsRegeneratingActive(false);
+        return;
+      }
+
+      const regenProductImages = Array.from(
+        new Set(
+          [activeCreativeDisplayUrl, ...productImages]
+            .filter(
+              (u): u is string => typeof u === "string" && u.trim().length > 0,
+            )
+            .map((u) => u.trim()),
+        ),
+      ).slice(0, 4);
+
+      try {
+        const customPrompt = customPromptById[activeCreative.id];
         const res = await regenerateImageAsset({
           token,
           dto: {
@@ -1263,6 +1352,7 @@ export default function CreativeReadyPage() {
             headline,
             bodyCopy,
             cta: cta.length > 0 ? cta : undefined,
+            customPrompt: customPrompt?.trim() || undefined,
           },
         });
 
@@ -1270,6 +1360,8 @@ export default function CreativeReadyPage() {
         if (!assetId) {
           throw new Error("Image regeneration failed. Please try again.");
         }
+
+        triggerCreditUsageRefresh();
 
         const regen: ReadyCreative = {
           id: assetId,
@@ -1299,6 +1391,7 @@ export default function CreativeReadyPage() {
           ...prev,
           [assetId]: { assetId, type: "image", status: "pending" },
         }));
+        setIsRegeneratingActive(false);
 
         setToast({
           type: "success",
@@ -1349,8 +1442,11 @@ export default function CreativeReadyPage() {
           title: "Image generation failed",
           message: msg,
         });
+        setIsRegeneratingActive(false);
       }
     })();
+
+    return;
   };
 
   const hasAssetGenerationErrors = useMemo(() => {
@@ -1428,8 +1524,14 @@ export default function CreativeReadyPage() {
     }
 
     const entry = generatedAssetByCreativeId[activeCreative.id];
-    const isPending = !entry || entry.status === "pending";
-    return Boolean(adStyle.videoAssetId) && isPending;
+    if (entry) return entry.status === "pending";
+
+    const templateVideoKey = adStyle.templateId || "video";
+    if (activeCreative.id === templateVideoKey) {
+      return Boolean(adStyle.videoAssetId);
+    }
+
+    return false;
   }, [activeCreative, adStyle.videoAssetId, generatedAssetByCreativeId]);
 
   return (
@@ -1540,10 +1642,12 @@ export default function CreativeReadyPage() {
                     const videoAssetEntry = activeCreative.id
                       ? generatedAssetByCreativeId[activeCreative.id]
                       : undefined;
-                    const videoIsPending =
-                      adStyle.videoAssetId &&
-                      (!videoAssetEntry ||
-                        videoAssetEntry.status === "pending");
+                    const templateVideoKey = adStyle.templateId || "video";
+                    const videoIsPending = videoAssetEntry
+                      ? videoAssetEntry.status === "pending"
+                      : activeCreative.id === templateVideoKey
+                        ? Boolean(adStyle.videoAssetId)
+                        : false;
                     const videoFinalUrl =
                       videoAssetEntry?.status === "completed"
                         ? videoAssetEntry.url
@@ -1649,7 +1753,12 @@ export default function CreativeReadyPage() {
                 <>
                   {(() => {
                     const entry = generatedAssetByCreativeId[activeCreative.id];
-                    const isPending = !entry || entry.status === "pending";
+                    const templateVideoKey = adStyle.templateId || "video";
+                    const isPending = entry
+                      ? entry.status === "pending"
+                      : activeCreative.id === templateVideoKey
+                        ? Boolean(adStyle.videoAssetId)
+                        : false;
                     const isFailed = entry?.status === "failed";
                     if (isPending) {
                       return (
@@ -1784,6 +1893,7 @@ export default function CreativeReadyPage() {
                       <Button
                         text="Regenerate"
                         action={() => regenerateActiveCreative()}
+                        loading={isRegeneratingActive || isActiveAssetPending}
                         hasIconOrLoader
                         disabled={isActiveAssetPending || isSavingToLibrary}
                       />
@@ -1871,6 +1981,36 @@ export default function CreativeReadyPage() {
                           placeholder="Write your caption"
                         />
                       </div>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-neutral-light">
+                            Custom Prompt (Optional)
+                          </label>
+                          <span className="text-xs text-neutral-light">
+                            {
+                              (customPromptById[activeCreative?.id || ""] || "")
+                                .length
+                            }{" "}
+                            / {CUSTOM_PROMPT_MAX_LENGTH}
+                          </span>
+                        </div>
+                        <textarea
+                          className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={
+                            customPromptById[activeCreative?.id || ""] || ""
+                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= CUSTOM_PROMPT_MAX_LENGTH) {
+                              setCustomPromptById((prev) => ({
+                                ...prev,
+                                [activeCreative?.id || ""]: value,
+                              }));
+                            }
+                          }}
+                          placeholder="Add custom instructions for regeneration (e.g., 'Make it more vibrant', 'Add sunset lighting')..."
+                        />
+                      </div>
                     </>
                   ) : (
                     <>
@@ -1941,6 +2081,36 @@ export default function CreativeReadyPage() {
                             updateActiveAdCopy({ caption: e.target.value })
                           }
                           placeholder="Write your caption"
+                        />
+                      </div>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-neutral-light">
+                            Custom Prompt (Optional)
+                          </label>
+                          <span className="text-xs text-neutral-light">
+                            {
+                              (customPromptById[activeCreative?.id || ""] || "")
+                                .length
+                            }{" "}
+                            / {CUSTOM_PROMPT_MAX_LENGTH}
+                          </span>
+                        </div>
+                        <textarea
+                          className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          value={
+                            customPromptById[activeCreative?.id || ""] || ""
+                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= CUSTOM_PROMPT_MAX_LENGTH) {
+                              setCustomPromptById((prev) => ({
+                                ...prev,
+                                [activeCreative?.id || ""]: value,
+                              }));
+                            }
+                          }}
+                          placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
                         />
                       </div>
                     </>
