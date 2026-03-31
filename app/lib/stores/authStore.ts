@@ -31,6 +31,7 @@ type AuthState = {
       }
     | null;
   user: User | null;
+  creditUsageRefreshTrigger: number;
 };
 
 type User = {
@@ -73,6 +74,7 @@ type AuthActions = {
   setHasHydrated: (state: boolean) => void;
   storeRememberMe: () => void;
   getProfileIcon?: () => string | ProfileIcon;
+  triggerCreditUsageRefresh: () => void;
   resetStore: () => void;
 };
 
@@ -98,6 +100,7 @@ export const useAuthStore = create<AuthStore>()(
       hasHydrated: false,
       subscriptionType: null,
       rememberMe: false,
+      creditUsageRefreshTrigger: 0,
       login: (token, user) => {
         set({ token, isAuth: true, user, loginDate: new Date() });
       },
@@ -135,6 +138,11 @@ export const useAuthStore = create<AuthStore>()(
       setHasHydrated: (state) => {
         set({ hasHydrated: state });
       },
+      triggerCreditUsageRefresh: () => {
+        set((state) => ({
+          creditUsageRefreshTrigger: state.creditUsageRefreshTrigger + 1,
+        }));
+      },
       resetStore: () => {
         set({
           token: null,
@@ -145,6 +153,7 @@ export const useAuthStore = create<AuthStore>()(
           subscriptionEndDate: null,
           subscriptionType: null,
           rememberMe: false,
+          creditUsageRefreshTrigger: 0,
         });
       },
     }),

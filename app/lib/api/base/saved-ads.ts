@@ -6,6 +6,7 @@ export type SavedAdCopy = {
   cta?: string;
   caption?: string;
   script?: string;
+  customPrompt?: string;
   brandName?: string;
   websiteUrl?: string;
   productId?: string;
@@ -40,6 +41,7 @@ export type SavedAdItem = {
   cta?: string;
   caption?: string;
   script?: string;
+  customPrompt?: string;
   brandName?: string;
   websiteUrl?: string;
   createdAt?: string;

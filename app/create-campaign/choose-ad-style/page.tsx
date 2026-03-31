@@ -18,6 +18,7 @@ import {
   generateCopy,
   generateImageAsset,
   generateVideoAsset,
+  preflightMultiGeneration,
 } from "@/app/lib/api/base/assets";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
@@ -43,9 +44,9 @@ function parseImageAdCopy(raw: string) {
   const bodyMatch = text.match(/Body:\s*([\s\S]*?)(?:\n+CTA:|$)/i);
   const ctaMatch = text.match(/CTA:\s*([\s\S]*)$/i);
   return {
-    headline: (headlineMatch?.[1] || "").trim(),
-    body: (bodyMatch?.[1] || "").trim(),
-    cta: (ctaMatch?.[1] || "").trim(),
+    headline: headlineMatch?.[1] || "",
+    body: bodyMatch?.[1] || "",
+    cta: ctaMatch?.[1] || "",
   };
 }
 
@@ -53,6 +54,9 @@ export default function ChooseAdStylePage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const hasHydrated = useAuthStore((s) => s.hasHydrated);
+  const triggerCreditUsageRefresh = useAuthStore(
+    (s) => s.triggerCreditUsageRefresh,
+  );
   const setToast = useToastStore((s) => s.setToast);
   const { productSelection, adStyle } = useCreateCampaignStore((s) => s);
   const storeAdStyle = useCreateCampaignStore((s) => s.actions.storeAdStyle);
@@ -215,6 +219,7 @@ export default function ChooseAdStylePage() {
     generatedCopy,
     imageCopyById,
     imageCaptionById,
+    triggerCreditUsageRefresh,
   ]);
 
   const getOrderedProductImages = useCallback((): string[] => {
@@ -453,6 +458,34 @@ export default function ChooseAdStylePage() {
     setGeneratedCopy("");
     setGeneratedCaption("");
 
+    try {
+      const preflight = await preflightMultiGeneration({
+        token,
+        dto: {
+          items: [{ kind: "video_copy_generation", count: 1 }],
+        },
+      });
+
+      if (!preflight?.data?.canGenerate) {
+        setToast({
+          type: "error",
+          title: "Insufficient tokens",
+          message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this copy.`,
+        });
+        setIsGeneratingCopy(false);
+        return;
+      }
+    } catch (e: any) {
+      setToast({
+        type: "error",
+        title: "Validation failed",
+        message:
+          "We couldn’t validate your token balance right now. Please try again.",
+      });
+      setIsGeneratingCopy(false);
+      return;
+    }
+
     const productId = selectedProductNode?.id || "";
     const productName = selectedProductNode?.title || "";
     const productDescription =
@@ -508,6 +541,7 @@ export default function ChooseAdStylePage() {
       if (includeVoiceOver) {
         setGeneratedCopy(script);
       }
+      triggerCreditUsageRefresh();
     } catch (e: any) {
       const msg =
         e?.response?.data?.message ||
@@ -533,6 +567,7 @@ export default function ChooseAdStylePage() {
     selectedProductNode?.productType,
     selectedProductNode?.category?.name,
     selectedProductNode?.media?.edges,
+    triggerCreditUsageRefresh,
   ]);
 
   const handleGenerateImageCopy = useCallback(
@@ -545,6 +580,37 @@ export default function ChooseAdStylePage() {
           type: "error",
           title: "Missing login",
           message: "Please log in again to generate copy.",
+        });
+        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
+        return;
+      }
+
+      try {
+        const preflight = await preflightMultiGeneration({
+          token,
+          dto: {
+            items: [{ kind: "image_copy_generation", count: 1 }],
+          },
+        });
+
+        if (!preflight?.data?.canGenerate) {
+          setToast({
+            type: "error",
+            title: "Insufficient tokens",
+            message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this copy.`,
+          });
+          setIsGeneratingImageCopy((prev) => ({
+            ...prev,
+            [templateId]: false,
+          }));
+          return;
+        }
+      } catch (e: any) {
+        setToast({
+          type: "error",
+          title: "Validation failed",
+          message:
+            "We couldn’t validate your token balance right now. Please try again.",
         });
         setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
         return;
@@ -607,6 +673,7 @@ export default function ChooseAdStylePage() {
 
         setImageCopyById((prev) => ({ ...prev, [templateId]: copy }));
         setImageCaptionById((prev) => ({ ...prev, [templateId]: caption }));
+        triggerCreditUsageRefresh();
       } catch (e: any) {
         const msg =
           e?.response?.data?.message ||
@@ -722,6 +789,70 @@ export default function ChooseAdStylePage() {
                     return;
                   }
 
+                  for (
+                    let idx = 0;
+                    idx < selectedImagePresetIds.length;
+                    idx++
+                  ) {
+                    const presetId = selectedImagePresetIds[idx];
+                    const presetLabel = getImagePresetLabelById(
+                      presetId,
+                      `Image ${idx + 1}`,
+                    );
+                    const copy = imageCopyById[presetId] || "";
+                    const headlineMatch = copy.match(
+                      /Headline:\s*([\s\S]*?)(?:\n+Body:|$)/i,
+                    );
+                    const bodyMatch = copy.match(
+                      /Body:\s*([\s\S]*?)(?:\n+CTA:|$)/i,
+                    );
+                    const headline = (headlineMatch?.[1] || "").trim();
+                    const bodyCopy = (bodyMatch?.[1] || "").trim();
+
+                    if (!headline || !bodyCopy) {
+                      setToast({
+                        type: "error",
+                        title: "Missing copy",
+                        message: `Generate copy for ${presetLabel} before generating assets.`,
+                      });
+                      return;
+                    }
+                  }
+
+                  try {
+                    const items = [
+                      {
+                        kind: "image_ad_generation" as const,
+                        count: selectedImagePresetIds.length,
+                      },
+                      ...(selectedVideoTemplateId
+                        ? [{ kind: "video_generation_12s" as const, count: 1 }]
+                        : []),
+                    ];
+
+                    const preflight = await preflightMultiGeneration({
+                      token,
+                      dto: { items },
+                    });
+
+                    if (!preflight?.data?.canGenerate) {
+                      setToast({
+                        type: "error",
+                        title: "Insufficient tokens",
+                        message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate these assets.`,
+                      });
+                      return;
+                    }
+                  } catch (e: any) {
+                    setToast({
+                      type: "error",
+                      title: "Validation failed",
+                      message:
+                        "We couldn’t validate your token balance right now. Please try again.",
+                    });
+                    return;
+                  }
+
                   try {
                     const results = await Promise.all(
                       selectedImagePresetIds.map(async (presetId, idx) => {
@@ -780,6 +911,7 @@ export default function ChooseAdStylePage() {
                       },
                       {} as Record<string, string>,
                     );
+                    triggerCreditUsageRefresh();
                   } catch (e: any) {
                     const msg =
                       e?.response?.data?.message ||
@@ -857,6 +989,32 @@ export default function ChooseAdStylePage() {
                   }
 
                   try {
+                    const preflight = await preflightMultiGeneration({
+                      token,
+                      dto: {
+                        items: [{ kind: "video_generation_12s", count: 1 }],
+                      },
+                    });
+
+                    if (!preflight?.data?.canGenerate) {
+                      setToast({
+                        type: "error",
+                        title: "Insufficient tokens",
+                        message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this video.`,
+                      });
+                      return;
+                    }
+                  } catch (e: any) {
+                    setToast({
+                      type: "error",
+                      title: "Validation failed",
+                      message:
+                        "We couldn’t validate your token balance right now. Please try again.",
+                    });
+                    return;
+                  }
+
+                  try {
                     const res = await generateVideoAsset({
                       token,
                       dto: {
@@ -871,6 +1029,7 @@ export default function ChooseAdStylePage() {
                       },
                     });
                     videoAssetId = res?.data?.assetId || null;
+                    triggerCreditUsageRefresh();
                   } catch (e: any) {
                     const msg =
                       e?.response?.data?.message ||
