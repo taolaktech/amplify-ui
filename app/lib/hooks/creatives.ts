@@ -69,7 +69,6 @@ export const useGenerateCreatives = () => {
         // }
       },
       onError: (error) => {
-        console.log("Error generating Google creatives", error);
         console.error("Error generating Google creatives", error);
       },
     });
@@ -78,7 +77,6 @@ export const useGenerateCreatives = () => {
     useMutation({
       mutationFn: generateMediaCreatives,
       onSuccess: (data: any) => {
-        console.log("Media creative generation response:", data);
         // if (data.success) {
         //   actions.completeAdsPlatform();
         //   generate("FACEBOOK", currentProductId!, data.data);
@@ -86,7 +84,6 @@ export const useGenerateCreatives = () => {
         // }
       },
       onError: (error) => {
-        console.log("Error generating Media creatives", error);
         console.error("Error generating Media creatives", error);
       },
     });
@@ -95,7 +92,6 @@ export const useGenerateCreatives = () => {
     productId: string,
     platforms?: Platform[],
   ) => {
-    console.log("Generating creatives for product:", productId);
     const product = productSelection.products.find(
       (p) => p.node.id === productId,
     );
@@ -158,7 +154,6 @@ export const useGenerateCreatives = () => {
     const generateForGoogleAds = async () => {
       const isLoading =
         creativeLoadingRef.current[productId]?.["GOOGLE ADS"] === true;
-      console.log("Google Ads loading state for", productId, ":", isLoading);
       if (!isLoading && platforms?.length && platforms.includes("GOOGLE ADS")) {
         if (platforms.includes("GOOGLE ADS")) {
           creativeLoadingRef.current[productId]["GOOGLE ADS"] = true;
@@ -180,7 +175,6 @@ export const useGenerateCreatives = () => {
     const generateForFacebook = async () => {
       const isLoading =
         creativeLoadingRef.current[productId]?.["FACEBOOK"] === true;
-      console.log("Facebook loading state for", productId, ":", isLoading);
       if (!isLoading && platforms?.length && platforms.includes("FACEBOOK")) {
         creativeLoadingRef.current[productId]["FACEBOOK"] = true;
         generate("FACEBOOK", productId, null, generatorId);
@@ -204,16 +198,10 @@ export const useGenerateCreatives = () => {
 
       creativeLoadingRef.current[productId] = loadingStates;
       setCreativeLoadingStates(productId, loadingStates);
-      console.log("Starting generation for platforms:", platforms);
       const [googleResult, mediaResult] = await Promise.allSettled([
         generateForGoogleAds(),
         generateForFacebook(),
       ]);
-
-      console.log("Results:", {
-        googleResult,
-        mediaResult,
-      });
 
       if (googleResult.status === "fulfilled") {
         const googlePayload: any = googleResult.value;
@@ -223,14 +211,11 @@ export const useGenerateCreatives = () => {
           googleCreatives &&
           (Array.isArray(googleCreatives) ? googleCreatives.length > 0 : true)
         ) {
-          console.log("Google Creative Result:", googlePayload);
           generate("GOOGLE ADS", productId, googleCreatives, generatorId);
         }
 
         loadingStates["GOOGLE ADS"] = false;
       }
-
-      console.log("Platforms to generate:", platforms);
 
       setCreativeLoadingStates(productId, loadingStates);
       creativeLoadingRef.current[productId] = loadingStates;
@@ -244,7 +229,6 @@ export const useGenerateCreatives = () => {
               creativeSetId: mediaResult.value.creativeSetId,
               token,
             });
-            console.log("Media Creative Set Status:", creativeSet.status);
 
             if (creativeSet.creatives && creativeSet.creatives.length > 0) {
               const creatives = creativeSet.creatives.map((creative: any) => ({
@@ -253,7 +237,6 @@ export const useGenerateCreatives = () => {
                 caption: creative.bodyText,
               }));
 
-              console.log("formatted creatives: ", creatives);
               if (platforms.includes("FACEBOOK")) {
                 generate("FACEBOOK", productId, creatives, generatorId);
               }
@@ -279,7 +262,6 @@ export const useGenerateCreatives = () => {
       }
       if (platforms.includes("FACEBOOK")) loadingStates["FACEBOOK"] = false;
       if (platforms.includes("GOOGLE ADS")) loadingStates["GOOGLE ADS"] = false;
-      console.log("Generation completed for product:", productId);
       // actions.completeAdsPlatform();
       creativeLoadingRef.current[productId] = loadingStates;
       setCreativeLoadingStates(productId, loadingStates);
@@ -291,11 +273,7 @@ export const useGenerateCreatives = () => {
     const platforms: Platform[] = [];
     if (supportedAdPlatforms.Facebook) platforms.push("FACEBOOK");
     if (supportedAdPlatforms.Google) platforms.push("GOOGLE ADS");
-    console.log(
-      "Initial generation for platforms:",
-      productSelection.products[0].node.id,
-      platforms,
-    );
+
     setCurrentProductId(productSelection.products[0].node.id);
     generateCreatives(productSelection.products[0].node.id, platforms);
   };

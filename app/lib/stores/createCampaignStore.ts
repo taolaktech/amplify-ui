@@ -23,6 +23,9 @@ type CreateCampaignState = {
       url: string;
       thumbnailUrl?: string;
       title?: string;
+      headline?: string;
+      bodyCopy?: string;
+      caption?: string;
     }>;
     complete: boolean;
   };
@@ -50,6 +53,7 @@ type CreateCampaignState = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    selectedImagePresetIds?: string[];
     imageCopyByPresetId?: Record<string, string>;
     imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
@@ -103,6 +107,9 @@ type CreateCampaignActions = {
       url: string;
       thumbnailUrl?: string;
       title?: string;
+      headline?: string;
+      bodyCopy?: string;
+      caption?: string;
     }>,
   ) => void;
   clearAttachedAssets: () => void;
@@ -135,6 +142,7 @@ type CreateCampaignActions = {
       thumbnailUrl?: string;
     }>;
     imageAssetIdsByPresetId?: Record<string, string>;
+    selectedImagePresetIds?: string[];
     imageCopyByPresetId?: Record<string, string>;
     imageCaptionsByPresetId?: Record<string, string>;
     videoAssetId?: string | null;
@@ -210,6 +218,7 @@ const initialState: CreateCampaignState = {
     imageTemplateIds: [],
     imagePresets: [],
     imageAssetIdsByPresetId: {},
+    selectedImagePresetIds: [],
     imageCopyByPresetId: {},
     imageCaptionsByPresetId: {},
     videoAssetId: null,

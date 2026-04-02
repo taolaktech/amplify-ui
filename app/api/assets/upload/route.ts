@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  console.log("=== UPLOAD API CALLED ===");
   const authorization = req.headers.get("authorization");
   if (!authorization) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

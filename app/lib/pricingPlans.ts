@@ -1,34 +1,41 @@
 const pricingPlans = [
   {
     name: "Starter",
-    price: parseInt(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE || "49"),
+    price: parseInt(process.env.NEXT_PUBLIC_STARTER_PLAN_PRICE || "35"),
     features: [
-      "Shopify Integration",
-      "Launch up to 15 AI-Powered Ad Product ad campaigns across multiple ad platforms",
-      "Generate Up to 250 AI-Generated Product Ad Creatives & Copy",
-      "Ready-to-Launch AI-Powered Product Campaigns designed to Boost Sales",
-      "Unlimited Ad Spend",
-      "Pay 0% commission on ad spend",
+      "500 AI credits/month for ad generation",
+      "Facebook & Instagram ads only",
+      "Generate image ads, video ads, and ad copy",
+      "Generate up to 50 AI ad creatives per month",
+      "Unlimited ad spend",
+      "0% commission on ad spend",
+      "1GB asset storage",
+      "Use your brand kit (fonts, colors, logo)",
     ],
   },
   {
     name: "Grow",
     price: parseInt(process.env.NEXT_PUBLIC_GROW_PLAN_PRICE || "99"),
     features: [
-      "Everything in Starter plan plus",
-      "Launch up to 30 AI-Powered Ad Product Campaigns across multiple ad platforms",
-      "Generate Up to 450 AI-Generated Product Ad Creatives & Copy",
-      "Pay 0% commission on ad spend",
+      "Everything in Starter",
+      "1,500 AI credits/month",
+      "Facebook, Instagram + Google Ads generation",
+      "Generate image ads, video ads, ad copy and Google text ads",
+      "Generate up to 200 AI ad creatives per month",
+      "10GB asset storage",
     ],
   },
   {
     name: "Scale",
     price: parseInt(process.env.NEXT_PUBLIC_SCALE_PLAN_PRICE || "199"),
     features: [
-      "Everything in Grow plan plus",
-      "Launch up to 150 AI-Powered Ad Product Campaigns across multiple ad platforms",
-      "Generate Up to 4500 AI-Generated Product Ad Creatives & Copy",
-      "Pay <b> 0% commission for the first 3 months,</b> then only <b>1% on ad spend.</b>",
+      "Everything in Grow",
+      "3,000 AI credits/month",
+      "Facebook, Instagram + Google Ads generation",
+      "Generate image ads, video ads, ad copy and Google text ads",
+      "Generate up to 500 AI ad creatives per month",
+      "Automated A/B testing for offers and creatives",
+      "1TB asset storage",
     ],
   },
 ];
@@ -80,7 +87,7 @@ export const planIdToName = {
   [priceId.STARTER.QUARTERLY]: {
     name: "STARTER",
     cycle: "QUARTERLY",
-    price: 95,
+    price: 96,
   },
   [priceId.STARTER.YEARLY]: {
     name: "STARTER",
@@ -95,12 +102,12 @@ export const planIdToName = {
   [priceId.GROW.QUARTERLY]: {
     name: "GROW",
     cycle: "QUARTERLY",
-    price: 268,
+    price: 267,
   },
   [priceId.GROW.YEARLY]: {
     name: "GROW",
     cycle: "YEARLY",
-    price: 950,
+    price: 948,
   },
 
   [priceId.SCALE.MONTHLY]: {
@@ -111,12 +118,12 @@ export const planIdToName = {
   [priceId.SCALE.QUARTERLY]: {
     name: "SCALE",
     cycle: "QUARTERLY",
-    price: 538,
+    price: 537,
   },
   [priceId.SCALE.YEARLY]: {
     name: "SCALE",
     cycle: "YEARLY",
-    price: 1910,
+    price: 1908,
   },
 };
 
@@ -128,7 +135,8 @@ export const billingCycles = {
     cycleDetails: "1 month",
     size: 1,
     billingDetails: "Monthly",
-    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_MONTHLY_DISCOUNT),
+    discount:
+      Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_MONTHLY_DISCOUNT) || 0,
   },
   QUARTERLY: {
     title: "Quarterly",
@@ -136,10 +144,11 @@ export const billingCycles = {
     statement: "Billed Every 3 Months",
     cycleDetails: "3 months",
     size: 3,
-    billingDetails: `<span>Quarterly - <span class='num'>${Number(
-      process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT,
-    )}%</span> Off</span>`,
-    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT),
+    billingDetails: `<span>Quarterly - <span class='num'>${
+      Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT) || 10
+    }%</span> Off</span>`,
+    discount:
+      Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_QUARTERLY_DISCOUNT) || 10,
   },
   YEARLY: {
     title: "Yearly",
@@ -147,9 +156,10 @@ export const billingCycles = {
     statement: "Billed Every Year",
     cycleDetails: "12 months",
     size: 12,
-    billingDetails: `<span>Yearly - <span class='num'>${Number(
-      process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT,
-    )}%</span> Off</span>`,
-    discount: Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT),
+    billingDetails: `<span>Yearly - <span class='num'>${
+      Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT) || 20
+    }%</span> Off</span>`,
+    discount:
+      Number(process.env.NEXT_PUBLIC_BILLING_CYCLE_YEARLY_DISCOUNT) || 20,
   },
 };

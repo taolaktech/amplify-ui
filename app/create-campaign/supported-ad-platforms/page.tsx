@@ -15,6 +15,7 @@ import { useIntegrationStore } from "@/app/lib/stores/integrationStore";
 import AdPlatformConnect from "@/app/ui/modals/AdPlatformConnect";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { getIntegrationsStatus } from "@/app/lib/api/integrations";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 const SupportedAdPlatforms = () => {
   const router = useRouter();
@@ -35,6 +36,8 @@ const SupportedAdPlatforms = () => {
   const [isLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const token = useAuthStore((state) => state.token);
+  const subscriptionType = useAuthStore((state) => state.subscriptionType);
+  const setToast = useToastStore((s) => s.setToast);
   const { facebook, google } = useIntegrationStore((state) => state);
   const integrationActions = useIntegrationStore((state) => state.actions);
 
@@ -86,6 +89,14 @@ const SupportedAdPlatforms = () => {
   }, [facebook, google]);
 
   useEffect(() => {
+    const planName = `${subscriptionType?.name || ""}`.toLowerCase();
+    const isStarterPlan = planName === "starter" || planName === "starter_plan";
+    if (isStarterPlan && supportedAdPlatforms.Google) {
+      actions.setAdsPlatform("Google", false);
+    }
+  }, [subscriptionType, supportedAdPlatforms.Google]);
+
+  useEffect(() => {
     if (!productSelection.complete) {
       router.push("/create-campaign/");
     }
@@ -124,6 +135,19 @@ const SupportedAdPlatforms = () => {
       actions.toggleAdsPlatform("Google");
       return;
     }
+
+    const planName = `${subscriptionType?.name || ""}`.toLowerCase();
+    const isStarterPlan = planName === "starter" || planName === "starter_plan";
+    if (isStarterPlan) {
+      setToast({
+        type: "error",
+        title: "Google Ads unavailable",
+        message:
+          "Google Ads is available on Grow and Scale plans. Upgrade your subscription to enable Google Ads campaigns.",
+      });
+      return;
+    }
+
     if (!google) {
       router.push(
         `/settings/integrations?platform=GOOGLE&route=create-campaign`,

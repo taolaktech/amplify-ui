@@ -69,6 +69,9 @@ export default function ChooseAdStylePage() {
   const [selectedVideoTemplateId, setSelectedVideoTemplateId] = useState<
     string | null
   >(null);
+  const [unmutedVideoTemplateId, setUnmutedVideoTemplateId] = useState<
+    string | null
+  >(null);
   const [selectedImageTemplateIds, setSelectedImageTemplateIds] = useState<
     string[]
   >([]);
@@ -1663,6 +1666,9 @@ export default function ChooseAdStylePage() {
                     Boolean(c.templateId) &&
                     selectedVideoTemplateId === c.templateId;
                   const disabled = c.disabled;
+                  const isUnmuted =
+                    Boolean(c.templateId) &&
+                    unmutedVideoTemplateId === c.templateId;
 
                   return (
                     <button
@@ -1687,7 +1693,7 @@ export default function ChooseAdStylePage() {
                       {c.preset?.videoUrl ? (
                         <video
                           className="absolute inset-0 w-full h-full object-cover"
-                          muted
+                          muted={!isUnmuted}
                           playsInline
                           loop
                           autoPlay
@@ -1708,6 +1714,25 @@ export default function ChooseAdStylePage() {
                       )}
 
                       <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[rgba(0,0,0,0.85)] to-transparent" />
+
+                      {c.preset?.videoUrl && !disabled && (
+                        <button
+                          type="button"
+                          className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold tracking-100 text-white"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setUnmutedVideoTemplateId((prev) =>
+                              prev === c.templateId
+                                ? null
+                                : (c.templateId ?? null),
+                            );
+                          }}
+                          aria-label={isUnmuted ? "Mute video" : "Unmute video"}
+                        >
+                          {isUnmuted ? "Mute" : "Unmute"}
+                        </button>
+                      )}
 
                       <div className="absolute bottom-4 left-4 right-4">
                         <div className="text-white text-sm font-semibold tracking-100 whitespace-pre-line">

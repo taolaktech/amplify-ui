@@ -67,6 +67,17 @@ export const isAllProductGenerated = (
         fbCreatives[fbCreatives.length - 1].creatives.length === 0
       )
         return false;
+
+      const latestCreatives = fbCreatives[fbCreatives.length - 1].creatives;
+      const hasValidCreatives = latestCreatives.some((creative: any) => {
+        return (
+          creative &&
+          (creative.url || creative.mediaUrl || creative.imageUrl) &&
+          (creative.bodyText || creative.caption || creative.text)
+        );
+      });
+
+      if (!hasValidCreatives) return false;
     }
 
     if (supportedAdPlatforms.Google) {
