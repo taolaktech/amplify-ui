@@ -412,6 +412,7 @@ const Preview = ({
             item={item}
             highlightedProductId={highlightedProductId}
             platform={item.platform}
+            isReview={isReview}
           />
         </div>
       ))}
@@ -445,17 +446,23 @@ const PreviewContainer = ({
   item,
   highlightedProductId,
   platform,
+  isReview,
 }: {
   item: any;
   highlightedProductId: string;
   platform: Platform;
   settings?: { label: string; key: SocialSettingsKey }[];
+  isReview?: boolean;
 }) => {
   const creativeLoadingStates = useUIStore(
     (state) => state.creativeLoadingState,
   );
 
   const token = useAuthStore((state) => state.token);
+
+  const storeAdStyle = useCreateCampaignStore(
+    (state) => state.actions.storeAdStyle,
+  );
 
   const productName = useCreateCampaignStore((state) => {
     const product = state.productSelection.products.find(
@@ -484,6 +491,9 @@ const PreviewContainer = ({
   const generatedImageAssetIdsByPresetId = useCreateCampaignStore(
     (state) => state.adStyle.imageAssetIdsByPresetId || {},
   );
+  const selectedImagePresetIds = useCreateCampaignStore(
+    (state) => state.adStyle.selectedImagePresetIds || [],
+  );
   const generatedVideoAssetId = useCreateCampaignStore(
     (state) => state.adStyle.videoAssetId || null,
   );
@@ -496,7 +506,7 @@ const PreviewContainer = ({
   );
 
   const orderedImagePresetIds = useMemo(() => {
-    return Object.entries(generatedImageAssetIdsByPresetId)
+    const all = Object.entries(generatedImageAssetIdsByPresetId)
       .filter(
         ([presetId, assetId]) =>
           typeof presetId === "string" &&
@@ -504,9 +514,19 @@ const PreviewContainer = ({
           typeof assetId === "string" &&
           assetId.trim().length > 0,
       )
-      .slice(0, 5)
       .map(([presetId]) => presetId);
-  }, [generatedImageAssetIdsByPresetId]);
+
+    const selectionActive = Array.isArray(selectedImagePresetIds);
+    const selectedSet = new Set(
+      (selectionActive ? selectedImagePresetIds : []).filter(
+        (id) => typeof id === "string" && id.trim().length > 0,
+      ),
+    );
+
+    const effective =
+      selectedSet.size > 0 ? all.filter((id) => selectedSet.has(id)) : all;
+    return effective.slice(0, 5);
+  }, [generatedImageAssetIdsByPresetId, selectedImagePresetIds]);
 
   const attachedAssets = useCreateCampaignStore(
     (state) => state.attachedAssets.assets,
@@ -517,11 +537,120 @@ const PreviewContainer = ({
     null,
   );
 
+  const [generatedImageMetaByPresetId, setGeneratedImageMetaByPresetId] =
+    useState<
+      Record<
+        string,
+        { status: "pending" | "completed" | "failed"; url?: string }
+      >
+    >({});
+
+  useEffect(() => {
+    if (!token) return;
+
+    const presetIds = Object.keys(generatedImageAssetIdsByPresetId).filter(
+      (id) => typeof id === "string" && id.trim().length > 0,
+    );
+    if (presetIds.length === 0) {
+      setGeneratedImageMetaByPresetId({});
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const results = await Promise.allSettled(
+          presetIds.map(async (presetId) => {
+            const assetId = generatedImageAssetIdsByPresetId[presetId];
+            if (!assetId) {
+              return {
+                presetId,
+                status: "failed" as const,
+                url: "",
+              };
+            }
+            const res = await getAssetById({ token, assetId });
+            const asset = res?.data;
+            const url = asset?.mediaUrl || asset?.url || "";
+            const status =
+              asset?.status === "completed"
+                ? ("completed" as const)
+                : asset?.status === "failed"
+                  ? ("failed" as const)
+                  : ("pending" as const);
+            return { presetId, status, url };
+          }),
+        );
+
+        if (cancelled) return;
+
+        const next = results.reduce(
+          (acc, r) => {
+            if (r.status === "fulfilled") {
+              acc[r.value.presetId] = {
+                status: r.value.status,
+                url: r.value.url || undefined,
+              };
+            }
+            return acc;
+          },
+          {} as Record<
+            string,
+            { status: "pending" | "completed" | "failed"; url?: string }
+          >,
+        );
+
+        setGeneratedImageMetaByPresetId(next);
+      } catch {
+        if (cancelled) return;
+        setGeneratedImageMetaByPresetId({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, generatedImageAssetIdsByPresetId]);
+
+  const togglePresetSelection = (presetId: string) => {
+    if (!presetId) return;
+
+    const meta = generatedImageMetaByPresetId[presetId];
+    if (!meta || meta.status !== "completed") return;
+
+    const allIds = Object.keys(generatedImageAssetIdsByPresetId).filter(
+      (id) => typeof id === "string" && id.trim().length > 0,
+    );
+    const selectedSet = new Set(
+      (Array.isArray(selectedImagePresetIds)
+        ? selectedImagePresetIds
+        : []
+      ).filter((id) => typeof id === "string" && id.trim().length > 0),
+    );
+
+    if (selectedSet.size === 0) {
+      storeAdStyle({
+        selectedImagePresetIds: allIds.filter((id) => id !== presetId),
+      });
+      return;
+    }
+
+    if (selectedSet.has(presetId)) {
+      selectedSet.delete(presetId);
+    } else {
+      selectedSet.add(presetId);
+    }
+
+    storeAdStyle({ selectedImagePresetIds: Array.from(selectedSet) });
+  };
+
   useEffect(() => {
     if (!isFacebook) return;
     if (!token) return;
 
-    const imageAssetIds = Object.values(generatedImageAssetIdsByPresetId)
+    const imageAssetIds = orderedImagePresetIds
+      .map((presetId) => generatedImageAssetIdsByPresetId[presetId])
       .filter((v) => typeof v === "string" && v.trim().length > 0)
       .slice(0, 5);
     const videoAssetId =
@@ -605,6 +734,7 @@ const PreviewContainer = ({
     generatedVideoAssetId,
     highlightedProductId,
     generatedImageAssetIdsByPresetId,
+    orderedImagePresetIds,
     attachedAssets,
   ]);
 
@@ -788,6 +918,77 @@ const PreviewContainer = ({
 
       {isFacebook && (
         <div className="relative min-h-[518px] md:min-h-[600px]">
+          {!isReview && assetSource === "generated" && (
+            <div className="mt-4 pl-5 lg:pl-0 flex gap-3 items-center">
+              {Object.keys(generatedImageAssetIdsByPresetId)
+                .filter((id) => typeof id === "string" && id.trim().length > 0)
+                .slice(0, 5)
+                .map((presetId) => {
+                  const meta = generatedImageMetaByPresetId[presetId];
+                  const isComplete = meta?.status === "completed";
+                  const selectedSet = new Set(
+                    (Array.isArray(selectedImagePresetIds)
+                      ? selectedImagePresetIds
+                      : []
+                    ).filter(
+                      (id) => typeof id === "string" && id.trim().length > 0,
+                    ),
+                  );
+                  const checked =
+                    selectedSet.size === 0 || selectedSet.has(presetId);
+
+                  return (
+                    <button
+                      key={presetId}
+                      type="button"
+                      className={`relative w-[76px] h-[76px] rounded-2xl overflow-hidden border transition-opacity ${
+                        isComplete
+                          ? "border-[rgba(0,0,0,0.08)]"
+                          : "border-[rgba(0,0,0,0.08)] opacity-60 cursor-not-allowed"
+                      }`}
+                      onClick={() => togglePresetSelection(presetId)}
+                      disabled={!isComplete}
+                    >
+                      {meta?.url ? (
+                        <Image
+                          src={meta.url}
+                          alt="Generated"
+                          fill
+                          unoptimized
+                          sizes="76px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[#111] flex items-center justify-center">
+                          {meta?.status === "pending" ? (
+                            <div className="w-5 h-5 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <div className="w-full h-full bg-[#111]" />
+                          )}
+                        </div>
+                      )}
+
+                      <div className="absolute top-2 left-2 z-10">
+                        <div
+                          className={`flex items-center justify-center rounded-[5px] w-[16px] h-[16px] ${
+                            checked
+                              ? "bg-gradient"
+                              : "border-[1.5px] border-[#535353] bg-white/70"
+                          }`}
+                        >
+                          {checked && (
+                            <span className="block w-[8px] h-[10px]">
+                              <GradientCheckbox ticked={true} />
+                            </span>
+                          )}
+                          {!checked && <GradientCheckbox ticked={false} />}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+            </div>
+          )}
           <div
             className={`transition-opacity duration-300 ${
               !showNoPreview

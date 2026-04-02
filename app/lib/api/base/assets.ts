@@ -165,6 +165,7 @@ export type GenerateCopyDto = {
 export type GenerateCopyResponse = {
   success: boolean;
   data: {
+    assetId?: string;
     headline?: string;
     description?: string;
     cta?: string;
@@ -177,6 +178,20 @@ export async function generateCopy(data: {
   token: string;
   dto: GenerateCopyDto;
 }) {
+  if (process.env.NODE_ENV === "development") {
+    return {
+      success: true,
+      data: {
+        assetId: "1234",
+        headline: "Elevate your drip",
+        description: "Sure to provide you with the excellence you need",
+        cta: "Shop Now",
+        caption: "Come shop with us with this new piece",
+        script:
+          "Sure to provide you with the excellence you need — discover our latest drop today.",
+      },
+    } satisfies GenerateCopyResponse;
+  }
   const response = await instance.post<GenerateCopyResponse>(
     "/assets/generate-copy",
     data.dto,
@@ -242,6 +257,16 @@ export async function regenerateImageAsset(data: {
   token: string;
   dto: RegenerateImageDto;
 }) {
+  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
+  if (process.env.NODE_ENV === "development" && mockAssetId) {
+    return {
+      status: "success",
+      message: "Mocked video generation response",
+      data: {
+        assetId: mockAssetId,
+      },
+    } satisfies RegenerateImageResponse;
+  }
   const response = await instance.post<RegenerateImageResponse>(
     "/assets/regenerate-image",
     data.dto,

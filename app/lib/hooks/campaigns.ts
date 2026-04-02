@@ -40,7 +40,6 @@ export default function useGetCampaigns() {
     if (platforms) requestData.platforms = platforms;
     try {
       const data = await getCampaigns(requestData);
-      console.log("Fetched campaigns data:", data);
       if (data.data) {
         actions.setData(data.data.campaigns);
         actions.setPaginationInfo(data.data.pagination);

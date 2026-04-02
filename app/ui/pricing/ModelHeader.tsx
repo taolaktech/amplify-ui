@@ -10,6 +10,11 @@ const ModelHeader = ({
   selected: Cycle;
   handleCycleChange: (cycle: Cycle) => void;
 }) => {
+  const getCycleLabel = (value: Cycle) => {
+    if (value === "yearly") return "Annual";
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+
   return (
     <div>
       <div className="w-full max-w-[564px] mx-auto py-2 px-2 flex gap-2 items-center justify-center bg-[#F6F6F6] rounded-xl mt-12">
@@ -29,7 +34,7 @@ const ModelHeader = ({
                 selected === item ? "text-[#333]" : "text-[#999]"
               } font-medium text-sm `}
             >
-              {item.charAt(0).toUpperCase() + item.slice(1)}
+              {getCycleLabel(item)}
             </span>
             {item !== "monthly" && (
               <span
@@ -37,15 +42,11 @@ const ModelHeader = ({
                   item === "quarterly"
                     ? "bg-[#E8D9F9] text-purple-700"
                     : item === "yearly"
-                    ? "text-[#268B4F] bg-[#BFE6CF]"
-                    : ""
+                      ? "text-[#268B4F] bg-[#BFE6CF]"
+                      : ""
                 }`}
               >
-                {item === "quarterly"
-                  ? "5% off"
-                  : item === "yearly"
-                  ? "15% off"
-                  : ""}
+                {item === "quarterly" ? "10%" : item === "yearly" ? "20%" : ""}
               </span>
             )}
             {/* </span> */}

@@ -82,9 +82,6 @@ export default function Pricing({
             features={plan.features}
             currentPlan={currentPlan}
             isCurrentPlan={(() => {
-              console.log("currentPlan:", currentPlan);
-              console.log("pricingPlans[index]:", pricingPlans[index]);
-              console.log("billingCycle:", billingCycle);
               return (
                 currentPlan?.name.toLowerCase() ===
                   pricingPlans[index].name.toLowerCase() &&

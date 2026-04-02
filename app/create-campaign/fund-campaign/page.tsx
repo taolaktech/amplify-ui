@@ -80,9 +80,7 @@ export default function FundCampaignPage() {
             spanRef.current.textContent = `${newAmount}`;
           }
         },
-        onRangeDragEnd: () => {
-          console.log("Slider drag ended");
-        },
+        onRangeDragEnd: () => {},
       },
     );
 
@@ -165,7 +163,6 @@ export default function FundCampaignPage() {
                     e.currentTarget.style.cursor = "text";
                   }}
                   onKeyDown={(e) => {
-                    console.log(e);
                     if (e.key === "Enter") {
                       e.preventDefault(); // Prevent new line in contentEditable
                       e.currentTarget.blur(); // Blur the span, triggering onBlur

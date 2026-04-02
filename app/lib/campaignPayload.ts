@@ -16,6 +16,17 @@ type CreativesStoreShape = {
   Facebook: Record<string, CreativesHistoryEntry[]> | null;
 };
 
+type AttachedAsset = {
+  assetId: string;
+  type: "image" | "video";
+  url: string;
+  thumbnailUrl?: string;
+  title?: string;
+  headline?: string;
+  bodyCopy?: string;
+  caption?: string;
+};
+
 export function buildLaunchCampaignPayload(args: {
   businessId: string;
   campaignName: string;
@@ -30,6 +41,7 @@ export function buildLaunchCampaignPayload(args: {
   locations: string[];
   supportedAdPlatforms: Record<string, any>;
   creativesStore: CreativesStoreShape;
+  attachedAssets?: AttachedAsset[];
 }): LaunchCampaignPayload {
   const {
     businessId,
@@ -45,6 +57,7 @@ export function buildLaunchCampaignPayload(args: {
     locations,
     supportedAdPlatforms,
     creativesStore,
+    attachedAssets,
   } = args;
 
   const campaignPlatforms: CampaignPlatformsTitle[] = [];
@@ -63,38 +76,61 @@ export function buildLaunchCampaignPayload(args: {
 
     const productId = product.node.id;
 
-    if (
-      supportedAdPlatforms?.Facebook &&
-      creativesStore.Facebook?.[productId]
-    ) {
+    if (supportedAdPlatforms?.Facebook) {
       const history = creativesStore.Facebook?.[productId] || [];
       const formatCreatives = history[history.length - 1]?.creatives || [];
 
-      const metaData = formatCreatives.map((creative: any) =>
-        JSON.stringify({
-          url: creative?.url ?? creative?.mediaUrl ?? creative?.imageUrl,
-          bodyText: creative?.bodyText ?? creative?.caption ?? creative?.text,
-          caption: creative?.caption ?? creative?.bodyText,
-          title: creative?.title ?? creative?.headline,
-          description: creative?.description,
-          productUrl: creative?.productUrl,
-          key: creative?.key,
-          id: creative?.id,
-        }),
-      );
+      let metaData: string[] = [];
+      let metaCreativeId: string | undefined;
 
-      creatives.push({
-        channel: "facebook",
-        id: formatCreatives[0]?.id,
-        data: metaData,
-      });
+      if (formatCreatives.length > 0) {
+        metaData = formatCreatives.map((creative: any) =>
+          JSON.stringify({
+            url: creative?.url ?? creative?.mediaUrl ?? creative?.imageUrl,
+            bodyText: creative?.bodyText ?? creative?.caption ?? creative?.text,
+            caption: creative?.caption ?? creative?.bodyText,
+            title: creative?.title ?? creative?.headline,
+            description: creative?.description,
+            productUrl: creative?.productUrl,
+            key: creative?.key,
+            id: creative?.id,
+          }),
+        );
+        metaCreativeId = formatCreatives[0]?.id;
+      } else if (Array.isArray(attachedAssets) && attachedAssets.length > 0) {
+        const productTitle = product.node.title || "";
+        const productDescription =
+          product.node.description || product.node.title || "";
+        const productLink = product.node.onlineStorePreviewUrl || "";
 
-      if (supportedAdPlatforms?.Instagram) {
+        metaData = attachedAssets.map((asset) =>
+          JSON.stringify({
+            url: asset.url,
+            bodyText: asset.bodyCopy || productDescription,
+            caption: asset.caption || "",
+            title: asset.headline || productTitle,
+            description: asset.bodyCopy || productDescription,
+            productUrl: productLink,
+            id: asset.assetId,
+          }),
+        );
+        metaCreativeId = attachedAssets[0]?.assetId;
+      }
+
+      if (metaData.length > 0) {
         creatives.push({
-          channel: "instagram",
-          id: formatCreatives[0]?.id,
+          channel: "facebook",
+          id: metaCreativeId,
           data: metaData,
         });
+
+        if (supportedAdPlatforms?.Instagram) {
+          creatives.push({
+            channel: "instagram",
+            id: metaCreativeId,
+            data: metaData,
+          });
+        }
       }
     }
 

@@ -36,10 +36,10 @@ export default function Checkout({
     string | null
   >(null);
   const hasActiveSubscription = useAuthStore(
-    (state) => state.hasActiveSubscription
+    (state) => state.hasActiveSubscription,
   );
   const selectedPaymentFromStore = useCreateCampaignStore(
-    (state) => state.fundCampaign.cardDetails
+    (state) => state.fundCampaign.cardDetails,
   );
   useEffect(() => {
     if (selectedPaymentFromStore) {
@@ -50,7 +50,7 @@ export default function Checkout({
   const { handleSubscribe, isPending } = useSubscribeToPlan();
   const { handleUpgrade, isPending: isUpgradePending } = useUpgradePlan();
   const { storeSelectedPaymentMethod } = useCreateCampaignStore(
-    (state) => state.actions
+    (state) => state.actions,
   );
 
   const { handleSetDefaultPaymentMethod } = useStripeCustomerActions();
@@ -70,7 +70,7 @@ export default function Checkout({
   useEffect(() => {
     if (!selectedPaymentMethod) return;
     const paymentMethod = customerPaymentMethods?.data.find(
-      (pm: any) => pm.id === selectedPaymentMethod
+      (pm: any) => pm.id === selectedPaymentMethod,
     );
     setSelectedPaymentMethod(selectedPaymentMethod);
     storeSelectedPaymentMethod({
@@ -126,11 +126,8 @@ export default function Checkout({
 
   const putInContainer =
     isAddCardPage || customerPaymentMethods?.data?.length > 0;
-  console.log("hasActiveSubscription from stripe:", hasActiveSubscription);
 
   const handleSubscribeOrUpgrade = (price: string, paymentMethodId: string) => {
-    console.log("price:", price);
-    console.log("hasActiveSubscription from stripe:", hasActiveSubscription);
     if ((isUpgrade || isDowngrade) && hasActiveSubscription) {
       handleUpgrade({
         newPriceId: price,
@@ -143,7 +140,6 @@ export default function Checkout({
       });
     }
   };
-  console.log();
 
   const showStripeInfo = !putInContainer && !isAddCard && !isAddCardPage;
   return (
@@ -218,7 +214,7 @@ export default function Checkout({
               action={() =>
                 handleSubscribeOrUpgrade(
                   price.toString(),
-                  selectedPaymentMethod ?? ""
+                  selectedPaymentMethod ?? "",
                 )
               }
               loading={isPending || isUpgradePending}

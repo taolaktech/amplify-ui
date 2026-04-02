@@ -40,9 +40,7 @@ function PricingCard({
   const formattedPrice = price
     ? price - (price * (planDiscount / 100) || 0)
     : 0;
-
-  console.log("currentPlan", currentPlan);
-  console.log("planSelected", planSelected);
+  const displayPrice = Math.round(formattedPrice);
 
   const handlePlanSelection = () => {
     if (isCurrentPlan) {
@@ -70,19 +68,17 @@ function PricingCard({
         ${!isCurrentPlan ? `bg-[#FBFAFC]` : "bg-[#F0E6FB]"}`}
       onClick={handlePlanSelection}
     >
-      <div className="text-[#6800D7]  md:text-xl font-medium">{plan}</div>
+      <div className="text-[#6800D7]  md:text-xl font-medium">{plan} Plan</div>
       <div className="md:mt-3 mt-2 mb-6">
         <span className="font-bold text-2xl md:text-3xl tracking-[-0.1px] num">
           $
-          {formattedPrice.toLocaleString("en-US", {
-            maximumFractionDigits: 2,
+          {displayPrice.toLocaleString("en-US", {
+            maximumFractionDigits: 0,
             currency: "USD",
             currencyDisplay: "symbol",
           })}
         </span>
-        <span className="text-lg font-medium tracking-250">
-          /{cycle.slice(0, -2)}
-        </span>
+        <span className="text-lg font-medium tracking-250">/month</span>
       </div>
       <div>
         {!isCurrentPlan ? (

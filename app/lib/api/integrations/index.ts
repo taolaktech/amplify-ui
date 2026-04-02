@@ -31,7 +31,7 @@ export const getIntegrationsStatus = async (data: { token: string }) => {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -56,7 +56,7 @@ export const disconnectIntegration = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
 
   return response.data;
@@ -68,7 +68,7 @@ export const facebookAuth = async (data: { token: string }) => {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -88,7 +88,7 @@ export const googleCallback = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -100,7 +100,7 @@ export const instagramAuth = async (data: { token: string }) => {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -112,7 +112,7 @@ export const googleAuth = async (data: { token: string }) => {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -132,7 +132,7 @@ export const facebookCallback = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -147,7 +147,7 @@ export const getAdPagesForAdAccount = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -160,7 +160,6 @@ export const testAdPagesForAdAccount = async (data: {
   token: string;
 }) => {
   await sleep(2000); // 2s delay
-  console.log(data);
 
   return {
     success: true,
@@ -203,7 +202,7 @@ export const selectFacebookPrimaryAdAccount = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -221,7 +220,7 @@ export const selectGooglePrimaryCustomerAccount = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -238,7 +237,7 @@ export const handleShopifyAuth = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -281,7 +280,7 @@ export const handlePostBusinessDetails = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -300,7 +299,7 @@ export const postPreferredSalesLocation = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -320,7 +319,7 @@ export const postMarketingGoals = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };
@@ -341,7 +340,7 @@ export const handleGetCities = async (data: {
       headers: {
         Authorization: `Bearer ${data.token}`,
       },
-    }
+    },
   );
   return response.data;
 };

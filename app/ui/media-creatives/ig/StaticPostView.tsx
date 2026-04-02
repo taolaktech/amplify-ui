@@ -23,8 +23,6 @@ export default function StaticPostView({
   );
   const [maximize, setMaximize] = useState(false);
 
-  console.log("photoUrl in StaticPostView:", creative?.url);
-
   const toggleIsPreviewMaximized = useUIStore(
     (state) => state.actions.toggleIsPreviewMaximized,
   );

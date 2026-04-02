@@ -40,6 +40,8 @@ const AD_COPY_STORAGE_KEY = "creative-ready.ad-copy.v1";
 const REGENERATED_CREATIVES_STORAGE_KEY =
   "creative-ready.regenerated-creatives.v1";
 const GENERATED_ASSETS_STORAGE_KEY = "creative-ready.generated-assets.v1";
+const REMOVED_BASE_CREATIVES_STORAGE_KEY =
+  "creative-ready.removed-base-creatives.v1";
 
 const creativeKey = (c: ReadyCreative) => `${c.type}:${c.id}`;
 
@@ -184,6 +186,25 @@ export default function CreativeReadyPage() {
   const [regeneratedCreatives, setRegeneratedCreatives] = useState<
     ReadyCreative[]
   >([]);
+  const [removedBaseCreativeIds, setRemovedBaseCreativeIds] = useState<
+    Set<string>
+  >(() => {
+    try {
+      if (typeof window === "undefined") return new Set();
+      const rawRemoved = localStorage.getItem(
+        REMOVED_BASE_CREATIVES_STORAGE_KEY,
+      );
+      if (rawRemoved) {
+        const parsed = JSON.parse(rawRemoved);
+        if (Array.isArray(parsed)) {
+          return new Set(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return new Set();
+  });
 
   const [generatedAssetByCreativeId, setGeneratedAssetByCreativeId] = useState<
     Record<
@@ -270,6 +291,17 @@ export default function CreativeReadyPage() {
     }
   }, [generatedAssetByCreativeId]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        REMOVED_BASE_CREATIVES_STORAGE_KEY,
+        JSON.stringify(Array.from(removedBaseCreativeIds)),
+      );
+    } catch {
+      // ignore
+    }
+  }, [removedBaseCreativeIds]);
+
   const [copyGeneratedByCreativeId, setCopyGeneratedByCreativeId] = useState<
     Record<string, boolean>
   >({});
@@ -292,6 +324,14 @@ export default function CreativeReadyPage() {
   const [includeMusic, setIncludeMusic] = useState(true);
   const [includeVoiceOver, setIncludeVoiceOver] = useState(true);
   const [isRegeneratingActive, setIsRegeneratingActive] = useState(false);
+
+  const [isRegenerateAnotherOpen, setIsRegenerateAnotherOpen] = useState(false);
+  const [regenCopy, setRegenCopy] = useState<AdCopy | null>(null);
+  const [regenCustomPrompt, setRegenCustomPrompt] = useState("");
+  const [regenIncludeMusic, setRegenIncludeMusic] = useState(true);
+  const [regenIncludeVoiceOver, setRegenIncludeVoiceOver] = useState(true);
+  const [isRemoveAssetModalOpen, setIsRemoveAssetModalOpen] = useState(false);
+  const [isRemovingAsset, setIsRemovingAsset] = useState(false);
 
   useEffect(() => {
     if (typeof adStyle.includeMusic === "boolean") {
@@ -455,8 +495,11 @@ export default function CreativeReadyPage() {
   ]);
 
   const creatives = useMemo(() => {
-    return [...baseCreatives, ...regeneratedCreatives];
-  }, [baseCreatives, regeneratedCreatives]);
+    const filteredBaseCreatives = baseCreatives.filter(
+      (c) => !removedBaseCreativeIds.has(c.id),
+    );
+    return [...filteredBaseCreatives, ...regeneratedCreatives];
+  }, [baseCreatives, regeneratedCreatives, removedBaseCreativeIds]);
 
   useEffect(() => {
     if (activeIndex >= creatives.length) {
@@ -464,18 +507,63 @@ export default function CreativeReadyPage() {
     }
   }, [activeIndex, creatives.length]);
 
+  useEffect(() => {
+    const hasTemplateSelections =
+      (Array.isArray(adStyle.imageTemplateIds) &&
+        adStyle.imageTemplateIds.length > 0) ||
+      adStyle.templateId;
+
+    if (
+      hasTemplateSelections &&
+      !attachedAssets.complete &&
+      removedBaseCreativeIds.size > 0
+    ) {
+      setRemovedBaseCreativeIds(new Set());
+    }
+  }, [
+    adStyle.imageTemplateIds,
+    adStyle.templateId,
+    attachedAssets.complete,
+    removedBaseCreativeIds.size,
+  ]);
+
   const activeCreative = creatives[activeIndex] || null;
+
+  const activeCreativeEntry = useMemo(() => {
+    if (!activeCreative) return undefined;
+
+    const direct = generatedAssetByCreativeId[activeCreative.id];
+    if (direct) return direct;
+
+    if (activeCreative.type === "image") {
+      const mappedAssetId =
+        (generatedAssetByCreativeId[activeCreative.id]?.assetId as string) ||
+        ((adStyle.imageAssetIdsByPresetId as any)?.[activeCreative.id] as
+          | string
+          | undefined);
+      if (mappedAssetId) return generatedAssetByCreativeId[mappedAssetId];
+    }
+
+    return undefined;
+  }, [
+    activeCreative,
+    adStyle.imageAssetIdsByPresetId,
+    generatedAssetByCreativeId,
+  ]);
 
   const activeCreativeDisplayUrl = useMemo(() => {
     if (!activeCreative) return "";
-    const generated = generatedAssetByCreativeId[activeCreative.id];
-    return generated?.url || activeCreative.url;
-  }, [activeCreative?.id, activeCreative?.url, generatedAssetByCreativeId]);
+    const generatedUrl =
+      activeCreativeEntry?.status === "completed"
+        ? activeCreativeEntry.url
+        : "";
+    return generatedUrl || activeCreative.url;
+  }, [activeCreative, activeCreativeEntry]);
 
   const activeCreativeIsPending = useMemo(() => {
     if (!activeCreative) return false;
-    return generatedAssetByCreativeId[activeCreative.id]?.status === "pending";
-  }, [activeCreative?.id, generatedAssetByCreativeId]);
+    return activeCreativeEntry?.status === "pending";
+  }, [activeCreative, activeCreativeEntry]);
 
   const buildDefaultCopy = (c: ReadyCreative | null): AdCopy => {
     const fallbackBrand =
@@ -569,14 +657,46 @@ export default function CreativeReadyPage() {
   }, []);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(AD_COPY_STORAGE_KEY, JSON.stringify(adCopyById));
+    } catch {
+      // ignore
+    }
+  }, [adCopyById]);
+
+  const getSeededCaptionForCreative = (c: ReadyCreative | null) => {
+    if (!c) return "";
+    if (c.type === "video") return adStyle.videoCaption || "";
+
+    const captions =
+      adStyle.imageCaptionsByPresetId &&
+      typeof adStyle.imageCaptionsByPresetId === "object"
+        ? adStyle.imageCaptionsByPresetId
+        : {};
+
+    const direct = captions[c.id] || "";
+    if (direct.trim().length > 0) return direct;
+
+    const assetIdsByPresetId =
+      adStyle.imageAssetIdsByPresetId &&
+      typeof adStyle.imageAssetIdsByPresetId === "object"
+        ? adStyle.imageAssetIdsByPresetId
+        : {};
+
+    const presetId = Object.keys(assetIdsByPresetId).find(
+      (id) => assetIdsByPresetId[id] === c.id,
+    );
+    if (presetId) return captions[presetId] || "";
+
+    return "";
+  };
+
+  useEffect(() => {
     const c = activeCreative;
     if (!c) return;
     const key = creativeKey(c);
 
-    const seededCaption =
-      c.type === "video"
-        ? adStyle.videoCaption || ""
-        : (adStyle.imageCaptionsByPresetId || {})[c.id] || "";
+    const seededCaption = getSeededCaptionForCreative(c);
 
     const seededImageCopyRaw =
       c.type === "image"
@@ -630,6 +750,7 @@ export default function CreativeReadyPage() {
     adStyle.videoCaption,
     adStyle.videoScript,
     adStyle.imageCaptionsByPresetId,
+    adStyle.imageAssetIdsByPresetId,
     (adStyle as any)?.imageCopyByPresetId,
   ]);
 
@@ -651,8 +772,7 @@ export default function CreativeReadyPage() {
       for (const c of relevantCreatives) {
         const key = creativeKey(c);
         if (!next[key]) {
-          const seededCaption =
-            (adStyle.imageCaptionsByPresetId || {})[c.id] || "";
+          const seededCaption = getSeededCaptionForCreative(c);
           next[key] = {
             ...buildDefaultCopy(c),
             caption: seededCaption,
@@ -890,6 +1010,29 @@ export default function CreativeReadyPage() {
     return adCopyById[key] || buildDefaultCopy(activeCreative);
   }, [activeCreative?.id, activeCreative?.type, adCopyById]);
 
+  const activeBaseAssetId = useMemo(() => {
+    if (!activeCreative) return "";
+
+    const entry = generatedAssetByCreativeId[activeCreative.id];
+    if (entry && entry.status === "completed" && entry.assetId)
+      return entry.assetId;
+
+    const looksLikeMongoId = /^[a-f0-9]{24}$/i.test(activeCreative.id);
+    if (looksLikeMongoId) return activeCreative.id;
+
+    return "";
+  }, [activeCreative, generatedAssetByCreativeId]);
+
+  const activeCustomPrompt = useMemo(() => {
+    if (!activeCreative) return "";
+    const byAssetId = activeBaseAssetId
+      ? customPromptById[activeBaseAssetId]
+      : undefined;
+    return byAssetId || customPromptById[activeCreative.id] || "";
+  }, [activeBaseAssetId, activeCreative, customPromptById]);
+
+  const isActiveAssetComplete = Boolean(activeBaseAssetId);
+
   const updateActiveAdCopy = (patch: Partial<AdCopy>) => {
     if (!activeCreative) return;
     const key = creativeKey(activeCreative);
@@ -942,7 +1085,7 @@ export default function CreativeReadyPage() {
     const key = creativeKey(activeCreative);
     const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
 
-    const customPrompt = customPromptById[activeCreative.id];
+    const customPrompt = activeCustomPrompt;
 
     const entry = generatedAssetByCreativeId[activeCreative.id];
     const completedAssetId =
@@ -980,7 +1123,7 @@ export default function CreativeReadyPage() {
           cta: currentCopy.callToAction,
           caption: currentCopy.caption,
           script: currentCopy.videoScript,
-          customPrompt: customPrompt?.trim() || undefined,
+          customPrompt: activeCustomPrompt?.trim() || undefined,
           brandName: currentCopy.brandName,
           websiteUrl: currentCopy.websiteUrl,
         },
@@ -1008,10 +1151,29 @@ export default function CreativeReadyPage() {
     }
   };
 
-  const regenerateActiveCreative = async () => {
+  const regenerateActiveCreative = async (overrides?: {
+    copy?: AdCopy;
+    customPrompt?: string;
+    includeMusic?: boolean;
+    includeVoiceOver?: boolean;
+  }) => {
     if (!activeCreative) return;
 
     setIsRegeneratingActive(true);
+
+    const nextCopy = overrides?.copy || activeAdCopy;
+    const nextCustomPrompt =
+      typeof overrides?.customPrompt === "string"
+        ? overrides.customPrompt
+        : activeCustomPrompt;
+    const nextIncludeMusic =
+      typeof overrides?.includeMusic === "boolean"
+        ? overrides.includeMusic
+        : includeMusic;
+    const nextIncludeVoiceOver =
+      typeof overrides?.includeVoiceOver === "boolean"
+        ? overrides.includeVoiceOver
+        : includeVoiceOver;
 
     if (activeCreative.type === "video") {
       if (!token) {
@@ -1127,8 +1289,12 @@ export default function CreativeReadyPage() {
       });
 
       (async () => {
+        let regenAssetId: string | null = null;
         try {
-          const customPrompt = customPromptById[activeCreative.id];
+          const customPrompt =
+            typeof nextCustomPrompt === "string"
+              ? nextCustomPrompt
+              : activeCustomPrompt;
           const res = await generateVideoAsset({
             token,
             dto: {
@@ -1140,13 +1306,22 @@ export default function CreativeReadyPage() {
               includeMusic,
               includeVoiceOver,
               cta: undefined,
-              customPrompt: customPrompt?.trim() || undefined,
+              customPrompt: customPrompt.trim() || undefined,
             },
           });
 
           const assetId = res?.data?.assetId;
           if (!assetId) {
             throw new Error("Video regeneration failed. Please try again.");
+          }
+
+          regenAssetId = assetId;
+
+          if (customPrompt.trim().length > 0) {
+            setCustomPromptById((prev) => ({
+              ...prev,
+              [assetId]: customPrompt,
+            }));
           }
 
           triggerCreditUsageRefresh();
@@ -1159,7 +1334,10 @@ export default function CreativeReadyPage() {
           };
 
           const regenKey = creativeKey(regen);
-          setRegeneratedCreatives((prev) => [regen, ...prev]);
+          setRegeneratedCreatives((prev) => [
+            regen,
+            ...prev.filter((p) => p.id !== regen.id),
+          ]);
           setAdCopyById((prev) => ({
             ...prev,
             [regenKey]: {
@@ -1224,11 +1402,28 @@ export default function CreativeReadyPage() {
             typeof e?.message === "string" && e.message.trim().length > 0
               ? e.message
               : "We couldn't generate a video right now. Please try again.";
+
+          if (
+            typeof regenAssetId === "string" &&
+            regenAssetId.trim().length > 0
+          ) {
+            const id = regenAssetId;
+            setGeneratedAssetByCreativeId((prev) => ({
+              ...prev,
+              [id]: {
+                assetId: id,
+                type: "video",
+                status: "failed",
+                error: msg,
+              },
+            }));
+          }
           setToast({
             type: "error",
             title: "Video generation failed",
             message: msg,
           });
+        } finally {
           setIsRegeneratingActive(false);
         }
       })();
@@ -1339,8 +1534,12 @@ export default function CreativeReadyPage() {
         ),
       ).slice(0, 4);
 
+      let regenAssetId: string | null = null;
       try {
-        const customPrompt = customPromptById[activeCreative.id];
+        const customPrompt =
+          typeof nextCustomPrompt === "string"
+            ? nextCustomPrompt
+            : activeCustomPrompt;
         const res = await regenerateImageAsset({
           token,
           dto: {
@@ -1352,13 +1551,22 @@ export default function CreativeReadyPage() {
             headline,
             bodyCopy,
             cta: cta.length > 0 ? cta : undefined,
-            customPrompt: customPrompt?.trim() || undefined,
+            customPrompt: customPrompt.trim() || undefined,
           },
         });
 
         const assetId = res?.data?.assetId;
         if (!assetId) {
           throw new Error("Image regeneration failed. Please try again.");
+        }
+
+        regenAssetId = assetId;
+
+        if (customPrompt.trim().length > 0) {
+          setCustomPromptById((prev) => ({
+            ...prev,
+            [assetId]: customPrompt,
+          }));
         }
 
         triggerCreditUsageRefresh();
@@ -1371,7 +1579,10 @@ export default function CreativeReadyPage() {
         };
 
         const regenKey = creativeKey(regen);
-        setRegeneratedCreatives((prev) => [regen, ...prev]);
+        setRegeneratedCreatives((prev) => [
+          regen,
+          ...prev.filter((p) => p.id !== regen.id),
+        ]);
         setAdCopyById((prev) => ({
           ...prev,
           [regenKey]: {
@@ -1398,50 +1609,71 @@ export default function CreativeReadyPage() {
           title: "Regenerating",
           message: "Generating a new image variant…",
         });
-        const asset = await pollAssetUntilDone({
-          assetId,
-          signal: controller.signal,
-        });
+        try {
+          const asset = await pollAssetUntilDone({
+            assetId,
+            signal: controller.signal,
+          });
 
-        const finalUrl = asset.mediaUrl || asset.url;
-        if (asset.status === "completed" && finalUrl) {
+          const finalUrl = asset.mediaUrl || asset.url;
+          if (asset.status === "completed" && finalUrl) {
+            setGeneratedAssetByCreativeId((prev) => ({
+              ...prev,
+              [assetId]: {
+                assetId,
+                type: "image",
+                status: "completed",
+                url: finalUrl,
+              },
+            }));
+            return;
+          }
+
           setGeneratedAssetByCreativeId((prev) => ({
             ...prev,
             [assetId]: {
               assetId,
               type: "image",
-              status: "completed",
-              url: finalUrl,
+              status: "failed",
+              error: "Image generation failed.",
             },
           }));
-          return;
+          setToast({
+            type: "error",
+            title: "Image generation failed",
+            message:
+              "We couldn't regenerate an image right now. Please try again.",
+          });
+        } finally {
+          delete generationAbortControllersRef.current[assetId];
         }
-
-        setGeneratedAssetByCreativeId((prev) => ({
-          ...prev,
-          [assetId]: {
-            assetId,
-            type: "image",
-            status: "failed",
-            error: "Image generation failed.",
-          },
-        }));
-        setToast({
-          type: "error",
-          title: "Image generation failed",
-          message:
-            "We couldn't regenerate an image right now. Please try again.",
-        });
       } catch (e: any) {
         const msg =
           typeof e?.message === "string" && e.message.trim().length > 0
             ? e.message
             : "We couldn't regenerate an image right now. Please try again.";
+
+        if (
+          typeof regenAssetId === "string" &&
+          regenAssetId.trim().length > 0
+        ) {
+          const id = regenAssetId;
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [id]: {
+              assetId: id,
+              type: "image",
+              status: "failed",
+              error: msg,
+            },
+          }));
+        }
         setToast({
           type: "error",
           title: "Image generation failed",
           message: msg,
         });
+      } finally {
         setIsRegeneratingActive(false);
       }
     })();
@@ -1533,6 +1765,125 @@ export default function CreativeReadyPage() {
 
     return false;
   }, [activeCreative, adStyle.videoAssetId, generatedAssetByCreativeId]);
+
+  const openRegenerateAnother = () => {
+    if (!activeCreative) return;
+
+    const key = creativeKey(activeCreative);
+    const currentCopy = adCopyById[key] || buildDefaultCopy(activeCreative);
+
+    setRegenCopy({ ...currentCopy });
+    setRegenCustomPrompt(activeCustomPrompt);
+    setRegenIncludeMusic(includeMusic);
+    setRegenIncludeVoiceOver(includeVoiceOver);
+    setIsRegenerateAnotherOpen(true);
+  };
+
+  const handleRemoveAsset = async (saveFirst: boolean) => {
+    if (!activeCreative) return;
+
+    setIsRemovingAsset(true);
+
+    try {
+      if (saveFirst) {
+        await saveActiveCreativeToLibrary();
+      }
+
+      const idsToPurge = new Set<string>();
+      idsToPurge.add(activeCreative.id);
+      if (activeBaseAssetId) idsToPurge.add(activeBaseAssetId);
+      const activeStoredAssetId =
+        generatedAssetByCreativeId[activeCreative.id]?.assetId;
+      if (activeStoredAssetId) idsToPurge.add(activeStoredAssetId);
+
+      const isRegeneratedCreative = regeneratedCreatives.some(
+        (c) => c.id === activeCreative.id,
+      );
+
+      let remainingCreatives: ReadyCreative[];
+
+      if (isRegeneratedCreative) {
+        const updatedRegenerated = regeneratedCreatives.filter(
+          (c) => c.id !== activeCreative.id,
+        );
+        setRegeneratedCreatives(updatedRegenerated);
+
+        const filteredBase = baseCreatives.filter(
+          (c) => !removedBaseCreativeIds.has(c.id),
+        );
+        remainingCreatives = [...filteredBase, ...updatedRegenerated];
+      } else {
+        const updatedRemovedIds = new Set(removedBaseCreativeIds);
+        updatedRemovedIds.add(activeCreative.id);
+        setRemovedBaseCreativeIds(updatedRemovedIds);
+
+        const filteredBase = baseCreatives.filter(
+          (c) => !updatedRemovedIds.has(c.id),
+        );
+        remainingCreatives = [...filteredBase, ...regeneratedCreatives];
+      }
+
+      setGeneratedAssetByCreativeId((prev) => {
+        const next = { ...prev };
+        for (const id of idsToPurge) {
+          delete next[id];
+        }
+        return next;
+      });
+
+      setAdCopyById((prev) => {
+        const next = { ...prev };
+        for (const id of idsToPurge) {
+          delete next[`${activeCreative.type}:${id}`];
+        }
+        return next;
+      });
+
+      setCustomPromptById((prev) => {
+        const next = { ...prev };
+        for (const id of idsToPurge) {
+          delete next[id];
+        }
+        return next;
+      });
+
+      setCopyGeneratedByCreativeId((prev) => {
+        const next = { ...prev };
+        for (const id of idsToPurge) {
+          delete next[id];
+        }
+        return next;
+      });
+
+      if (remainingCreatives.length === 0) {
+        setToast({
+          type: "info",
+          title: "No assets remaining",
+          message: "Redirecting to choose ad style to generate new assets.",
+        });
+        router.push("/create-campaign/choose-ad-style");
+        return;
+      }
+
+      const newIndex = Math.max(0, activeIndex - 1);
+      setActiveIndex(newIndex);
+
+      setToast({
+        type: "success",
+        title: "Asset removed",
+        message: "The creative has been removed from this campaign.",
+      });
+    } catch (e: any) {
+      setToast({
+        type: "error",
+        title: "Failed to remove asset",
+        message: e?.message || "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsRemoveAssetModalOpen(false);
+      setIsRemovingAsset(false);
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-160px)] mt-10 pb-14">
@@ -1830,7 +2181,7 @@ export default function CreativeReadyPage() {
                           : thumbAsset?.url || c.url;
                       return (
                         <button
-                          key={creativeKey(c)}
+                          key={`${c.type}:${c.id}:${i}`}
                           className={`relative flex-shrink-0 w-[72px] h-[72px] rounded-2xl overflow-hidden border ${
                             isActive
                               ? "border-purple-600 ring-2 ring-purple-600"
@@ -1889,10 +2240,19 @@ export default function CreativeReadyPage() {
                         disabled={isActiveAssetPending || isSavingToLibrary}
                       />
                     </div>
+                    <div className="w-[120px]">
+                      <button
+                        className="h-[40px] w-full rounded-[39px] border border-red-400 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => setIsRemoveAssetModalOpen(true)}
+                        disabled={isActiveAssetPending || isRemovingAsset}
+                      >
+                        Remove
+                      </button>
+                    </div>
                     <div className="w-[150px]">
                       <Button
-                        text="Regenerate"
-                        action={() => regenerateActiveCreative()}
+                        text="Regenerate Another"
+                        action={() => openRegenerateAnother()}
                         loading={isRegeneratingActive || isActiveAssetPending}
                         hasIconOrLoader
                         disabled={isActiveAssetPending || isSavingToLibrary}
@@ -1904,6 +2264,18 @@ export default function CreativeReadyPage() {
                 <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {activeCreative?.type === "video" ? (
                     <>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
+                          Creative title
+                        </label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeCreative?.title || ""}
+                          placeholder="Creative title"
+                          disabled
+                        />
+                      </div>
+
                       <div className="md:col-span-2 flex gap-12">
                         <label className="flex items-center gap-3 cursor-pointer">
                           <div
@@ -1961,11 +2333,8 @@ export default function CreativeReadyPage() {
                         <textarea
                           className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
                           value={activeAdCopy?.videoScript || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ videoScript: e.target.value })
-                          }
                           placeholder="Write your video script"
-                          disabled={!includeVoiceOver}
+                          disabled
                         />
                       </div>
                       <div className="md:col-span-2 flex flex-col gap-2">
@@ -1975,45 +2344,44 @@ export default function CreativeReadyPage() {
                         <textarea
                           className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
                           value={activeAdCopy?.caption || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ caption: e.target.value })
-                          }
                           placeholder="Write your caption"
+                          disabled
                         />
                       </div>
-                      <div className="md:col-span-2 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-neutral-light">
-                            Custom Prompt (Optional)
-                          </label>
-                          <span className="text-xs text-neutral-light">
-                            {
-                              (customPromptById[activeCreative?.id || ""] || "")
-                                .length
-                            }{" "}
-                            / {CUSTOM_PROMPT_MAX_LENGTH}
-                          </span>
+                      {activeCustomPrompt.trim().length > 0 && (
+                        <div className="md:col-span-2 flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-neutral-light">
+                              Custom Prompt
+                            </label>
+                            <span className="text-xs text-neutral-light">
+                              {activeCustomPrompt.length} /{" "}
+                              {CUSTOM_PROMPT_MAX_LENGTH}
+                            </span>
+                          </div>
+                          <textarea
+                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                            value={activeCustomPrompt}
+                            placeholder="Add custom instructions for regeneration (e.g., 'Make it more vibrant', 'Add sunset lighting')..."
+                            disabled
+                          />
                         </div>
-                        <textarea
-                          className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
-                          value={
-                            customPromptById[activeCreative?.id || ""] || ""
-                          }
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value.length <= CUSTOM_PROMPT_MAX_LENGTH) {
-                              setCustomPromptById((prev) => ({
-                                ...prev,
-                                [activeCreative?.id || ""]: value,
-                              }));
-                            }
-                          }}
-                          placeholder="Add custom instructions for regeneration (e.g., 'Make it more vibrant', 'Add sunset lighting')..."
-                        />
-                      </div>
+                      )}
                     </>
                   ) : (
                     <>
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
+                          Creative title
+                        </label>
+                        <input
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          value={activeCreative?.title || ""}
+                          placeholder="Creative title"
+                          disabled
+                        />
+                      </div>
+
                       <div className="flex flex-col gap-2">
                         <label className="text-xs text-neutral-light">
                           Headline
@@ -2021,10 +2389,8 @@ export default function CreativeReadyPage() {
                         <input
                           className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
                           value={activeAdCopy?.headline || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ headline: e.target.value })
-                          }
                           placeholder="Enter headline"
+                          disabled
                         />
                       </div>
 
@@ -2035,10 +2401,8 @@ export default function CreativeReadyPage() {
                         <input
                           className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
                           value={activeAdCopy?.callToAction || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ callToAction: e.target.value })
-                          }
                           placeholder="Shop now"
+                          disabled
                         />
                       </div>
 
@@ -2049,10 +2413,8 @@ export default function CreativeReadyPage() {
                         <input
                           className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
                           value={activeAdCopy?.websiteUrl || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ websiteUrl: e.target.value })
-                          }
                           placeholder="https://yourstore.com"
+                          disabled
                         />
                       </div>
 
@@ -2063,10 +2425,8 @@ export default function CreativeReadyPage() {
                         <textarea
                           className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
                           value={activeAdCopy?.bodyCopy || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ bodyCopy: e.target.value })
-                          }
                           placeholder="Enter body copy"
+                          disabled
                         />
                       </div>
 
@@ -2077,42 +2437,29 @@ export default function CreativeReadyPage() {
                         <textarea
                           className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
                           value={activeAdCopy?.caption || ""}
-                          onChange={(e) =>
-                            updateActiveAdCopy({ caption: e.target.value })
-                          }
                           placeholder="Write your caption"
+                          disabled
                         />
                       </div>
-                      <div className="md:col-span-2 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-neutral-light">
-                            Custom Prompt (Optional)
-                          </label>
-                          <span className="text-xs text-neutral-light">
-                            {
-                              (customPromptById[activeCreative?.id || ""] || "")
-                                .length
-                            }{" "}
-                            / {CUSTOM_PROMPT_MAX_LENGTH}
-                          </span>
+                      {activeCustomPrompt.trim().length > 0 && (
+                        <div className="md:col-span-2 flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-neutral-light">
+                              Custom Prompt
+                            </label>
+                            <span className="text-xs text-neutral-light">
+                              {activeCustomPrompt.length} /{" "}
+                              {CUSTOM_PROMPT_MAX_LENGTH}
+                            </span>
+                          </div>
+                          <textarea
+                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                            value={activeCustomPrompt}
+                            placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
+                            disabled
+                          />
                         </div>
-                        <textarea
-                          className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
-                          value={
-                            customPromptById[activeCreative?.id || ""] || ""
-                          }
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value.length <= CUSTOM_PROMPT_MAX_LENGTH) {
-                              setCustomPromptById((prev) => ({
-                                ...prev,
-                                [activeCreative?.id || ""]: value,
-                              }));
-                            }
-                          }}
-                          placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
-                        />
-                      </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -2134,23 +2481,48 @@ export default function CreativeReadyPage() {
                       return;
                     }
 
-                    const nextAssets = Object.values(generatedAssetByCreativeId)
+                    if (creatives.length === 0) {
+                      setToast({
+                        type: "error",
+                        title: "No assets available",
+                        message:
+                          "You need at least one creative to continue. Please generate an image/video.",
+                      });
+                      return;
+                    }
+
+                    const nextAssets = Object.entries(
+                      generatedAssetByCreativeId,
+                    )
                       .filter(
-                        (a) =>
+                        ([, a]) =>
                           a.status === "completed" &&
                           typeof a.url === "string" &&
                           a.url.trim().length > 0 &&
                           typeof a.assetId === "string" &&
                           a.assetId.trim().length > 0,
                       )
-                      .map((a) => {
+                      .map(([creativeId, a]) => {
+                        const assetType = (a.type ||
+                          (a.assetId === adStyle.videoAssetId
+                            ? "video"
+                            : "image")) as "video" | "image";
+
+                        const matchingCreative = creatives.find(
+                          (c) => c.id === creativeId || c.id === a.assetId,
+                        );
+                        const copyKey = matchingCreative
+                          ? creativeKey(matchingCreative)
+                          : `${assetType}:${creativeId}`;
+                        const copy = adCopyById[copyKey] || null;
+
                         return {
                           assetId: a.assetId,
-                          type: (a.type ||
-                            (a.assetId === adStyle.videoAssetId
-                              ? "video"
-                              : "image")) as "video" | "image",
+                          type: assetType,
                           url: a.url as string,
+                          headline: copy?.headline || "",
+                          bodyCopy: copy?.bodyCopy || "",
+                          caption: copy?.caption || "",
                         };
                       });
 
@@ -2233,6 +2605,333 @@ export default function CreativeReadyPage() {
                     action={() => setIsZoomOpen(false)}
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isRegenerateAnotherOpen && (
+        <div>
+          <div
+            className="fixed inset-0 bg-[rgba(0,0,0,0.6)] z-20"
+            onClick={() => setIsRegenerateAnotherOpen(false)}
+          />
+          <div className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] w-[92vw] max-w-[720px] z-30 rounded-3xl p-6">
+            <div className="text-heading text-lg font-semibold">
+              Regenerate Another
+            </div>
+            <div className="mt-2 text-sm text-neutral-light">
+              You’re making changes based on the image/video generated.
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeCreative?.type === "video" ? (
+                <>
+                  <div className="md:col-span-2 flex gap-12">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div
+                        onClick={() => {
+                          const next = !regenIncludeMusic;
+                          setRegenIncludeMusic(next);
+                        }}
+                        className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                          regenIncludeMusic ? "bg-purple-600" : "bg-[#D1D5DB]"
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                            regenIncludeMusic
+                              ? "translate-x-4"
+                              : "translate-x-0"
+                          }`}
+                        />
+                      </div>
+                      <span className="text-sm text-heading">
+                        Include Music
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div
+                        onClick={() => {
+                          const next = !regenIncludeVoiceOver;
+                          setRegenIncludeVoiceOver(next);
+                        }}
+                        className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                          regenIncludeVoiceOver
+                            ? "bg-purple-600"
+                            : "bg-[#D1D5DB]"
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                            regenIncludeVoiceOver
+                              ? "translate-x-4"
+                              : "translate-x-0"
+                          }`}
+                        />
+                      </div>
+                      <span className="text-sm text-heading">
+                        Include Voiceover
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Video Script
+                    </label>
+                    <textarea
+                      className="min-h-[140px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCopy?.videoScript || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev
+                            ? { ...prev, videoScript: e.target.value }
+                            : prev,
+                        )
+                      }
+                      placeholder="Write your video script"
+                      disabled={!regenIncludeVoiceOver}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Caption
+                    </label>
+                    <textarea
+                      className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCopy?.caption || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev ? { ...prev, caption: e.target.value } : prev,
+                        )
+                      }
+                      placeholder="Write your caption"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-neutral-light">
+                        Custom Prompt (Optional)
+                      </label>
+                      <span className="text-xs text-neutral-light">
+                        {regenCustomPrompt.length} / {CUSTOM_PROMPT_MAX_LENGTH}
+                      </span>
+                    </div>
+                    <textarea
+                      className="min-h-[56px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCustomPrompt}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setRegenCustomPrompt(
+                          clamp(value, CUSTOM_PROMPT_MAX_LENGTH),
+                        );
+                      }}
+                      placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Headline
+                    </label>
+                    <input
+                      className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                      value={regenCopy?.headline || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev ? { ...prev, headline: e.target.value } : prev,
+                        )
+                      }
+                      placeholder="Enter headline"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Call to Action
+                    </label>
+                    <input
+                      className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                      value={regenCopy?.callToAction || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev
+                            ? { ...prev, callToAction: e.target.value }
+                            : prev,
+                        )
+                      }
+                      placeholder="Shop now"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Website URL
+                    </label>
+                    <input
+                      className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                      value={regenCopy?.websiteUrl || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev ? { ...prev, websiteUrl: e.target.value } : prev,
+                        )
+                      }
+                      placeholder="https://yourstore.com"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Body Copy
+                    </label>
+                    <textarea
+                      className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCopy?.bodyCopy || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev ? { ...prev, bodyCopy: e.target.value } : prev,
+                        )
+                      }
+                      placeholder="Enter body copy"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
+                      Caption
+                    </label>
+                    <textarea
+                      className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCopy?.caption || ""}
+                      onChange={(e) =>
+                        setRegenCopy((prev) =>
+                          prev ? { ...prev, caption: e.target.value } : prev,
+                        )
+                      }
+                      placeholder="Write your caption"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-neutral-light">
+                        Custom Prompt (Optional)
+                      </label>
+                      <span className="text-xs text-neutral-light">
+                        {regenCustomPrompt.length} / {CUSTOM_PROMPT_MAX_LENGTH}
+                      </span>
+                    </div>
+                    <div className="text-xs text-neutral-light leading-5">
+                      Add extra guidance to create a new variation.
+                    </div>
+                    <textarea
+                      className="min-h-[56px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                      value={regenCustomPrompt}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setRegenCustomPrompt(
+                          clamp(value, CUSTOM_PROMPT_MAX_LENGTH),
+                        );
+                      }}
+                      placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <div className="w-[140px]">
+                <Button
+                  text="Cancel"
+                  secondary
+                  action={() => setIsRegenerateAnotherOpen(false)}
+                />
+              </div>
+              <div className="w-[180px]">
+                <Button
+                  text="Create another"
+                  action={async () => {
+                    if (!regenCopy) return;
+                    await regenerateActiveCreative({
+                      copy: regenCopy,
+                      customPrompt: regenCustomPrompt,
+                      includeMusic: regenIncludeMusic,
+                      includeVoiceOver: regenIncludeVoiceOver,
+                    });
+                    setIsRegenerateAnotherOpen(false);
+                  }}
+                  hasIconOrLoader
+                  loading={isRegeneratingActive}
+                  disabled={!isActiveAssetComplete || isRegeneratingActive}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isRemoveAssetModalOpen && (
+        <div>
+          <div
+            className="fixed inset-0 bg-[rgba(0,0,0,0.6)] z-20"
+            onClick={() => !isRemovingAsset && setIsRemoveAssetModalOpen(false)}
+          />
+          <div className="bg-white fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] w-[92vw] max-w-[520px] z-30 rounded-3xl p-6">
+            <div className="text-heading text-lg font-semibold">
+              Remove Creative
+            </div>
+            <div className="mt-4 text-sm text-neutral-light leading-relaxed">
+              Are you sure you want to remove this creative from the campaign?
+              <br />
+              <br />
+              <strong className="text-heading">
+                {activeCreative?.title || "This creative"}
+              </strong>{" "}
+              will no longer appear in your campaign assets.
+              <br />
+              <br />
+              You can save it to your library before removing if you'd like to
+              use it later.
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <Button
+                    text="Cancel"
+                    secondary
+                    action={() => setIsRemoveAssetModalOpen(false)}
+                    disabled={isRemovingAsset}
+                  />
+                </div>
+                <div className="flex-1">
+                  <button
+                    className="h-[40px] w-full rounded-[39px] border border-red-400 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleRemoveAsset(false)}
+                    disabled={isRemovingAsset}
+                  >
+                    {isRemovingAsset ? "Removing..." : "Remove Without Saving"}
+                  </button>
+                </div>
+              </div>
+              <div className="w-full">
+                <Button
+                  text={
+                    isRemovingAsset ? "Saving & Removing..." : "Save & Remove"
+                  }
+                  action={() => handleRemoveAsset(true)}
+                  loading={isRemovingAsset}
+                  hasIconOrLoader
+                  disabled={isRemovingAsset}
+                />
               </div>
             </div>
           </div>

@@ -20,7 +20,6 @@ import Input from "@/app/ui/form/Input";
 import useUIStore from "@/app/lib/stores/uiStore";
 import useBrandAssetStore from "@/app/lib/stores/brandAssetStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
-import { isAllProductGenerated } from "@/app/lib/utils";
 import { buildLaunchCampaignPayload } from "@/app/lib/campaignPayload";
 import { useSetupStore } from "@/app/lib/stores/setupStore";
 
@@ -115,6 +114,7 @@ export default function CampaignSnapshotsPage() {
     supportedAdPlatforms,
     facebookSettings,
     googleSettings,
+    attachedAssets,
   } = useCreateCampaignStore((state) => state);
   const { canUndo } = useCreativesStore((state) => state.actions);
   const { Google, Facebook } = useCreativesStore((state) => state);
@@ -164,7 +164,6 @@ export default function CampaignSnapshotsPage() {
         return order[a.title] - order[b.title];
       });
     setAdPlatforms(resultAdPlatforms);
-    console.log("Ad Platforms:", resultAdPlatforms);
   }, [
     supportedAdPlatforms,
     facebookSettings,
@@ -279,6 +278,42 @@ export default function CampaignSnapshotsPage() {
     });
   }, [productSelection.products, creativeLoadingStates]);
 
+  const campaignPayloadHasCreatives = (
+    payload: ReturnType<typeof buildLaunchCampaignPayload>,
+  ) => {
+    const products = Array.isArray(payload?.products) ? payload.products : [];
+    if (products.length === 0) return false;
+
+    return products.every((p) => {
+      const creatives = Array.isArray((p as any)?.creatives)
+        ? (p as any).creatives
+        : [];
+
+      if (supportedAdPlatforms.Facebook) {
+        const fb = creatives.find((c: any) => c?.channel === "facebook");
+        if (!fb || !Array.isArray(fb.data) || fb.data.length === 0) {
+          return false;
+        }
+      }
+
+      // if (supportedAdPlatforms.Instagram) {
+      //   const ig = creatives.find((c: any) => c?.channel === "instagram");
+      //   if (!ig || !Array.isArray(ig.data) || ig.data.length === 0) {
+      //     return false;
+      //   }
+      // }
+
+      if (supportedAdPlatforms.Google) {
+        const g = creatives.find((c: any) => c?.channel === "google");
+        if (!g || !Array.isArray(g.data) || g.data.length === 0) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
   const handleProceed = () => {
     if (campaignDetails.campaignName.trim() === "") {
       setError(true);
@@ -295,25 +330,9 @@ export default function CampaignSnapshotsPage() {
         title: "Generation in Progress",
       });
       return;
-    } else if (
-      !isAllProductGenerated(
-        supportedAdPlatforms,
-        productSelection.products,
-        Facebook,
-        Google,
-      )
-    ) {
-      setToast({
-        type: "error",
-        message:
-          "Some selected products don’t have creatives yet. Please generate creatives for all selected products to continue.",
-        title: "Creatives Missing",
-      });
-      return;
     } else {
       setError(false);
     }
-    console.log("Proceed to next step", campaignDetails);
 
     const businessId = businessDetails?.id;
     if (!businessId) {
@@ -339,7 +358,19 @@ export default function CampaignSnapshotsPage() {
       locations: useCreateCampaignStore.getState().adsShow.location,
       supportedAdPlatforms,
       creativesStore: { Google, Facebook },
+      attachedAssets: attachedAssets?.assets,
     });
+
+    if (!campaignPayloadHasCreatives(campaignPayload)) {
+      setToast({
+        type: "error",
+        message:
+          "Some selected products don’t have creatives yet. Please generate creatives for all selected products to continue.",
+        title: "Creatives Missing",
+      });
+      return;
+    }
+
     actions.storeCampaignSnapshots({
       campaignName: campaignDetails.campaignName,
       campaignType: campaignDetails.campaignType || "Product Launch",
@@ -437,7 +468,6 @@ export default function CampaignSnapshotsPage() {
             placeholder="My Campaign"
             large
             onBlur={() => {
-              console.log("onBlur");
               setError(false);
             }}
             background="rgba(232,232,232,0.35)"
