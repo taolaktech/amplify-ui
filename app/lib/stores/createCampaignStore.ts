@@ -327,8 +327,10 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
             useMetaCreativeUploadStore
               .getState()
               .actions.clearProductUploads(prevPrimaryId);
+            const existingAdsShow = get().adsShow;
             set(() => ({
               ...initialState,
+              adsShow: existingAdsShow,
               productSelection: {
                 ...initialState.productSelection,
                 ...productSelection,

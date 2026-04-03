@@ -51,7 +51,7 @@ const clamp = (value: string, max: number) => {
   return v.slice(0, max);
 };
 
-const CUSTOM_PROMPT_MAX_LENGTH = 50;
+const CUSTOM_PROMPT_MAX_LENGTH = 200;
 
 const svgDataUrl = (svg: string) => {
   const encoded = encodeURIComponent(svg)
