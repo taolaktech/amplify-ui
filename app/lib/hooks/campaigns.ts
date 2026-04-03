@@ -136,10 +136,15 @@ export const useLaunchCampaign = (
     },
     onError: (error: any) => {
       console.error("Error launching campaign:", error);
+      const backendMessage = error?.response?.data?.message
+        ? Array.isArray(error.response.data.message)
+          ? error.response.data.message.join("; ")
+          : error.response.data.message
+        : error?.message ||
+          "There was an error launching your campaign. Please try again.";
       setToast({
         title: "Error launching campaign",
-        message:
-          "There was an error launching your campaign. Please try again.",
+        message: backendMessage,
         type: "error",
       });
     },

@@ -488,22 +488,23 @@ const PreviewContainer = ({
   const isGoogleAds = platform === "GOOGLE ADS";
   const isFacebook = platform === "FACEBOOK";
 
-  const generatedImageAssetIdsByPresetId = useCreateCampaignStore(
-    (state) => state.adStyle.imageAssetIdsByPresetId || {},
-  );
-  const selectedImagePresetIds = useCreateCampaignStore(
-    (state) => state.adStyle.selectedImagePresetIds || [],
-  );
-  const generatedVideoAssetId = useCreateCampaignStore(
-    (state) => state.adStyle.videoAssetId || null,
-  );
-
-  const videoCaption = useCreateCampaignStore(
-    (state) => state.adStyle.videoCaption || "",
-  );
-  const imageCaptionsByPresetId = useCreateCampaignStore(
-    (state) => state.adStyle.imageCaptionsByPresetId || {},
-  );
+  const {
+    generatedImageAssetIdsByPresetId,
+    selectedImagePresetIds,
+    generatedVideoAssetId,
+    videoCaption,
+    imageCaptionsByPresetId,
+  } = useMemo(() => {
+    const state = useCreateCampaignStore.getState();
+    return {
+      generatedImageAssetIdsByPresetId:
+        state.adStyle.imageAssetIdsByPresetId || {},
+      selectedImagePresetIds: state.adStyle.selectedImagePresetIds || [],
+      generatedVideoAssetId: state.adStyle.videoAssetId || null,
+      videoCaption: state.adStyle.videoCaption || "",
+      imageCaptionsByPresetId: state.adStyle.imageCaptionsByPresetId || {},
+    };
+  }, [useCreateCampaignStore]);
 
   const orderedImagePresetIds = useMemo(() => {
     const all = Object.entries(generatedImageAssetIdsByPresetId)

@@ -324,6 +324,16 @@ export default function CampaignSnapshotsPage() {
       setDestinationUrlError("Please enter a valid URL");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
+    } else if (
+      new Date(campaignDetails.campaignStartDate) <
+      new Date(new Date().toDateString())
+    ) {
+      setToast({
+        type: "error",
+        title: "Invalid start date",
+        message: "Campaign start date must be today or later.",
+      });
+      return;
     } else if (isLoading) {
       setToast({
         type: "warning",
@@ -346,7 +356,12 @@ export default function CampaignSnapshotsPage() {
     }
 
     const locations = adsShow.location;
+    console.log("[Campaign Snapshots] adsShow.location:", locations);
+    console.log("[Campaign Snapshots] adsShow full object:", adsShow);
     if (!Array.isArray(locations) || locations.length === 0) {
+      console.error(
+        "[Campaign Snapshots] Location validation failed - empty or not array",
+      );
       setToast({
         type: "error",
         title: "Missing location",
