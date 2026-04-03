@@ -28,6 +28,15 @@ export default function AdsLocationPage() {
   const router = useRouter();
 
   const handleProceed = async () => {
+    if (!Array.isArray(salesLocation) || salesLocation.length === 0) {
+      setToast({
+        type: "error",
+        title: "Location required",
+        message: "Please select at least one location before proceeding.",
+      });
+      return;
+    }
+
     if (storeUrl) {
       actions.storeAdsShow({
         complete: true,
