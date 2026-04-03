@@ -513,19 +513,11 @@ export default function CreativeReadyPage() {
         adStyle.imageTemplateIds.length > 0) ||
       adStyle.templateId;
 
-    if (
-      hasTemplateSelections &&
-      !attachedAssets.complete &&
-      removedBaseCreativeIds.size > 0
-    ) {
-      setRemovedBaseCreativeIds(new Set());
+    if (hasTemplateSelections && !attachedAssets.complete) {
+      setRemovedBaseCreativeIds((prev) => (prev.size > 0 ? new Set() : prev));
     }
-  }, [
-    adStyle.imageTemplateIds,
-    adStyle.templateId,
-    attachedAssets.complete,
-    removedBaseCreativeIds.size,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adStyle.imageTemplateIds, adStyle.templateId, attachedAssets.complete]);
 
   const activeCreative = creatives[activeIndex] || null;
 
