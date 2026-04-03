@@ -99,8 +99,12 @@ export default function ChooseAdStylePage() {
     Record<string, boolean>
   >({});
 
+  const [isGeneratingAllImageCopies, setIsGeneratingAllImageCopies] =
+    useState(false);
+
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
+  const [isGeneratingAds, setIsGeneratingAds] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [presets, setPresets] = useState<VideoPreset[]>([]);
   const [videoTotal, setVideoTotal] = useState<number | null>(null);
@@ -574,7 +578,11 @@ export default function ChooseAdStylePage() {
   ]);
 
   const handleGenerateImageCopy = useCallback(
-    async (templateId: string, index: number) => {
+    async (
+      templateId: string,
+      index: number,
+      opts?: { skipPreflight?: boolean },
+    ) => {
       if (isGeneratingImageCopy[templateId]) return;
       setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: true }));
 
@@ -588,19 +596,33 @@ export default function ChooseAdStylePage() {
         return;
       }
 
-      try {
-        const preflight = await preflightMultiGeneration({
-          token,
-          dto: {
-            items: [{ kind: "image_copy_generation", count: 1 }],
-          },
-        });
+      if (!opts?.skipPreflight) {
+        try {
+          const preflight = await preflightMultiGeneration({
+            token,
+            dto: {
+              items: [{ kind: "image_copy_generation", count: 1 }],
+            },
+          });
 
-        if (!preflight?.data?.canGenerate) {
+          if (!preflight?.data?.canGenerate) {
+            setToast({
+              type: "error",
+              title: "Insufficient tokens",
+              message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this copy.`,
+            });
+            setIsGeneratingImageCopy((prev) => ({
+              ...prev,
+              [templateId]: false,
+            }));
+            return;
+          }
+        } catch (e: any) {
           setToast({
             type: "error",
-            title: "Insufficient tokens",
-            message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this copy.`,
+            title: "Validation failed",
+            message:
+              "We couldn't validate your token balance right now. Please try again.",
           });
           setIsGeneratingImageCopy((prev) => ({
             ...prev,
@@ -608,15 +630,6 @@ export default function ChooseAdStylePage() {
           }));
           return;
         }
-      } catch (e: any) {
-        setToast({
-          type: "error",
-          title: "Validation failed",
-          message:
-            "We couldn’t validate your token balance right now. Please try again.",
-        });
-        setIsGeneratingImageCopy((prev) => ({ ...prev, [templateId]: false }));
-        return;
       }
 
       const productId = selectedProductNode?.id || "";
@@ -681,7 +694,7 @@ export default function ChooseAdStylePage() {
         const msg =
           e?.response?.data?.message ||
           e?.message ||
-          "We couldn’t generate copy right now. Please try again.";
+          "We couldn't generate copy right now. Please try again.";
         setToast({
           type: "error",
           title: "Copy generation failed",
@@ -705,17 +718,68 @@ export default function ChooseAdStylePage() {
   );
 
   const handleGenerateAllImageCopies = useCallback(async () => {
-    for (let i = 0; i < selectedImageTemplateIds.length; i++) {
-      const templateId = selectedImageTemplateIds[i];
-      if (!imageCopyById[templateId] || !imageCaptionById[templateId]) {
-        await handleGenerateImageCopy(templateId, i);
-      }
+    const idsToGenerate = selectedImageTemplateIds.filter(
+      (id) => !imageCopyById[id] || !imageCaptionById[id],
+    );
+    if (idsToGenerate.length === 0) return;
+
+    if (!token) {
+      setToast({
+        type: "error",
+        title: "Missing login",
+        message: "Please log in again to generate copy.",
+      });
+      return;
     }
+
+    setIsGeneratingAllImageCopies(true);
+
+    try {
+      const preflight = await preflightMultiGeneration({
+        token,
+        dto: {
+          items: [
+            { kind: "image_copy_generation", count: idsToGenerate.length },
+          ],
+        },
+      });
+
+      if (!preflight?.data?.canGenerate) {
+        setToast({
+          type: "error",
+          title: "Insufficient tokens",
+          message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate copy for all images.`,
+        });
+        setIsGeneratingAllImageCopies(false);
+        return;
+      }
+    } catch (e: any) {
+      setToast({
+        type: "error",
+        title: "Validation failed",
+        message:
+          "We couldn't validate your token balance right now. Please try again.",
+      });
+      setIsGeneratingAllImageCopies(false);
+      return;
+    }
+
+    for (let i = 0; i < idsToGenerate.length; i++) {
+      const templateId = idsToGenerate[i];
+      const originalIndex = selectedImageTemplateIds.indexOf(templateId);
+      await handleGenerateImageCopy(templateId, originalIndex, {
+        skipPreflight: true,
+      });
+    }
+
+    setIsGeneratingAllImageCopies(false);
   }, [
     selectedImageTemplateIds,
     imageCopyById,
     imageCaptionById,
     handleGenerateImageCopy,
+    token,
+    setToast,
   ]);
 
   return (
@@ -740,8 +804,9 @@ export default function ChooseAdStylePage() {
           <div className="mt-5">
             <Button
               text={"Generate ads"}
+              loading={isGeneratingAds}
               action={async () => {
-                if (!canContinue) return;
+                if (!canContinue || isGeneratingAds) return;
                 if (!token) {
                   setToast({
                     type: "error",
@@ -765,7 +830,8 @@ export default function ChooseAdStylePage() {
                   5,
                 );
 
-                let imageAssetIdsByPresetId: Record<string, string> = {};
+                // --- Validation before any API calls ---
+
                 if (selectedImagePresetIds.length > 0) {
                   if (!productId || !productName) {
                     setToast({
@@ -776,11 +842,6 @@ export default function ChooseAdStylePage() {
                     });
                     return;
                   }
-
-                  const safeProductDescription =
-                    productDescription.trim().length > 0
-                      ? productDescription
-                      : "—";
 
                   if (productImages.length === 0) {
                     setToast({
@@ -821,21 +882,86 @@ export default function ChooseAdStylePage() {
                       return;
                     }
                   }
+                }
 
+                if (selectedVideoTemplateId) {
+                  const videoTitle = getVideoPresetTitle();
+                  if (
+                    includeVoiceOver &&
+                    (!generatedCopy || generatedCopy.trim().length === 0)
+                  ) {
+                    setToast({
+                      type: "error",
+                      title: videoTitle
+                        ? `Missing copy (${videoTitle})`
+                        : "Missing copy",
+                      message:
+                        "Generate your video script before generating assets.",
+                    });
+                    return;
+                  }
+
+                  if (
+                    !includeVoiceOver &&
+                    (!generatedCaption || generatedCaption.trim().length === 0)
+                  ) {
+                    setToast({
+                      type: "error",
+                      title: videoTitle
+                        ? `Missing copy (${videoTitle})`
+                        : "Missing copy",
+                      message:
+                        "Generate your caption before generating assets.",
+                    });
+                    return;
+                  }
+
+                  if (!productId || !productName) {
+                    setToast({
+                      type: "error",
+                      title: "Missing product details",
+                      message:
+                        "Please select a product with title and description before generating videos.",
+                    });
+                    return;
+                  }
+
+                  if (productImages.length === 0) {
+                    setToast({
+                      type: "error",
+                      title: "Missing product images",
+                      message:
+                        "Please select a product with at least one image before generating video ads.",
+                    });
+                    return;
+                  }
+                }
+
+                setIsGeneratingAds(true);
+
+                // --- Single preflight call for all generation items ---
+                const preflightItems: Array<{
+                  kind: "image_ad_generation" | "video_generation_12s";
+                  count: number;
+                }> = [];
+                if (selectedImagePresetIds.length > 0) {
+                  preflightItems.push({
+                    kind: "image_ad_generation",
+                    count: selectedImagePresetIds.length,
+                  });
+                }
+                if (selectedVideoTemplateId) {
+                  preflightItems.push({
+                    kind: "video_generation_12s",
+                    count: 1,
+                  });
+                }
+
+                if (preflightItems.length > 0) {
                   try {
-                    const items = [
-                      {
-                        kind: "image_ad_generation" as const,
-                        count: selectedImagePresetIds.length,
-                      },
-                      ...(selectedVideoTemplateId
-                        ? [{ kind: "video_generation_12s" as const, count: 1 }]
-                        : []),
-                    ];
-
                     const preflight = await preflightMultiGeneration({
                       token,
-                      dto: { items },
+                      dto: { items: preflightItems },
                     });
 
                     if (!preflight?.data?.canGenerate) {
@@ -844,6 +970,7 @@ export default function ChooseAdStylePage() {
                         title: "Insufficient tokens",
                         message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate these assets.`,
                       });
+                      setIsGeneratingAds(false);
                       return;
                     }
                   } catch (e: any) {
@@ -851,10 +978,20 @@ export default function ChooseAdStylePage() {
                       type: "error",
                       title: "Validation failed",
                       message:
-                        "We couldn’t validate your token balance right now. Please try again.",
+                        "We couldn't validate your token balance right now. Please try again.",
                     });
+                    setIsGeneratingAds(false);
                     return;
                   }
+                }
+
+                // --- Image generation ---
+                let imageAssetIdsByPresetId: Record<string, string> = {};
+                if (selectedImagePresetIds.length > 0) {
+                  const safeProductDescription =
+                    productDescription.trim().length > 0
+                      ? productDescription
+                      : "—";
 
                   try {
                     const results = await Promise.all(
@@ -919,103 +1056,28 @@ export default function ChooseAdStylePage() {
                     const msg =
                       e?.response?.data?.message ||
                       e?.message ||
-                      "We couldn’t generate an image right now. Please try again.";
+                      "We couldn't generate an image right now. Please try again.";
                     setToast({
                       type: "error",
                       title: "Image generation failed",
                       message: msg,
                     });
+                    setIsGeneratingAds(false);
                     return;
                   }
                 }
 
+                // --- Video generation ---
                 const picked = cards.find(
                   (c) => c.templateId === selectedVideoTemplateId,
                 );
 
                 let videoAssetId: string | null = null;
                 if (selectedVideoTemplateId) {
-                  const videoTitle = getVideoPresetTitle();
-                  if (
-                    includeVoiceOver &&
-                    (!generatedCopy || generatedCopy.trim().length === 0)
-                  ) {
-                    setToast({
-                      type: "error",
-                      title: videoTitle
-                        ? `Missing copy (${videoTitle})`
-                        : "Missing copy",
-                      message:
-                        "Generate your video script before generating assets.",
-                    });
-                    return;
-                  }
-
-                  if (
-                    !includeVoiceOver &&
-                    (!generatedCaption || generatedCaption.trim().length === 0)
-                  ) {
-                    setToast({
-                      type: "error",
-                      title: videoTitle
-                        ? `Missing copy (${videoTitle})`
-                        : "Missing copy",
-                      message:
-                        "Generate your caption before generating assets.",
-                    });
-                    return;
-                  }
-
-                  if (!productId || !productName) {
-                    setToast({
-                      type: "error",
-                      title: "Missing product details",
-                      message:
-                        "Please select a product with title and description before generating videos.",
-                    });
-                    return;
-                  }
-
                   const safeProductDescription =
                     productDescription.trim().length > 0
                       ? productDescription
                       : "—";
-
-                  if (productImages.length === 0) {
-                    setToast({
-                      type: "error",
-                      title: "Missing product images",
-                      message:
-                        "Please select a product with at least one image before generating video ads.",
-                    });
-                    return;
-                  }
-
-                  try {
-                    const preflight = await preflightMultiGeneration({
-                      token,
-                      dto: {
-                        items: [{ kind: "video_generation_12s", count: 1 }],
-                      },
-                    });
-
-                    if (!preflight?.data?.canGenerate) {
-                      setToast({
-                        type: "error",
-                        title: "Insufficient tokens",
-                        message: `You need ${preflight?.data?.tokensRequired ?? 0} tokens to generate this video.`,
-                      });
-                      return;
-                    }
-                  } catch (e: any) {
-                    setToast({
-                      type: "error",
-                      title: "Validation failed",
-                      message:
-                        "We couldn’t validate your token balance right now. Please try again.",
-                    });
-                    return;
-                  }
 
                   try {
                     const res = await generateVideoAsset({
@@ -1037,12 +1099,13 @@ export default function ChooseAdStylePage() {
                     const msg =
                       e?.response?.data?.message ||
                       e?.message ||
-                      "We couldn’t generate a video right now. Please try again.";
+                      "We couldn't generate a video right now. Please try again.";
                     setToast({
                       type: "error",
                       title: "Video generation failed",
                       message: msg,
                     });
+                    setIsGeneratingAds(false);
                     return;
                   }
                 }
@@ -1102,9 +1165,10 @@ export default function ChooseAdStylePage() {
                   complete: true,
                 });
 
+                setIsGeneratingAds(false);
                 router.push("/create-campaign/creative-ready");
               }}
-              disabled={!canContinue}
+              disabled={!canContinue || isGeneratingAds}
               hasIconOrLoader
               icon={<ArrowCircleRight2 size="16" color="#FFFFFF" />}
               iconPosition="right"
@@ -1281,12 +1345,22 @@ export default function ChooseAdStylePage() {
 
               <button
                 onClick={handleGenerateAllImageCopies}
-                disabled={selectedImageTemplateIds.every(
-                  (id) => imageCopyById[id] && imageCaptionById[id],
-                )}
+                disabled={
+                  isGeneratingAllImageCopies ||
+                  selectedImageTemplateIds.every(
+                    (id) => imageCopyById[id] && imageCaptionById[id],
+                  )
+                }
                 className="w-full h-[44px] rounded-[22px] bg-white border border-[#E0E0E0] text-sm font-medium text-heading flex items-center justify-center gap-2 hover:bg-[#FAFAFA] transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
               >
-                Generate All Copy
+                {isGeneratingAllImageCopies ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    Generating…
+                  </>
+                ) : (
+                  <>Generate All Copy</>
+                )}
               </button>
 
               <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
