@@ -115,6 +115,7 @@ export default function CampaignSnapshotsPage() {
     facebookSettings,
     googleSettings,
     attachedAssets,
+    adsShow,
   } = useCreateCampaignStore((state) => state);
   const { canUndo } = useCreativesStore((state) => state.actions);
   const { Google, Facebook } = useCreativesStore((state) => state);
@@ -344,6 +345,16 @@ export default function CampaignSnapshotsPage() {
       return;
     }
 
+    const locations = adsShow.location;
+    if (!Array.isArray(locations) || locations.length === 0) {
+      setToast({
+        type: "error",
+        title: "Missing location",
+        message: "Please select at least one location before launching.",
+      });
+      return;
+    }
+
     const campaignPayload = buildLaunchCampaignPayload({
       businessId,
       campaignName: campaignDetails.campaignName,
@@ -353,9 +364,15 @@ export default function CampaignSnapshotsPage() {
       tone: "Professional",
       startDateIso: campaignDetails.campaignStartDate,
       endDateIso: campaignDetails.campaignEndDate,
-      totalBudget: Number(campaignDetails.googleDailyBudget || "0"),
+      totalBudget:
+        (supportedAdPlatforms.Google
+          ? Number(clampBudget(campaignDetails.googleDailyBudget) || "0")
+          : 0) +
+        (supportedAdPlatforms.Facebook
+          ? Number(clampBudget(campaignDetails.metaDailyBudget) || "0")
+          : 0),
       products: productSelection.products,
-      locations: useCreateCampaignStore.getState().adsShow.location,
+      locations,
       supportedAdPlatforms,
       creativesStore: { Google, Facebook },
       attachedAssets: attachedAssets?.assets,
@@ -377,7 +394,9 @@ export default function CampaignSnapshotsPage() {
       brandColor: campaignDetails.brandColor || primaryColor || "#000000",
       accentColor: campaignDetails.accentColor || secondaryColor || "#FFFFFF",
       destinationUrl: campaignDetails.destinationUrl,
-      googleDailyBudget: clampBudget(campaignDetails.googleDailyBudget) || "5",
+      googleDailyBudget: supportedAdPlatforms.Google
+        ? clampBudget(campaignDetails.googleDailyBudget) || "5"
+        : "",
       metaDailyBudget: clampBudget(campaignDetails.metaDailyBudget) || "5",
       campaignStartDate: new Date(
         campaignDetails.campaignStartDate,
@@ -522,27 +541,29 @@ export default function CampaignSnapshotsPage() {
         <div className="mt-5 px-5 lg:pl-0 lg:pr-5">
           <div className="text-sm font-medium text-heading">Daily Budget</div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              type="number"
-              label="Google Daily Budget ($)"
-              name="googleDailyBudget"
-              placeholder="5"
-              large
-              background="rgba(232,232,232,0.35)"
-              borderless
-              min={5}
-              step={1}
-              value={campaignDetails.googleDailyBudget}
-              onChange={(e) =>
-                handleCampaignDetails("googleDailyBudget", e.target.value)
-              }
-              onBlur={() => {
-                handleCampaignDetails(
-                  "googleDailyBudget",
-                  clampBudget(campaignDetails.googleDailyBudget) || "5",
-                );
-              }}
-            />
+            {supportedAdPlatforms.Google && (
+              <Input
+                type="number"
+                label="Google Daily Budget ($)"
+                name="googleDailyBudget"
+                placeholder="5"
+                large
+                background="rgba(232,232,232,0.35)"
+                borderless
+                min={5}
+                step={1}
+                value={campaignDetails.googleDailyBudget}
+                onChange={(e) =>
+                  handleCampaignDetails("googleDailyBudget", e.target.value)
+                }
+                onBlur={() => {
+                  handleCampaignDetails(
+                    "googleDailyBudget",
+                    clampBudget(campaignDetails.googleDailyBudget) || "5",
+                  );
+                }}
+              />
+            )}
             {supportedAdPlatforms.Facebook && (
               <Input
                 type="number"
