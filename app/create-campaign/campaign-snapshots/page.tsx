@@ -370,6 +370,13 @@ export default function CampaignSnapshotsPage() {
       return;
     }
 
+    const googleDaily = supportedAdPlatforms.Google
+      ? Number(clampBudget(campaignDetails.googleDailyBudget) || "0")
+      : 0;
+    const facebookDaily = supportedAdPlatforms.Facebook
+      ? Number(clampBudget(campaignDetails.metaDailyBudget) || "0")
+      : 0;
+
     const campaignPayload = buildLaunchCampaignPayload({
       businessId,
       campaignName: campaignDetails.campaignName,
@@ -379,13 +386,8 @@ export default function CampaignSnapshotsPage() {
       tone: "Professional",
       startDateIso: campaignDetails.campaignStartDate,
       endDateIso: campaignDetails.campaignEndDate,
-      totalBudget:
-        (supportedAdPlatforms.Google
-          ? Number(clampBudget(campaignDetails.googleDailyBudget) || "0")
-          : 0) +
-        (supportedAdPlatforms.Facebook
-          ? Number(clampBudget(campaignDetails.metaDailyBudget) || "0")
-          : 0),
+      googleDailyBudget: googleDaily,
+      facebookDailyBudget: facebookDaily,
       products: productSelection.products,
       locations,
       supportedAdPlatforms,
@@ -397,7 +399,7 @@ export default function CampaignSnapshotsPage() {
       setToast({
         type: "error",
         message:
-          "Some selected products don’t have creatives yet. Please generate creatives for all selected products to continue.",
+          "Some selected products don't have creatives yet. Please generate creatives for all selected products to continue.",
         title: "Creatives Missing",
       });
       return;

@@ -72,7 +72,9 @@ export type LaunchCampaignPayload = {
   tone: string;
   startDate: string; // ISO string
   endDate: string; // ISO string
-  totalBudget: number;
+  totalBudget?: number;
+  googleDailyBudget?: number;
+  facebookDailyBudget?: number;
   products: CampaignProduct[];
   location: {
     country: string;

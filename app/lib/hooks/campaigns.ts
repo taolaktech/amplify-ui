@@ -119,6 +119,8 @@ export const useLaunchCampaign = (
     campaignName,
     brandColor,
     accentColor,
+    googleDailyBudget: storedGoogleDailyBudget,
+    metaDailyBudget: storedMetaDailyBudget,
     campaignPayload: storedCampaignPayload,
   } = useCreateCampaignStore((state) => state.campaignSnapshots);
   const { Facebook, Google } = useCreativesStore((state) => state);
@@ -152,6 +154,20 @@ export const useLaunchCampaign = (
 
   const handleLaunchCampaign = () => {
     if (!authToken || !businessDetails.id || !products.length) return;
+    const googleDaily = supportedAdPlatforms.Google
+      ? Number(storedGoogleDailyBudget || 0)
+      : 0;
+    const facebookDaily = supportedAdPlatforms.Facebook
+      ? Number(storedMetaDailyBudget || 0)
+      : 0;
+
+    const startIso = campaignStartDate
+      ? new Date(campaignStartDate).toISOString()
+      : new Date().toISOString();
+    const endIso = campaignEndDate
+      ? new Date(campaignEndDate).toISOString()
+      : new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
+
     const campaignData: LaunchCampaignPayload =
       storedCampaignPayload && storedCampaignPayload.businessId
         ? storedCampaignPayload
@@ -162,15 +178,10 @@ export const useLaunchCampaign = (
             brandColor: brandColor || primaryColor || "#000000",
             accentColor: accentColor || secondaryColor || "#FFFFFF",
             tone: toneOfVoice || "Professional",
-            startDateIso: campaignStartDate
-              ? new Date(campaignStartDate).toISOString()
-              : new Date().toISOString(),
-            endDateIso: campaignEndDate
-              ? new Date(campaignEndDate).toISOString()
-              : new Date(
-                  new Date().setMonth(new Date().getMonth() + 1),
-                ).toISOString(),
-            totalBudget: amount,
+            startDateIso: startIso,
+            endDateIso: endIso,
+            googleDailyBudget: googleDaily,
+            facebookDailyBudget: facebookDaily,
             products,
             locations,
             supportedAdPlatforms,
