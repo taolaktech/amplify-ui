@@ -36,7 +36,8 @@ export function buildLaunchCampaignPayload(args: {
   tone: string;
   startDateIso: string;
   endDateIso: string;
-  totalBudget: number;
+  googleDailyBudget: number;
+  facebookDailyBudget: number;
   products: ShopifyProduct[];
   locations: string[];
   supportedAdPlatforms: Record<string, any>;
@@ -52,7 +53,8 @@ export function buildLaunchCampaignPayload(args: {
     tone,
     startDateIso,
     endDateIso,
-    totalBudget,
+    googleDailyBudget,
+    facebookDailyBudget,
     products,
     locations,
     supportedAdPlatforms,
@@ -176,7 +178,8 @@ export function buildLaunchCampaignPayload(args: {
     tone,
     startDate: new Date(startDateIso).toISOString(),
     endDate: new Date(endDateIso).toISOString(),
-    totalBudget,
+    googleDailyBudget,
+    facebookDailyBudget,
     products: productsPayload,
     location: locations
       .map((location) => {
