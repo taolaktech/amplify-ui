@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { Refresh } from "iconsax-react";
+import { useSyncSubscription } from "@/app/lib/hooks/stripe";
+import { useAuthStore } from "@/app/lib/stores/authStore";
+import { useToastStore } from "@/app/lib/stores/toastStore";
 
 type UsageMetric = {
   label: string;
@@ -73,6 +77,9 @@ export default function CreditUsageWidget({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const tokenFromStore = useAuthStore((state) => state.token);
+  const setToast = useToastStore((state) => state.setToast);
+  const { syncSubscription, isSyncing } = useSyncSubscription();
 
   const [creditsRemaining, setCreditsRemaining] =
     useState(creditsRemainingProp);
@@ -196,8 +203,33 @@ export default function CreditUsageWidget({
         <div className="absolute right-0 mt-2 w-[360px] rounded-2xl bg-white border border-[#EFEFEF] custom-shadow-profile p-4 z-50">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-sm font-semibold text-[#333]">
-                Your Plan: {planName}
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-semibold text-[#333]">
+                  Your Plan: {planName}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!tokenFromStore) {
+                      setToast({
+                        title: "Sign in required",
+                        message: "Please sign in to sync your subscription.",
+                        type: "error",
+                      });
+                      return;
+                    }
+                    syncSubscription();
+                  }}
+                  disabled={isSyncing}
+                  className="text-[#333] hover:text-[#666] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Refresh subscription"
+                >
+                  <Refresh
+                    size={14}
+                    color="#333"
+                    className={isSyncing ? "animate-spin" : ""}
+                  />
+                </button>
               </div>
               <div className="text-xs text-[#595959]">
                 Next Reset: {formatDate(nextResetDate) || "—"}

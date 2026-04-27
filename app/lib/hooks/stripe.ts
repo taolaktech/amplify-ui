@@ -201,6 +201,45 @@ export const useUpgradePlan = () => {
   return { handleUpgrade, isPending };
 };
 
+export const useSyncSubscription = () => {
+  const token = useAuthStore((state) => state.token);
+  const setSubscriptionType = useAuthStore(
+    (state) => state.setSubscriptionType,
+  );
+  const setSubscriptionEndDate = useAuthStore(
+    (state) => state.setSubscriptionEndDate,
+  );
+  const setToast = useToastStore((state) => state.setToast);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => getCurrentSubscriptionPlan(token || "", { sync: true }),
+    onSuccess: (data) => {
+      const currentPlanId = data?.data?.activeStripePriceId;
+      const currentPlan = currentPlanId
+        ? planIdToName[currentPlanId as keyof typeof planIdToName]
+        : null;
+
+      setSubscriptionType(currentPlan);
+      setSubscriptionEndDate(data?.data?.currentPeriodEnd || null);
+      setToast({
+        title: "Subscription refreshed",
+        message: "Your subscription has been refreshed successfully.",
+        type: "success",
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      setToast({
+        title: "Subscription refresh failed",
+        message: "Failed to sync your subscription. Please try again.",
+        type: "error",
+      });
+    },
+  });
+
+  return { syncSubscription: mutate, isSyncing: isPending };
+};
+
 export const useStripeCustomerActions = () => {
   const token = useAuthStore((state) => state.token);
 

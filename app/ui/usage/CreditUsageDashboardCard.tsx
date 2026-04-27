@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
 import PurchaseCreditPack from "@/app/ui/modals/PurchaseCreditPack";
+import { Refresh } from "iconsax-react";
+import { useSyncSubscription } from "@/app/lib/hooks/stripe";
 
 type Metric = {
   label: string;
@@ -79,6 +81,7 @@ export default function CreditUsageDashboardCard({
   const token = useAuthStore((state) => state.token);
   const setToast = useToastStore((state) => state.setToast);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const { syncSubscription, isSyncing } = useSyncSubscription();
 
   const creditsUsed = Math.max(0, creditsLimit - creditsRemaining);
 
@@ -107,7 +110,32 @@ export default function CreditUsageDashboardCard({
       <div className="flex items-start justify-between">
         <div>
           <div className="text-sm text-[#595959]">Plan</div>
-          <div className="text-lg font-semibold text-[#333]">{planName}</div>
+          <div className="flex items-center gap-4">
+            <div className="text-lg font-semibold text-[#333]">{planName}</div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!token) {
+                  setToast({
+                    title: "Sign in required",
+                    message: "Please sign in to sync your subscription.",
+                    type: "error",
+                  });
+                  return;
+                }
+                syncSubscription();
+              }}
+              disabled={isSyncing}
+              className="hover:text-[#666] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Refresh"
+            >
+              <Refresh
+                size={12}
+                color="#333"
+                className={`${isSyncing ? "animate-spin" : ""}`}
+              />
+            </button>
+          </div>
           <div className="text-xs text-[#595959] mt-1">
             Next Reset: {formatDate(nextResetDate) || "—"}
           </div>

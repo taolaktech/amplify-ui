@@ -147,9 +147,12 @@ export const upgradePlan = async (data: {
   return response.data;
 };
 
-export const getCurrentSubscriptionPlan = async (token: string) => {
+export const getCurrentSubscriptionPlan = async (
+  token: string,
+  options?: { sync?: boolean },
+) => {
   const response = await axiosInstance.get(
-    "/stripe/subscriptions/current?sync=true",
+    `/stripe/subscriptions/current?sync=${options?.sync ?? false}`,
     {
       headers: {
         "Content-Type": "application/json",
