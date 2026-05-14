@@ -1090,7 +1090,7 @@ export default function ChooseAdStylePage() {
                         videoPresetId: selectedVideoTemplateId,
                         includeMusic,
                         includeVoiceOver,
-                        cta: undefined,
+                        script: generatedCopy || "",
                       },
                     });
                     videoAssetId = res?.data?.assetId || null;

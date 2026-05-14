@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowForward } from "iconsax-react";
@@ -17,6 +17,7 @@ import {
   regenerateImageAsset,
 } from "@/app/lib/api/base/assets";
 import { createSavedAd } from "@/app/lib/api/base/saved-ads";
+import { useAssetStatusStream } from "@/app/lib/hooks/useAssetStatusStream";
 import { getSeededImageAdTemplates } from "../product-kit/ImageAdsTemplatesBrowser";
 
 type ReadyCreative = {
@@ -53,104 +54,12 @@ const clamp = (value: string, max: number) => {
 
 const CUSTOM_PROMPT_MAX_LENGTH = 200;
 
-const svgDataUrl = (svg: string) => {
-  const encoded = encodeURIComponent(svg)
-    .replace(/'/g, "%27")
-    .replace(/"/g, "%22");
-  return `data:image/svg+xml,${encoded}`;
-};
-
-const buildImageCreativeSvg = (args: {
-  baseImageUrl: string;
-  copy: AdCopy;
-}) => {
-  const { baseImageUrl, copy } = args;
-
-  const headline = clamp(copy.headline || "", 60);
-  const body = clamp(copy.bodyCopy || "", 180);
-  const cta = clamp(copy.callToAction || "", 30);
-  const brand = clamp(copy.brandName || "", 30);
-  const site = clamp(copy.websiteUrl || "", 60);
-
-  // 1080x1920 (9:16). Use an external <image/> for the base image.
-  // This is frontend-only. If the remote image blocks embedding, the layout still renders the ad copy.
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
-  <defs>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(0,0,0,0.0)"/>
-      <stop offset="55%" stop-color="rgba(0,0,0,0.15)"/>
-      <stop offset="100%" stop-color="rgba(0,0,0,0.80)"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="rgba(0,0,0,0.45)"/>
-    </filter>
-  </defs>
-
-  <rect width="1080" height="1920" fill="#111"/>
-  <image href="${baseImageUrl}" x="0" y="0" width="1080" height="1920" preserveAspectRatio="xMidYMid slice"/>
-  <rect x="0" y="0" width="1080" height="1920" fill="url(#fade)"/>
-
-  <g filter="url(#shadow)">
-    <text x="80" y="1440" fill="#fff" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="72" font-weight="800">
-      ${headline.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-    </text>
-  </g>
-
-  <text x="80" y="1525" fill="rgba(255,255,255,0.92)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="40" font-weight="500">
-    ${body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-  </text>
-
-  <g>
-    <rect x="80" y="1655" rx="26" ry="26" width="420" height="92" fill="rgba(167,85,255,0.95)"/>
-    <text x="290" y="1715" text-anchor="middle" fill="#fff" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="36" font-weight="800">
-      ${cta.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-    </text>
-  </g>
-
-  <text x="80" y="1788" fill="rgba(255,255,255,0.85)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="30" font-weight="700">
-    ${brand.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-  </text>
-  <text x="80" y="1840" fill="rgba(255,255,255,0.72)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="26" font-weight="500">
-    ${site.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-  </text>
-</svg>`;
-};
-
 function formatDuration(seconds?: number) {
   if (!seconds || !Number.isFinite(seconds)) return null;
   const s = Math.max(0, Math.round(seconds));
   const mm = Math.floor(s / 60);
   const ss = `${s % 60}`.padStart(2, "0");
   return `${mm}:${ss}`;
-}
-
-function sleepWithAbort(ms: number, signal: AbortSignal) {
-  return new Promise<void>((resolve, reject) => {
-    if (signal.aborted) {
-      reject(new Error("Polling aborted"));
-      return;
-    }
-
-    let id: ReturnType<typeof setTimeout> | null = null;
-
-    const cleanup = () => {
-      if (id) clearTimeout(id);
-      signal.removeEventListener("abort", onAbort);
-    };
-
-    const onAbort = () => {
-      cleanup();
-      reject(new Error("Polling aborted"));
-    };
-
-    signal.addEventListener("abort", onAbort);
-
-    id = setTimeout(() => {
-      cleanup();
-      resolve();
-    }, ms);
-  });
 }
 
 export default function CreativeReadyPage() {
@@ -386,6 +295,58 @@ export default function CreativeReadyPage() {
       await new Promise((r) => setTimeout(r, 10_000));
     }
   };
+
+  // SSE: resolve pending assets instantly when the server notifies us
+  const handleAssetStatusEvent = useCallback(
+    async (event: { assetId: string; status: "completed" | "failed" }) => {
+      // Find which creative key this assetId belongs to
+      const entries = Object.entries(generatedAssetByCreativeId);
+      const match = entries.find(
+        ([, v]) => v.assetId === event.assetId && v.status === "pending",
+      );
+      if (!match) return;
+      const [creativeKey] = match;
+
+      if (event.status === "failed") {
+        setGeneratedAssetByCreativeId((prev) => ({
+          ...prev,
+          [creativeKey]: {
+            ...prev[creativeKey],
+            status: "failed",
+            error: "Asset generation failed.",
+          },
+        }));
+        // Abort any active polling for this asset
+        generationAbortControllersRef.current[creativeKey]?.abort();
+        return;
+      }
+
+      // status === 'completed' — fetch full asset to get the URL
+      if (!token) return;
+      try {
+        const res = await getAssetById({ token, assetId: event.assetId });
+        const asset = res?.data;
+        const finalUrl = asset?.mediaUrl || asset?.url;
+        if (finalUrl) {
+          setGeneratedAssetByCreativeId((prev) => ({
+            ...prev,
+            [creativeKey]: {
+              ...prev[creativeKey],
+              status: "completed",
+              url: finalUrl,
+            },
+          }));
+          // Abort polling since SSE already resolved
+          generationAbortControllersRef.current[creativeKey]?.abort();
+        }
+      } catch {
+        // SSE arrived but fetch failed — polling will still pick it up
+      }
+    },
+    [generatedAssetByCreativeId, token],
+  );
+
+  useAssetStatusStream(handleAssetStatusEvent);
 
   const LoaderFrame = ({ className = "" }: { className?: string }) => {
     return (
@@ -1297,7 +1258,7 @@ export default function CreativeReadyPage() {
               videoPresetId,
               includeMusic,
               includeVoiceOver,
-              cta: undefined,
+              script,
               customPrompt: customPrompt.trim() || undefined,
             },
           });

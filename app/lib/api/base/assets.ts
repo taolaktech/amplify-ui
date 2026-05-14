@@ -135,13 +135,13 @@ export async function generateImageAsset(data: {
 
 export type GenerateVideoDto = {
   productName: string;
-  videoPresetId?: string;
+  videoPresetId: string;
+  script: string;
   productDescription: string;
   productImages: string[];
   productId: string;
   includeMusic: boolean;
   includeVoiceOver: boolean;
-  cta?: string;
   customPrompt?: string;
 };
 
@@ -209,16 +209,16 @@ export async function generateVideoAsset(data: {
   token: string;
   dto: GenerateVideoDto;
 }) {
-  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
-  if (process.env.NODE_ENV === "development" && mockAssetId) {
-    return {
-      status: "success",
-      message: "Mocked video generation response",
-      data: {
-        assetId: mockAssetId,
-      },
-    } satisfies GenerateVideoResponse;
-  }
+  // const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
+  // if (process.env.NODE_ENV === "development" && mockAssetId) {
+  //   return {
+  //     status: "success",
+  //     message: "Mocked video generation response",
+  //     data: {
+  //       assetId: mockAssetId,
+  //     },
+  //   } satisfies GenerateVideoResponse;
+  // }
 
   const response = await instance.post<GenerateVideoResponse>(
     "/assets/generate-video",
@@ -257,16 +257,16 @@ export async function regenerateImageAsset(data: {
   token: string;
   dto: RegenerateImageDto;
 }) {
-  const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
-  if (process.env.NODE_ENV === "development" && mockAssetId) {
-    return {
-      status: "success",
-      message: "Mocked video generation response",
-      data: {
-        assetId: mockAssetId,
-      },
-    } satisfies RegenerateImageResponse;
-  }
+  // const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
+  // if (process.env.NODE_ENV === "development" && mockAssetId) {
+  //   return {
+  //     status: "success",
+  //     message: "Mocked video generation response",
+  //     data: {
+  //       assetId: mockAssetId,
+  //     },
+  //   } satisfies RegenerateImageResponse;
+  // }
   const response = await instance.post<RegenerateImageResponse>(
     "/assets/regenerate-image",
     data.dto,
