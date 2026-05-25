@@ -8,7 +8,6 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Button from "@/app/ui/Button";
 import { ArrowCircleRight2 } from "iconsax-react";
 import { type VideoPreset } from "@/app/lib/api/base/video-presets";
@@ -23,12 +22,8 @@ import {
 import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { useToastStore } from "@/app/lib/stores/toastStore";
-import TemplateFilterBar from "./TemplateFilterBar";
-import {
-  type FilterState,
-  EMPTY_FILTERS,
-  hasActiveFilters,
-} from "./templateFilters";
+import { type FilterState, EMPTY_FILTERS } from "./templateFilters";
+import AdStyleBrowser from "./AdStyleBrowser";
 
 function normalizeLabel(input?: string) {
   return (input || "")
@@ -82,6 +77,7 @@ export default function ChooseAdStylePage() {
   const [isGeneratingCopy, setIsGeneratingCopy] = useState(false);
   const [includeMusic, setIncludeMusic] = useState(true);
   const [includeVoiceOver, setIncludeVoiceOver] = useState(true);
+  const [videoDuration, setVideoDuration] = useState(5);
   const [isEditingCopy, setIsEditingCopy] = useState(false);
   const [isCopySaved, setIsCopySaved] = useState(false);
 
@@ -183,6 +179,10 @@ export default function ChooseAdStylePage() {
       setIncludeVoiceOver(adStyle.includeVoiceOver);
     }
 
+    if (typeof adStyle?.videoDuration === "number") {
+      setVideoDuration(adStyle.videoDuration);
+    }
+
     if (
       adStyle?.imageCopyByPresetId &&
       typeof adStyle.imageCopyByPresetId === "object"
@@ -209,6 +209,7 @@ export default function ChooseAdStylePage() {
       imageTemplateIds: selectedImageTemplateIds,
       includeMusic,
       includeVoiceOver,
+      videoDuration,
       videoCaption: generatedCaption,
       videoScript: generatedCopy,
       imageCopyByPresetId: imageCopyById,
@@ -222,6 +223,7 @@ export default function ChooseAdStylePage() {
     selectedImageTemplateIds,
     includeMusic,
     includeVoiceOver,
+    videoDuration,
     generatedCaption,
     generatedCopy,
     imageCopyById,
@@ -538,6 +540,7 @@ export default function ChooseAdStylePage() {
           productImages,
           productCategory: productCategory || "",
           mediaPresetId: selectedVideoTemplateId,
+          duration: videoDuration,
         },
       });
 
@@ -568,6 +571,7 @@ export default function ChooseAdStylePage() {
     setToast,
     selectedVideoTemplateId,
     includeVoiceOver,
+    videoDuration,
     selectedProductNode?.title,
     selectedProductNode?.description,
     selectedProductNode?.id,
@@ -941,7 +945,7 @@ export default function ChooseAdStylePage() {
 
                 // --- Single preflight call for all generation items ---
                 const preflightItems: Array<{
-                  kind: "image_ad_generation" | "video_generation_12s";
+                  kind: "image_ad_generation" | "video_generation";
                   count: number;
                 }> = [];
                 if (selectedImagePresetIds.length > 0) {
@@ -952,7 +956,7 @@ export default function ChooseAdStylePage() {
                 }
                 if (selectedVideoTemplateId) {
                   preflightItems.push({
-                    kind: "video_generation_12s",
+                    kind: "video_generation",
                     count: 1,
                   });
                 }
@@ -1091,6 +1095,7 @@ export default function ChooseAdStylePage() {
                         includeMusic,
                         includeVoiceOver,
                         script: generatedCopy || "",
+                        duration: videoDuration,
                       },
                     });
                     videoAssetId = res?.data?.assetId || null;
@@ -1178,6 +1183,63 @@ export default function ChooseAdStylePage() {
 
           {presetType === "video" && (
             <div className="mt-6 border-t border-[rgba(0,0,0,0.08)] pt-5">
+              <div className="mb-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-sm font-semibold text-heading">
+                    Duration (seconds)
+                  </span>
+                  <span
+                    className="text-neutral-light cursor-default"
+                    title="Set the target video duration in seconds (1–15)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 flex flex-col">
+                    <input
+                      type="range"
+                      min={1}
+                      max={15}
+                      step={1}
+                      value={videoDuration}
+                      onChange={(e) => {
+                        setVideoDuration(Number(e.target.value));
+                        setGeneratedCopy("");
+                        setGeneratedCaption("");
+                        setIsCopySaved(false);
+                      }}
+                      className="w-full h-2 appearance-none rounded-full bg-[#D1D5DB] accent-[#1b1b1b] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1b1b1b] [&::-webkit-slider-thumb]:border-0"
+                    />
+                    <div className="flex justify-between mt-1 px-1">
+                      {Array.from({ length: 15 }, (_, i) => (
+                        <span
+                          key={i}
+                          className="w-1 h-1 rounded-full bg-[#D1D5DB]"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="w-10 h-9 flex items-center justify-center rounded-lg border border-[#E0E0E0] bg-white text-sm font-medium text-heading shrink-0">
+                    {videoDuration}
+                  </div>
+                </div>
+              </div>
+
               <div className="text-sm font-semibold text-heading mb-3">
                 Video Script
               </div>
@@ -1566,265 +1628,28 @@ export default function ChooseAdStylePage() {
           )}
         </div>
 
-        <div className="bg-[#F3F4F6] rounded-3xl custom-shadow-sm p-6 overflow-hidden">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-heading text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-purple-600" />
-              <span>Ad styles</span>
-            </div>
-
-            <div className="flex items-center gap-2 bg-[#F3EFF6] p-1 rounded-2xl">
-              <button
-                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
-                  presetType === "video"
-                    ? "bg-white text-heading"
-                    : "text-neutral-light"
-                }`}
-                onClick={() => {
-                  setPresetType("video");
-                }}
-              >
-                Video Ads
-              </button>
-              <button
-                className={`px-4 h-[36px] rounded-xl text-sm font-medium ${
-                  presetType === "image"
-                    ? "bg-white text-heading"
-                    : "text-neutral-light"
-                }`}
-                onClick={() => {
-                  setPresetType("image");
-                }}
-              >
-                Image Ads
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <TemplateFilterBar
-              filters={filters}
-              onChange={setFilters}
-              resultCount={
-                presetType === "image"
-                  ? (imageTotal ?? imagePresets.length)
-                  : (videoTotal ?? presets.length)
-              }
-            />
-          </div>
-
-          <div
-            ref={listRef}
-            className={`mt-5 max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden pr-2 pink-scroll ${
-              presetType === "video"
-                ? "grid grid-cols-2 md:grid-cols-3 gap-4"
-                : ""
-            }`}
-          >
-            {presetType === "image" ? (
-              <>
-                {imagePresetLoadError ? (
-                  <div className="col-span-full text-xs text-neutral-light">
-                    {imagePresetLoadError}
-                  </div>
-                ) : null}
-
-                {isLoadingImages ? (
-                  <div className="col-span-full text-xs text-neutral-light">
-                    Loading…
-                  </div>
-                ) : null}
-
-                {!isLoadingImages &&
-                !imagePresetLoadError &&
-                (imageTotal ?? imagePresets.length) === 0 &&
-                hasActiveFilters(filters) ? (
-                  <div className="col-span-full text-xs text-neutral-light">
-                    No templates match your filters.
-                  </div>
-                ) : null}
-
-                {!isLoadingImages &&
-                !imagePresetLoadError &&
-                (imageTotal ?? imagePresets.length) === 0 &&
-                !hasActiveFilters(filters) ? (
-                  <div className="col-span-full text-xs text-neutral-light">
-                    No image presets available.
-                  </div>
-                ) : null}
-
-                <div className="col-span-full grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {imagePresets.map((p) => {
-                    const isSelected = selectedImageTemplateIds.includes(p._id);
-                    const previewUrl = p.thumbnailUrl || p.mediaUrl || "";
-                    const label = (p.label || "Image").trim();
-                    const disabled = !previewUrl;
-
-                    return (
-                      <button
-                        key={p._id}
-                        className={`relative rounded-3xl overflow-hidden border aspect-[9/16] w-full transition-all duration-200 ${
-                          disabled
-                            ? "cursor-not-allowed opacity-60"
-                            : "cursor-pointer"
-                        } ${
-                          isSelected
-                            ? "border-purple-600 ring-2 ring-purple-600 shadow-[0_0_0_2px_rgba(104,0,215,0.12),0_0_18px_rgba(104,0,215,0.12)]"
-                            : "border-[rgba(0,0,0,0.06)]"
-                        } bg-[#F3EFF6]`}
-                        aria-disabled={disabled}
-                        tabIndex={disabled ? -1 : 0}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (disabled) return;
-                          toggleImageTemplateId(p._id);
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-[#1b1b1b]" />
-
-                        {previewUrl ? (
-                          <Image
-                            src={previewUrl}
-                            alt={label}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
-                        ) : null}
-
-                        <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[rgba(0,0,0,0.85)] to-transparent" />
-
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="text-white text-sm font-semibold tracking-100 whitespace-pre-line">
-                            {label}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <>
-                {(videoTotal ?? presets.length) === 0 &&
-                !isLoading &&
-                hasActiveFilters(filters) ? (
-                  <div className="col-span-full mt-8 rounded-2xl border border-dashed border-input-border p-8 text-center animate-fadeIn">
-                    <div className="text-2xl mb-2">🎬</div>
-                    <div className="text-sm font-medium text-heading">
-                      No templates match your filters
-                    </div>
-                    <div className="mt-1 text-xs text-neutral-light">
-                      Try adjusting your Creative Direction, Niche, or Tags.
-                    </div>
-                    <button
-                      onClick={() => setFilters(EMPTY_FILTERS)}
-                      className="mt-4 h-[36px] px-5 rounded-xl bg-purple-600 text-white text-xs font-medium hover:bg-purple-700 transition-colors"
-                    >
-                      Clear all filters
-                    </button>
-                  </div>
-                ) : null}
-
-                {(videoTotal ?? presets.length) === 0 &&
-                !isLoading &&
-                !hasActiveFilters(filters) ? (
-                  <div className="col-span-full text-xs text-neutral-light">
-                    No video presets available.
-                  </div>
-                ) : null}
-
-                {cards.map((c) => {
-                  const isSelected =
-                    Boolean(c.templateId) &&
-                    selectedVideoTemplateId === c.templateId;
-                  const disabled = c.disabled;
-                  const isUnmuted =
-                    Boolean(c.templateId) &&
-                    unmutedVideoTemplateId === c.templateId;
-
-                  return (
-                    <button
-                      key={c.preset?._id}
-                      className={`relative rounded-3xl overflow-hidden aspect-[9/16] w-full transition-all duration-200 ${
-                        disabled ? "cursor-not-allowed" : "cursor-pointer"
-                      } ${
-                        isSelected
-                          ? "ring-2 ring-purple-600 shadow-[0_0_0_2px_rgba(104,0,215,0.18),0_0_22px_rgba(104,0,215,0.18)]"
-                          : ""
-                      }`}
-                      aria-disabled={disabled}
-                      tabIndex={disabled ? -1 : 0}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (disabled) return;
-                        setSelectedVideoTemplateId((prev) =>
-                          prev === c.templateId ? null : c.templateId,
-                        );
-                      }}
-                    >
-                      {c.preset?.videoUrl ? (
-                        <video
-                          className="absolute inset-0 w-full h-full object-cover"
-                          muted={!isUnmuted}
-                          playsInline
-                          loop
-                          autoPlay
-                          poster={c.preset.thumbnailImageUrl}
-                          src={c.preset.videoUrl}
-                        />
-                      ) : c.preset?.thumbnailImageUrl ? (
-                        <Image
-                          src={c.preset.thumbnailImageUrl}
-                          alt={c.label}
-                          fill
-                          unoptimized
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[#1b1b1b]" />
-                      )}
-
-                      <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[rgba(0,0,0,0.85)] to-transparent" />
-
-                      {c.preset?.videoUrl && !disabled && (
-                        <button
-                          type="button"
-                          className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold tracking-100 text-white"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setUnmutedVideoTemplateId((prev) =>
-                              prev === c.templateId
-                                ? null
-                                : (c.templateId ?? null),
-                            );
-                          }}
-                          aria-label={isUnmuted ? "Mute video" : "Unmute video"}
-                        >
-                          {isUnmuted ? "Mute" : "Unmute"}
-                        </button>
-                      )}
-
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="text-white text-sm font-semibold tracking-100 whitespace-pre-line">
-                          {c.label}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-                <div ref={sentinelRef} className="col-span-full w-full h-8" />
-              </>
-            )}
-          </div>
-
-          {isLoading && (
-            <div className="mt-4 text-xs text-neutral-light">Loading…</div>
-          )}
-        </div>
+        <AdStyleBrowser
+          presetType={presetType}
+          setPresetType={setPresetType}
+          filters={filters}
+          setFilters={setFilters}
+          presets={presets}
+          videoTotal={videoTotal}
+          cards={cards}
+          selectedVideoTemplateId={selectedVideoTemplateId}
+          setSelectedVideoTemplateId={setSelectedVideoTemplateId}
+          unmutedVideoTemplateId={unmutedVideoTemplateId}
+          setUnmutedVideoTemplateId={setUnmutedVideoTemplateId}
+          isLoading={isLoading}
+          sentinelRef={sentinelRef}
+          listRef={listRef}
+          imagePresets={imagePresets}
+          imageTotal={imageTotal}
+          isLoadingImages={isLoadingImages}
+          imagePresetLoadError={imagePresetLoadError}
+          selectedImageTemplateIds={selectedImageTemplateIds}
+          toggleImageTemplateId={toggleImageTemplateId}
+        />
       </div>
     </div>
   );

@@ -8,6 +8,12 @@ import { useAuthStore } from "@/app/lib/stores/authStore";
 import { useCreateCampaignStore } from "@/app/lib/stores/createCampaignStore";
 import { listMediaPresets } from "@/app/lib/api/base/media-presets";
 import { type MediaPreset } from "@/app/lib/api/base/media-presets";
+import TemplateFilterBar from "@/app/create-campaign/choose-ad-style/TemplateFilterBar";
+import {
+  type FilterState,
+  EMPTY_FILTERS,
+  hasActiveFilters,
+} from "@/app/create-campaign/choose-ad-style/templateFilters";
 
 export default function CreativeTemplates() {
   const router = useRouter();
@@ -19,6 +25,8 @@ export default function CreativeTemplates() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unmutedVideoId, setUnmutedVideoId] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadingRef = useRef(false);
@@ -39,6 +47,11 @@ export default function CreativeTemplates() {
         type: presetType,
         page: nextPage,
         perPage: 12,
+        ...(filters.creativeDirections.length > 0
+          ? { creativeDirections: filters.creativeDirections }
+          : {}),
+        ...(filters.niches.length > 0 ? { niches: filters.niches } : {}),
+        ...(filters.tags.length > 0 ? { tags: filters.tags } : {}),
       });
 
       const nextPresets: MediaPreset[] = res?.data?.presets || [];
@@ -46,6 +59,10 @@ export default function CreativeTemplates() {
 
       setPresets((prev) =>
         nextPage === 1 ? nextPresets : [...prev, ...nextPresets],
+      );
+
+      setTotalCount(
+        typeof pagination?.total === "number" ? pagination.total : null,
       );
 
       const nextHasNext = Boolean(pagination?.hasNextPage);
@@ -76,7 +93,7 @@ export default function CreativeTemplates() {
     hasNextPageRef.current = true;
     pageRef.current = 1;
     fetchPresets(1);
-  }, [token, presetType]);
+  }, [token, presetType, filters]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -165,9 +182,30 @@ export default function CreativeTemplates() {
         Select a creative style for your image and video ads, and we'll adapt it
         using your product.
       </div>
+
+      <div className="mb-5">
+        <TemplateFilterBar
+          filters={filters}
+          onChange={setFilters}
+          resultCount={totalCount ?? presets.length}
+        />
+      </div>
+
       {error ? <div className="text-sm text-neutral-light">{error}</div> : null}
 
-      {!isLoading && !error && presets.length === 0 ? (
+      {!isLoading &&
+      !error &&
+      presets.length === 0 &&
+      hasActiveFilters(filters) ? (
+        <div className="text-sm text-neutral-light">
+          No templates match your filters.
+        </div>
+      ) : null}
+
+      {!isLoading &&
+      !error &&
+      presets.length === 0 &&
+      !hasActiveFilters(filters) ? (
         <div className="text-sm text-neutral-light">
           No {presetType} presets available.
         </div>

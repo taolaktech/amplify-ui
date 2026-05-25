@@ -13,7 +13,7 @@ export type GenerationKind =
   | "image_copy_generation"
   | "google_ad_generation"
   | "image_ad_generation"
-  | "video_generation_12s";
+  | "video_generation";
 
 export type Asset = {
   _id: string;
@@ -143,6 +143,7 @@ export type GenerateVideoDto = {
   includeMusic: boolean;
   includeVoiceOver: boolean;
   customPrompt?: string;
+  duration: number;
 };
 
 export type GenerateVideoResponse = {
@@ -160,6 +161,7 @@ export type GenerateCopyDto = {
   productImages: string[];
   productId: string;
   mediaPresetId: string;
+  duration?: number;
 };
 
 export type GenerateCopyResponse = {
@@ -257,16 +259,6 @@ export async function regenerateImageAsset(data: {
   token: string;
   dto: RegenerateImageDto;
 }) {
-  // const mockAssetId = process.env.NEXT_PUBLIC_MOCK_VIDEO_ASSET;
-  // if (process.env.NODE_ENV === "development" && mockAssetId) {
-  //   return {
-  //     status: "success",
-  //     message: "Mocked video generation response",
-  //     data: {
-  //       assetId: mockAssetId,
-  //     },
-  //   } satisfies RegenerateImageResponse;
-  // }
   const response = await instance.post<RegenerateImageResponse>(
     "/assets/regenerate-image",
     data.dto,

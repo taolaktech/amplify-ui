@@ -239,6 +239,8 @@ export default function CreativeReadyPage() {
   const [regenCustomPrompt, setRegenCustomPrompt] = useState("");
   const [regenIncludeMusic, setRegenIncludeMusic] = useState(true);
   const [regenIncludeVoiceOver, setRegenIncludeVoiceOver] = useState(true);
+  const [regenDuration, setRegenDuration] = useState(5);
+  const [adStyleDuration, setAdStyleDuration] = useState(5);
   const [isRemoveAssetModalOpen, setIsRemoveAssetModalOpen] = useState(false);
   const [isRemovingAsset, setIsRemovingAsset] = useState(false);
 
@@ -249,7 +251,10 @@ export default function CreativeReadyPage() {
     if (typeof adStyle.includeVoiceOver === "boolean") {
       setIncludeVoiceOver(adStyle.includeVoiceOver);
     }
-  }, [adStyle.includeMusic, adStyle.includeVoiceOver]);
+    if (typeof adStyle.videoDuration === "number") {
+      setAdStyleDuration(adStyle.videoDuration);
+    }
+  }, [adStyle.includeMusic, adStyle.includeVoiceOver, adStyle.videoDuration]);
 
   useModal(isBackModalOpen || isZoomOpen);
 
@@ -1109,6 +1114,7 @@ export default function CreativeReadyPage() {
     customPrompt?: string;
     includeMusic?: boolean;
     includeVoiceOver?: boolean;
+    duration?: number;
   }) => {
     if (!activeCreative) return;
 
@@ -1127,6 +1133,10 @@ export default function CreativeReadyPage() {
       typeof overrides?.includeVoiceOver === "boolean"
         ? overrides.includeVoiceOver
         : includeVoiceOver;
+    const nextDuration =
+      typeof overrides?.duration === "number"
+        ? overrides.duration
+        : adStyleDuration;
 
     if (activeCreative.type === "video") {
       if (!token) {
@@ -1143,7 +1153,7 @@ export default function CreativeReadyPage() {
         const preflight = await preflightMultiGeneration({
           token,
           dto: {
-            items: [{ kind: "video_generation_12s", count: 1 }],
+            items: [{ kind: "video_generation", count: 1 }],
           },
         });
 
@@ -1256,9 +1266,10 @@ export default function CreativeReadyPage() {
               productDescription: safeProductDescription,
               productImages,
               videoPresetId,
-              includeMusic,
-              includeVoiceOver,
+              includeMusic: nextIncludeMusic,
+              includeVoiceOver: nextIncludeVoiceOver,
               script,
+              duration: nextDuration,
               customPrompt: customPrompt.trim() || undefined,
             },
           });
@@ -1729,6 +1740,7 @@ export default function CreativeReadyPage() {
     setRegenCustomPrompt(activeCustomPrompt);
     setRegenIncludeMusic(includeMusic);
     setRegenIncludeVoiceOver(includeVoiceOver);
+    setRegenDuration(adStyleDuration);
     setIsRegenerateAnotherOpen(true);
   };
 
@@ -2222,7 +2234,7 @@ export default function CreativeReadyPage() {
                           Creative title
                         </label>
                         <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none opacity-60 cursor-not-allowed"
                           value={activeCreative?.title || ""}
                           placeholder="Creative title"
                           disabled
@@ -2230,13 +2242,8 @@ export default function CreativeReadyPage() {
                       </div>
 
                       <div className="md:col-span-2 flex gap-12">
-                        <label className="flex items-center gap-3 cursor-pointer">
+                        <label className="flex items-center gap-3 opacity-60 cursor-not-allowed">
                           <div
-                            onClick={() => {
-                              const next = !includeMusic;
-                              setIncludeMusic(next);
-                              storeAdStyle({ includeMusic: next });
-                            }}
                             className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
                               includeMusic ? "bg-purple-600" : "bg-[#D1D5DB]"
                             }`}
@@ -2252,13 +2259,8 @@ export default function CreativeReadyPage() {
                           </span>
                         </label>
 
-                        <label className="flex items-center gap-3 cursor-pointer">
+                        <label className="flex items-center gap-3 opacity-60 cursor-not-allowed">
                           <div
-                            onClick={() => {
-                              const next = !includeVoiceOver;
-                              setIncludeVoiceOver(next);
-                              storeAdStyle({ includeVoiceOver: next });
-                            }}
                             className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
                               includeVoiceOver
                                 ? "bg-purple-600"
@@ -2281,10 +2283,32 @@ export default function CreativeReadyPage() {
 
                       <div className="md:col-span-2 flex flex-col gap-2">
                         <label className="text-xs text-neutral-light">
+                          Duration (seconds)
+                        </label>
+                        <div className="flex items-center gap-3 opacity-60">
+                          <div className="flex-1 flex flex-col">
+                            <input
+                              type="range"
+                              min={1}
+                              max={15}
+                              step={1}
+                              value={adStyleDuration}
+                              disabled
+                              className="w-full h-2 appearance-none rounded-full bg-[#D1D5DB] accent-[#1b1b1b] cursor-not-allowed [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1b1b1b] [&::-webkit-slider-thumb]:border-0"
+                            />
+                          </div>
+                          <div className="w-10 h-9 flex items-center justify-center rounded-lg border border-[#E0E0E0] bg-white text-sm font-medium text-heading shrink-0">
+                            {adStyleDuration}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 flex flex-col gap-2">
+                        <label className="text-xs text-neutral-light">
                           Video Script
                         </label>
                         <textarea
-                          className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          className="min-h-[200px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.videoScript || ""}
                           placeholder="Write your video script"
                           disabled
@@ -2295,7 +2319,7 @@ export default function CreativeReadyPage() {
                           Caption
                         </label>
                         <textarea
-                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.caption || ""}
                           placeholder="Write your caption"
                           disabled
@@ -2313,7 +2337,7 @@ export default function CreativeReadyPage() {
                             </span>
                           </div>
                           <textarea
-                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                             value={activeCustomPrompt}
                             placeholder="Add custom instructions for regeneration (e.g., 'Make it more vibrant', 'Add sunset lighting')..."
                             disabled
@@ -2328,7 +2352,7 @@ export default function CreativeReadyPage() {
                           Creative title
                         </label>
                         <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none opacity-60 cursor-not-allowed"
                           value={activeCreative?.title || ""}
                           placeholder="Creative title"
                           disabled
@@ -2340,7 +2364,7 @@ export default function CreativeReadyPage() {
                           Headline
                         </label>
                         <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.headline || ""}
                           placeholder="Enter headline"
                           disabled
@@ -2352,7 +2376,7 @@ export default function CreativeReadyPage() {
                           Call to Action
                         </label>
                         <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.callToAction || ""}
                           placeholder="Shop now"
                           disabled
@@ -2364,7 +2388,7 @@ export default function CreativeReadyPage() {
                           Website URL
                         </label>
                         <input
-                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none"
+                          className="h-[48px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full px-4 block font-medium focus:outline-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.websiteUrl || ""}
                           placeholder="https://yourstore.com"
                           disabled
@@ -2376,7 +2400,7 @@ export default function CreativeReadyPage() {
                           Body Copy
                         </label>
                         <textarea
-                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.bodyCopy || ""}
                           placeholder="Enter body copy"
                           disabled
@@ -2388,7 +2412,7 @@ export default function CreativeReadyPage() {
                           Caption
                         </label>
                         <textarea
-                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                          className="min-h-[110px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                           value={activeAdCopy?.caption || ""}
                           placeholder="Write your caption"
                           disabled
@@ -2406,7 +2430,7 @@ export default function CreativeReadyPage() {
                             </span>
                           </div>
                           <textarea
-                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none"
+                            className="min-h-[80px] text-sm rounded-[20px] bg-[rgba(232,232,232,0.35)] w-full p-4 block font-medium focus:outline-none resize-none opacity-60 cursor-not-allowed"
                             value={activeCustomPrompt}
                             placeholder="Add custom instructions for regeneration (e.g., 'Use brighter colors', 'Focus on product details')..."
                             disabled
@@ -2633,6 +2657,30 @@ export default function CreativeReadyPage() {
 
                   <div className="md:col-span-2 flex flex-col gap-2">
                     <label className="text-xs text-neutral-light">
+                      Duration (seconds)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 flex flex-col">
+                        <input
+                          type="range"
+                          min={1}
+                          max={15}
+                          step={1}
+                          value={regenDuration}
+                          onChange={(e) =>
+                            setRegenDuration(Number(e.target.value))
+                          }
+                          className="w-full h-2 appearance-none rounded-full bg-[#D1D5DB] accent-[#1b1b1b] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1b1b1b] [&::-webkit-slider-thumb]:border-0"
+                        />
+                      </div>
+                      <div className="w-10 h-9 flex items-center justify-center rounded-lg border border-[#E0E0E0] bg-white text-sm font-medium text-heading shrink-0">
+                        {regenDuration}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-xs text-neutral-light">
                       Video Script
                     </label>
                     <textarea
@@ -2818,6 +2866,7 @@ export default function CreativeReadyPage() {
                       customPrompt: regenCustomPrompt,
                       includeMusic: regenIncludeMusic,
                       includeVoiceOver: regenIncludeVoiceOver,
+                      duration: regenDuration,
                     });
                     setIsRegenerateAnotherOpen(false);
                   }}

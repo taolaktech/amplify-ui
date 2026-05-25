@@ -61,6 +61,7 @@ type CreateCampaignState = {
     videoScript?: string;
     includeMusic?: boolean;
     includeVoiceOver?: boolean;
+    videoDuration?: number;
     videoPreset: {
       id: string;
       title: string;
@@ -150,6 +151,7 @@ type CreateCampaignActions = {
     videoScript?: string;
     includeMusic?: boolean;
     includeVoiceOver?: boolean;
+    videoDuration?: number;
     videoPreset?: {
       id: string;
       title: string;
@@ -190,7 +192,6 @@ const initialState: CreateCampaignState = {
     Google: true,
     complete: true,
   },
-
   fundCampaign: {
     amount: 50,
     cardDetails: null,
@@ -226,6 +227,7 @@ const initialState: CreateCampaignState = {
     videoScript: "",
     includeMusic: true,
     includeVoiceOver: true,
+    videoDuration: 5,
     videoPreset: null,
     generationId: null,
     mode: "standard",
@@ -421,15 +423,6 @@ export const useCreateCampaignStore = create<CreateCampaignStore>()(
           console.error("Error rehydrating campaign store", error);
           return;
         }
-
-        // if (state) {
-        //   // Mutate the state object directly
-        //   state.adsShow.complete = false;
-        //   state.productSelection.complete = false;
-        //   state.fundCampaign.complete = false;
-        //   state.campaignSnapshots.complete = false;
-        //   state.supportedAdPlatforms.complete = false;
-        // }
       },
     },
   ),
